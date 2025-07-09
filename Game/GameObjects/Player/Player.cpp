@@ -26,6 +26,7 @@ Player::Player(GameplayScene* pScene, Camera* pCamera)
 	: m_pScene(pScene)
 	, m_pCamera(pCamera)
 	, m_userResources(nullptr)
+	, m_currentState{}
 {
 }
 
@@ -79,6 +80,9 @@ void Player::Initialize()
 	m_running = std::make_unique<Running>(this);
 	// 「走る」状態の初期化
 	m_running->Initialize();
+
+	// 立つ状態にする
+	m_currentState = m_standing.get();
 }
 
 
@@ -183,6 +187,8 @@ void Player::Update(float elapsedTime)
 
 	// コライダーの更新
 	m_collider.SetPosition(m_position);
+
+	m_currentState->Update(elapsedTime);
 }
 
 
@@ -244,6 +250,8 @@ void Player::Render()
 	debugFont->Render(L"Position", m_position);
 	debugFont->Render(L"Quotanion", m_rotate);
 	debugFont->Render(L"hitPos", m_hitPos);
+
+	m_currentState->Render();
 }
 
 
@@ -253,6 +261,7 @@ void Player::Render()
 /// </summary>
 void Player::Finalize()
 {
+	m_currentState->Finalize();
 }
 
 

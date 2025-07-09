@@ -81,28 +81,29 @@ public:
 	void Finalize() override;
 
 	// 座標
-	void SetPosition(DirectX::SimpleMath::Vector3 position) override;  // 設定
-	DirectX::SimpleMath::Vector3 GetPosition() const override;		   // 取得
+	void SetPosition(DirectX::SimpleMath::Vector3 position) override { m_position = position; }   // 設定
+	DirectX::SimpleMath::Vector3 GetPosition() const override { return m_position; }		      // 取得
 
 	// 速度
-	void SetVelocity(DirectX::SimpleMath::Vector3 velocity) override;  // 設定
-	DirectX::SimpleMath::Vector3 GetVelocity() const override;		   // 取得
+	void SetVelocity(DirectX::SimpleMath::Vector3 velocity) override { m_velocity = velocity; }   // 設定
+	DirectX::SimpleMath::Vector3 GetVelocity() const override { return m_velocity; };		      // 取得
 
 	// 回転
-	void SetRotation(DirectX::SimpleMath::Quaternion rotation) override;  // 設定
-	DirectX::SimpleMath::Quaternion GetRotation() const override;		   // 取得
+	void SetRotation(DirectX::SimpleMath::Quaternion rotation) override { m_rotate = rotation; }  // 設定
+	DirectX::SimpleMath::Quaternion GetRotation() const override { return m_rotate; }		      // 取得
 
 	// 速度
-	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override;  // 設定
-	DirectX::SimpleMath::Vector3 GetGravity() const override;		  // 取得
+	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
+	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
 
+	// 重なりの補填
 	void CorrectOverlap(Field& field) override;
 
 	// 新しい状態に遷移する
 	void ChangeState(IState* newState) { m_currentState = newState; }
 
 public:
-	SphereCollider& GetCollider() override;
+	SphereCollider& GetCollider() override { return m_collider; }
 
 private:
 	DirectX::SimpleMath::Ray CreatePickingRay(
