@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>7c29c002-4668-4fe0-95c4-807b3f53368b</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>5a78311f-af32-444a-b583-0bb7a1dc7277</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{1a5516e2-2cae-491c-941b-57740391639b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Commons">
+      <UniqueIdentifier>{e3c563c3-f00c-4772-bbe0-daefb331c2f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObjects">
+      <UniqueIdentifier>{1261f787-e945-4151-8755-6d564ccf1392}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Scenes">
+      <UniqueIdentifier>{b58fe231-7076-4598-9317-abc51fe6ec3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObjects\Camera">
+      <UniqueIdentifier>{43495a2c-39c7-4ac4-9e2a-c24aa29fe44f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObjects\Player">
+      <UniqueIdentifier>{381e9d0d-a2de-48ef-b780-5dcaf5e41fec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObjects\Field">
+      <UniqueIdentifier>{20ba789a-21e6-4eab-8889-2c7adb52531f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Commons\Interface">
+      <UniqueIdentifier>{69b22398-ffb5-4013-b2b5-5c301d9b4bbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObjects\Player\State">
+      <UniqueIdentifier>{59df6d8e-0e1d-425d-be2c-70627c62f587}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="StepTimer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceResources.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Game.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\Collision.h">
+      <Filter>Game\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\DebugFont.h">
+      <Filter>Game\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\SceneManager.h">
+      <Filter>Game\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\Sprite.h">
+      <Filter>Game\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\UserResources.h">
+      <Filter>Game\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Camera\Camera.h">
+      <Filter>Game\GameObjects\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Field\Field.h">
+      <Filter>Game\GameObjects\Field</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\Player.h">
+      <Filter>Game\GameObjects\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scenes\TitleScene.h">
+      <Filter>Game\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scenes\GameplayScene.h">
+      <Filter>Game\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugDraw.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\Standing.h">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\Interface\IState.h">
+      <Filter>Game\Commons\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\Interface\IEntity.h">
+      <Filter>Game\Commons\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\Factory.h">
+      <Filter>Game\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\Running.h">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\Resources.h">
+      <Filter>Game\Commons</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="DeviceResources.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Game.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Commons\Collision.cpp">
+      <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Commons\DebugFont.cpp">
+      <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Commons\SceneManager.cpp">
+      <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Commons\Sprite.cpp">
+      <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Commons\UserResources.cpp">
+      <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Camera\Camera.cpp">
+      <Filter>Game\GameObjects\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Field\Field.cpp">
+      <Filter>Game\GameObjects\Field</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\Player.cpp">
+      <Filter>Game\GameObjects\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Scenes\TitleScene.cpp">
+      <Filter>Game\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Scenes\GameplayScene.cpp">
+      <Filter>Game\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugDraw.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\Standing.cpp">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Commons\Factory.cpp">
+      <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\Running.cpp">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Commons\Resources.cpp">
+      <Filter>Game\Commons</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="directx.ico">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="settings.manifest">
+      <Filter>Assets</Filter>
+    </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
