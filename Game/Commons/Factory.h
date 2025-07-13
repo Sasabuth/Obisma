@@ -10,6 +10,7 @@
 // ヘッダファイルの読み込み
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 
 
 // クラスの定義
@@ -26,16 +27,21 @@ private:
 
 // 関数
 public:
-	// サッカーボールを生成する
+	// プレイヤーを生成する
 	static std::unique_ptr<Player> CreatePlayer(
 		GameplayScene* pScene,
-		Camera* pCamera,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
-	// サッカーボールを生成する
+	// フィールド生成する
 	static std::unique_ptr<Field> CreateField(
 		GameplayScene* pScene
+	);
+
+	// ボールを生成する
+	static std::unique_ptr<Ball> CreateBall(
+		GameplayScene* pScene, 
+		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 };
 

@@ -22,6 +22,7 @@ using namespace DirectX;
 /// コンストラクタ
 /// </summary>
 GameplayScene::GameplayScene()
+	: m_userResources(nullptr)
 {
 }
 
@@ -42,20 +43,23 @@ void GameplayScene::Initialize()
 {
 	Resources::GetInstance()->LoadResource();
 	// ユーザーリソースの取得
-	m_pUserResources = UserResources::GetUserResource();
+	m_userResources = UserResources::GetUserResource();
 
 	// デバックフォントの初期化(シーンのみ)
-	auto* debugFont = m_pUserResources->GetDebugFont();
+	auto* debugFont = m_userResources->GetDebugFont();
 	debugFont->Initialize();
 
 	// フィールドの初期化
 	m_field = Factory::CreateField(this);
 
 	// カメラの初期化
-	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
+	m_camera = std::make_unique<Camera>(m_userResources->GetDeviceResources()->GetOutputSize().bottom, m_userResources->GetDeviceResources()->GetOutputSize().right);
 
 	// プレイヤーの初期化
-	m_player = Factory::CreatePlayer(this, m_camera.get(), SimpleMath::Vector3{ 1.0f,1.0f,1.0f });
+	m_player = Factory::CreatePlayer(this, SimpleMath::Vector3{ 2.0f,3.0f,2.0f });
+
+	// プレイヤーの初期化
+	m_ball = Factory::CreateBall(this, SimpleMath::Vector3{ 1.0f,2.0f,4.0f });
 }
 
 
@@ -67,16 +71,20 @@ void GameplayScene::Initialize()
 void GameplayScene::Update(float elapsedTime)
 {
 	// キーボードの取得
-	auto keyboard = m_pUserResources->GetKeyboardStateTracker();
-
-	m_field->Update(elapsedTime);
-	m_player->Update(elapsedTime);
+	auto keyboard = m_userResources->GetKeyboardStateTracker();
 
 	auto player = dynamic_cast<Player*>(m_player.get());
 	m_camera->Update(player->GetPosition(), m_field->GetCollider().GetPosition(), player->GetRotation());
 	m_camera->DebugMode();
 
+	m_field->Update(elapsedTime);
+	m_ball->Update(elapsedTime);
+	m_player->Update(elapsedTime);
+
+
+
 	IsHitEntityToField(m_player.get(), m_field.get());
+	IsHitEntityToField(m_ball.get(), m_field.get());
 
 
 	if (keyboard->IsKeyPressed(DirectX::Keyboard::Keys::Space))
@@ -95,7 +103,8 @@ void GameplayScene::Render()
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
 	debugFont->Render(L"GameplayScene");
 
-	m_field->Render(m_camera.get());
+	m_field->Render();
+	m_ball->Render();
 	m_player->Render();
 }
 
@@ -107,6 +116,7 @@ void GameplayScene::Render()
 void GameplayScene::Finalize()
 {
 	m_field->Finalize();
+	m_ball->Finalize();
 	m_player->Finalize();
 }
 

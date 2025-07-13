@@ -15,6 +15,7 @@
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Camera/Camera.h"
 #include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Ball/Ball.h"
 
 
 // クラスの定義
@@ -22,7 +23,7 @@ class GameplayScene : public Scene
 {
 // 変数
 private:
-	UserResources* m_pUserResources;
+	UserResources* m_userResources;
 
 	std::unique_ptr<Field> m_field;
 
@@ -31,6 +32,9 @@ private:
 
 	//  プレイヤー
 	std::unique_ptr<Player> m_player;
+	
+	//  ボール
+	std::unique_ptr<Ball> m_ball;
 
 
 // 関数
@@ -65,6 +69,7 @@ public:
 
 public:
 	Field& GetField() const { return *m_field; }
+	Ball& GetBall() const { return *m_ball; }
 
 private:
 	void IsHitEntityToField(IEntity* pIEntity, Field* pField);

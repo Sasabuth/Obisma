@@ -14,14 +14,14 @@
 // 名前の省略
 using namespace DirectX;
 
-std::unique_ptr<Player> Factory::CreatePlayer(GameplayScene* pScene, Camera* pCamera, const DirectX::SimpleMath::Vector3& initialPosition)
+std::unique_ptr<Player> Factory::CreatePlayer(GameplayScene* pScene, const DirectX::SimpleMath::Vector3& initialPosition)
 {
 	// プレイヤーを宣言
 	std::unique_ptr<Player> player;
 	// プレイヤーを生成
-	player = std::make_unique<Player>(pScene, pCamera);
+	player = std::make_unique<Player>(pScene);
 	// プレイヤーを初期化
-	player->Initialize();
+	player->Initialize(initialPosition);
 	// プレイヤーを返す
 	return std::move(player);
 }
@@ -36,4 +36,16 @@ std::unique_ptr<Field> Factory::CreateField(GameplayScene* pScene)
 	field->Initialize();
 	// フィールドを返す
 	return std::move(field);
+}
+
+std::unique_ptr<Ball> Factory::CreateBall(GameplayScene* pScene, const DirectX::SimpleMath::Vector3& initialPosition)
+{
+	// ボールの宣言
+	std::unique_ptr<Ball> ball;
+	// ボールの生成
+	ball = std::make_unique<Ball>(pScene);
+	// ボールの初期化
+	ball->Initialize(initialPosition);
+	// ボールを返す
+	return std::move(ball);
 }

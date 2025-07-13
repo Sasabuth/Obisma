@@ -31,5 +31,26 @@ void Resources::LoadResource()
 	// プレーヤーモデルローダーフラグ
 	DirectX::ModelLoaderFlags flags = DirectX::ModelLoader_Clockwise | DirectX::ModelLoader_IncludeBones;
 	// SDKMESH形式のプレーヤーモデルをロードする
-	m_playerModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Cow.sdkmesh", *effectFactory, flags);
+	m_playerModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Player.sdkmesh", *effectFactory, flags);
+	m_playerModel->UpdateEffects(
+		[&](IEffect* pEffect)
+		{
+			// BasicEffectにキャストする
+			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
+
+			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 1));
+		}
+	);
+
+	// ボールのモデルをロードする
+	m_ballModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Ball.sdkmesh", *effectFactory);
+	m_ballModel->UpdateEffects(
+		[&](IEffect* pEffect)
+		{
+			// BasicEffectにキャストする
+			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
+
+			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 1));
+		}
+	);
 }

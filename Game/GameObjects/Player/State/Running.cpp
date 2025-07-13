@@ -12,6 +12,7 @@
 #include "Game/GameObjects//Camera/Camera.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "DebugDraw.h"
+#include "Game/Commons/Resources.h"
 
 
 // 名前の省略
@@ -24,6 +25,7 @@ using namespace DirectX;
 Running::Running(Player* player)
 	: m_player(player)
 	, m_userResources(nullptr)
+	, m_model{}
 {
 }
 
@@ -47,8 +49,7 @@ void Running::Initialize()
 	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
-	auto effectFactory = m_userResources->GetEffectFactory();
-	effectFactory->SetDirectory(L"Resources/Models/");
+	m_model = Resources::GetInstance()->GetPlayerModel();
 }
 
 
@@ -59,32 +60,59 @@ void Running::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void Running::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
-	//m_model->UpdateEffects(
-	//	// 引数にラムダ式として処理内容を指定する
-	//	[&](IEffect* pEffect)
-	//	{
-	//		// BasicEffectにキャストする
-	//		DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
-
-	//		//// ライトをオフにする
-	//		pBasicEffect->SetLightEnabled(0, false);
-	//		pBasicEffect->SetLightEnabled(1, false);
-	//		pBasicEffect->SetLightEnabled(2, false);
-
-	//		// 自己発光(引数はカラー)
-	//		pBasicEffect->SetEmissiveColor(DirectX::SimpleMath::Vector3(1, 1, 1));
-	//	}
-	//);
-
 	auto kb = Keyboard::Get().GetState();
-	auto kbTracker = m_userResources->GetKeyboardStateTracker();
 	auto mouse = Mouse::Get().GetState();
-	auto mouseTk = m_userResources->GetMouseStateTracker();
+	auto mouseTK = m_userResources->GetMouseStateTracker();
 
 	// プロジェクション行列
 	auto proj = m_userResources->GetProject();
+	auto view = m_userResources->GetView();
+
+	auto const r = m_userResources->GetDeviceResources()->GetOutputSize();
+	m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
+
+	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
+	{
+		m_player->RotateToMouse();
+	}
+
+	m_player->SetVelocity(m_player->GetGravity());
+
+	if (kb.W)
+	{
+		m_player->SetVelocity(m_player->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_player->GetRotation()));
+		m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
+	}
+	else if (kb.S)
+	{
+		m_player->SetVelocity(m_player->GetVelocity() + SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_player->GetRotation()));
+		m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
+	}
+	else
+	{
+		m_player->ChangeState(m_player->GetStanding());
+	}
+
+	if (IsHit(m_player->GetCollider(), m_player->GetScene()->GetBall().GetCollider()) && m_player->GetScene()->GetBall().GetCurrentState() != m_player->GetScene()->GetBall().GetMoving())
+	{
+		Ball& ball = m_player->GetScene()->GetBall();
+
+		ball.ChangeState(ball.GetCatching());
+
+
+		ball.SetPosition(m_player->GetPosition() + SimpleMath::Vector3(0.3f,0.3f, 0.3f));
+
+		if (mouseTK->leftButton)
+		{
+			Ball& ball = m_player->GetScene()->GetBall();
+
+			ball.ChangeState(ball.GetMoving());
+
+			ball.SetVelocity(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation()));
+		}
+	}
+
+	m_player->GetCollider().SetPosition(m_player->GetPosition());
 }
 
 
@@ -94,11 +122,29 @@ void Running::Update(float elapsedTime)
 /// </summary>
 void Running::Render()
 {
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResources->GetCommonStates();
-
 	// デバックフォントの描画
 	auto* debugFont = m_userResources->GetDebugFont();
+
+	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_userResources->GetCommonStates();
+	auto view = m_userResources->GetView();
+	auto proj = m_userResources->GetProject();
+
+	// ワールド座標
+	SimpleMath::Matrix world;
+
+	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
+	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(0.3f, 0.3f, 0.3f));
+
+	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation()); // ※回転順に合わせて調整
+
+	world = scale * rotate * pos;
+
+	// モデルの描画
+	m_model->Draw(context, *states, world, *view, *proj);
+
+	// デバック
+	debugFont->Render(L"Running");
 
 }
 

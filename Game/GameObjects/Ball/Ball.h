@@ -1,5 +1,5 @@
 /// <summary>
-/// プレイヤーに関するヘッダファイル
+/// Ballに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
 /// <date>2025/05/21</date>
@@ -12,9 +12,9 @@
 #include "Game/Commons/Interface/IState.h"
 #include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
-#include "Game/GameObjects/Player/State/Standing.h"
-#include "Game/GameObjects/Player/State/Running.h"
-
+#include "Game/GameObjects/Ball/State/Stopping.h"
+#include "Game/GameObjects/Ball/State/Moving.h"
+#include "Game/GameObjects/Ball/State/Catching.h"
 
 // クラスの定義
 class GameplayScene;
@@ -22,10 +22,10 @@ class Camera;
 
 
 // クラスの定義
-class Player : public IEntity
+class Ball : public IEntity
 {
-private:
-	static constexpr float ROTATE_SPEED = 0.5f;
+public:
+	static constexpr float BALL_SIZE = 0.2f;
 
 // 変数
 private:
@@ -35,10 +35,12 @@ private:
 
 	IState* m_currentState;
 
-	// 「立つ」状態
-	std::unique_ptr<Standing> m_standing;
-	// 「走る」状態
-	std::unique_ptr<Running> m_running;
+	// 「止まる」状態
+	std::unique_ptr<Stopping> m_stopping;
+	// 「動く」状態
+	std::unique_ptr<Moving> m_moving;
+	// 「とっている」状態
+	std::unique_ptr<Catching> m_catching;
 
 	DirectX::SimpleMath::Vector3 m_position;
 	DirectX::SimpleMath::Vector3 m_velocity;
@@ -54,16 +56,13 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
 
-	DirectX::SimpleMath::Ray m_mouseRay;
-	DirectX::SimpleMath::Vector3 m_hitPos;
-
 // 関数
 public:
 	// コンストラクタ
-	Player(GameplayScene* pScene);
+	Ball(GameplayScene* pScene);
 
 	// デストラクタ
-	~Player() override;
+	~Ball() override;
 
 	// 初期化
 	void Initialize(DirectX::SimpleMath::Vector3 position) override;
@@ -83,24 +82,6 @@ public:
 	// 新しい状態に遷移する
 	void ChangeState(IState* newState) { m_currentState = newState; }
 
-	DirectX::SimpleMath::Ray CreatePickingRay(
-		int mouseX, int mouseY,
-		int screenWidth, int screenHeight,
-		const DirectX::SimpleMath::Matrix& view,
-		const DirectX::SimpleMath::Matrix& proj
-	);
-
-	// レイと球体の交差
-	bool CalcRaySphere(
-		DirectX::SimpleMath::Vector3 rayPos,
-		DirectX::SimpleMath::Vector3 rayDir,
-		DirectX::SimpleMath::Vector3 spherePos,
-		float radius,
-		DirectX::SimpleMath::Vector3& hitPos
-	);
-
-	// マウスの方向に回転
-	void RotateToMouse();
 
 // 設定/取得
 public:
@@ -123,20 +104,17 @@ public:
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
 
-	// マウスのレイ
-	void SetMouseRay(DirectX::SimpleMath::Ray ray) { m_mouseRay = ray; }
-	DirectX::SimpleMath::Ray GetMouseRay() const { return m_mouseRay; }
-
-	// 当たった座標
-	DirectX::SimpleMath::Vector3& GetHitPos() { return m_hitPos; }
-
 	// シーン
 	GameplayScene* GetScene() const { return m_pScene; }
 
+	// シーン
+	IState* GetCurrentState() const { return m_currentState; }
+
 // ステートの取得
 public:
-	Standing* GetStanding() const { return m_standing.get(); }
-	Running* GetRunning() const { return m_running.get(); }
+	Stopping* GetStopping() const { return m_stopping.get(); }
+	Moving* GetMoving() const { return m_moving.get(); }
+	Catching* GetCatching() const { return m_catching.get(); }
 
 	
 };

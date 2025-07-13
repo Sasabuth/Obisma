@@ -12,7 +12,7 @@ public:
 	virtual ~IEntity() = default;
 
 	// ‰Šú‰»
-	virtual void Initialize() = 0;
+	virtual void Initialize(DirectX::SimpleMath::Vector3 position) = 0;
 
 	// XV
 	virtual void Update(float elapsedTime) = 0;

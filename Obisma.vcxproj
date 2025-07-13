@@ -191,6 +191,10 @@
     <ClInclude Include="Game\Commons\Sprite.h" />
     <ClInclude Include="Game\Commons\UserResources.h" />
     <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Game\GameObjects\Ball\Ball.h" />
+    <ClInclude Include="Game\GameObjects\Ball\State\Catching.h" />
+    <ClInclude Include="Game\GameObjects\Ball\State\Moving.h" />
+    <ClInclude Include="Game\GameObjects\Ball\State\Stopping.h" />
     <ClInclude Include="Game\GameObjects\Camera\Camera.h" />
     <ClInclude Include="Game\GameObjects\Field\Field.h" />
     <ClInclude Include="Game\GameObjects\Player\Player.h" />
@@ -212,6 +216,10 @@
     <ClCompile Include="Game\Commons\Sprite.cpp" />
     <ClCompile Include="Game\Commons\UserResources.cpp" />
     <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Game\GameObjects\Ball\Ball.cpp" />
+    <ClCompile Include="Game\GameObjects\Ball\State\Catching.cpp" />
+    <ClCompile Include="Game\GameObjects\Ball\State\Moving.cpp" />
+    <ClCompile Include="Game\GameObjects\Ball\State\Stopping.cpp" />
     <ClCompile Include="Game\GameObjects\Camera\Camera.cpp" />
     <ClCompile Include="Game\GameObjects\Field\Field.cpp" />
     <ClCompile Include="Game\GameObjects\Player\Player.cpp" />

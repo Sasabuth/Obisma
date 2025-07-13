@@ -28,9 +28,9 @@ private:
 // 変数
 private:
 	GameplayScene* m_pScene;  // シーン
-	UserResources* m_pUserResource;  // シーン
+	UserResources* m_userResource;  // シーン
 
-	std::unique_ptr<DirectX::Model> m_model;  // モデル
+	DirectX::Model* m_model;  // モデル
 
 	DirectX::SimpleMath::Vector3 m_position;  // 座標
 
@@ -52,7 +52,7 @@ public:
 	void Update(float elapsedTime);
 
 	// 描画
-	void Render(Camera* pCamera);
+	void Render();
 
 	// 終了処理
 	void Finalize();

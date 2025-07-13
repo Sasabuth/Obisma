@@ -14,33 +14,31 @@
 
 
 // クラスの定義
-class Player;
+class Ball;
 
 
 
 // クラスの定義
-class Running : public IState
+class Catching : public IState
 {
 private:
-	static constexpr float ROTATE_SPEED = 0.5f;
+
 
 // 変数
 private:
 	UserResources* m_userResources;
 
-	Player* m_player;
+	Ball* m_ball;
 
 	DirectX::Model* m_model;  // モデル
-
-	DirectX::ModelBone::TransformArray m_drawBones;  // アニメーションボーン配列
 
 // 関数
 public:
 	// コンストラクタ
-	Running(Player* player);
+	Catching(Ball* ball);
 
 	// デストラクタ
-	~Running() override;
+	~Catching() override;
 
 	// 初期化
 	void Initialize() override;

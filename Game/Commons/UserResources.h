@@ -36,6 +36,9 @@ private:
 	// 射影行列
 	DirectX::SimpleMath::Matrix* m_proj;
 
+	// ビュー行列
+	DirectX::SimpleMath::Matrix* m_view;
+
 	// 共通ステート
 	DirectX::CommonStates* m_states;
 
@@ -102,6 +105,16 @@ public:
 
 	// 射影行列を取得する関数
 	DirectX::SimpleMath::Matrix* GetProject() { return m_proj; }
+
+	// ------------------------------------------ //
+	// ビュー行列	
+	// ------------------------------------------ //
+
+	// ビュー行列を設定する関数
+	void SetView(DirectX::SimpleMath::Matrix* view) { m_view = view; }
+
+	// ビュー行列を取得する関数
+	DirectX::SimpleMath::Matrix* GetView() { return m_view; }
 
 	// ------------------------------------------ //
 	// 共通ステート	

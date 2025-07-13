@@ -35,6 +35,12 @@
     <Filter Include="Game\GameObjects\Player\State">
       <UniqueIdentifier>{59df6d8e-0e1d-425d-be2c-70627c62f587}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\GameObjects\Ball">
+      <UniqueIdentifier>{2aad9e5d-c864-4f8d-8d3c-1228485c1cbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObjects\Ball\State">
+      <UniqueIdentifier>{147b6792-99aa-4f41-aa7a-6d2c77072396}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -98,6 +104,18 @@
     <ClInclude Include="Game\Commons\Resources.h">
       <Filter>Game\Commons</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\Ball\Ball.h">
+      <Filter>Game\GameObjects\Ball</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Ball\State\Stopping.h">
+      <Filter>Game\GameObjects\Ball\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Ball\State\Moving.h">
+      <Filter>Game\GameObjects\Ball\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Ball\State\Catching.h">
+      <Filter>Game\GameObjects\Ball\State</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -152,6 +170,18 @@
     </ClCompile>
     <ClCompile Include="Game\Commons\Resources.cpp">
       <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Ball\Ball.cpp">
+      <Filter>Game\GameObjects\Ball</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Ball\State\Stopping.cpp">
+      <Filter>Game\GameObjects\Ball\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Ball\State\Moving.cpp">
+      <Filter>Game\GameObjects\Ball\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Ball\State\Catching.cpp">
+      <Filter>Game\GameObjects\Ball\State</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

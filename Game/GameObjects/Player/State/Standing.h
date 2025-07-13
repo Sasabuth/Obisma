@@ -22,13 +22,15 @@ class Player;
 class Standing : public IState
 {
 private:
-	static constexpr float ROTATE_SPEED = 0.5f;
+
 
 // •Ï”
 private:
 	UserResources* m_userResources;
 
 	Player* m_player;
+
+	DirectX::Model* m_model;  // ƒ‚ƒfƒ‹
 
 // ŠÖ”
 public:

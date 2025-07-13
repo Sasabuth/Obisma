@@ -12,6 +12,8 @@ public:
 	DirectX::Model* GetFieldModel() { return m_fieldModel.get(); }
 	// プレイヤーモデルの取得
 	DirectX::Model* GetPlayerModel() { return m_playerModel.get(); }
+	// ボールモデルの取得
+	DirectX::Model* GetBallModel() { return m_ballModel.get(); }
 
 public:
 	Resources(Resources&&) = default;
@@ -44,6 +46,8 @@ private:
 	std::unique_ptr<DirectX::Model> m_playerModel;
 	// フィールドモデル
 	std::unique_ptr<DirectX::Model> m_fieldModel;
+	// ボールモデル
+	std::unique_ptr<DirectX::Model> m_ballModel;
 
 };
 

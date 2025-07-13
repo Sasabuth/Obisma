@@ -54,6 +54,7 @@ void Camera::Update(DirectX::SimpleMath::Vector3 viewtarget, float rotateY)
 
 	// ビュー行列を更新
 	m_view = SimpleMath::Matrix::CreateLookAt(eye, viewtarget, up);
+	
 }
 
 void Camera::Update(DirectX::SimpleMath::Vector3 viewtarget, float rotateX, float rotateY)
@@ -104,6 +105,7 @@ void Camera::Update(DirectX::SimpleMath::Vector3 viewtarget, DirectX::SimpleMath
 
 	// ビュー行列を更新
 	m_view = SimpleMath::Matrix::CreateLookAt(eye, viewtarget, up);
+	UserResources::GetUserResource()->SetView(&m_view);
 }
 
 void Camera::DebugMode()
@@ -160,6 +162,7 @@ void Camera::DebugMode()
 	m_target = target;
 
 	m_view = SimpleMath::Matrix::CreateLookAt(eye, target, up);
+	UserResources::GetUserResource()->SetView(&m_view);
 }
 
 //--------------------------------------------------------------------------------------
