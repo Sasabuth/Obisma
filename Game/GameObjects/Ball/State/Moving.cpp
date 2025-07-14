@@ -45,11 +45,13 @@ Moving::~Moving()
 /// </summary>
 void Moving::Initialize()
 {
+	// ユーザーリソースの取得
 	m_userResources = UserResources::GetUserResource();
 
 	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
+	// モデルの取得
 	m_model = Resources::GetInstance()->GetBallModel();
 }
 
@@ -68,25 +70,17 @@ void Moving::Update(float elapsedTime)
 	auto proj = m_userResources->GetProject();
 	auto view = m_userResources->GetView();
 
-	m_ball->SetVelocity(m_ball->GetVelocity() + m_ball->GetGravity() / 2);
-
-	/*if (kb.W)
-	{
-		m_ball->SetVelocity(m_ball->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_ball->GetRotation()));
-		m_ball->SetPosition(m_ball->GetPosition() + m_ball->GetVelocity() * elapsedTime);
-	}
-	else if (kb.S)
-	{
-		m_ball->SetVelocity(m_ball->GetVelocity() + SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_ball->GetRotation()));
-		m_ball->SetPosition(m_ball->GetPosition() + m_ball->GetVelocity() * elapsedTime);
-	}
-	else
-	{
-		m_ball->ChangeState(m_ball->GetStopping());
-	}*/
+	// ボールの設定
+	m_ball->SetVelocity(m_ball->GetGravity() + m_ball->GetSpeed() * 2);
 
 	m_ball->SetPosition(m_ball->GetPosition() + m_ball->GetVelocity() * elapsedTime);
 	m_ball->GetCollider().SetPosition(m_ball->GetPosition());
+
+	// 速度の長さがなくなったらステート変更
+	if (m_ball->GetVelocity().Length() <= 0.1f)
+	{
+		m_ball->ChangeState(m_ball->GetStopping());
+	}
 }
 
 

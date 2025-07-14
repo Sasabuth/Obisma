@@ -116,6 +116,9 @@
     <ClInclude Include="Game\GameObjects\Ball\State\Catching.h">
       <Filter>Game\GameObjects\Ball\State</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Commons\Animation.h">
+      <Filter>Game\Commons</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -182,6 +185,9 @@
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Ball\State\Catching.cpp">
       <Filter>Game\GameObjects\Ball\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Commons\Animation.cpp">
+      <Filter>Game\Commons</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

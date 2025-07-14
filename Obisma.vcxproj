@@ -181,6 +181,7 @@
   <ItemGroup>
     <ClInclude Include="DebugDraw.h" />
     <ClInclude Include="DeviceResources.h" />
+    <ClInclude Include="Game\Commons\Animation.h" />
     <ClInclude Include="Game\Commons\Collision.h" />
     <ClInclude Include="Game\Commons\DebugFont.h" />
     <ClInclude Include="Game\Commons\Factory.h" />
@@ -208,6 +209,7 @@
   <ItemGroup>
     <ClCompile Include="DebugDraw.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="Game\Commons\Animation.cpp" />
     <ClCompile Include="Game\Commons\Collision.cpp" />
     <ClCompile Include="Game\Commons\DebugFont.cpp" />
     <ClCompile Include="Game\Commons\Factory.cpp" />

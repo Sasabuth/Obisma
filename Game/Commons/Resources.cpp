@@ -31,14 +31,14 @@ void Resources::LoadResource()
 	// プレーヤーモデルローダーフラグ
 	DirectX::ModelLoaderFlags flags = DirectX::ModelLoader_Clockwise | DirectX::ModelLoader_IncludeBones;
 	// SDKMESH形式のプレーヤーモデルをロードする
-	m_playerModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Player.sdkmesh", *effectFactory, flags);
+	m_playerModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Player2.sdkmesh", *effectFactory, flags);
 	m_playerModel->UpdateEffects(
 		[&](IEffect* pEffect)
 		{
 			// BasicEffectにキャストする
-			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
+			auto pBasicEffect = dynamic_cast<DirectX::SkinnedEffect*> (pEffect);
 
-			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 1));
+			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 0.5));
 		}
 	);
 

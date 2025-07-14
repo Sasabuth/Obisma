@@ -50,6 +50,20 @@ void Running::Initialize()
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_model = Resources::GetInstance()->GetPlayerModel();
+
+	// AnimationSDKMESH クラスのインスタンスを生成する
+	m_animation = std::make_unique<DX::AnimationSDKMESH>();
+	// サッカープレイヤー アイドリングアニメーションをロードする
+	m_animation->Load(L"resources/Animations/Player_Run.sdkmesh_anim");
+	// アニメーションとモデルをバインドする
+	m_animation->Bind(*m_model);
+	// ボーン用のトランスフォーム配列を生成する
+	m_drawBones = DirectX::ModelBone::MakeArray(m_model->bones.size());
+	ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
+	// アイドリングアニメーションの開始時間を設定する
+	m_animation->SetStartTime(0.0f);
+	// アイドリングアニメーションの終了時間を設定する
+	m_animation->SetEndTime(0.5f);
 }
 
 
@@ -68,6 +82,7 @@ void Running::Update(float elapsedTime)
 	auto proj = m_userResources->GetProject();
 	auto view = m_userResources->GetView();
 
+	// マウスのレイによる回転
 	auto const r = m_userResources->GetDeviceResources()->GetOutputSize();
 	m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
 
@@ -76,16 +91,18 @@ void Running::Update(float elapsedTime)
 		m_player->RotateToMouse();
 	}
 
+	// 速度の設定
 	m_player->SetVelocity(m_player->GetGravity());
 
+	// キーによる移動
 	if (kb.W)
 	{
-		m_player->SetVelocity(m_player->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_player->GetRotation()));
+		m_player->SetVelocity(m_player->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_player->GetRotation()) * PLAYER_SPEED);
 		m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
 	}
 	else if (kb.S)
 	{
-		m_player->SetVelocity(m_player->GetVelocity() + SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_player->GetRotation()));
+		m_player->SetVelocity(m_player->GetVelocity() + SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_player->GetRotation()) * PLAYER_SPEED);
 		m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
 	}
 	else
@@ -93,25 +110,35 @@ void Running::Update(float elapsedTime)
 		m_player->ChangeState(m_player->GetStanding());
 	}
 
+	// アニメーションの更新
+	AnimationUpdate(elapsedTime);
+
+	// ボールに当たった
 	if (IsHit(m_player->GetCollider(), m_player->GetScene()->GetBall().GetCollider()) && m_player->GetScene()->GetBall().GetCurrentState() != m_player->GetScene()->GetBall().GetMoving())
 	{
 		Ball& ball = m_player->GetScene()->GetBall();
 
 		ball.ChangeState(ball.GetCatching());
 
+		// ボーンに設定した境界球のワールド計算を行う
+		DirectX::SimpleMath::Matrix sphereMatrix = m_boneMatrix * m_worldMatrix;
+		// バウンディングスフィアの中心点を設定する
+		SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
+		dir.Normalize();
+		ball.SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 
-		ball.SetPosition(m_player->GetPosition() + SimpleMath::Vector3(0.3f,0.3f, 0.3f));
-
+		// 左キーで投げる
 		if (mouseTK->leftButton)
 		{
 			Ball& ball = m_player->GetScene()->GetBall();
 
 			ball.ChangeState(ball.GetMoving());
 
-			ball.SetVelocity(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation()));
+			ball.SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation()));
 		}
 	}
 
+	// プレイヤーの設定
 	m_player->GetCollider().SetPosition(m_player->GetPosition());
 }
 
@@ -134,18 +161,26 @@ void Running::Render()
 	SimpleMath::Matrix world;
 
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(0.3f, 0.3f, 0.3f));
+	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
 
 	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation()); // ※回転順に合わせて調整
 
-	world = scale * rotate * pos;
+	m_worldMatrix = scale * rotate * pos;
 
-	// モデルの描画
-	m_model->Draw(context, *states, world, *view, *proj);
+	// ボーン数を取得
+	size_t nbones = m_model->bones.size();
+	// アニメーションモデルを描画
+	m_model->DrawSkinned(
+		context,
+		*states, nbones,
+		m_drawBones.get(),
+		m_worldMatrix,
+		*view,
+		*proj
+	);
 
 	// デバック
 	debugFont->Render(L"Running");
-
 }
 
 
@@ -155,4 +190,34 @@ void Running::Render()
 /// </summary>
 void Running::Finalize()
 {
+}
+
+
+
+/// <summary>
+/// アニメーションの更新
+/// </summary>
+/// <param name="elapsedTime">経過時間</param>
+void Running::AnimationUpdate(float elapsedTime)
+{
+	// アニメーション時間がアニメーション終了時間より小さい場合はアニメーションを繰り返す
+	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
+	{
+		// アニメーションを更新する
+		m_animation->Update(elapsedTime);
+	}
+	else
+	{
+		// アニメーションの開始時間を設定する
+		m_animation->SetStartTime(0.0);
+	}
+
+	// アニメションにモデルを適用する
+	m_animation->Apply(*m_model, m_model->bones.size(), m_drawBones.get());
+	// ボーン数を取得する
+	size_t nbones = m_model->bones.size();
+	// ボーンマトリクスを設定する
+	m_boneMatrix = m_drawBones[15];
+	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
+	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
 }

@@ -11,6 +11,7 @@
 #include "Game/Commons/Interface/IState.h"
 #include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
+#include "Game/Commons/Animation.h"
 
 
 // クラスの定義
@@ -22,7 +23,7 @@ class Player;
 class Running : public IState
 {
 private:
-	static constexpr float ROTATE_SPEED = 0.5f;
+	static constexpr float PLAYER_SPEED = 2.0f;
 
 // 変数
 private:
@@ -33,6 +34,12 @@ private:
 	DirectX::Model* m_model;  // モデル
 
 	DirectX::ModelBone::TransformArray m_drawBones;  // アニメーションボーン配列
+
+	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
+
+	// ワールドマトリックス
+	DirectX::SimpleMath::Matrix m_worldMatrix;
+	DirectX::SimpleMath::Matrix m_boneMatrix;
 
 // 関数
 public:
@@ -53,5 +60,9 @@ public:
 
 	// 終了処理
 	void Finalize() override;
+
+private:
+	// アニメーションの更新
+	void AnimationUpdate(float elapsedTime); 
 };
 

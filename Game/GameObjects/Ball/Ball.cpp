@@ -24,7 +24,6 @@ using namespace DirectX;
 /// </summary>
 Ball::Ball(GameplayScene* pScene)
 	: m_pScene(pScene)
-	, m_userResources(nullptr)
 	, m_currentState{}
 {
 }

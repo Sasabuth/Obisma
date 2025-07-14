@@ -24,8 +24,9 @@ class Camera;
 // ƒNƒ‰ƒX‚Ì’è‹`
 class Player : public IEntity
 {
-private:
-	static constexpr float ROTATE_SPEED = 0.5f;
+public:
+	static constexpr float PLAYER_SIZE = 0.003f;
+
 
 // •Ï”
 private:

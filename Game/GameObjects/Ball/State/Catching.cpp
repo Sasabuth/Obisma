@@ -44,8 +44,10 @@ Catching::~Catching()
 /// </summary>
 void Catching::Initialize()
 {
+	// ユーザーリソースの取得
 	m_userResources = UserResources::GetUserResource();
 
+	// モデルの取得
 	m_model = Resources::GetInstance()->GetBallModel();
 }
 
@@ -62,22 +64,13 @@ void Catching::Update(float elapsedTime)
 	auto kbTracker = m_userResources->GetKeyboardStateTracker();
 	auto mouse = Mouse::Get().GetState();
 
-	// プロジェクション行列
+	// 各行列の取得
 	auto proj = m_userResources->GetProject();
 	auto view = m_userResources->GetView();
 
-	// レイの設定
-
 	// プレイヤーの設定
 	m_ball->SetVelocity(SimpleMath::Vector3::Zero);
-	/*m_ball->SetPosition(m_ball->GetPosition() + m_ball->GetVelocity() * elapsedTime);*/
 	m_ball->GetCollider().SetPosition(m_ball->GetPosition());
-
-	//// ステートの変更
-	//if (kbTracker->pressed.W || kbTracker->pressed.A || kbTracker->pressed.S || kbTracker->pressed.D)
-	//{
-	//	m_ball->ChangeState(m_ball->GetMoving());
-	//}
 }
 
 
@@ -111,6 +104,7 @@ void Catching::Render()
 	// デバック
 	/*m_ball->GetCollider().Draw(states, *view, *proj);*/
 	debugFont->Render(L"Catching");
+	debugFont->Render(L"Position", m_ball->GetPosition());
 
 }
 

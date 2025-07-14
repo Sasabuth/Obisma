@@ -25,12 +25,10 @@ class Camera;
 class Ball : public IEntity
 {
 public:
-	static constexpr float BALL_SIZE = 0.2f;
+	static constexpr float BALL_SIZE = 0.15f;
 
 // 変数
 private:
-	UserResources* m_userResources;
-
 	GameplayScene* m_pScene;
 
 	IState* m_currentState;
@@ -44,6 +42,7 @@ private:
 
 	DirectX::SimpleMath::Vector3 m_position;
 	DirectX::SimpleMath::Vector3 m_velocity;
+	DirectX::SimpleMath::Vector3 m_speed;
 
 	DirectX::SimpleMath::Quaternion m_rotate;
 	DirectX::SimpleMath::Vector3 m_gravity;
@@ -100,6 +99,10 @@ public:
 	// 速度
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
 	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
+
+	// 速度
+	void SetSpeed(DirectX::SimpleMath::Vector3 speed) { m_speed = speed; }       // 設定
+	DirectX::SimpleMath::Vector3 GetSpeed() const { return m_speed; }		          // 取得
 
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
