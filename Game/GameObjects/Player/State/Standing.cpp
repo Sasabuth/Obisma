@@ -106,8 +106,6 @@ void Standing::Update(float elapsedTime)
 		m_player->RotateToMouse();
 	}
 
-
-
 	// ステートの変更
 	if (kbTracker->pressed.W || kbTracker->pressed.A || kbTracker->pressed.S || kbTracker->pressed.D)
 	{
@@ -167,9 +165,9 @@ void Standing::Render()
 
 	m_worldMatrix = scale * rotate * pos;
 
-	// ① ボーン数を取得する
+	// ボーン数を取得
 	size_t nbones = m_model->bones.size();
-	// ④ アニメーションモデルを描画する
+	// アニメーションモデルを描画
 	m_model->DrawSkinned(
 		context,
 		*states, nbones,
@@ -179,9 +177,10 @@ void Standing::Render()
 		*proj
 	);
 
-	/*m_model->Draw(context, *states, world, *view, *proj);*/
+	
 
 	// デバック
+	/*m_model->Draw(context, *states, world, *view, *proj);*/
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);

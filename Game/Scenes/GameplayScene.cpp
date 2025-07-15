@@ -55,8 +55,12 @@ void GameplayScene::Initialize()
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_userResources->GetDeviceResources()->GetOutputSize().bottom, m_userResources->GetDeviceResources()->GetOutputSize().right);
 
+
 	// プレイヤーの初期化
 	m_player = Factory::CreatePlayer(this, SimpleMath::Vector3{ 2.0f,3.0f,2.0f });
+
+	m_cameraUp = std::make_unique<CameraUp>(m_player.get());
+	m_cameraUp->Initialize(SimpleMath::Vector3{ 3.0f,3.0f,3.0f });
 
 	// プレイヤーの初期化
 	m_ball = Factory::CreateBall(this, SimpleMath::Vector3{ 1.0f,2.0f,4.0f });
@@ -74,8 +78,9 @@ void GameplayScene::Update(float elapsedTime)
 	auto keyboard = m_userResources->GetKeyboardStateTracker();
 
 	auto player = dynamic_cast<Player*>(m_player.get());
-	m_camera->Update(player->GetPosition(), m_field->GetCollider().GetPosition(), player->GetRotation());
-	m_camera->DebugMode();
+	m_camera->Update(player, m_cameraUp->GetPosition(), m_field->GetCollider().GetPosition());
+	m_cameraUp->Update(elapsedTime);
+	/*m_camera->DebugMode();*/
 
 	m_field->Update(elapsedTime);
 	m_ball->Update(elapsedTime);
@@ -85,7 +90,7 @@ void GameplayScene::Update(float elapsedTime)
 
 	IsHitEntityToField(m_player.get(), m_field.get());
 	IsHitEntityToField(m_ball.get(), m_field.get());
-
+	IsHitEntityToField(m_cameraUp.get(), m_field.get());
 
 	if (keyboard->IsKeyPressed(DirectX::Keyboard::Keys::Space))
 	{
@@ -102,10 +107,12 @@ void GameplayScene::Render()
 {
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
 	debugFont->Render(L"GameplayScene");
+	debugFont->Render(L"A",SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY,m_player->GetRotation()));
 
 	m_field->Render();
 	m_ball->Render();
 	m_player->Render();
+	/*m_cameraUp->Render();*/
 }
 
 
@@ -118,6 +125,7 @@ void GameplayScene::Finalize()
 	m_field->Finalize();
 	m_ball->Finalize();
 	m_player->Finalize();
+	m_cameraUp->Finalize();
 }
 
 

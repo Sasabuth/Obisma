@@ -197,6 +197,7 @@
     <ClInclude Include="Game\GameObjects\Ball\State\Moving.h" />
     <ClInclude Include="Game\GameObjects\Ball\State\Stopping.h" />
     <ClInclude Include="Game\GameObjects\Camera\Camera.h" />
+    <ClInclude Include="Game\GameObjects\Camera\CameraUp.h" />
     <ClInclude Include="Game\GameObjects\Field\Field.h" />
     <ClInclude Include="Game\GameObjects\Player\Player.h" />
     <ClInclude Include="Game\GameObjects\Player\State\Running.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="Game\GameObjects\Ball\State\Moving.cpp" />
     <ClCompile Include="Game\GameObjects\Ball\State\Stopping.cpp" />
     <ClCompile Include="Game\GameObjects\Camera\Camera.cpp" />
+    <ClCompile Include="Game\GameObjects\Camera\CameraUp.cpp" />
     <ClCompile Include="Game\GameObjects\Field\Field.cpp" />
     <ClCompile Include="Game\GameObjects\Player\Player.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\Running.cpp" />

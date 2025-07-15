@@ -8,6 +8,9 @@
 //--------------------------------------------------------------------------------------
 #pragma once
 
+class Player;
+
+
 // デバッグ用カメラクラス
 class Camera
 {
@@ -62,7 +65,7 @@ public:
 	/// <param name="mouse">マウスオブジェクトへのポインタ</param>
 	void Update(DirectX::SimpleMath::Vector3 viewtarget, float rotateY);
 	void Update(DirectX::SimpleMath::Vector3 viewtarget, float rotateX, float rotateY);
-	void Update(DirectX::SimpleMath::Vector3 viewtarget, DirectX::SimpleMath::Vector3 field, DirectX::SimpleMath::Quaternion rotate);
+	void Update(Player* player, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field);
 
 	// デバック用
 	void DebugMode();

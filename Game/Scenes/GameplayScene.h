@@ -16,6 +16,7 @@
 #include "Game/GameObjects/Camera/Camera.h"
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Ball/Ball.h"
+#include "Game/GameObjects/Camera/CameraUp.h"
 
 
 // クラスの定義
@@ -29,6 +30,7 @@ private:
 
 	//  デバッグカメラ
 	std::unique_ptr<Camera> m_camera;
+	std::unique_ptr<CameraUp> m_cameraUp;
 
 	//  プレイヤー
 	std::unique_ptr<Player> m_player;

@@ -119,6 +119,9 @@
     <ClInclude Include="Game\Commons\Animation.h">
       <Filter>Game\Commons</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\Camera\CameraUp.h">
+      <Filter>Game\GameObjects\Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -188,6 +191,9 @@
     </ClCompile>
     <ClCompile Include="Game\Commons\Animation.cpp">
       <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Camera\CameraUp.cpp">
+      <Filter>Game\GameObjects\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

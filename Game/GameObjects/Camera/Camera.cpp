@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "Mouse.h"
 #include "Game/Commons/UserResources.h"
+#include "Game/GameObjects/Player/Player.h"
 
 using namespace DirectX;
 const float Camera::DEFAULT_CAMERA_DISTANCE = 5.0f;
@@ -79,32 +80,26 @@ void Camera::Update(DirectX::SimpleMath::Vector3 viewtarget, float rotateX, floa
 	m_view = SimpleMath::Matrix::CreateLookAt(eye, viewtarget, SimpleMath::Vector3::UnitY);
 }
 
-void Camera::Update(DirectX::SimpleMath::Vector3 viewtarget, DirectX::SimpleMath::Vector3 field, DirectX::SimpleMath::Quaternion rotate)
+void Camera::Update(Player* player, SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field)
 {
-	// 目の位置
-	SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY, rotate);
-	viewtarget.Normalize();
+	// プレイヤー位置
+	SimpleMath::Vector3 playerPos = player->GetPosition();
 
-	SimpleMath::Vector3 eye{ viewtarget * 10 };
-	/*eye = -(eye - viewtarget)*3;*/
+	// 球体中心
+	SimpleMath::Vector3 sphereCenter = field;
 
-	////SimpleMath::Vector3 eye = SimpleMath::Vector3(viewtarget);
+	// カメラのオフセット位置（プレイヤー位置から toCenter と逆方向に引いた位置）
+	float cameraDistance = 10.0f;
+	SimpleMath::Vector3 eye = playerPos * 3;
 
-	//// プレイヤーが回転したら目を回転させ差を埋めずに回転だけするようにする
-	//SimpleMath::Vector3 offset = viewtarget;
+	// 世界Y軸
+	SimpleMath::Vector3 up = upPos + field;
+	up.Normalize();
 
-	//// カメラの位置を計算
-	//// eye += offset;
-	
-	// 代入
+	// ビュー行列更新
 	m_eye = eye;
-	m_target = viewtarget;
-
-	// up を再計算（常に直交）
-	SimpleMath::Vector3 up = SimpleMath::Vector3::UnitY;
-
-	// ビュー行列を更新
-	m_view = SimpleMath::Matrix::CreateLookAt(eye, viewtarget, up);
+	m_target = playerPos;
+	m_view = SimpleMath::Matrix::CreateLookAt(eye, player->GetPosition(), up);
 	UserResources::GetUserResource()->SetView(&m_view);
 }
 
