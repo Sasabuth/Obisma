@@ -32,6 +32,8 @@ private:
 
 	DirectX::Model* m_model;  // モデル
 
+	float m_larp;
+
 // 関数
 public:
 	// コンストラクタ

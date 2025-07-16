@@ -14,6 +14,7 @@
 #include "Game/Commons/UserResources.h"
 #include "Game/GameObjects/Player/State/Standing.h"
 #include "Game/GameObjects/Player/State/Running.h"
+#include "Game/GameObjects/Player/State/Throwing.h"
 
 
 // クラスの定義
@@ -36,10 +37,10 @@ private:
 
 	IState* m_currentState;
 
-	// 「立つ」状態
-	std::unique_ptr<Standing> m_standing;
-	// 「走る」状態
-	std::unique_ptr<Running> m_running;
+	
+	std::unique_ptr<Standing> m_standing;  // 「立つ」状態
+	std::unique_ptr<Running> m_running;  // 「走る」状態
+	std::unique_ptr<Throwing> m_throwing;  // 「投げる」状態
 
 	DirectX::SimpleMath::Vector3 m_position;
 	DirectX::SimpleMath::Vector3 m_velocity;
@@ -82,7 +83,7 @@ public:
 	void CorrectOverlap(Field& field) override;
 
 	// 新しい状態に遷移する
-	void ChangeState(IState* newState) { m_currentState = newState; }
+	void ChangeState(IState* newState);
 
 	DirectX::SimpleMath::Ray CreatePickingRay(
 		int mouseX, int mouseY,
@@ -138,6 +139,7 @@ public:
 public:
 	Standing* GetStanding() const { return m_standing.get(); }
 	Running* GetRunning() const { return m_running.get(); }
+	Throwing* GetThrowing() const { return m_throwing.get(); }
 
 	
 };

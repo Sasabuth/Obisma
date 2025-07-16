@@ -27,6 +27,7 @@ Moving::Moving(Ball* ball)
 	: m_ball(ball)
 	, m_userResources(nullptr)
 	, m_model{}
+	, m_larp(0.0f)
 {
 }
 
@@ -48,11 +49,10 @@ void Moving::Initialize()
 	// ユーザーリソースの取得
 	m_userResources = UserResources::GetUserResource();
 
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-
 	// モデルの取得
 	m_model = Resources::GetInstance()->GetBallModel();
+
+	m_larp = 0.0f;
 }
 
 
@@ -66,18 +66,20 @@ void Moving::Update(float elapsedTime)
 	auto kb = Keyboard::Get().GetState();
 	auto mouse = Mouse::Get().GetState();
 
-	// プロジェクション行列
-	auto proj = m_userResources->GetProject();
-	auto view = m_userResources->GetView();
+	// 重力を線形補完する
+	if (m_larp < 1.2f)
+	{
+		m_larp += 0.5f * elapsedTime;
+	}
+	SimpleMath::Vector3 ballGravity = SimpleMath::Vector3::Lerp(SimpleMath::Vector3::Zero, m_ball->GetGravity(), m_larp);
 
 	// ボールの設定
-	m_ball->SetVelocity(m_ball->GetGravity() + m_ball->GetSpeed() * 2);
-
+	m_ball->SetVelocity(ballGravity + m_ball->GetSpeed() * 2);
 	m_ball->SetPosition(m_ball->GetPosition() + m_ball->GetVelocity() * elapsedTime);
 	m_ball->GetCollider().SetPosition(m_ball->GetPosition());
 
-	// 速度の長さがなくなったらステート変更
-	if (m_ball->GetVelocity().Length() <= 0.1f)
+	// 速度がなくなったらステート変更
+	if (m_ball->GetVelocity().Length() <= 0.425f)
 	{
 		m_ball->ChangeState(m_ball->GetStopping());
 	}
@@ -104,7 +106,7 @@ void Moving::Render()
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_ball->GetPosition());
 	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Ball::BALL_SIZE));
 
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_ball->GetRotation()); // ※回転順に合わせて調整
+	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_ball->GetRotation());
 
 	world = scale * rotate * pos;
 
@@ -113,7 +115,8 @@ void Moving::Render()
 
 	// デバック
 	debugFont->Render(L"Moving");
-
+	debugFont->Render(L"Speed",m_ball->GetSpeed());
+	debugFont->Render(L"Length", m_ball->GetVelocity().Length());
 }
 
 

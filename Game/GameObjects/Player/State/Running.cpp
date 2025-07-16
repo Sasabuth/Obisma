@@ -27,6 +27,19 @@ Running::Running(Player* player)
 	, m_userResources(nullptr)
 	, m_model{}
 {
+	// モデルの作成
+	m_model = Resources::GetInstance()->GetPlayerModel();
+
+	// AnimationSDKMESH クラスのインスタンスを生成する
+	m_animation = std::make_unique<DX::AnimationSDKMESH>();
+	// サッカープレイヤー アイドリングアニメーションをロードする
+	m_animation->Load(L"resources/Animations/Player_Run.sdkmesh_anim");
+	// アニメーションとモデルをバインドする
+	m_animation->Bind(*m_model);
+
+	// ボーン用のトランスフォーム配列を生成する
+	m_drawBones = DirectX::ModelBone::MakeArray(m_model->bones.size());
+	ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
 }
 
 
@@ -48,22 +61,21 @@ void Running::Initialize()
 
 	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-
-	m_model = Resources::GetInstance()->GetPlayerModel();
-
-	// AnimationSDKMESH クラスのインスタンスを生成する
-	m_animation = std::make_unique<DX::AnimationSDKMESH>();
-	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources/Animations/Player_Run.sdkmesh_anim");
-	// アニメーションとモデルをバインドする
-	m_animation->Bind(*m_model);
-	// ボーン用のトランスフォーム配列を生成する
-	m_drawBones = DirectX::ModelBone::MakeArray(m_model->bones.size());
-	ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
+	
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
 	m_animation->SetEndTime(0.5f);
+
+	// ベーシックエフェクトの作成
+	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
+	m_basicEffect->SetVertexColorEnabled(true);
+
+	// プリミティブバッチの作成
+	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
+
+	// 入力レイアウトの作成
+	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 }
 
 
@@ -82,6 +94,9 @@ void Running::Update(float elapsedTime)
 	auto proj = m_userResources->GetProject();
 	auto view = m_userResources->GetView();
 
+	// アニメーションの更新
+	AnimationUpdate(elapsedTime);
+
 	// マウスのレイによる回転
 	auto const r = m_userResources->GetDeviceResources()->GetOutputSize();
 	m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
@@ -94,30 +109,10 @@ void Running::Update(float elapsedTime)
 	// 速度の設定
 	m_player->SetVelocity(m_player->GetGravity());
 
-	// キーによる移動
-	if (kb.W)
-	{
-		m_player->SetVelocity(m_player->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_player->GetRotation()) * PLAYER_SPEED);
-		m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
-	}
-	else if (kb.S)
-	{
-		m_player->SetVelocity(m_player->GetVelocity() + SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_player->GetRotation()) * PLAYER_SPEED);
-		m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
-	}
-	else
-	{
-		m_player->ChangeState(m_player->GetStanding());
-	}
 
-	// アニメーションの更新
-	AnimationUpdate(elapsedTime);
-
-	// ボールに当たった
 	if (IsHit(m_player->GetCollider(), m_player->GetScene()->GetBall().GetCollider()) && m_player->GetScene()->GetBall().GetCurrentState() != m_player->GetScene()->GetBall().GetMoving())
 	{
 		Ball& ball = m_player->GetScene()->GetBall();
-
 		ball.ChangeState(ball.GetCatching());
 
 		// ボーンに設定した境界球のワールド計算を行う
@@ -127,18 +122,24 @@ void Running::Update(float elapsedTime)
 		dir.Normalize();
 		ball.SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 
-		// 左キーで投げる
 		if (mouseTK->leftButton)
 		{
-			Ball& ball = m_player->GetScene()->GetBall();
-
-			ball.ChangeState(ball.GetMoving());
-
-			ball.SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation()));
+			m_player->ChangeState(m_player->GetThrowing());
 		}
 	}
 
 	// プレイヤーの設定
+	// キーによる移動
+	if (kb.W)
+	{
+		m_player->SetVelocity(m_player->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_player->GetRotation()) * PLAYER_SPEED);
+	}
+	else
+	{
+		m_player->ChangeState(m_player->GetStanding());
+	}
+
+	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
 	m_player->GetCollider().SetPosition(m_player->GetPosition());
 }
 
@@ -178,6 +179,33 @@ void Running::Render()
 		*view,
 		*proj
 	);
+
+	// 軸の描画
+	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
+
+	// 深度の設定
+	context->OMSetDepthStencilState(states->DepthDefault(), 0);
+
+	// カリングの設定
+	context->RSSetState(states->CullNone());
+
+	// 
+	m_basicEffect->SetView(*view);
+	m_basicEffect->SetProjection(*proj);
+	m_basicEffect->Apply(context);
+
+	// インプットレイアウトの設定
+	context->IASetInputLayout(m_inputLayout.Get());
+
+	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
+	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
+	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
+
+	m_primitiveBatch->Begin();
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
+	m_primitiveBatch->End();
 
 	// デバック
 	debugFont->Render(L"Running");

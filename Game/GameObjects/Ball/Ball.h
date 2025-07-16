@@ -79,7 +79,7 @@ public:
 	void CorrectOverlap(Field& field) override;
 
 	// V‚µ‚¢ó‘Ô‚É‘JˆÚ‚·‚é
-	void ChangeState(IState* newState) { m_currentState = newState; }
+	void ChangeState(IState* newState);
 
 
 // İ’è/æ“¾

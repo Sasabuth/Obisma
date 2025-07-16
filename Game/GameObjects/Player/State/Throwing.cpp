@@ -1,12 +1,12 @@
 ﻿/// <summary>
-/// Standingに関するソースファイル
+/// Throwingに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
+/// <date>2025/07/16</date>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "Standing.h"
+#include "Throwing.h"
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
@@ -21,10 +21,12 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Standing::Standing(Player* player)
+Throwing::Throwing(Player* player)
 	: m_player(player)
 	, m_userResources(nullptr)
 	, m_model{}
+	, m_time{}
+	, m_isThowing(false)
 {
 	// モデルの作成
 	m_model = Resources::GetInstance()->GetPlayerModel();
@@ -45,7 +47,7 @@ Standing::Standing(Player* player)
 /// <summary>
 /// デストラクタ
 /// </summary>
-Standing::~Standing()
+Throwing::~Throwing()
 {
 }
 
@@ -54,7 +56,7 @@ Standing::~Standing()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void Standing::Initialize()
+void Throwing::Initialize()
 {
 	m_userResources = UserResources::GetUserResource();
 
@@ -62,7 +64,7 @@ void Standing::Initialize()
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_worldMatrix = SimpleMath::Matrix::Identity;
-	
+
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
@@ -77,6 +79,9 @@ void Standing::Initialize()
 
 	// 入力レイアウトの作成
 	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+
+	m_time = 0.0f;
+	m_isThowing = false;
 }
 
 
@@ -85,66 +90,37 @@ void Standing::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void Standing::Update(float elapsedTime)
+void Throwing::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	auto kbTracker = m_userResources->GetKeyboardStateTracker();
-	auto mouse = Mouse::Get().GetState();
-	auto mouseTK = m_userResources->GetMouseStateTracker();
+	auto kb = Keyboard::Get().GetState();
 
-	// プロジェクション行列
-	auto proj = m_userResources->GetProject();
-	auto view = m_userResources->GetView();
-
-
-	// アニメーションの更新
-	AnimationUpdate(elapsedTime);
-
-	// レイの設定
-	auto const r = m_userResources->GetDeviceResources()->GetOutputSize();
-	m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
-
-	// マウスの方向に回転
-	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
-	{
-		m_player->RotateToMouse();
-	}
-
-	// ステートの変更
-	if (kbTracker->pressed.W)
-	{
-		m_player->ChangeState(m_player->GetRunning());
-	}
-
-
-	if (IsHit(m_player->GetCollider(), m_player->GetScene()->GetBall().GetCollider()) && m_player->GetScene()->GetBall().GetCurrentState() != m_player->GetScene()->GetBall().GetMoving())
+	if (!m_isThowing)
 	{
 		Ball& ball = m_player->GetScene()->GetBall();
-		ball.ChangeState(ball.GetCatching());
-
-		// ボーンに設定した境界球のワールド計算を行う
-		DirectX::SimpleMath::Matrix sphereMatrix = m_boneMatrix * m_worldMatrix;
-		// バウンディングスフィアの中心点を設定する
-		SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-		dir.Normalize();
-		ball.SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
-
-
-		if (mouseTK->leftButton)
-		{
-			/*ball.ChangeState(ball.GetMoving());
-			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
-			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(45));
-			ball.SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate));*/
-			m_player->ChangeState(m_player->GetThrowing());
-		}
+		ball.ChangeState(ball.GetMoving());
+		SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
+		SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
+		ball.SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate));
+		m_isThowing = true;
 	}
+	
 
 	// プレイヤーの設定
 	m_player->SetVelocity(m_player->GetGravity());
 	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
 	m_player->GetCollider().SetPosition(m_player->GetPosition());
+
+	m_time += elapsedTime;
+
+	AnimationUpdate(elapsedTime);
+
+	if (m_time >= 1.0f)
+	{
+		if (kb.W) m_player->ChangeState(m_player->GetRunning());
+		else m_player->ChangeState(m_player->GetStanding());
+	}
 }
 
 
@@ -152,7 +128,7 @@ void Standing::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void Standing::Render()
+void Throwing::Render()
 {
 	// デバックフォントの描画
 	auto* debugFont = m_userResources->GetDebugFont();
@@ -182,7 +158,7 @@ void Standing::Render()
 		*proj
 	);
 
-	
+
 
 	// デバック
 	/*m_model->Draw(context, *states, world, *view, *proj);*/
@@ -205,7 +181,11 @@ void Standing::Render()
 	context->IASetInputLayout(m_inputLayout.Get());
 
 	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
+
+	SimpleMath::Vector3 dir = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
+	SimpleMath::Quaternion rot = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
+	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation() * rot);
+
 	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
 
 	m_primitiveBatch->Begin();
@@ -214,7 +194,7 @@ void Standing::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();
 
-	debugFont->Render(L"Standing");
+	debugFont->Render(L"Throwing");
 }
 
 
@@ -222,7 +202,7 @@ void Standing::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void Standing::Finalize()
+void Throwing::Finalize()
 {
 }
 
@@ -232,7 +212,7 @@ void Standing::Finalize()
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void Standing::AnimationUpdate(float elapsedTime)
+void Throwing::AnimationUpdate(float elapsedTime)
 {
 	// アニメーション時間がアニメーション終了時間より小さい場合はアニメーションを繰り返す
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())

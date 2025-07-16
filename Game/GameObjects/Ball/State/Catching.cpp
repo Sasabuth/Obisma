@@ -61,12 +61,7 @@ void Catching::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	auto kbTracker = m_userResources->GetKeyboardStateTracker();
 	auto mouse = Mouse::Get().GetState();
-
-	// 各行列の取得
-	auto proj = m_userResources->GetProject();
-	auto view = m_userResources->GetView();
 
 	// プレイヤーの設定
 	m_ball->SetVelocity(SimpleMath::Vector3::Zero);

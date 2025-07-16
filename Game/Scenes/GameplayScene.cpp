@@ -80,11 +80,11 @@ void GameplayScene::Update(float elapsedTime)
 	auto player = dynamic_cast<Player*>(m_player.get());
 	m_camera->Update(player, m_cameraUp->GetPosition(), m_field->GetCollider().GetPosition());
 	m_cameraUp->Update(elapsedTime);
-	/*m_camera->DebugMode();*/
+	m_camera->DebugMode();
 
 	m_field->Update(elapsedTime);
-	m_ball->Update(elapsedTime);
 	m_player->Update(elapsedTime);
+	m_ball->Update(elapsedTime);
 
 
 
@@ -107,12 +107,10 @@ void GameplayScene::Render()
 {
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
 	debugFont->Render(L"GameplayScene");
-	debugFont->Render(L"A",SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY,m_player->GetRotation()));
 
 	m_field->Render();
 	m_ball->Render();
 	m_player->Render();
-	/*m_cameraUp->Render();*/
 }
 
 

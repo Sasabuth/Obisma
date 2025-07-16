@@ -109,8 +109,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
         g_game->Initialize(hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
+#if _DEBUG
+        // デバッグ専用コード
+        g_game->SetFullscreenState(FALSE);
+#else
+        // リリース専用コード
+        g_game->SetFullscreenState(TRUE);
+#endif
+
         // ゲームが作られた後にスクリーン設定しないとエラー
         if (s_fullscreen) g_game->SetFullscreenState(TRUE);
+
+
     }
 
     // Main message loop
@@ -129,7 +139,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     }
 
     // スクリーン設定を残すとエラーが起こるので先に消す
-    if (s_fullscreen) g_game->SetFullscreenState(FALSE);
+    g_game->SetFullscreenState(FALSE);
 
     g_game.reset();
 

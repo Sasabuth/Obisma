@@ -202,6 +202,7 @@
     <ClInclude Include="Game\GameObjects\Player\Player.h" />
     <ClInclude Include="Game\GameObjects\Player\State\Running.h" />
     <ClInclude Include="Game\GameObjects\Player\State\Standing.h" />
+    <ClInclude Include="Game\GameObjects\Player\State\Throwing.h" />
     <ClInclude Include="Game\Scenes\GameplayScene.h" />
     <ClInclude Include="Game\Scenes\TitleScene.h" />
     <ClInclude Include="pch.h" />
@@ -229,6 +230,7 @@
     <ClCompile Include="Game\GameObjects\Player\Player.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\Running.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\Standing.cpp" />
+    <ClCompile Include="Game\GameObjects\Player\State\Throwing.cpp" />
     <ClCompile Include="Game\Scenes\GameplayScene.cpp" />
     <ClCompile Include="Game\Scenes\TitleScene.cpp" />
     <ClCompile Include="Main.cpp" />

@@ -1,8 +1,8 @@
 /// <summary>
-/// プレイヤーに関するヘッダファイル
+/// Throwingに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
+/// <date>2025/07/16</date>
 
 // 多重インクルードの防止
 #pragma once
@@ -20,12 +20,12 @@ class Player;
 
 
 // クラスの定義
-class Running : public IState
+class Throwing : public IState
 {
 private:
-	static constexpr float PLAYER_SPEED = 2.0f;
 
-// 変数
+
+	// 変数
 private:
 	UserResources* m_userResources;
 
@@ -41,6 +41,9 @@ private:
 	DirectX::SimpleMath::Matrix m_worldMatrix;
 	DirectX::SimpleMath::Matrix m_boneMatrix;
 
+	float m_time;
+	bool m_isThowing;
+
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
 	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  // プリミティブバッチ
@@ -48,13 +51,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
 
 
-// 関数
+	// 関数
 public:
 	// コンストラクタ
-	Running(Player* player);
+	Throwing(Player* player);
 
 	// デストラクタ
-	~Running() override;
+	~Throwing() override;
 
 	// 初期化
 	void Initialize() override;
@@ -68,8 +71,9 @@ public:
 	// 終了処理
 	void Finalize() override;
 
+// 内部処理
 private:
 	// アニメーションの更新
-	void AnimationUpdate(float elapsedTime); 
+	void AnimationUpdate(float elapsedTime);
 };
 

@@ -89,7 +89,6 @@ void Camera::Update(Player* player, SimpleMath::Vector3 upPos, DirectX::SimpleMa
 	SimpleMath::Vector3 sphereCenter = field;
 
 	// カメラのオフセット位置（プレイヤー位置から toCenter と逆方向に引いた位置）
-	float cameraDistance = 10.0f;
 	SimpleMath::Vector3 eye = playerPos * 3;
 
 	// 世界Y軸

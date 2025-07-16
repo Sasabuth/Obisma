@@ -122,3 +122,9 @@ void Ball::CorrectOverlap(Field& field)
 	m_gravity = SimpleMath::Vector3::Zero;
 	m_position += delta * pushLength;
 }
+
+void Ball::ChangeState(IState* newState)
+{
+	m_currentState = newState;
+	m_currentState->Initialize();
+}

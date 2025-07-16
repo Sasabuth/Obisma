@@ -59,25 +59,10 @@ void Stopping::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	auto kbTracker = m_userResources->GetKeyboardStateTracker();
-	auto mouse = Mouse::Get().GetState();
-
-	// プロジェクション行列
-	auto proj = m_userResources->GetProject();
-	auto view = m_userResources->GetView();
-
-	// レイの設定
-
 	// プレイヤーの設定
 	m_ball->SetVelocity(m_ball->GetGravity());
 	m_ball->SetPosition(m_ball->GetPosition() + m_ball->GetVelocity() * elapsedTime);
 	m_ball->GetCollider().SetPosition(m_ball->GetPosition());
-
-	//// ステートの変更
-	//if (kbTracker->pressed.W || kbTracker->pressed.A || kbTracker->pressed.S || kbTracker->pressed.D)
-	//{
-	//	m_ball->ChangeState(m_ball->GetMoving());
-	//}
 }
 
 

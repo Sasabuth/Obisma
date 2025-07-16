@@ -199,15 +199,15 @@ void CameraUp::Update(float elapsedTime)
 
 	m_rotate *= q;
 
-	SimpleMath::Vector3 a = m_position - m_player->GetPosition();
+	SimpleMath::Vector3 dis = m_position - m_player->GetPosition();
 
-	if (a.Length() >= 1.0f)
+	if (dis.Length() >= 4.0f)
 	{
-		m_velocity -= SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_rotate)*2;
+		m_velocity -= SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_rotate) * 2;
 	}
 	else
 	{
-		m_velocity += SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_rotate)*2;
+		m_velocity += SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_rotate) * 2;
 	}
 
 	m_position += m_velocity * elapsedTime;
@@ -227,19 +227,6 @@ void CameraUp::Render()
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
-
-	//// ワールド座標
-	//SimpleMath::Matrix world;
-
-	//SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_position);
-	//SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(0.3f, 0.3f, 0.3f));
-
-	//SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_rotate); // ※回転順に合わせて調整
-
-	//world = scale * rotate * pos;
-
-	//// モデルの描画
-	//m_model->Draw(context, *states, world, *view, *proj);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);

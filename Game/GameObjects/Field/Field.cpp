@@ -43,7 +43,6 @@ void Field::Initialize()
 {
 	// ユーザーリソースの取得
 	m_userResource = UserResources::GetUserResource();
-	auto device = m_userResource->GetDeviceResources()->GetD3DDevice();
 	auto context = m_userResource->GetDeviceResources()->GetD3DDeviceContext();
 
 	// モデルの設定
