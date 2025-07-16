@@ -92,6 +92,7 @@ namespace DX
 #include "CommonStates.h"
 #include "SpriteBatch.h"
 #include "Effects.h"
+#include "DDSTextureLoader.h"
 #include "WICTextureLoader.h"
 #include "SimpleMath.h"
 #include "Model.h"

@@ -180,6 +180,9 @@ void Running::Render()
 		*proj
 	);
 
+	// 影の描画
+	m_player->DrawShadow(context, states, Player::SHADOW_SIZE);
+
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
 

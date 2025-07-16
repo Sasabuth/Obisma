@@ -113,6 +113,9 @@ void Moving::Render()
 	// モデルの描画
 	m_model->Draw(context, *states, world, *view, *proj);
 
+	// 影の描画
+	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
+
 	// デバック
 	debugFont->Render(L"Moving");
 	debugFont->Render(L"Speed",m_ball->GetSpeed());

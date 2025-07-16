@@ -14,6 +14,8 @@ public:
 	DirectX::Model* GetPlayerModel() { return m_playerModel.get(); }
 	// ボールモデルの取得
 	DirectX::Model* GetBallModel() { return m_ballModel.get(); }
+	// ボールモデルの取得
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetShadowTexture() { return m_shadowTexture.Get(); }
 
 public:
 	Resources(Resources&&) = default;
@@ -25,6 +27,8 @@ public:
 	static Resources* const GetInstance();
 	// リソースをロードする
 	void LoadResource();
+
+	void Reset();
 
 private:
 	// コンストラクタ
@@ -48,6 +52,8 @@ private:
 	std::unique_ptr<DirectX::Model> m_fieldModel;
 	// ボールモデル
 	std::unique_ptr<DirectX::Model> m_ballModel;
+	// 影のテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;
 
 };
 

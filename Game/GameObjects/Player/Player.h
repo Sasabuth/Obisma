@@ -27,37 +27,41 @@ class Player : public IEntity
 {
 public:
 	static constexpr float PLAYER_SIZE = 0.003f;
+	static constexpr float SHADOW_SIZE = 0.4f;
 
 
 // 変数
 private:
-	UserResources* m_userResources;
+	UserResources* m_userResources;  // ユーザーリソース
 
-	GameplayScene* m_pScene;
+	GameplayScene* m_pScene;  // シーン
 
-	IState* m_currentState;
+	IState* m_currentState;  // 現在のステート
 
 	
 	std::unique_ptr<Standing> m_standing;  // 「立つ」状態
-	std::unique_ptr<Running> m_running;  // 「走る」状態
+	std::unique_ptr<Running> m_running;    // 「走る」状態
 	std::unique_ptr<Throwing> m_throwing;  // 「投げる」状態
 
-	DirectX::SimpleMath::Vector3 m_position;
-	DirectX::SimpleMath::Vector3 m_velocity;
+	DirectX::SimpleMath::Vector3 m_position; // 座標
+	DirectX::SimpleMath::Vector3 m_velocity; // 速度
 
-	DirectX::SimpleMath::Quaternion m_rotate;
-	DirectX::SimpleMath::Vector3 m_gravity;
+	DirectX::SimpleMath::Quaternion m_rotate; // 回転
+	DirectX::SimpleMath::Vector3 m_gravity;  // 重力
 
 	SphereCollider m_collider;
 
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  // プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>> m_primitiveBatch;  // プリミティブバッチ
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
 
-	DirectX::SimpleMath::Ray m_mouseRay;
-	DirectX::SimpleMath::Vector3 m_hitPos;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  // 影のテクスチャ
+
+	DirectX::SimpleMath::Ray m_mouseRay;  // マウスのレイ
+	DirectX::SimpleMath::Vector3 m_hitPos;  // 当たった点
+
 
 // 関数
 public:
@@ -82,7 +86,7 @@ public:
 	// 重なりの補填
 	void CorrectOverlap(Field& field) override;
 
-	// 新しい状態に遷移する
+	// ステートの変更
 	void ChangeState(IState* newState);
 
 	DirectX::SimpleMath::Ray CreatePickingRay(
@@ -103,6 +107,12 @@ public:
 
 	// マウスの方向に回転
 	void RotateToMouse();
+
+	// 影の初期化
+	void InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context);
+
+	// 影の描画
+	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius = 1.0f);
 
 // 設定/取得
 public:
@@ -134,6 +144,7 @@ public:
 
 	// シーン
 	GameplayScene* GetScene() const { return m_pScene; }
+
 
 // ステートの取得
 public:

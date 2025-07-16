@@ -55,7 +55,6 @@ void GameplayScene::Initialize()
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_userResources->GetDeviceResources()->GetOutputSize().bottom, m_userResources->GetDeviceResources()->GetOutputSize().right);
 
-
 	// プレイヤーの初期化
 	m_player = Factory::CreatePlayer(this, SimpleMath::Vector3{ 2.0f,3.0f,2.0f });
 
@@ -85,8 +84,6 @@ void GameplayScene::Update(float elapsedTime)
 	m_field->Update(elapsedTime);
 	m_player->Update(elapsedTime);
 	m_ball->Update(elapsedTime);
-
-
 
 	IsHitEntityToField(m_player.get(), m_field.get());
 	IsHitEntityToField(m_ball.get(), m_field.get());
@@ -124,6 +121,7 @@ void GameplayScene::Finalize()
 	m_ball->Finalize();
 	m_player->Finalize();
 	m_cameraUp->Finalize();
+	Resources::GetInstance()->Reset();
 }
 
 

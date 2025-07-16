@@ -96,6 +96,9 @@ void Catching::Render()
 	// モデルの描画
 	m_model->Draw(context, *states, world, *view, *proj);
 
+	// 影の描画
+	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
+
 	// デバック
 	/*m_ball->GetCollider().Draw(states, *view, *proj);*/
 	debugFont->Render(L"Catching");

@@ -53,4 +53,17 @@ void Resources::LoadResource()
 			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 1));
 		}
 	);
+
+	// テクスチャの読み込み
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources/Textures/Shadow.dds", nullptr, m_shadowTexture.ReleaseAndGetAddressOf())
+	);
+}
+
+void Resources::Reset()
+{
+	m_fieldModel.reset();
+	m_ballModel.reset();
+	m_playerModel.reset();
+	m_shadowTexture.Reset();
 }

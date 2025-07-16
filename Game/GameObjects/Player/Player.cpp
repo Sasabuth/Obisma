@@ -44,7 +44,9 @@ Player::~Player()
 /// </summary>
 void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 {
-	auto context = UserResources::GetUserResource()->GetDeviceResources()->GetD3DDeviceContext();
+	m_userResources = UserResources::GetUserResource();
+	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_position = position;
 
@@ -65,6 +67,8 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	// 立つ状態にする
 	m_currentState = m_standing.get();
+
+	InitializeShadow(device, context);
 }
 
 
@@ -126,11 +130,17 @@ void Player::CorrectOverlap(Field& field)
 
 
 
+/// <summary>
+/// ステートの変更
+/// </summary>
+/// <param name="newState">新しいステート</param>
 void Player::ChangeState(IState* newState)
 {
 	m_currentState = newState;
 	m_currentState->Initialize();
 }
+
+
 
 /// <summary>
 /// レイの作成
@@ -253,4 +263,96 @@ void Player::RotateToMouse()
 	}
 
 	m_rotate *= q;
+}
+
+
+
+/// <summary>
+/// 影の初期化
+/// </summary>
+/// <param name="device">デバイス</param>
+/// <param name="context">コンテキスト</param>
+void Player::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
+{
+	// ベーシックエフェクトの作成
+	m_basicEffect = std::make_unique<BasicEffect>(device);
+	// ライティングOFF
+	m_basicEffect->SetLightingEnabled(false);
+	// 頂点カラーOFF
+	m_basicEffect->SetVertexColorEnabled(false);
+	// テクスチャON
+	m_basicEffect->SetTextureEnabled(true);
+
+	// 入力レイアウトの作成
+	DX::ThrowIfFailed(
+		CreateInputLayoutFromEffect<VertexPositionTexture>(
+			device,
+			m_basicEffect.get(),
+			m_inputLayout.ReleaseAndGetAddressOf())
+	);
+
+	// プリミティブバッチの作成
+	m_primitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionTexture>>(context);
+
+	// テクスチャの読み込み
+	m_shadowTexture = Resources::GetInstance()->GetShadowTexture();
+}
+
+
+
+/// <summary>
+/// 影の描画
+/// </summary>
+/// <param name="context">コンテキスト</param>
+/// <param name="states">コモンステート</param>
+/// <param name="radius">半径</param>
+void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius)
+{
+	auto view = m_userResources->GetView();
+	auto proj = m_userResources->GetProject();
+
+	// エフェクトの設定＆適用
+	m_basicEffect->SetWorld(SimpleMath::Matrix::Identity);
+	m_basicEffect->SetView(*view);
+	m_basicEffect->SetProjection(*proj);
+	m_basicEffect->SetTexture(m_shadowTexture.Get());
+	m_basicEffect->Apply(context);
+
+	// 入力レイアウト
+	context->IASetInputLayout(m_inputLayout.Get());
+
+	// テクスチャサンプラー
+	ID3D11SamplerState* sampler[] = { states->LinearClamp() };
+	context->PSSetSamplers(0, 1, sampler);
+
+	// アルファブレンド
+	context->OMSetBlendState(states->AlphaBlend(), nullptr, 0xffffffff);
+
+	VertexPositionTexture vertexes[] =
+	{
+		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(0.0f, 0.0f)),  // 0
+		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(1.0f, 0.0f)),  // 1
+		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(0.0f, 1.0f)),  // 2
+		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(1.0f, 1.0f))   // 3
+	};
+
+	uint16_t indexes[] = { 2,3,1,2,1,0 };
+
+	vertexes[0].position = SimpleMath::Vector3(-radius, 0.01f, -radius);
+	vertexes[1].position = SimpleMath::Vector3(radius, 0.01f, -radius);
+	vertexes[2].position = SimpleMath::Vector3(-radius, 0.01f, radius);
+	vertexes[3].position = SimpleMath::Vector3(radius, 0.01f, radius) ;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		SimpleMath::Vector3 rotatedOffset = SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
+		vertexes[i].position = rotatedOffset + m_position - m_position / 7;
+	}
+
+	// 影の描画
+	m_primitiveBatch->Begin();
+
+	m_primitiveBatch->DrawIndexed(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, indexes, _countof(indexes), vertexes, _countof(vertexes));
+
+	m_primitiveBatch->End();
 }

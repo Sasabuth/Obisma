@@ -26,9 +26,11 @@ class Ball : public IEntity
 {
 public:
 	static constexpr float BALL_SIZE = 0.15f;
+	static constexpr float SHADOW_SIZE = 0.2f;
 
 // 変数
 private:
+	UserResources* m_userResources;
 	GameplayScene* m_pScene;
 
 	IState* m_currentState;
@@ -49,11 +51,15 @@ private:
 
 	SphereCollider m_collider;
 
+	DirectX::SimpleMath::Vector3 m_hitPos;
+
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  // プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>> m_primitiveBatch;  // プリミティブバッチ
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  // 影のテクスチャ
 
 // 関数
 public:
@@ -78,8 +84,14 @@ public:
 	// 重なりの補填
 	void CorrectOverlap(Field& field) override;
 
-	// 新しい状態に遷移する
+	// ステートの変更
 	void ChangeState(IState* newState);
+
+	// 影の初期化
+	void InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context);
+
+	// 影の描画
+	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius = 1.0f);
 
 
 // 設定/取得
@@ -119,6 +131,9 @@ public:
 	Moving* GetMoving() const { return m_moving.get(); }
 	Catching* GetCatching() const { return m_catching.get(); }
 
-	
+// 内部処理
+private:
+	// レイと球体の交差
+	void CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, float radius, DirectX::SimpleMath::Vector3& hitPos);
 };
 

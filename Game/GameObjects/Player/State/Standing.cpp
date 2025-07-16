@@ -77,6 +77,7 @@ void Standing::Initialize()
 
 	// 入力レイアウトの作成
 	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+
 }
 
 
@@ -182,6 +183,8 @@ void Standing::Render()
 		*proj
 	);
 
+	// 影の描画
+	m_player->DrawShadow(context, states, Player::SHADOW_SIZE);
 	
 
 	// デバック
