@@ -27,59 +27,6 @@ Camera::Camera(int windowWidth, int windowHeight)
 	Mouse::Get().ResetScrollWheelValue();
 }
 
-//--------------------------------------------------------------------------------------
-// 更新
-//--------------------------------------------------------------------------------------
-void Camera::Update(DirectX::SimpleMath::Vector3 viewtarget, float rotateY)
-{
-	// ビュー行列を算出する
-	SimpleMath::Matrix rotY = SimpleMath::Matrix::CreateRotationY(XMConvertToRadians(rotateY + 180.0f));
-
-	SimpleMath::Matrix rot = rotY;
-
-	// 目の位置
-	SimpleMath::Vector3 eye = SimpleMath::Vector3(3.0f, 5.0f, 1.0f);
-
-	// 目とプレイヤーの差を求める
-	SimpleMath::Vector3 offset = SimpleMath::Vector3::Transform(eye - viewtarget, rot);
-
-	// プレイヤーが回転したら目を回転させ差を埋めずに回転だけするようにする
-	SimpleMath::Vector3 up(0.0f, 10.0f, 0.0f);
-
-	// カメラの位置を計算
-	eye *= offset;
-
-	// 代入
-	m_eye = eye;
-	m_target = viewtarget;
-
-	// ビュー行列を更新
-	m_view = SimpleMath::Matrix::CreateLookAt(eye, viewtarget, up);
-	
-}
-
-void Camera::Update(DirectX::SimpleMath::Vector3 viewtarget, float rotateX, float rotateY)
-{
-	// ビュー行列を算出する
-	SimpleMath::Matrix rot = SimpleMath::Matrix::CreateRotationZ(XMConvertToRadians(-rotateX)) * SimpleMath::Matrix::CreateRotationY(XMConvertToRadians(rotateY + 180.0f));
-
-	// 目の位置
-	SimpleMath::Vector3 eye = SimpleMath::Vector3(6.0f, 2.0f, 0.0f);
-
-	// プレイヤーが回転したら目を回転させ差を埋めずに回転だけするようにする
-	SimpleMath::Vector3 offset = SimpleMath::Vector3::Transform(eye, rot);
-
-	// カメラの位置を計算
-	eye = viewtarget + offset;
-
-	// 代入
-	m_eye = eye;
-	m_target = viewtarget;
-
-	// ビュー行列を更新
-	m_view = SimpleMath::Matrix::CreateLookAt(eye, viewtarget, SimpleMath::Vector3::UnitY);
-}
-
 void Camera::Update(Player* player, SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field)
 {
 	// プレイヤー位置

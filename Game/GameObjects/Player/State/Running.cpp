@@ -122,13 +122,13 @@ void Running::Update(float elapsedTime)
 		dir.Normalize();
 		ball.SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 
+		// 左クリックでステート変更
 		if (mouseTK->leftButton)
 		{
 			m_player->ChangeState(m_player->GetThrowing());
 		}
 	}
 
-	// プレイヤーの設定
 	// キーによる移動
 	if (kb.W)
 	{
@@ -139,6 +139,7 @@ void Running::Update(float elapsedTime)
 		m_player->ChangeState(m_player->GetStanding());
 	}
 
+	// プレイヤーの設定
 	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
 	m_player->GetCollider().SetPosition(m_player->GetPosition());
 }

@@ -34,7 +34,7 @@ Throwing::Throwing(Player* player)
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();
 	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources\\Animations\\Player_Idle.sdkmesh_anim");
+	m_animation->Load(L"resources\\Animations\\Player_ThrowR.sdkmesh_anim");
 	// アニメーションとモデルをバインドする
 	m_animation->Bind(*m_model);
 	// ボーン用のトランスフォーム配列を生成する
@@ -68,7 +68,7 @@ void Throwing::Initialize()
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
-	m_animation->SetEndTime(0.5f);
+	m_animation->SetEndTime(1.42f);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -96,14 +96,27 @@ void Throwing::Update(float elapsedTime)
 
 	auto kb = Keyboard::Get().GetState();
 
+	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
 		Ball& ball = m_player->GetScene()->GetBall();
-		ball.ChangeState(ball.GetMoving());
-		SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
-		SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-		ball.SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate));
-		m_isThowing = true;
+
+		// ボーンに設定した境界球のワールド計算を行う
+		DirectX::SimpleMath::Matrix sphereMatrix = m_boneMatrix * m_worldMatrix;
+		// バウンディングスフィアの中心点を設定する
+		SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
+		dir.Normalize();
+		ball.SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+
+		// 時間になったら投げる
+		if (m_animation->GetAnimTime() > 0.6f)
+		{
+			ball.ChangeState(ball.GetMoving());
+			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
+			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
+			ball.SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate));
+			m_isThowing = true;
+		}
 	}
 	
 
@@ -112,15 +125,20 @@ void Throwing::Update(float elapsedTime)
 	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
 	m_player->GetCollider().SetPosition(m_player->GetPosition());
 
-	m_time += elapsedTime;
-
-	AnimationUpdate(elapsedTime);
-
-	if (m_time >= 1.0f)
+	// アニメーションを更新し終了したらステート変更
+	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
+	{
+		// アニメーションを更新する
+		m_animation->Update(elapsedTime);
+	}
+	else
 	{
 		if (kb.W) m_player->ChangeState(m_player->GetRunning());
 		else m_player->ChangeState(m_player->GetStanding());
 	}
+
+	AnimationUpdate(elapsedTime);
+
 }
 
 
@@ -212,18 +230,6 @@ void Throwing::Finalize()
 /// <param name="elapsedTime">経過時間</param>
 void Throwing::AnimationUpdate(float elapsedTime)
 {
-	// アニメーション時間がアニメーション終了時間より小さい場合はアニメーションを繰り返す
-	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
-	{
-		// アニメーションを更新する
-		m_animation->Update(elapsedTime);
-	}
-	else
-	{
-		// アニメーションの開始時間を設定する
-		m_animation->SetStartTime(0.0);
-	}
-
 	// アニメションにモデルを適用する
 	m_animation->Apply(*m_model, m_model->bones.size(), m_drawBones.get());
 	// ボーン数を取得する

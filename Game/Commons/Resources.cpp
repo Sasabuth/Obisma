@@ -31,7 +31,7 @@ void Resources::LoadResource()
 	// プレーヤーモデルローダーフラグ
 	DirectX::ModelLoaderFlags flags = DirectX::ModelLoader_Clockwise | DirectX::ModelLoader_IncludeBones;
 	// SDKMESH形式のプレーヤーモデルをロードする
-	m_playerModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Player2.sdkmesh", *effectFactory, flags);
+	m_playerModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Player.sdkmesh", *effectFactory, flags);
 	m_playerModel->UpdateEffects(
 		[&](IEffect* pEffect)
 		{

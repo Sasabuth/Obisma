@@ -341,18 +341,26 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 	vertexes[0].position = SimpleMath::Vector3(-radius, 0.01f, -radius);
 	vertexes[1].position = SimpleMath::Vector3(radius, 0.01f, -radius);
 	vertexes[2].position = SimpleMath::Vector3(-radius, 0.01f, radius);
-	vertexes[3].position = SimpleMath::Vector3(radius, 0.01f, radius) ;
+	vertexes[3].position = SimpleMath::Vector3(radius, 0.01f, radius);
 
-	for (int i = 0; i < 4; ++i)
+	// レイ
+	SimpleMath::Ray ray{ m_position, m_gravity };
+
+	// 当たった座標
+	SimpleMath::Vector3 hitPos;
+
+	// レイが当たった座標に影を出す
+	if (CalcRaySphere(ray.position, ray.direction, m_pScene->GetField().GetCollider().GetPosition(), m_pScene->GetField().GetCollider().GetRadius(), hitPos))
 	{
-		SimpleMath::Vector3 rotatedOffset = SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
-		vertexes[i].position = rotatedOffset + m_position - m_position / 7;
+		for (int i = 0; i < 4; ++i)
+		{
+			SimpleMath::Vector3 rotatedOffset = SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
+			vertexes[i].position = rotatedOffset + hitPos;
+		}
 	}
 
 	// 影の描画
 	m_primitiveBatch->Begin();
-
 	m_primitiveBatch->DrawIndexed(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, indexes, _countof(indexes), vertexes, _countof(vertexes));
-
 	m_primitiveBatch->End();
 }

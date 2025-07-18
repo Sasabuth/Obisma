@@ -59,12 +59,7 @@ public:
 	/// <param name="windowHeight">ウインドウサイズ（高さ）</param>
 	Camera(int windowWidth, int windowHeight);
 
-	/// <summary>
-	/// デバッグカメラの更新
-	/// </summary>
-	/// <param name="mouse">マウスオブジェクトへのポインタ</param>
-	void Update(DirectX::SimpleMath::Vector3 viewtarget, float rotateY);
-	void Update(DirectX::SimpleMath::Vector3 viewtarget, float rotateX, float rotateY);
+	// カメラの更新
 	void Update(Player* player, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field);
 
 	// デバック用

@@ -129,15 +129,12 @@ void Standing::Update(float elapsedTime)
 		// バウンディングスフィアの中心点を設定する
 		SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
 		dir.Normalize();
-		ball.SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 
+		// 右手に持たせる
+		ball.SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 
 		if (mouseTK->leftButton)
 		{
-			/*ball.ChangeState(ball.GetMoving());
-			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
-			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(45));
-			ball.SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate));*/
 			m_player->ChangeState(m_player->GetThrowing());
 		}
 	}
