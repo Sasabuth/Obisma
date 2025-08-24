@@ -25,14 +25,26 @@ void Resources::LoadResource()
 	auto effectFactory = m_userResource->GetEffectFactory();
 	effectFactory->SetDirectory(L"Resources/Models");
 
-	// サッカーボールのモデルをロードする
+	// フィールドのモデルをロードする
 	m_fieldModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Planet.sdkmesh", *effectFactory);
 
 	// プレーヤーモデルローダーフラグ
 	DirectX::ModelLoaderFlags flags = DirectX::ModelLoader_Clockwise | DirectX::ModelLoader_IncludeBones;
-	// SDKMESH形式のプレーヤーモデルをロードする
+	// プレーヤーモデルをロードする
 	m_playerModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Player.sdkmesh", *effectFactory, flags);
 	m_playerModel->UpdateEffects(
+		[&](IEffect* pEffect)
+		{
+			// BasicEffectにキャストする
+			auto pBasicEffect = dynamic_cast<DirectX::SkinnedEffect*> (pEffect);
+
+			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 0.5));
+		}
+	);
+
+	// 敵モデルをロードする
+	m_enemyModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Enemy.sdkmesh", *effectFactory, flags);
+	m_enemyModel->UpdateEffects(
 		[&](IEffect* pEffect)
 		{
 			// BasicEffectにキャストする

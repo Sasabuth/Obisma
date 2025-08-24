@@ -9,8 +9,10 @@
 
 // ヘッダファイルの読み込み
 #include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Enemy/Enemy.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Ball/Ball.h"
+#include "Game/GameObjects/Ball/BallManager.h"
 
 
 // クラスの定義
@@ -30,6 +32,14 @@ public:
 	// プレイヤーを生成する
 	static std::unique_ptr<Player> CreatePlayer(
 		GameplayScene* pScene,
+		BallManager* ballManager,
+		const DirectX::SimpleMath::Vector3& initialPosition
+	);
+
+	// 敵を生成する
+	static std::unique_ptr<Enemy> CreateEnemy(
+		GameplayScene* pScene,
+		BallManager* ballManager,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
@@ -42,6 +52,11 @@ public:
 	static std::unique_ptr<Ball> CreateBall(
 		GameplayScene* pScene, 
 		const DirectX::SimpleMath::Vector3& initialPosition
+	);
+
+	// ボールを生成する
+	static std::unique_ptr<BallManager> CreateBallManager(
+		GameplayScene* pScene
 	);
 };
 

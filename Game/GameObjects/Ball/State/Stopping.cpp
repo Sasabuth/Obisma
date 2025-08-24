@@ -97,7 +97,7 @@ void Stopping::Render()
 	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
 
 	// デバック
-	/*m_ball->GetCollider().Draw(states, *view, *proj);*/
+	m_ball->GetCollider().Draw(states, *view, *proj);
 	debugFont->Render(L"Stopping");
 
 }

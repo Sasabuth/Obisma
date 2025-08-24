@@ -55,14 +55,21 @@ void GameplayScene::Initialize()
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_userResources->GetDeviceResources()->GetOutputSize().bottom, m_userResources->GetDeviceResources()->GetOutputSize().right);
 
+	// ボールマネージャーの初期化
+	m_ballManager = Factory::CreateBallManager(this);
+
 	// プレイヤーの初期化
-	m_player = Factory::CreatePlayer(this, SimpleMath::Vector3{ 2.0f,3.0f,2.0f });
+	m_player = Factory::CreatePlayer(this, m_ballManager.get(), SimpleMath::Vector3{2.0f,3.0f,2.0f});
+
+	// 敵の初期化
+	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), SimpleMath::Vector3{ 2.0f,5.0f,2.0f });
 
 	m_cameraUp = std::make_unique<CameraUp>(m_player.get());
-	m_cameraUp->Initialize(SimpleMath::Vector3{ 3.0f,3.0f,3.0f });
+	m_cameraUp->Initialize(SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
 
-	// プレイヤーの初期化
-	m_ball = Factory::CreateBall(this, SimpleMath::Vector3{ 1.0f,2.0f,4.0f });
+	//// プレイヤーの初期化
+	//m_ball = Factory::CreateBall(this, SimpleMath::Vector3{ 1.0f,2.0f,4.0f });
+
 }
 
 
@@ -75,19 +82,26 @@ void GameplayScene::Update(float elapsedTime)
 {
 	// キーボードの取得
 	auto keyboard = m_userResources->GetKeyboardStateTracker();
-
-	auto player = dynamic_cast<Player*>(m_player.get());
-	m_camera->Update(player, m_cameraUp->GetPosition(), m_field->GetCollider().GetPosition());
+	
 	m_cameraUp->Update(elapsedTime);
+	m_camera->Update(m_player.get(), m_cameraUp->GetPosition(), m_field->GetCollider().GetPosition());
 	m_camera->DebugMode();
 
 	m_field->Update(elapsedTime);
 	m_player->Update(elapsedTime);
-	m_ball->Update(elapsedTime);
+	m_enemy->Update(elapsedTime);
+	/*m_ball->Update(elapsedTime);*/
+	m_ballManager->Update(elapsedTime);
 
 	IsHitEntityToField(m_player.get(), m_field.get());
-	IsHitEntityToField(m_ball.get(), m_field.get());
+	IsHitEntityToField(m_enemy.get(), m_field.get());
+	/*IsHitEntityToField(m_ball.get(), m_field.get());*/
 	IsHitEntityToField(m_cameraUp.get(), m_field.get());
+
+	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+	{
+		IsHitEntityToField(m_ballManager->GetBall(i), m_field.get());
+	}
 
 	if (keyboard->IsKeyPressed(DirectX::Keyboard::Keys::Space))
 	{
@@ -106,8 +120,11 @@ void GameplayScene::Render()
 	debugFont->Render(L"GameplayScene");
 
 	m_field->Render();
-	m_ball->Render();
 	m_player->Render();
+	m_enemy->Render();
+	/*m_ball->Render();*/
+	m_ballManager->Render();
+	/*m_cameraUp->Render();*/
 }
 
 
@@ -118,8 +135,10 @@ void GameplayScene::Render()
 void GameplayScene::Finalize()
 {
 	m_field->Finalize();
-	m_ball->Finalize();
+	/*m_ball->Finalize();*/
+	m_ballManager->Finalize();
 	m_player->Finalize();
+	m_enemy->Finalize();
 	m_cameraUp->Finalize();
 	Resources::GetInstance()->Reset();
 }

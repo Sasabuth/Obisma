@@ -12,6 +12,8 @@ public:
 	DirectX::Model* GetFieldModel() { return m_fieldModel.get(); }
 	// プレイヤーモデルの取得
 	DirectX::Model* GetPlayerModel() { return m_playerModel.get(); }
+	// 敵モデルの取得
+	DirectX::Model* GetEnemyModel() { return m_enemyModel.get(); }
 	// ボールモデルの取得
 	DirectX::Model* GetBallModel() { return m_ballModel.get(); }
 	// ボールモデルの取得
@@ -48,6 +50,8 @@ private:
 
 	// プレーヤーモデル
 	std::unique_ptr<DirectX::Model> m_playerModel;
+	// 敵モデル
+	std::unique_ptr<DirectX::Model> m_enemyModel;
 	// フィールドモデル
 	std::unique_ptr<DirectX::Model> m_fieldModel;
 	// ボールモデル

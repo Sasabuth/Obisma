@@ -12,33 +12,23 @@
 #include "Game/Commons/Interface/IState.h"
 #include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
-#include "Game/GameObjects/Player/State/Standing.h"
-#include "Game/GameObjects/Player/State/Running.h"
-#include "Game/GameObjects/Player/State/ThrowingR.h"
-#include "Game/GameObjects/Player/State/ThrowingL.h"
-#include <map>
+#include "Game/GameObjects/Enemy/State/EnemyStanding.h"
+#include "Game/GameObjects/Enemy/State/EnemyRunning.h"
+#include "Game/GameObjects/Enemy/State/EnemyThrowing.h"
 
 
 // クラスの定義
 class GameplayScene;
 class Camera;
 class BallManager;
-class Ball;
 
 
 // クラスの定義
-class Player : public IEntity
+class Enemy : public IEntity
 {
 public:
 	static constexpr float PLAYER_SIZE = 0.003f;
 	static constexpr float SHADOW_SIZE = 0.4f;
-
-	enum PLAYER_HAND
-	{
-		NONE=0,
-		RIGHT,
-		LEFT,
-	};
 
 
 // 変数
@@ -52,10 +42,9 @@ private:
 	IState* m_currentState;  // 現在のステート
 
 	
-	std::unique_ptr<Standing> m_standing;  // 「立つ」状態
-	std::unique_ptr<Running> m_running;    // 「走る」状態
-	std::unique_ptr<ThrowingR> m_throwingR;  // 「右で投げる」状態
-	std::unique_ptr<ThrowingL> m_throwingL;  // 「左で投げる」状態
+	std::unique_ptr<EnemyStanding> m_standing;  // 「立つ」状態
+	std::unique_ptr<EnemyRunning> m_running;    // 「走る」状態
+	std::unique_ptr<EnemyThrowing> m_throwing;  // 「投げる」状態
 
 	DirectX::SimpleMath::Vector3 m_position; // 座標
 	DirectX::SimpleMath::Vector3 m_velocity; // 速度
@@ -76,15 +65,16 @@ private:
 	DirectX::SimpleMath::Ray m_mouseRay;  // マウスのレイ
 	DirectX::SimpleMath::Vector3 m_hitPos;  // 当たった点
 
-	std::map<int, Ball*> m_isBall;
+	bool m_isBall;
+
 
 // 関数
 public:
 	// コンストラクタ
-	Player(GameplayScene* pScene, BallManager* ballManager);
+	Enemy(GameplayScene* pScene, BallManager* ballManager);
 
 	// デストラクタ
-	~Player() override;
+	~Enemy() override;
 
 	// 初期化
 	void Initialize(DirectX::SimpleMath::Vector3 position) override;
@@ -119,9 +109,6 @@ public:
 		float radius,
 		DirectX::SimpleMath::Vector3& hitPos
 	);
-
-	// マウスの方向に回転
-	void RotateToMouse();
 
 	// 影の初期化
 	void InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context);
@@ -160,19 +147,19 @@ public:
 	// シーン
 	GameplayScene* GetScene() const { return m_pScene; }
 
-	// ボールマネージャー
+	// シーン
 	BallManager* GetBallManager() const { return m_ballManager; }
 
-	void SetCatchBall(int key, Ball* ball);
-	Ball* GetCatchBall(int key) const;
+	// ボールを持っているか
+	bool GetBall() const { return m_isBall; }
+	void SetBall(bool isBall) { m_isBall = isBall; }
 
 
 // ステートの取得
 public:
-	Standing* GetStanding() const { return m_standing.get(); }
-	Running* GetRunning() const { return m_running.get(); }
-	ThrowingR* GetThrowingR() const { return m_throwingR.get(); }
-	ThrowingL* GetThrowingL() const { return m_throwingL.get(); }
+	EnemyStanding* GetStanding() const { return m_standing.get(); }
+	EnemyRunning* GetRunning() const { return m_running.get(); }
+	EnemyThrowing* GetThrowing() const { return m_throwing.get(); }
 
 	
 };

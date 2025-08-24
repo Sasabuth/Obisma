@@ -14,16 +14,28 @@
 // 名前の省略
 using namespace DirectX;
 
-std::unique_ptr<Player> Factory::CreatePlayer(GameplayScene* pScene, const DirectX::SimpleMath::Vector3& initialPosition)
+std::unique_ptr<Player> Factory::CreatePlayer(GameplayScene* pScene, BallManager* ballManager, const DirectX::SimpleMath::Vector3& initialPosition)
 {
 	// プレイヤーを宣言
 	std::unique_ptr<Player> player;
 	// プレイヤーを生成
-	player = std::make_unique<Player>(pScene);
+	player = std::make_unique<Player>(pScene, ballManager);
 	// プレイヤーを初期化
 	player->Initialize(initialPosition);
 	// プレイヤーを返す
 	return std::move(player);
+}
+
+std::unique_ptr<Enemy> Factory::CreateEnemy(GameplayScene* pScene, BallManager* ballManager, const DirectX::SimpleMath::Vector3& initialPosition)
+{
+	// プレイヤーを宣言
+	std::unique_ptr<Enemy> enemy;
+	// プレイヤーを生成
+	enemy = std::make_unique<Enemy>(pScene, ballManager);
+	// プレイヤーを初期化
+	enemy->Initialize(initialPosition);
+	// プレイヤーを返す
+	return std::move(enemy);
 }
 
 std::unique_ptr<Field> Factory::CreateField(GameplayScene* pScene)
@@ -48,4 +60,16 @@ std::unique_ptr<Ball> Factory::CreateBall(GameplayScene* pScene, const DirectX::
 	ball->Initialize(initialPosition);
 	// ボールを返す
 	return std::move(ball);
+}
+
+std::unique_ptr<BallManager> Factory::CreateBallManager(GameplayScene* pScene)
+{
+	// ボールマネージャーの宣言
+	std::unique_ptr<BallManager> ballManager;
+	// ボールマネージャーの生成
+	ballManager = std::make_unique<BallManager>(pScene);
+	// ボールマネージャーの初期化
+	ballManager->Initialize();
+	// ボールマネージャーを返す
+	return std::move(ballManager);
 }

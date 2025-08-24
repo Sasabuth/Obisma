@@ -1,12 +1,12 @@
 ﻿/// <summary>
-/// Standingに関するソースファイル
+/// ThrowingRに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
+/// <date>2025/07/16</date>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "Standing.h"
+#include "ThrowingR.h"
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
@@ -21,10 +21,12 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Standing::Standing(Player* player)
+ThrowingR::ThrowingR(Player* player)
 	: m_player(player)
 	, m_userResources(nullptr)
 	, m_model{}
+	, m_time{}
+	, m_isThowing(false)
 {
 	// モデルの作成
 	m_model = Resources::GetInstance()->GetPlayerModel();
@@ -32,7 +34,7 @@ Standing::Standing(Player* player)
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();
 	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources\\Animations\\Player_Idle.sdkmesh_anim");
+	m_animation->Load(L"resources\\Animations\\Player_ThrowR.sdkmesh_anim");
 	// アニメーションとモデルをバインドする
 	m_animation->Bind(*m_model);
 	// ボーン用のトランスフォーム配列を生成する
@@ -48,7 +50,7 @@ Standing::Standing(Player* player)
 /// <summary>
 /// デストラクタ
 /// </summary>
-Standing::~Standing()
+ThrowingR::~ThrowingR()
 {
 }
 
@@ -57,7 +59,7 @@ Standing::~Standing()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void Standing::Initialize()
+void ThrowingR::Initialize()
 {
 	m_userResources = UserResources::GetUserResource();
 
@@ -65,11 +67,11 @@ void Standing::Initialize()
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_worldMatrix = SimpleMath::Matrix::Identity;
-	
+
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
-	m_animation->SetEndTime(0.5f);
+	m_animation->SetEndTime(1.42f);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -81,6 +83,8 @@ void Standing::Initialize()
 	// 入力レイアウトの作成
 	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 
+	m_time = 0.0f;
+	m_isThowing = false;
 }
 
 
@@ -89,46 +93,56 @@ void Standing::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void Standing::Update(float elapsedTime)
+void ThrowingR::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	auto kbTracker = m_userResources->GetKeyboardStateTracker();
-	auto mouse = Mouse::Get().GetState();
-	auto mouseTK = m_userResources->GetMouseStateTracker();
+	auto kb = Keyboard::Get().GetState();
 
-	// プロジェクション行列
-	auto proj = m_userResources->GetProject();
-	auto view = m_userResources->GetView();
-
-
-	// アニメーションの更新
-	AnimationUpdate(elapsedTime);
-
-	// レイの設定
-	auto const r = m_userResources->GetDeviceResources()->GetOutputSize();
-	m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
-
-	// マウスの方向に回転
-	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
+	// 投げていなかったら手に持たせる
+	if (!m_isThowing)
 	{
-		m_player->RotateToMouse();
+		// 右手に持たせる
+		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
+		SetBallPosition(ball, m_rightHandMatrix);
+		
+		// 時間になったら投げる
+		if (m_animation->GetAnimTime() > 0.6f)
+		{
+			ball->ChangeState(ball->GetMoving());
+			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
+			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
+			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate));
+			m_player->SetCatchBall(Player::RIGHT, nullptr);
+			m_isThowing = true;
+		}
 	}
-
-	// ステートの変更
-	if (kbTracker->pressed.W)
-	{
-		m_player->ChangeState(m_player->GetRunning());
-	}
-
-	CatchHandBall();
-	ThrowBall(mouseTK);
 	
 
 	// プレイヤーの設定
 	m_player->SetVelocity(m_player->GetGravity());
 	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
 	m_player->GetCollider().SetPosition(m_player->GetPosition());
+
+	// アニメーションを更新し終了したらステート変更
+	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
+	{
+		// 左手に持たせる
+		Ball* ball = m_player->GetCatchBall(Player::LEFT);
+		if(ball) SetBallPosition(ball, m_leftHandMatrix);
+
+		// アニメーションを更新する
+		m_animation->Update(elapsedTime);
+	}
+	else
+	{
+		if (kb.W) m_player->ChangeState(m_player->GetRunning());
+		else m_player->ChangeState(m_player->GetStanding());
+	}
+
+	// アニメーションの更新
+	AnimationUpdate(elapsedTime);
+
 }
 
 
@@ -136,7 +150,7 @@ void Standing::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void Standing::Render()
+void ThrowingR::Render()
 {
 	// デバックフォントの描画
 	auto* debugFont = m_userResources->GetDebugFont();
@@ -170,10 +184,6 @@ void Standing::Render()
 
 	// 影の描画
 	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
-	
-
-	// デバック
-	/*m_model->Draw(context, *states, world, *view, *proj);*/
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -193,16 +203,20 @@ void Standing::Render()
 	context->IASetInputLayout(m_inputLayout.Get());
 
 	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
+
+	SimpleMath::Vector3 dir = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
+	SimpleMath::Quaternion rot = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
+	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation() * rot);
+
 	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
 
-	//m_primitiveBatch->Begin();
-	//DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
-	//DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
-	//DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
-	//m_primitiveBatch->End();
+	/*m_primitiveBatch->Begin();
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
+	m_primitiveBatch->End();*/
 
-	debugFont->Render(L"Standing");
+	debugFont->Render(L"ThrowingR");
 }
 
 
@@ -210,7 +224,7 @@ void Standing::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void Standing::Finalize()
+void ThrowingR::Finalize()
 {
 }
 
@@ -220,60 +234,17 @@ void Standing::Finalize()
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void Standing::AnimationUpdate(float elapsedTime)
+void ThrowingR::AnimationUpdate(float elapsedTime)
 {
-	// アニメーション時間がアニメーション終了時間より小さい場合はアニメーションを繰り返す
-	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
-	{
-		// アニメーションを更新する
-		m_animation->Update(elapsedTime);
-	}
-	else
-	{
-		// アニメーションの開始時間を設定する
-		m_animation->SetStartTime(0.0);
-	}
-
 	// アニメションにモデルを適用する
 	m_animation->Apply(*m_model, m_model->bones.size(), m_drawBones.get());
 	// ボーン数を取得する
 	size_t nbones = m_model->bones.size();
-	m_rightHandMatrix = m_drawBones[20];
-	m_leftHandMatrix = m_drawBones[15];
+	// ボーンマトリクスを設定する
+	m_rightHandMatrix = m_drawBones[15];
+	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
-}
-
-
-
-/// <summary>
-/// ボールを投げる
-/// </summary>
-/// <param name="mouseTK">マウストラッカー</param>
-void Standing::ThrowBall(DirectX::Mouse::ButtonStateTracker* mouseTK)
-{
-
-	if (m_player->GetCatchBall(Player::RIGHT))
-	{
-		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
-		SetBallPosition(ball, m_rightHandMatrix);
-
-		if (mouseTK->leftButton)
-		{
-			m_player->ChangeState(m_player->GetThrowingR());
-			return;
-		}
-	}
-	if (m_player->GetCatchBall(Player::LEFT))
-	{
-		Ball* ball = m_player->GetCatchBall(Player::LEFT);
-		SetBallPosition(ball, m_leftHandMatrix);
-
-		if (mouseTK->leftButton)
-		{
-			m_player->ChangeState(m_player->GetThrowingL());
-		}
-	}
 }
 
 
@@ -283,7 +254,7 @@ void Standing::ThrowBall(DirectX::Mouse::ButtonStateTracker* mouseTK)
 /// </summary>
 /// <param name="ball">ボールのポインタ</param>
 /// <param name="handMatrix">手のマトリックス</param>
-void Standing::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+void ThrowingR::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
 {
 	// ボーンに設定した境界球のワールド計算を行う
 	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
@@ -291,37 +262,4 @@ void Standing::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatri
 	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
 	dir.Normalize();
 	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
-}
-
-
-
-/// <summary>
-/// ボールを持つ
-/// </summary>
-
-void Standing::CatchHandBall()
-{
-	if (m_player->GetCatchBall(Player::RIGHT) && m_player->GetCatchBall(Player::LEFT))
-	{
-		return;
-	}
-
-	for (int i = 0; i < m_player->GetBallManager()->GetObjectCount(); i++)
-	{
-		Ball* ball = m_player->GetBallManager()->GetBall(i);
-		if (IsHit(m_player->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
-		{
-			ball->ChangeState(ball->GetCatching());
-
-			if (!m_player->GetCatchBall(Player::RIGHT))
-			{
-				m_player->SetCatchBall(Player::RIGHT, ball);
-			}
-			else
-			{
-				m_player->SetCatchBall(Player::LEFT, ball);
-			}
-			
-		}
-	}
 }

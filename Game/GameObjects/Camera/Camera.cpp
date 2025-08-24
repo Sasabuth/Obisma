@@ -27,15 +27,20 @@ Camera::Camera(int windowWidth, int windowHeight)
 	Mouse::Get().ResetScrollWheelValue();
 }
 
+
+
+/// <summary>
+/// 更新
+/// </summary>
+/// <param name="player">プレイヤー</param>
+/// <param name="upPos">上向きベクトル</param>
+/// <param name="field">フィールド</param>
 void Camera::Update(Player* player, SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field)
 {
 	// プレイヤー位置
 	SimpleMath::Vector3 playerPos = player->GetPosition();
 
-	// 球体中心
-	SimpleMath::Vector3 sphereCenter = field;
-
-	// カメラのオフセット位置（プレイヤー位置から toCenter と逆方向に引いた位置）
+	// 目の位置
 	SimpleMath::Vector3 eye = playerPos * 3;
 
 	// 世界Y軸
@@ -49,6 +54,11 @@ void Camera::Update(Player* player, SimpleMath::Vector3 upPos, DirectX::SimpleMa
 	UserResources::GetUserResource()->SetView(&m_view);
 }
 
+
+
+/// <summary>
+/// デバック用
+/// </summary>
 void Camera::DebugMode()
 {
 	auto state = Mouse::Get().GetState();

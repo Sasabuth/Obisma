@@ -10,7 +10,7 @@
 
  // ヘッダファイルの読み込み ===================================================
 #include "pch.h"
-#include "Game/Commons/Collision.h"
+#include "Collision.h"
 
 
 using namespace DirectX;
@@ -160,7 +160,7 @@ float SphereCollider::GetRadius() const
 /// </summary>
 CubeCollider::CubeCollider()
 	: m_position{}
-	, m_halfSize{ 0.0f }
+	, m_extent{ 0.0f }
 	, m_cube{ nullptr }
 {
 }
@@ -174,75 +174,38 @@ CubeCollider::~CubeCollider()
 {
 }
 
-void CubeCollider::Initialize(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Vector3 position, float size)
+
+
+/// <summary>
+/// 初期化
+/// </summary>
+/// <param name="pContext">コンテキスト</param>
+/// <param name="position">座標</param>
+/// <param name="extent">半径</param>
+void CubeCollider::Initialize(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Vector3 position, DirectX::SimpleMath::Vector3 extent)
 {
 	// 座標の設定
 	m_position = position;
 
 	// サイズの設定
-	m_halfSize = size / 2;
+	m_extent = extent;
 
-	m_cube = DirectX::GeometricPrimitive::CreateCube(pContext, m_halfSize * 2);
+	m_cube = DirectX::GeometricPrimitive::CreateBox(pContext, m_extent);
 }
 
-void CubeCollider::Draw(DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj)
+
+
+/// <summary>
+/// 描画
+/// </summary>
+/// <param name="view">ビュー行列</param>
+/// <param name="proj">プロジェクション行列</param>
+void CubeCollider::Draw(DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, DirectX::FXMVECTOR color)
 {
 	SimpleMath::Matrix world;
 
 	world = SimpleMath::Matrix::CreateTranslation(m_position);
-	m_cube->Draw(world, view, proj);
-}
-
-void CubeCollider::SetPosition(DirectX::SimpleMath::Vector3 position)
-{
-	m_position = position;
-}
-
-void CubeCollider::SetPosition(float posX, float posY, float posZ)
-{
-	m_position.x = posX;
-	m_position.y = posY;
-	m_position.z = posZ;
-}
-
-void CubeCollider::SetSize(float size)
-{
-	m_halfSize = size / 2;
-}
-
-DirectX::SimpleMath::Vector3 CubeCollider::GetPosition() const
-{
-	return m_position;
-}
-
-float CubeCollider::GetMinX() const
-{
-	return m_position.x - m_halfSize;
-}
-
-float CubeCollider::GetMaxX() const
-{
-	return m_position.x + m_halfSize;
-}
-
-float CubeCollider::GetMinY() const
-{
-	return m_position.y - m_halfSize;
-}
-
-float CubeCollider::GetMaxY() const
-{
-	return m_position.y + m_halfSize;
-}
-
-float CubeCollider::GetMinZ() const
-{
-	return m_position.z - m_halfSize;
-}
-
-float CubeCollider::GetMaxZ() const
-{
-	return m_position.z + m_halfSize;
+	m_cube->Draw(world, view, proj, color);
 }
 
 
@@ -252,7 +215,7 @@ float CubeCollider::GetMaxZ() const
 /// </summary>
 /// <param name="sphereA"></param> 球A
 /// <param name="sphereB"></param> 球B
-/// <returns></returns>  当たっているか
+/// <returns>当たっているか</returns>  
 bool IsHit(const SphereCollider& sphereA, const SphereCollider& sphereB)
 {
 	// 中心の取得
@@ -270,14 +233,19 @@ bool IsHit(const SphereCollider& sphereA, const SphereCollider& sphereB)
 	return distanceSquared <= radiusSum * radiusSum ? true : false;
 }
 
+
+
+/// <summary>
+/// 立方体と立方体の当たり判定
+/// </summary>
+/// <param name="cubeA">立方体A</param>
+/// <param name="cubeB">立方体B</param>
+/// <returns>当たっているか</returns>
 bool IsHit(const CubeCollider& cubeA, const CubeCollider& cubeB)
 {
-	if (cubeA.GetPosition().x >= cubeB.GetMinX() &&
-		cubeA.GetPosition().x <= cubeB.GetMaxX() &&
-		cubeA.GetPosition().y >= cubeB.GetMinY() &&
-		cubeA.GetPosition().y <= cubeB.GetMaxY() /*&&
-		cubeA.GetPosition().z >= cubeB.GetMinZ() &&
-		cubeA.GetPosition().z <= cubeB.GetMaxZ()*/)
+	if (std::abs(cubeA.GetPosition().x - cubeB.GetPosition().x) <= (cubeA.GetExtent().x + cubeB.GetExtent().x) &&
+		(std::abs(cubeA.GetPosition().y - cubeB.GetPosition().y) <= (cubeA.GetExtent().y + cubeB.GetExtent().y)) &&
+		(std::abs(cubeA.GetPosition().z - cubeB.GetPosition().z) <= (cubeA.GetExtent().z + cubeB.GetExtent().z)))
 	{
 		return true;
 	}

@@ -1,5 +1,5 @@
 /// <summary>
-/// Throwingに関するヘッダファイル
+/// ThrowingRに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
 /// <date>2025/07/16</date>
@@ -16,11 +16,12 @@
 
 // クラスの定義
 class Player;
+class Ball;
 
 
 
 // クラスの定義
-class Throwing : public IState
+class ThrowingR : public IState
 {
 private:
 
@@ -37,12 +38,13 @@ private:
 
 	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
 
-	// ワールドマトリックス
-	DirectX::SimpleMath::Matrix m_worldMatrix;
-	DirectX::SimpleMath::Matrix m_boneMatrix;
+	
+	DirectX::SimpleMath::Matrix m_worldMatrix;  // ワールドマトリックス
+	DirectX::SimpleMath::Matrix m_rightHandMatrix;  // 右手のマトリックス
+	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
 
-	float m_time;
-	bool m_isThowing;
+	float m_time;  // 時間
+	bool m_isThowing;  // 投げたか
 
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
@@ -54,10 +56,10 @@ private:
 	// 関数
 public:
 	// コンストラクタ
-	Throwing(Player* player);
+	ThrowingR(Player* player);
 
 	// デストラクタ
-	~Throwing() override;
+	~ThrowingR() override;
 
 	// 初期化
 	void Initialize() override;
@@ -75,5 +77,8 @@ public:
 private:
 	// アニメーションの更新
 	void AnimationUpdate(float elapsedTime);
+
+	// ボールの座標の設定
+	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 };
 

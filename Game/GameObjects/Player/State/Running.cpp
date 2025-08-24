@@ -76,6 +76,9 @@ void Running::Initialize()
 
 	// 入力レイアウトの作成
 	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+
+	// アニメーションの初期化
+	AnimationUpdate(0.0f);
 }
 
 
@@ -94,40 +97,25 @@ void Running::Update(float elapsedTime)
 	auto proj = m_userResources->GetProject();
 	auto view = m_userResources->GetView();
 
+	// 速度の設定
+	m_player->SetVelocity(m_player->GetGravity());
+
+
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
 
-	// マウスのレイによる回転
+	// レイの設定
 	auto const r = m_userResources->GetDeviceResources()->GetOutputSize();
 	m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
 
+	// マウスの方向に回転
 	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
 	{
 		m_player->RotateToMouse();
 	}
 
-	// 速度の設定
-	m_player->SetVelocity(m_player->GetGravity());
-
-
-	if (IsHit(m_player->GetCollider(), m_player->GetScene()->GetBall().GetCollider()) && m_player->GetScene()->GetBall().GetCurrentState() != m_player->GetScene()->GetBall().GetMoving())
-	{
-		Ball& ball = m_player->GetScene()->GetBall();
-		ball.ChangeState(ball.GetCatching());
-
-		// ボーンに設定した境界球のワールド計算を行う
-		DirectX::SimpleMath::Matrix sphereMatrix = m_boneMatrix * m_worldMatrix;
-		// バウンディングスフィアの中心点を設定する
-		SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-		dir.Normalize();
-		ball.SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
-
-		// 左クリックでステート変更
-		if (mouseTK->leftButton)
-		{
-			m_player->ChangeState(m_player->GetThrowing());
-		}
-	}
+	CatchHandBall();
+	ThrowBall(mouseTK);
 
 	// キーによる移動
 	if (kb.W)
@@ -137,6 +125,12 @@ void Running::Update(float elapsedTime)
 	else
 	{
 		m_player->ChangeState(m_player->GetStanding());
+	}
+
+	// 移動制限
+	if (m_player->GetPosition().y < 0.0f)
+	{
+		m_player->SetPosition(SimpleMath::Vector3(m_player->GetPosition().x, 0.0f, m_player->GetPosition().z));
 	}
 
 	// プレイヤーの設定
@@ -158,6 +152,14 @@ void Running::Render()
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
+
+
+
+	SimpleMath::Vector3 m_drawPos;
+
+	// 影の描画
+	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
+
 
 	// ワールド座標
 	SimpleMath::Matrix world;
@@ -181,8 +183,7 @@ void Running::Render()
 		*proj
 	);
 
-	// 影の描画
-	m_player->DrawShadow(context, states, Player::SHADOW_SIZE);
+
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -205,13 +206,14 @@ void Running::Render()
 	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
 	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
 
-	m_primitiveBatch->Begin();
+	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
-	m_primitiveBatch->End();
+	m_primitiveBatch->End();*/
 
 	// デバック
+	/*m_player->GetCollider().Draw(states, *view, *proj);*/
 	debugFont->Render(L"Running");
 }
 
@@ -249,7 +251,98 @@ void Running::AnimationUpdate(float elapsedTime)
 	// ボーン数を取得する
 	size_t nbones = m_model->bones.size();
 	// ボーンマトリクスを設定する
-	m_boneMatrix = m_drawBones[15];
+	m_rightHandMatrix = m_drawBones[15];
+	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
+}
+
+
+
+/// <summary>
+/// ボールを投げる
+/// </summary>
+/// <param name="mouseTK">マウストラッカー</param>
+void Running::ThrowBall(DirectX::Mouse::ButtonStateTracker* mouseTK)
+{
+	// 右手に持っていたら投げる
+	if (m_player->GetCatchBall(Player::RIGHT))
+	{
+		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
+		SetBallPosition(ball, m_rightHandMatrix);
+
+		// 左クリックで投げる
+		if (mouseTK->leftButton)
+		{
+			m_player->ChangeState(m_player->GetThrowingR());
+			return;
+		}
+	}
+	// 左手に持っていたら投げる
+	if (m_player->GetCatchBall(Player::LEFT))
+	{
+		Ball* ball = m_player->GetCatchBall(Player::LEFT);
+		SetBallPosition(ball, m_leftHandMatrix);
+
+		// 左クリックで投げる
+		if (mouseTK->leftButton)
+		{
+			m_player->ChangeState(m_player->GetThrowingL());
+		}
+	}
+}
+
+
+
+/// <summary>
+/// ボールの座標の設定
+/// </summary>
+/// <param name="ball">ボールのポインタ</param>
+/// <param name="handMatrix">手のマトリックス</param>
+void Running::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+{
+	// ボーンに設定した境界球のワールド計算を行う
+	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
+	// バウンディングスフィアの中心点を設定する
+	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
+	dir.Normalize();
+	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+}
+
+
+
+/// <summary>
+/// ボールを持つ
+/// </summary>
+void Running::CatchHandBall()
+{
+	// 両手に持っていたら終了
+	if (m_player->GetCatchBall(Player::RIGHT) && m_player->GetCatchBall(Player::LEFT))
+	{
+		return;
+	}
+
+	// どのボールが当たったか調べる
+	for (int i = 0; i < m_player->GetBallManager()->GetObjectCount(); i++)
+	{
+		Ball* ball = m_player->GetBallManager()->GetBall(i);
+
+		// 止まっているボールに当たったら
+		if (IsHit(m_player->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
+		{
+			// ボールの状態の変更
+			ball->ChangeState(ball->GetCatching());
+
+			// 右手に持っていなかったら右手に持たせる
+     		if (!m_player->GetCatchBall(Player::RIGHT))
+			{
+				m_player->SetCatchBall(Player::RIGHT, ball);
+			}
+			// それ以外なら左手に持たせる
+			else
+			{
+				m_player->SetCatchBall(Player::LEFT, ball);
+			}
+		}
+	}
 }

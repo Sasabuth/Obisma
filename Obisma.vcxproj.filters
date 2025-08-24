@@ -41,6 +41,12 @@
     <Filter Include="Game\GameObjects\Ball\State">
       <UniqueIdentifier>{147b6792-99aa-4f41-aa7a-6d2c77072396}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\GameObjects\Enemy">
+      <UniqueIdentifier>{1b91ea82-f119-4d60-90c5-12f82db5ff08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObjects\Enemy\State">
+      <UniqueIdentifier>{79b32416-741c-461d-a756-c0cbd922f5b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -122,7 +128,25 @@
     <ClInclude Include="Game\GameObjects\Camera\CameraUp.h">
       <Filter>Game\GameObjects\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Game\GameObjects\Player\State\Throwing.h">
+    <ClInclude Include="Game\GameObjects\Enemy\Enemy.h">
+      <Filter>Game\GameObjects\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyRunning.h">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyStanding.h">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowing.h">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Ball\BallManager.h">
+      <Filter>Game\GameObjects\Ball</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\ThrowingL.h">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\ThrowingR.h">
       <Filter>Game\GameObjects\Player\State</Filter>
     </ClInclude>
   </ItemGroup>
@@ -198,7 +222,25 @@
     <ClCompile Include="Game\GameObjects\Camera\CameraUp.cpp">
       <Filter>Game\GameObjects\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Game\GameObjects\Player\State\Throwing.cpp">
+    <ClCompile Include="Game\GameObjects\Enemy\Enemy.cpp">
+      <Filter>Game\GameObjects\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyRunning.cpp">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyStanding.cpp">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowing.cpp">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Ball\BallManager.cpp">
+      <Filter>Game\GameObjects\Ball</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\ThrowingL.cpp">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\ThrowingR.cpp">
       <Filter>Game\GameObjects\Player\State</Filter>
     </ClCompile>
   </ItemGroup>

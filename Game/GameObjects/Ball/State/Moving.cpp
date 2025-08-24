@@ -116,10 +116,12 @@ void Moving::Render()
 	// 影の描画
 	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
 
+
 	// デバック
 	debugFont->Render(L"Moving");
 	debugFont->Render(L"Speed",m_ball->GetSpeed());
 	debugFont->Render(L"Length", m_ball->GetVelocity().Length());
+	m_ball->GetCollider().Draw(states, *view, *proj);
 }
 
 

@@ -1,8 +1,8 @@
 /// <summary>
-/// プレイヤーに関するヘッダファイル
+/// EnemyThrowingに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
+/// <date>2025/07/16</date>
 
 // 多重インクルードの防止
 #pragma once
@@ -15,34 +15,34 @@
 
 
 // クラスの定義
-class Player;
-class Ball;
-
+class Enemy;
 
 
 
 // クラスの定義
-class Standing : public IState
+class EnemyThrowing : public IState
 {
 private:
 
 
-// 変数
+	// 変数
 private:
 	UserResources* m_userResources;
 
-	Player* m_player;
+	Enemy* m_enemy;
 
 	DirectX::Model* m_model;  // モデル
 
 	DirectX::ModelBone::TransformArray m_drawBones;  // アニメーションボーン配列
-	
+
 	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
 
-	
-	DirectX::SimpleMath::Matrix m_worldMatrix;  // ワールドマトリックス
-	DirectX::SimpleMath::Matrix m_rightHandMatrix; // 右手のマトリックス
-	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
+	// ワールドマトリックス
+	DirectX::SimpleMath::Matrix m_worldMatrix;
+	DirectX::SimpleMath::Matrix m_boneMatrix;
+
+	float m_time;
+	bool m_isThowing;
 
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
@@ -51,13 +51,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
 
 
-// 関数
+	// 関数
 public:
 	// コンストラクタ
-	Standing(Player* player);
+	EnemyThrowing(Enemy* enemy);
 
 	// デストラクタ
-	~Standing() override;
+	~EnemyThrowing() override;
 
 	// 初期化
 	void Initialize() override;
@@ -75,14 +75,5 @@ public:
 private:
 	// アニメーションの更新
 	void AnimationUpdate(float elapsedTime);
-
-	// ボールを持つ
-	void CatchHandBall();
-
-	// ボールを投げる
-	void ThrowBall(DirectX::Mouse::ButtonStateTracker* mouseTK);
-
-	// ボールの座標の設定
-	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 };
 

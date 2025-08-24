@@ -15,7 +15,9 @@
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Camera/Camera.h"
 #include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Enemy/Enemy.h"
 #include "Game/GameObjects/Ball/Ball.h"
+#include "Game/GameObjects/Ball/BallManager.h"
 #include "Game/GameObjects/Camera/CameraUp.h"
 
 
@@ -34,9 +36,16 @@ private:
 
 	//  プレイヤー
 	std::unique_ptr<Player> m_player;
+
+	// 敵
+	std::unique_ptr<Enemy> m_enemy;
 	
-	//  ボール
-	std::unique_ptr<Ball> m_ball;
+	////  ボール
+	//std::unique_ptr<Ball> m_ball;
+
+	//  ボールマネージャー
+	std::unique_ptr<BallManager> m_ballManager;
+
 
 
 // 関数
@@ -71,7 +80,6 @@ public:
 
 public:
 	Field& GetField() const { return *m_field; }
-	Ball& GetBall() const { return *m_ball; }
 
 private:
 	void IsHitEntityToField(IEntity* pIEntity, Field* pField);

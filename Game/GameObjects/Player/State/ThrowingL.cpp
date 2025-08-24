@@ -1,12 +1,12 @@
 ﻿/// <summary>
-/// Throwingに関するソースファイル
+/// ThrowingLに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 /// <date>2025/07/16</date>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "Throwing.h"
+#include "ThrowingL.h"
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
@@ -21,7 +21,7 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Throwing::Throwing(Player* player)
+ThrowingL::ThrowingL(Player* player)
 	: m_player(player)
 	, m_userResources(nullptr)
 	, m_model{}
@@ -34,12 +34,15 @@ Throwing::Throwing(Player* player)
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();
 	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources\\Animations\\Player_ThrowR.sdkmesh_anim");
+	m_animation->Load(L"resources\\Animations\\Player_ThrowL.sdkmesh_anim");
 	// アニメーションとモデルをバインドする
 	m_animation->Bind(*m_model);
 	// ボーン用のトランスフォーム配列を生成する
 	m_drawBones = DirectX::ModelBone::MakeArray(m_model->bones.size());
 	ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
+
+	// アニメーションの初期化
+	AnimationUpdate(0.0f);
 }
 
 
@@ -47,7 +50,7 @@ Throwing::Throwing(Player* player)
 /// <summary>
 /// デストラクタ
 /// </summary>
-Throwing::~Throwing()
+ThrowingL::~ThrowingL()
 {
 }
 
@@ -56,7 +59,7 @@ Throwing::~Throwing()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void Throwing::Initialize()
+void ThrowingL::Initialize()
 {
 	m_userResources = UserResources::GetUserResource();
 
@@ -90,7 +93,7 @@ void Throwing::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void Throwing::Update(float elapsedTime)
+void ThrowingL::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
@@ -99,22 +102,24 @@ void Throwing::Update(float elapsedTime)
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
-		Ball& ball = m_player->GetScene()->GetBall();
+		Ball* ball = m_player->GetCatchBall(Player::LEFT);
 
 		// ボーンに設定した境界球のワールド計算を行う
-		DirectX::SimpleMath::Matrix sphereMatrix = m_boneMatrix * m_worldMatrix;
+		DirectX::SimpleMath::Matrix sphereMatrix = m_leftHandMatrix * m_worldMatrix;
 		// バウンディングスフィアの中心点を設定する
 		SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
 		dir.Normalize();
-		ball.SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
-
+		ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+		
+		
 		// 時間になったら投げる
 		if (m_animation->GetAnimTime() > 0.6f)
 		{
-			ball.ChangeState(ball.GetMoving());
+			ball->ChangeState(ball->GetMoving());
 			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
 			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-			ball.SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate));
+			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate));
+			m_player->SetCatchBall(Player::LEFT, nullptr);
 			m_isThowing = true;
 		}
 	}
@@ -137,6 +142,7 @@ void Throwing::Update(float elapsedTime)
 		else m_player->ChangeState(m_player->GetStanding());
 	}
 
+	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
 
 }
@@ -146,7 +152,7 @@ void Throwing::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void Throwing::Render()
+void ThrowingL::Render()
 {
 	// デバックフォントの描画
 	auto* debugFont = m_userResources->GetDebugFont();
@@ -176,8 +182,10 @@ void Throwing::Render()
 		*proj
 	);
 
+	SimpleMath::Vector3 m_drawPos;
+
 	// 影の描画
-	m_player->DrawShadow(context, states, Player::SHADOW_SIZE);
+	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -204,13 +212,13 @@ void Throwing::Render()
 
 	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
 
-	m_primitiveBatch->Begin();
+	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
-	m_primitiveBatch->End();
+	m_primitiveBatch->End();*/
 
-	debugFont->Render(L"Throwing");
+	debugFont->Render(L"ThrowingL");
 }
 
 
@@ -218,7 +226,7 @@ void Throwing::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void Throwing::Finalize()
+void ThrowingL::Finalize()
 {
 }
 
@@ -228,14 +236,14 @@ void Throwing::Finalize()
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void Throwing::AnimationUpdate(float elapsedTime)
+void ThrowingL::AnimationUpdate(float elapsedTime)
 {
 	// アニメションにモデルを適用する
 	m_animation->Apply(*m_model, m_model->bones.size(), m_drawBones.get());
 	// ボーン数を取得する
 	size_t nbones = m_model->bones.size();
 	// ボーンマトリクスを設定する
-	m_boneMatrix = m_drawBones[15];
+	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
 }

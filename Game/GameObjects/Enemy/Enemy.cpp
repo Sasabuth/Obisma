@@ -1,12 +1,12 @@
 ﻿/// <summary>
-/// Playerに関するソースファイル
+/// Enemyに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 /// <date>2025/05/21</date>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "Player.h"
+#include "Enemy.h"
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects//Camera/Camera.h"
@@ -22,11 +22,12 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Player::Player(GameplayScene* pScene, BallManager* ballManager)
+Enemy::Enemy(GameplayScene* pScene, BallManager* ballManager)
 	: m_pScene(pScene)
 	, m_userResources(nullptr)
 	, m_ballManager(ballManager)
 	, m_currentState{}
+	, m_isBall(false)
 {
 }
 
@@ -35,7 +36,7 @@ Player::Player(GameplayScene* pScene, BallManager* ballManager)
 /// <summary>
 /// デストラクタ
 /// </summary>
-Player::~Player()
+Enemy::~Enemy()
 {
 }
 
@@ -43,7 +44,7 @@ Player::~Player()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void Player::Initialize(DirectX::SimpleMath::Vector3 position)
+void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 {
 	m_userResources = UserResources::GetUserResource();
 	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
@@ -54,30 +55,23 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_collider.Initialize(context, m_position, 0.5f);
 
 	// 「立つ」状態の生成
-	m_standing = std::make_unique<Standing>(this);
+	m_standing = std::make_unique<EnemyStanding>(this);
 	// 「立つ」状態の初期化
 	m_standing->Initialize();
 	// 「走る」状態の生成
-	m_running = std::make_unique<Running>(this);
+	m_running = std::make_unique<EnemyRunning>(this);
 	// 「走る」状態の初期化
 	m_running->Initialize();
-	// 「右で投げる」状態の生成
-	m_throwingR = std::make_unique<ThrowingR>(this);
-	// 「右で投げる」状態の初期化
-	m_throwingR->Initialize();
-	// 「左で投げる」状態の生成
-	m_throwingL = std::make_unique<ThrowingL>(this);
-	// 「左で投げる」状態の初期化
-	m_throwingL->Initialize();
+	// 「投げる」状態の生成
+	m_throwing = std::make_unique<EnemyThrowing>(this);
+	// 「投げる」状態の初期化
+	m_throwing->Initialize();
 
 	// 立つ状態にする
 	m_currentState = m_standing.get();
 
-	// ボールを両手に持つための箱を用意する
-	m_isBall.insert(std::make_pair(1, nullptr));
-	m_isBall.insert(std::make_pair(2, nullptr));
+	m_isBall = false;
 
-	// 影の初期化
 	InitializeShadow(device, context);
 }
 
@@ -87,9 +81,9 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void Player::Update(float elapsedTime)
+void Enemy::Update(float elapsedTime)
 {
-	m_currentState->Update(elapsedTime);
+	/*m_currentState->Update(elapsedTime);*/
 }
 
 
@@ -97,12 +91,9 @@ void Player::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void Player::Render()
+void Enemy::Render()
 {
 	m_currentState->Render();
-
-	// デバック用
-	auto* debugFont = m_userResources->GetDebugFont();
 }
 
 
@@ -110,7 +101,7 @@ void Player::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void Player::Finalize()
+void Enemy::Finalize()
 {
 	m_currentState->Finalize();
 }
@@ -121,7 +112,7 @@ void Player::Finalize()
 /// 重なりの補填
 /// </summary>
 /// <param name="field">フィールド</param>
-void Player::CorrectOverlap(Field& field)
+void Enemy::CorrectOverlap(Field& field)
 {
 	// 差分を求める
 	SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
@@ -147,7 +138,7 @@ void Player::CorrectOverlap(Field& field)
 /// ステートの変更
 /// </summary>
 /// <param name="newState">新しいステート</param>
-void Player::ChangeState(IState* newState)
+void Enemy::ChangeState(IState* newState)
 {
 	m_currentState = newState;
 	m_currentState->Initialize();
@@ -165,7 +156,7 @@ void Player::ChangeState(IState* newState)
 /// <param name="view">ビュー行列</param>
 /// <param name="proj">プロジェクション行列</param>
 /// <returns></returns>
-DirectX::SimpleMath::Ray Player::CreatePickingRay(int mouseX, int mouseY, int screenWidth, int screenHeight, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
+DirectX::SimpleMath::Ray Enemy::CreatePickingRay(int mouseX, int mouseY, int screenWidth, int screenHeight, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
 {
 	// マウスの座標(NDC座標)
 	float px = (2.0f * mouseX / screenWidth - 1.0f);
@@ -200,7 +191,7 @@ DirectX::SimpleMath::Ray Player::CreatePickingRay(int mouseX, int mouseY, int sc
 /// <param name="radius">半径</param>
 /// <param name="hitPos">当たった座標</param>
 /// <returns>[true] 当たった　[false] 当たってない</returns>
-bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, float radius, DirectX::SimpleMath::Vector3& hitPos)
+bool Enemy::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, float radius, DirectX::SimpleMath::Vector3& hitPos)
 {
 	spherePos.x = spherePos.x - rayPos.x;
 	spherePos.y = spherePos.y - rayPos.y;
@@ -238,54 +229,11 @@ bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleM
 
 
 /// <summary>
-/// マウスの方向に回転
-/// </summary>
-void Player::RotateToMouse()
-{
-	// 方向
-	SimpleMath::Vector3 dir = m_position - m_hitPos;
-	dir.Normalize();
-
-	// 方向ベクトルの反転
-	SimpleMath::Vector3 targetUp;
-	targetUp = -dir;
-
-	// 現在の姿勢制御
-	SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_rotate);
-
-	// 回転軸の計算
-	SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
-	axis.Normalize();
-
-	// 回転角の計算
-	float dot = currentUp.Dot(targetUp);
-	float angle = acosf(dot);
-
-	// クォータニオンの作成
-	SimpleMath::Quaternion q;
-
-	// 角度が少しでもあれば軸を作る
-	if (angle > 0.01f)
-	{
-		q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
-	}
-	// なければ何もしない
-	else
-	{
-		q = SimpleMath::Quaternion::Identity;
-	}
-
-	m_rotate *= q;
-}
-
-
-
-/// <summary>
 /// 影の初期化
 /// </summary>
 /// <param name="device">デバイス</param>
 /// <param name="context">コンテキスト</param>
-void Player::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
+void Enemy::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 {
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<BasicEffect>(device);
@@ -312,13 +260,14 @@ void Player::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context
 }
 
 
+
 /// <summary>
 /// 影の描画
 /// </summary>
 /// <param name="context">コンテキスト</param>
 /// <param name="states">コモンステート</param>
 /// <param name="radius">半径</param>
-void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos)
+void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos)
 {
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
@@ -377,36 +326,6 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 	m_primitiveBatch->End();
 }
 
-
-
-/// <summary>
-/// ボールの設定
-/// </summary>
-/// <param name="key">キー</param>
-/// <param name="ball">ボールのポインタ</param>
-void Player::SetCatchBall(int key, Ball* ball)
-{
-	m_isBall[key] = ball;
-}
-
-
-
-/// <summary>
-/// ボールの取得
-/// </summary>
-/// <param name="key">キー</param>
-/// <returns>ボールのポインタ</returns>
-Ball* Player::GetCatchBall(int key) const
-{
-	Ball* ball = m_isBall.at(key);
-
-	if (ball)
-	{
-		return ball;
-	}
-
-	return nullptr;
-}
 
 
 

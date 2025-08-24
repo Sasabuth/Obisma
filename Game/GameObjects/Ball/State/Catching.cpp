@@ -100,7 +100,7 @@ void Catching::Render()
 	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
 
 	// デバック
-	/*m_ball->GetCollider().Draw(states, *view, *proj);*/
+	m_ball->GetCollider().Draw(states, *view, *proj);
 	debugFont->Render(L"Catching");
 	debugFont->Render(L"Position", m_ball->GetPosition());
 
