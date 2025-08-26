@@ -16,6 +16,7 @@
 
 // クラスの定義
 class Enemy;
+class Ball;
 
 
 
@@ -39,7 +40,8 @@ private:
 
 	// ワールドマトリックス
 	DirectX::SimpleMath::Matrix m_worldMatrix;
-	DirectX::SimpleMath::Matrix m_boneMatrix;
+	DirectX::SimpleMath::Matrix m_rightHandMatrix; // 右手のマトリックス
+	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
 
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
@@ -71,5 +73,14 @@ public:
 private:
 	// アニメーションの更新
 	void AnimationUpdate(float elapsedTime); 
+
+	// ボールを持つ
+	void CatchHandBall();
+
+	// ボールを投げる
+	void ThrowBall();
+
+	// ボールの座標の設定
+	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 };
 

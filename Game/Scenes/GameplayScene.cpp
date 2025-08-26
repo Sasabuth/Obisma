@@ -85,7 +85,7 @@ void GameplayScene::Update(float elapsedTime)
 	
 	m_cameraUp->Update(elapsedTime);
 	m_camera->Update(m_player.get(), m_cameraUp->GetPosition(), m_field->GetCollider().GetPosition());
-	m_camera->DebugMode();
+	/*m_camera->DebugMode();*/
 
 	m_field->Update(elapsedTime);
 	m_player->Update(elapsedTime);

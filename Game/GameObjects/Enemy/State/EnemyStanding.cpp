@@ -69,7 +69,7 @@ void EnemyStanding::Initialize()
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
-	m_animation->SetEndTime(0.5f);
+	m_animation->SetEndTime(1.4f);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -104,35 +104,22 @@ void EnemyStanding::Update(float elapsedTime)
 	AnimationUpdate(elapsedTime);
 
 	// ステートの変更
-	if (!m_enemy->GetBall())
+	if (!m_enemy->GetCatchBall(Enemy::RIGHT)|| !m_enemy->GetCatchBall(Enemy::LEFT))
 	{
+		Ball* ball1 = m_enemy->GetBallManager()->GetBall(0);
+		m_enemy->SetBallIndex(0);
+		for (int i = 1; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
+		{
+			ball1 = GetNearBall(ball1, i);
+		}
+
 		m_enemy->ChangeState(m_enemy->GetRunning());
 	}
 
 
 
-	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
-	{
-		Ball* ball = m_enemy->GetBallManager()->GetBall(i);
-		if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
-		{
-			ball->ChangeState(ball->GetCatching());
-
-			// ボーンに設定した境界球のワールド計算を行う
-			DirectX::SimpleMath::Matrix sphereMatrix = m_boneMatrix * m_worldMatrix;
-			// バウンディングスフィアの中心点を設定する
-			SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-			dir.Normalize();
-
-			// 右手に持たせる
-			ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
-
-			/*if (mouseTK->leftButton)
-			{
-				m_enemy->ChangeState(m_enemy->GetThrowing());
-			}*/
-		}
-}
+	CatchHandBall();
+	ThrowBall();
 
 	// プレイヤーの設定
 	m_enemy->SetVelocity(m_enemy->GetGravity());
@@ -248,7 +235,110 @@ void EnemyStanding::AnimationUpdate(float elapsedTime)
 	// ボーン数を取得する
 	size_t nbones = m_model->bones.size();
 	// ボーンマトリクスを設定する
-	m_boneMatrix = m_drawBones[15];
+	m_rightHandMatrix = m_drawBones[15];
+	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
+}
+
+
+
+/// <summary>
+/// ボールを投げる
+/// </summary>
+/// <param name="mouseTK">マウストラッカー</param>
+void EnemyStanding::ThrowBall()
+{
+	if (m_enemy->GetCatchBall(Player::RIGHT))
+	{
+		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
+		SetBallPosition(ball, m_rightHandMatrix);
+
+		/*if (mouseTK->leftButton)
+		{
+			m_enemy->ChangeState(m_enemy->GetThrowingR());
+			return;
+		}*/
+	}
+	if (m_enemy->GetCatchBall(Player::LEFT))
+	{
+		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
+		SetBallPosition(ball, m_leftHandMatrix);
+
+		/*if (mouseTK->leftButton)
+		{
+			m_enemy->ChangeState(m_enemy->GetThrowingL());
+		}*/
+	}
+}
+
+
+
+/// <summary>
+/// ボールの座標の設定
+/// </summary>
+/// <param name="ball">ボールのポインタ</param>
+/// <param name="handMatrix">手のマトリックス</param>
+void EnemyStanding::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+{
+	// ボーンに設定した境界球のワールド計算を行う
+	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
+	// バウンディングスフィアの中心点を設定する
+	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
+	dir.Normalize();
+	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+}
+
+Ball* EnemyStanding::GetNearBall(Ball* ball, int index)
+{
+	if (m_enemy->GetBallManager()->GetBall(index)->GetCatch())
+	{
+		return ball;
+	}
+
+	Ball* ball2 = m_enemy->GetBallManager()->GetBall(index);
+
+	SimpleMath::Vector3 dir1 = m_enemy->GetPosition() - ball->GetPosition();
+	SimpleMath::Vector3 dir2 = m_enemy->GetPosition() - ball2->GetPosition();
+
+	// 短いほうの距離を調べる
+	if (dir1.Length() > dir2.Length())
+	{
+		m_enemy->SetBallIndex(index);
+		return ball2;
+	}
+
+	return ball;
+}
+
+
+
+/// <summary>
+/// ボールを持つ
+/// </summary>
+void EnemyStanding::CatchHandBall()
+{
+	if (m_enemy->GetCatchBall(Player::RIGHT) && m_enemy->GetCatchBall(Player::LEFT))
+	{
+		return;
+	}
+
+	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
+	{
+		Ball* ball = m_enemy->GetBallManager()->GetBall(i);
+		if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
+		{
+			ball->ChangeState(ball->GetCatching());
+
+			if (!m_enemy->GetCatchBall(Player::RIGHT))
+			{
+				m_enemy->SetCatchBall(Player::RIGHT, ball);
+			}
+			else
+			{
+				m_enemy->SetCatchBall(Player::LEFT, ball);
+			}
+
+		}
+	}
 }

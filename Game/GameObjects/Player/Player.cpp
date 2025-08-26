@@ -74,8 +74,8 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_currentState = m_standing.get();
 
 	// ボールを両手に持つための箱を用意する
-	m_isBall.insert(std::make_pair(1, nullptr));
-	m_isBall.insert(std::make_pair(2, nullptr));
+	m_isBall.insert(std::make_pair(RIGHT, nullptr));
+	m_isBall.insert(std::make_pair(LEFT, nullptr));
 
 	// 影の初期化
 	InitializeShadow(device, context);
@@ -310,6 +310,7 @@ void Player::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context
 	// テクスチャの読み込み
 	m_shadowTexture = Resources::GetInstance()->GetShadowTexture();
 }
+
 
 
 /// <summary>

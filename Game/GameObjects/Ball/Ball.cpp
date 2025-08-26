@@ -27,6 +27,7 @@ Ball::Ball(GameplayScene* pScene)
 	, m_currentState{}
 	, m_userResources(nullptr)
 	, m_hitPos{}
+	, m_isCatch(false)
 {
 }
 
@@ -69,6 +70,9 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 	// 立つ状態にする
 	m_currentState = m_stopping.get();
 
+	// とっていない
+	m_isCatch = false;
+
 	// 影の初期化
 	InitializeShadow(device, context);
 }
@@ -92,6 +96,12 @@ void Ball::Update(float elapsedTime)
 void Ball::Render()
 {
 	m_currentState->Render();
+
+	// デバック
+	auto states = m_userResources->GetCommonStates();
+	auto view = m_userResources->GetView();
+	auto proj = m_userResources->GetProject();
+	//m_collider.Draw(states, *view, *proj);
 }
 
 

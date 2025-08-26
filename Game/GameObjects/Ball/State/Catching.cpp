@@ -63,6 +63,9 @@ void Catching::Update(float elapsedTime)
 
 	auto mouse = Mouse::Get().GetState();
 
+	// ボールを持っている
+	m_ball->SetCatch(true);
+
 	// プレイヤーの設定
 	m_ball->SetVelocity(SimpleMath::Vector3::Zero);
 	m_ball->GetCollider().SetPosition(m_ball->GetPosition());
@@ -100,7 +103,6 @@ void Catching::Render()
 	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
 
 	// デバック
-	m_ball->GetCollider().Draw(states, *view, *proj);
 	debugFont->Render(L"Catching");
 	debugFont->Render(L"Position", m_ball->GetPosition());
 

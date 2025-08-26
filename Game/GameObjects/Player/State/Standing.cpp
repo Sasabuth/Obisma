@@ -69,7 +69,7 @@ void Standing::Initialize()
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
-	m_animation->SetEndTime(0.5f);
+	m_animation->SetEndTime(1.4f);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -238,8 +238,8 @@ void Standing::AnimationUpdate(float elapsedTime)
 	m_animation->Apply(*m_model, m_model->bones.size(), m_drawBones.get());
 	// ボーン数を取得する
 	size_t nbones = m_model->bones.size();
-	m_rightHandMatrix = m_drawBones[20];
-	m_leftHandMatrix = m_drawBones[15];
+	m_rightHandMatrix = m_drawBones[15];
+	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
 }
@@ -252,7 +252,6 @@ void Standing::AnimationUpdate(float elapsedTime)
 /// <param name="mouseTK">マウストラッカー</param>
 void Standing::ThrowBall(DirectX::Mouse::ButtonStateTracker* mouseTK)
 {
-
 	if (m_player->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
@@ -298,7 +297,6 @@ void Standing::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatri
 /// <summary>
 /// ボールを持つ
 /// </summary>
-
 void Standing::CatchHandBall()
 {
 	if (m_player->GetCatchBall(Player::RIGHT) && m_player->GetCatchBall(Player::LEFT))

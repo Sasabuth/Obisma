@@ -45,8 +45,6 @@ BallManager::~BallManager()
 void BallManager::Initialize()
 {
 	m_userResources = UserResources::GetUserResource();
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	for (int i = 0; i < BALL_COUNT; i++)
 	{

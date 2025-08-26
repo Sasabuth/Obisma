@@ -76,7 +76,7 @@ public:
 // 内部処理
 private:
 	// アニメーションの更新
-	void AnimationUpdate(float elapsedTime);
+	void AnimationUpdate();
 
 	// ボールの座標の設定
 	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);

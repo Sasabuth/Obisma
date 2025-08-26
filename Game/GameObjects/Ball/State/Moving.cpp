@@ -82,6 +82,9 @@ void Moving::Update(float elapsedTime)
 	if (m_ball->GetVelocity().Length() <= 0.425f)
 	{
 		m_ball->ChangeState(m_ball->GetStopping());
+
+		// 手に取っていない
+		m_ball->SetCatch(false);
 	}
 }
 
@@ -121,7 +124,6 @@ void Moving::Render()
 	debugFont->Render(L"Moving");
 	debugFont->Render(L"Speed",m_ball->GetSpeed());
 	debugFont->Render(L"Length", m_ball->GetVelocity().Length());
-	m_ball->GetCollider().Draw(states, *view, *proj);
 }
 
 

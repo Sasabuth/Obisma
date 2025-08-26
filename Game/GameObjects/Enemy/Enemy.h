@@ -15,12 +15,14 @@
 #include "Game/GameObjects/Enemy/State/EnemyStanding.h"
 #include "Game/GameObjects/Enemy/State/EnemyRunning.h"
 #include "Game/GameObjects/Enemy/State/EnemyThrowing.h"
+#include <map>
 
 
 // クラスの定義
 class GameplayScene;
 class Camera;
 class BallManager;
+class Ball;
 
 
 // クラスの定義
@@ -29,6 +31,13 @@ class Enemy : public IEntity
 public:
 	static constexpr float PLAYER_SIZE = 0.003f;
 	static constexpr float SHADOW_SIZE = 0.4f;
+
+	enum HAND
+	{
+		NONE = 0,
+		RIGHT,
+		LEFT,
+	};
 
 
 // 変数
@@ -65,8 +74,9 @@ private:
 	DirectX::SimpleMath::Ray m_mouseRay;  // マウスのレイ
 	DirectX::SimpleMath::Vector3 m_hitPos;  // 当たった点
 
-	bool m_isBall;
+	std::map<int, Ball*> m_isBall;  // ボールを持っているか
 
+	int m_ballIndex;
 
 // 関数
 public:
@@ -116,6 +126,7 @@ public:
 	// 影の描画
 	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos);
 
+
 // 設定/取得
 public:
 	// 座標
@@ -150,9 +161,13 @@ public:
 	// シーン
 	BallManager* GetBallManager() const { return m_ballManager; }
 
-	// ボールを持っているか
-	bool GetBall() const { return m_isBall; }
-	void SetBall(bool isBall) { m_isBall = isBall; }
+	// ボール
+	void SetCatchBall(int key, Ball* ball);  // 設定
+	Ball* GetCatchBall(int key) const;       // 取得
+
+	// ボールインデックス
+	void SetBallIndex(int index) { m_ballIndex = index; }  // 設定
+	int GetBallIndex() const { return m_ballIndex; }       // 取得
 
 
 // ステートの取得

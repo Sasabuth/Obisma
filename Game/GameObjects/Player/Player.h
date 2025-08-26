@@ -33,7 +33,7 @@ public:
 	static constexpr float PLAYER_SIZE = 0.003f;
 	static constexpr float SHADOW_SIZE = 0.4f;
 
-	enum PLAYER_HAND
+	enum HAND
 	{
 		NONE=0,
 		RIGHT,
@@ -76,7 +76,7 @@ private:
 	DirectX::SimpleMath::Ray m_mouseRay;  // マウスのレイ
 	DirectX::SimpleMath::Vector3 m_hitPos;  // 当たった点
 
-	std::map<int, Ball*> m_isBall;
+	std::map<int, Ball*> m_isBall;  // ボールを持っているか
 
 // 関数
 public:
@@ -129,6 +129,7 @@ public:
 	// 影の描画
 	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos);
 
+
 // 設定/取得
 public:
 	// 座標
@@ -163,8 +164,9 @@ public:
 	// ボールマネージャー
 	BallManager* GetBallManager() const { return m_ballManager; }
 
-	void SetCatchBall(int key, Ball* ball);
-	Ball* GetCatchBall(int key) const;
+	// ボール
+	void SetCatchBall(int key, Ball* ball);  // 設定
+	Ball* GetCatchBall(int key) const;       // 取得
 
 
 // ステートの取得

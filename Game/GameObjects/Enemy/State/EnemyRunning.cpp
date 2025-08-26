@@ -102,7 +102,7 @@ void EnemyRunning::Update(float elapsedTime)
 
 	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
 	{
-		Ball* ball = m_enemy->GetBallManager()->GetBall(i);
+		Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
 
 		// 方向
 		SimpleMath::Vector3 dir = m_enemy->GetPosition() - ball->GetPosition();
@@ -141,25 +141,28 @@ void EnemyRunning::Update(float elapsedTime)
 
 
 
-		if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
-		{
-			ball->ChangeState(ball->GetCatching());
+		//if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
+		//{
+		//	ball->ChangeState(ball->GetCatching());
 
-			// ボーンに設定した境界球のワールド計算を行う
-			DirectX::SimpleMath::Matrix sphereMatrix = m_boneMatrix * m_worldMatrix;
-			// バウンディングスフィアの中心点を設定する
-			SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-			dir.Normalize();
+		//	// ボーンに設定した境界球のワールド計算を行う
+		//	DirectX::SimpleMath::Matrix sphereMatrix = m_rightHandMatrix * m_worldMatrix;
+		//	// バウンディングスフィアの中心点を設定する
+		//	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
+		//	dir.Normalize();
 
-			// 右手に持たせる
-			ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+		//	// 右手に持たせる
+		//	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 
-			/*if (mouseTK->leftButton)
-			{
-				m_enemy->ChangeState(m_enemy->GetThrowing());
-			}*/
-		}
+		//	/*if (mouseTK->leftButton)
+		//	{
+		//		m_enemy->ChangeState(m_enemy->GetThrowing());
+		//	}*/
+		//}
 	}
+
+	CatchHandBall();
+	ThrowBall();
 
 	//// キーによる移動
 	//if (kb.W)
@@ -292,7 +295,90 @@ void EnemyRunning::AnimationUpdate(float elapsedTime)
 	// ボーン数を取得する
 	size_t nbones = m_model->bones.size();
 	// ボーンマトリクスを設定する
-	m_boneMatrix = m_drawBones[15];
+	m_rightHandMatrix = m_drawBones[15];
+	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
+}
+
+
+
+/// <summary>
+/// ボールを投げる
+/// </summary>
+/// <param name="mouseTK">マウストラッカー</param>
+void EnemyRunning::ThrowBall()
+{
+	if (m_enemy->GetCatchBall(Player::RIGHT))
+	{
+		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
+		SetBallPosition(ball, m_rightHandMatrix);
+
+		/*if (mouseTK->leftButton)
+		{
+			m_enemy->ChangeState(m_enemy->GetThrowingR());
+			return;
+		}*/
+	}
+	if (m_enemy->GetCatchBall(Player::LEFT))
+	{
+		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
+		SetBallPosition(ball, m_leftHandMatrix);
+
+		/*if (mouseTK->leftButton)
+		{
+			m_enemy->ChangeState(m_enemy->GetThrowingL());
+		}*/
+	}
+}
+
+
+
+/// <summary>
+/// ボールの座標の設定
+/// </summary>
+/// <param name="ball">ボールのポインタ</param>
+/// <param name="handMatrix">手のマトリックス</param>
+void EnemyRunning::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+{
+	// ボーンに設定した境界球のワールド計算を行う
+	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
+	// バウンディングスフィアの中心点を設定する
+	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
+	dir.Normalize();
+	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+}
+
+
+
+/// <summary>
+/// ボールを持つ
+/// </summary>
+void EnemyRunning::CatchHandBall()
+{
+	if (m_enemy->GetCatchBall(Player::RIGHT) && m_enemy->GetCatchBall(Player::LEFT))
+	{
+		return;
+	}
+
+	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
+	{
+		Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
+		if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
+		{
+			ball->ChangeState(ball->GetCatching());
+
+			if (!m_enemy->GetCatchBall(Player::RIGHT))
+			{
+				m_enemy->SetCatchBall(Player::RIGHT, ball);
+				m_enemy->ChangeState(m_enemy->GetStanding());
+			}
+			else
+			{
+				m_enemy->SetCatchBall(Player::LEFT, ball);
+				m_enemy->ChangeState(m_enemy->GetStanding());
+			}
+
+		}
+	}
 }

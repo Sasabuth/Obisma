@@ -27,7 +27,6 @@ Enemy::Enemy(GameplayScene* pScene, BallManager* ballManager)
 	, m_userResources(nullptr)
 	, m_ballManager(ballManager)
 	, m_currentState{}
-	, m_isBall(false)
 {
 }
 
@@ -70,7 +69,9 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	// 立つ状態にする
 	m_currentState = m_standing.get();
 
-	m_isBall = false;
+	// ボールを両手に持つための箱を用意する
+	m_isBall.insert(std::make_pair(RIGHT, nullptr));
+	m_isBall.insert(std::make_pair(LEFT, nullptr));
 
 	InitializeShadow(device, context);
 }
@@ -83,7 +84,7 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 /// <param name="elapsedTime">経過時間</param> 
 void Enemy::Update(float elapsedTime)
 {
-	/*m_currentState->Update(elapsedTime);*/
+	m_currentState->Update(elapsedTime);
 }
 
 
@@ -328,4 +329,31 @@ void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* stat
 
 
 
+/// <summary>
+/// ボールの設定
+/// </summary>
+/// <param name="key">キー</param>
+/// <param name="ball">ボールのポインタ</param>
+void Enemy::SetCatchBall(int key, Ball* ball)
+{
+	m_isBall[key] = ball;
+}
 
+
+
+/// <summary>
+/// ボールの取得
+/// </summary>
+/// <param name="key">キー</param>
+/// <returns>ボールのポインタ</returns>
+Ball* Enemy::GetCatchBall(int key) const
+{
+	Ball* ball = m_isBall.at(key);
+
+	if (ball)
+	{
+		return ball;
+	}
+
+	return nullptr;
+}

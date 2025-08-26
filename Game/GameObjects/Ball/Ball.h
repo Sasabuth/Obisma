@@ -49,6 +49,8 @@ private:
 	DirectX::SimpleMath::Quaternion m_rotate;
 	DirectX::SimpleMath::Vector3 m_gravity;
 
+	bool m_isCatch;
+
 	SphereCollider m_collider;
 
 	DirectX::SimpleMath::Vector3 m_hitPos;
@@ -60,6 +62,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  // 影のテクスチャ
+
 
 // 関数
 public:
@@ -114,7 +117,11 @@ public:
 
 	// 速度
 	void SetSpeed(DirectX::SimpleMath::Vector3 speed) { m_speed = speed; }       // 設定
-	DirectX::SimpleMath::Vector3 GetSpeed() const { return m_speed; }		          // 取得
+	DirectX::SimpleMath::Vector3 GetSpeed() const { return m_speed; }		     // 取得
+
+	// とられたか
+	void SetCatch(bool isCatch) { m_isCatch = isCatch; }
+	bool GetCatch() const { return m_isCatch; }
 
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }

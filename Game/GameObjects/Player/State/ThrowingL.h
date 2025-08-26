@@ -74,6 +74,6 @@ public:
 // 内部処理
 private:
 	// アニメーションの更新
-	void AnimationUpdate(float elapsedTime);
+	void AnimationUpdate();
 };
 

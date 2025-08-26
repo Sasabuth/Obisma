@@ -42,7 +42,7 @@ ThrowingR::ThrowingR(Player* player)
 	ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
 
 	// アニメーションの初期化
-	AnimationUpdate(0.0f);
+	AnimationUpdate();
 }
 
 
@@ -141,7 +141,7 @@ void ThrowingR::Update(float elapsedTime)
 	}
 
 	// アニメーションの更新
-	AnimationUpdate(elapsedTime);
+	AnimationUpdate();
 
 }
 
@@ -234,7 +234,7 @@ void ThrowingR::Finalize()
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void ThrowingR::AnimationUpdate(float elapsedTime)
+void ThrowingR::AnimationUpdate()
 {
 	// アニメションにモデルを適用する
 	m_animation->Apply(*m_model, m_model->bones.size(), m_drawBones.get());
