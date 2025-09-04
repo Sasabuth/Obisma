@@ -1,8 +1,8 @@
 /// <summary>
-/// 走るに関するヘッダファイル
+/// EnemyThrowingRに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
+/// <date>2025/07/16</date>
 
 // 多重インクルードの防止
 #pragma once
@@ -21,10 +21,10 @@ class Ball;
 
 
 // クラスの定義
-class EnemyRunning : public IState
+class EnemyThrowingR : public IState
 {
 private:
-	static constexpr float ENEMY_SPEED = 2.0f;
+
 
 	// 変数
 private:
@@ -38,10 +38,13 @@ private:
 
 	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
 
-	// ワールドマトリックス
-	DirectX::SimpleMath::Matrix m_worldMatrix;
-	DirectX::SimpleMath::Matrix m_rightHandMatrix; // 右手のマトリックス
+
+	DirectX::SimpleMath::Matrix m_worldMatrix;  // ワールドマトリックス
+	DirectX::SimpleMath::Matrix m_rightHandMatrix;  // 右手のマトリックス
 	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
+
+	float m_time;  // 時間
+	bool m_isThowing;  // 投げたか
 
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
@@ -53,10 +56,10 @@ private:
 	// 関数
 public:
 	// コンストラクタ
-	EnemyRunning(Enemy* enemy);
+	EnemyThrowingR(Enemy* enemy);
 
 	// デストラクタ
-	~EnemyRunning() override;
+	~EnemyThrowingR() override;
 
 	// 初期化
 	void Initialize() override;
@@ -70,15 +73,10 @@ public:
 	// 終了処理
 	void Finalize() override;
 
+// 内部処理
 private:
 	// アニメーションの更新
-	void AnimationUpdate(float elapsedTime); 
-
-	// ボールを持つ
-	void CatchHandBall();
-
-	// ボールを投げる
-	void ThrowBall();
+	void AnimationUpdate();
 
 	// ボールの座標の設定
 	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);

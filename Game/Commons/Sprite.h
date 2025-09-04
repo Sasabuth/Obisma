@@ -21,9 +21,9 @@ public:
 	~Sprite();
 
 	// テクスチャの作成
-	void CreateTexture(ID3D11Device1* device, ID3D11DeviceContext1* context, const wchar_t* string);
+	void CreateTexture(ID3D11Device1* device, ID3D11DeviceContext1* context, const wchar_t* path);
 
 	// 描画
-	void Draw(DirectX::SimpleMath::Vector2 position);
+	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale);
 
 };

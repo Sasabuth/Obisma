@@ -27,6 +27,7 @@ Enemy::Enemy(GameplayScene* pScene, BallManager* ballManager)
 	, m_userResources(nullptr)
 	, m_ballManager(ballManager)
 	, m_currentState{}
+	, m_ballIndex(0)
 {
 }
 
@@ -53,6 +54,8 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	m_collider.Initialize(context, m_position, 0.5f);
 
+	m_ballIndex = 0;
+
 	// 「立つ」状態の生成
 	m_standing = std::make_unique<EnemyStanding>(this);
 	// 「立つ」状態の初期化
@@ -65,6 +68,10 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_throwing = std::make_unique<EnemyThrowing>(this);
 	// 「投げる」状態の初期化
 	m_throwing->Initialize();
+	// 「右手で投げる」状態の生成
+	m_throwingR = std::make_unique<EnemyThrowingR>(this);
+	// 「右手で投げる」状態の初期化
+	m_throwingR->Initialize();
 
 	// 立つ状態にする
 	m_currentState = m_standing.get();
@@ -129,7 +136,6 @@ void Enemy::CorrectOverlap(Field& field)
 	delta.Normalize();
 
 	// 押し出しする
-	m_gravity = SimpleMath::Vector3::Zero;
 	m_position += delta * pushLength;
 }
 
@@ -143,42 +149,6 @@ void Enemy::ChangeState(IState* newState)
 {
 	m_currentState = newState;
 	m_currentState->Initialize();
-}
-
-
-
-/// <summary>
-/// レイの作成
-/// </summary>
-/// <param name="mouseX">X軸のマウス</param>
-/// <param name="mouseY">Y軸のマウス</param>
-/// <param name="screenWidth">横のスクリーンサイズ</param>
-/// <param name="screenHeight">縦のスクリーンサイズ</param>
-/// <param name="view">ビュー行列</param>
-/// <param name="proj">プロジェクション行列</param>
-/// <returns></returns>
-DirectX::SimpleMath::Ray Enemy::CreatePickingRay(int mouseX, int mouseY, int screenWidth, int screenHeight, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
-{
-	// マウスの座標(NDC座標)
-	float px = (2.0f * mouseX / screenWidth - 1.0f);
-	float py = (1.0f - 2.0f * mouseY / screenHeight);
-
-	// 2点を作って距離を計算
-	SimpleMath::Vector3 nearPoint = SimpleMath::Vector3(px, py, 0.0f);
-	SimpleMath::Vector3 farPoint = SimpleMath::Vector3(px, py, 1.0f);
-
-	// ワールド座標に変換
-	SimpleMath::Matrix viewProj = view * proj;
-	SimpleMath::Matrix invViewProj;
-	viewProj.Invert(invViewProj);
-
-	// レイの座標とベクトルを求める
-	SimpleMath::Vector3 rayOrigin = SimpleMath::Vector3::Transform(nearPoint, invViewProj);
-	SimpleMath::Vector3 rayTarget = SimpleMath::Vector3::Transform(farPoint, invViewProj);
-	SimpleMath::Vector3 rayDir = rayTarget - rayOrigin;
-	rayDir.Normalize();
-
-	return SimpleMath::Ray(rayOrigin, rayDir);
 }
 
 

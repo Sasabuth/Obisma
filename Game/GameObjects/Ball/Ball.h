@@ -49,8 +49,6 @@ private:
 	DirectX::SimpleMath::Quaternion m_rotate;
 	DirectX::SimpleMath::Vector3 m_gravity;
 
-	bool m_isCatch;
-
 	SphereCollider m_collider;
 
 	DirectX::SimpleMath::Vector3 m_hitPos;
@@ -119,10 +117,6 @@ public:
 	void SetSpeed(DirectX::SimpleMath::Vector3 speed) { m_speed = speed; }       // 設定
 	DirectX::SimpleMath::Vector3 GetSpeed() const { return m_speed; }		     // 取得
 
-	// とられたか
-	void SetCatch(bool isCatch) { m_isCatch = isCatch; }
-	bool GetCatch() const { return m_isCatch; }
-
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
 
@@ -132,11 +126,13 @@ public:
 	// シーン
 	IState* GetCurrentState() const { return m_currentState; }
 
+
 // ステートの取得
 public:
 	Stopping* GetStopping() const { return m_stopping.get(); }
 	Moving* GetMoving() const { return m_moving.get(); }
 	Catching* GetCatching() const { return m_catching.get(); }
+
 
 // 内部処理
 private:

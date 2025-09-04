@@ -69,6 +69,10 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_throwingL = std::make_unique<ThrowingL>(this);
 	// 「左で投げる」状態の初期化
 	m_throwingL->Initialize();
+	// 「キャッチ」状態の生成
+	m_catching = std::make_unique<PlayerCatching>(this);
+	// 「キャッチ」状態の初期化
+	m_catching->Initialize();
 
 	// 立つ状態にする
 	m_currentState = m_standing.get();
@@ -103,6 +107,11 @@ void Player::Render()
 
 	// デバック用
 	auto* debugFont = m_userResources->GetDebugFont();
+
+	auto states = m_userResources->GetCommonStates();
+	auto view = m_userResources->GetView();
+	auto proj = m_userResources->GetProject();
+	m_collider.Draw(states, *view, *proj);
 }
 
 
@@ -133,11 +142,7 @@ void Player::CorrectOverlap(Field& field)
 	// 差分を求める
 	float pushLength = minDistance - distance;
 
-	// 正規化
 	delta.Normalize();
-
-	// 押し出しする
-	m_gravity = SimpleMath::Vector3::Zero;
 	m_position += delta * pushLength;
 }
 

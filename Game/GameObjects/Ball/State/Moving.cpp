@@ -82,9 +82,6 @@ void Moving::Update(float elapsedTime)
 	if (m_ball->GetVelocity().Length() <= 0.425f)
 	{
 		m_ball->ChangeState(m_ball->GetStopping());
-
-		// 手に取っていない
-		m_ball->SetCatch(false);
 	}
 }
 

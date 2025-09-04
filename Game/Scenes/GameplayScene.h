@@ -39,9 +39,6 @@ private:
 
 	// 敵
 	std::unique_ptr<Enemy> m_enemy;
-	
-	////  ボール
-	//std::unique_ptr<Ball> m_ball;
 
 	//  ボールマネージャー
 	std::unique_ptr<BallManager> m_ballManager;
@@ -80,6 +77,7 @@ public:
 
 public:
 	Field& GetField() const { return *m_field; }
+	Player* GetPlayer() const { return m_player.get(); }
 
 private:
 	void IsHitEntityToField(IEntity* pIEntity, Field* pField);

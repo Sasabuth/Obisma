@@ -80,7 +80,7 @@ private:
 	void CatchHandBall();
 
 	// ボールを投げる
-	void ThrowBall(DirectX::Mouse::ButtonStateTracker* mouseTK);
+	void ThrowBall();
 
 	// ボールの座標の設定
 	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);

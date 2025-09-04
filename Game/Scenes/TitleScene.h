@@ -12,6 +12,7 @@
 // ヘッダファイルの読み込み
 #include "Game/Commons/SceneManager.h"
 #include "Game/Commons/UserResources.h"
+#include "Game/Commons/Sprite.h"
 
 
 // クラスの定義
@@ -19,6 +20,8 @@ class TitleScene : public Scene
 {
 private:
 	UserResources* m_pUserResources;
+
+	Sprite m_texture;
 
 
 // 関数

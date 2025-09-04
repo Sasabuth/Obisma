@@ -100,86 +100,19 @@ void EnemyRunning::Update(float elapsedTime)
 	// 速度の設定
 	m_enemy->SetVelocity(m_enemy->GetGravity());
 
-	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
-	{
-		Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
+	// ボールの方向に走る
+	RunToBall();
 
-		// 方向
-		SimpleMath::Vector3 dir = m_enemy->GetPosition() - ball->GetPosition();
-		dir.Normalize();
-
-		// 方向ベクトルの反転
-		SimpleMath::Vector3 targetUp;
-		targetUp = -dir;
-
-		// 現在の姿勢制御
-		SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
-
-		// 回転軸の計算
-		SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
-		axis.Normalize();
-
-		// 回転角の計算
-		float dot = currentUp.Dot(targetUp);
-		float angle = acosf(dot);
-
-		// クォータニオンの作成
-		SimpleMath::Quaternion q;
-
-		// 角度が少しでもあれば軸を作る
-		if (angle > 0.01f)
-		{
-			q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
-		}
-		// なければ何もしない
-		else
-		{
-			q = SimpleMath::Quaternion::Identity;
-		}
-
-		m_enemy->SetRotation(m_enemy->GetRotation() * q);
-
-
-
-		//if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
-		//{
-		//	ball->ChangeState(ball->GetCatching());
-
-		//	// ボーンに設定した境界球のワールド計算を行う
-		//	DirectX::SimpleMath::Matrix sphereMatrix = m_rightHandMatrix * m_worldMatrix;
-		//	// バウンディングスフィアの中心点を設定する
-		//	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-		//	dir.Normalize();
-
-		//	// 右手に持たせる
-		//	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
-
-		//	/*if (mouseTK->leftButton)
-		//	{
-		//		m_enemy->ChangeState(m_enemy->GetThrowing());
-		//	}*/
-		//}
-	}
-
+	// ボールを持つ
 	CatchHandBall();
+
+	// ボールを投げる
 	ThrowBall();
-
-	//// キーによる移動
-	//if (kb.W)
-	//{
-	//	
-	//}
-	//else
-	//{
-	//	m_enemy->ChangeState(m_enemy->GetStanding());
-	//}
-
-	m_enemy->SetVelocity(m_enemy->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * PLAYER_SPEED);
 
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
 
-	// プレイヤーの設定
+	// 敵の設定
 	m_enemy->SetPosition(m_enemy->GetPosition() + m_enemy->GetVelocity() * elapsedTime);
 	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
 }
@@ -304,6 +237,60 @@ void EnemyRunning::AnimationUpdate(float elapsedTime)
 
 
 /// <summary>
+/// ボールの方向に走る
+/// </summary>
+void EnemyRunning::RunToBall()
+{
+	Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
+
+	if (ball->GetCurrentState() != ball->GetStopping())
+	{
+		m_enemy->ChangeState(m_enemy->GetStanding());
+	}
+
+	// 方向
+	SimpleMath::Vector3 dir = m_enemy->GetPosition() - ball->GetPosition();
+	dir.Normalize();
+
+	// 方向ベクトルの反転
+	SimpleMath::Vector3 targetUp;
+	targetUp = -dir;
+
+	// 現在の姿勢制御
+	SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
+
+	// 回転軸の計算
+	SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+	axis.Normalize();
+
+	// 回転角の計算
+	float dot = currentUp.Dot(targetUp);
+	float angle = acosf(dot);
+
+	// クォータニオンの作成
+	SimpleMath::Quaternion q;
+
+	// 角度が少しでもあれば軸を作る
+	if (angle > 0.01f)
+	{
+		q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+	}
+	// なければ何もしない
+	else
+	{
+		q = SimpleMath::Quaternion::Identity;
+	}
+
+	// 回転の設定
+	m_enemy->SetRotation(m_enemy->GetRotation() * q);
+
+	// 速度の設定
+	m_enemy->SetVelocity(m_enemy->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * ENEMY_SPEED);
+}
+
+
+
+/// <summary>
 /// ボールを投げる
 /// </summary>
 /// <param name="mouseTK">マウストラッカー</param>
@@ -361,24 +348,21 @@ void EnemyRunning::CatchHandBall()
 		return;
 	}
 
-	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
+	Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
+	if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 	{
-		Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
-		if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
+		ball->ChangeState(ball->GetCatching());
+
+		if (!m_enemy->GetCatchBall(Player::RIGHT))
 		{
-			ball->ChangeState(ball->GetCatching());
-
-			if (!m_enemy->GetCatchBall(Player::RIGHT))
-			{
-				m_enemy->SetCatchBall(Player::RIGHT, ball);
-				m_enemy->ChangeState(m_enemy->GetStanding());
-			}
-			else
-			{
-				m_enemy->SetCatchBall(Player::LEFT, ball);
-				m_enemy->ChangeState(m_enemy->GetStanding());
-			}
-
+			m_enemy->SetCatchBall(Player::RIGHT, ball);
+			m_enemy->ChangeState(m_enemy->GetStanding());
 		}
+		else
+		{
+			m_enemy->SetCatchBall(Player::LEFT, ball);
+			m_enemy->ChangeState(m_enemy->GetStanding());
+		}
+
 	}
 }

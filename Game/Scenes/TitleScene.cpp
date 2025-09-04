@@ -45,6 +45,12 @@ void TitleScene::Initialize()
 	// デバックフォントの初期化(シーンのみ)
 	auto * debugFont = m_pUserResources->GetDebugFont();
 	debugFont->Initialize();
+
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+
+	// テクスチャの初期化
+	m_texture.CreateTexture(device, context, L"Resources/Textures/Title.png");
 }
 
 
@@ -75,6 +81,8 @@ void TitleScene::Render()
 {
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
 	debugFont->Render(L"TitleScene");
+
+	m_texture.Draw(SimpleMath::Vector2(640,260), SimpleMath::Vector2(1024,641), 0.7f);
 }
 
 

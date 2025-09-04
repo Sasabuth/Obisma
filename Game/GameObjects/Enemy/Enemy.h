@@ -15,6 +15,7 @@
 #include "Game/GameObjects/Enemy/State/EnemyStanding.h"
 #include "Game/GameObjects/Enemy/State/EnemyRunning.h"
 #include "Game/GameObjects/Enemy/State/EnemyThrowing.h"
+#include "Game/GameObjects/Enemy/State/EnemyThrowingR.h"
 #include <map>
 
 
@@ -29,7 +30,6 @@ class Ball;
 class Enemy : public IEntity
 {
 public:
-	static constexpr float PLAYER_SIZE = 0.003f;
 	static constexpr float SHADOW_SIZE = 0.4f;
 
 	enum HAND
@@ -54,6 +54,7 @@ private:
 	std::unique_ptr<EnemyStanding> m_standing;  // 「立つ」状態
 	std::unique_ptr<EnemyRunning> m_running;    // 「走る」状態
 	std::unique_ptr<EnemyThrowing> m_throwing;  // 「投げる」状態
+	std::unique_ptr<EnemyThrowingR> m_throwingR;  // 「右手で投げる」状態
 
 	DirectX::SimpleMath::Vector3 m_position; // 座標
 	DirectX::SimpleMath::Vector3 m_velocity; // 速度
@@ -71,12 +72,10 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  // 影のテクスチャ
 
-	DirectX::SimpleMath::Ray m_mouseRay;  // マウスのレイ
-	DirectX::SimpleMath::Vector3 m_hitPos;  // 当たった点
-
 	std::map<int, Ball*> m_isBall;  // ボールを持っているか
 
-	int m_ballIndex;
+	int m_ballIndex;  // ボール用のインデックス
+
 
 // 関数
 public:
@@ -103,13 +102,6 @@ public:
 
 	// ステートの変更
 	void ChangeState(IState* newState);
-
-	DirectX::SimpleMath::Ray CreatePickingRay(
-		int mouseX, int mouseY,
-		int screenWidth, int screenHeight,
-		const DirectX::SimpleMath::Matrix& view,
-		const DirectX::SimpleMath::Matrix& proj
-	);
 
 	// レイと球体の交差
 	bool CalcRaySphere(
@@ -148,13 +140,6 @@ public:
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
 
-	// マウスのレイ
-	void SetMouseRay(DirectX::SimpleMath::Ray ray) { m_mouseRay = ray; }
-	DirectX::SimpleMath::Ray GetMouseRay() const { return m_mouseRay; }
-
-	// 当たった座標
-	DirectX::SimpleMath::Vector3& GetHitPos() { return m_hitPos; }
-
 	// シーン
 	GameplayScene* GetScene() const { return m_pScene; }
 
@@ -175,6 +160,7 @@ public:
 	EnemyStanding* GetStanding() const { return m_standing.get(); }
 	EnemyRunning* GetRunning() const { return m_running.get(); }
 	EnemyThrowing* GetThrowing() const { return m_throwing.get(); }
+	EnemyThrowingR* GetThrowingR() const { return m_throwingR.get(); }
 
 	
 };

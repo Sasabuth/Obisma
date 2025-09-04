@@ -16,6 +16,7 @@
 #include "Game/GameObjects/Player/State/Running.h"
 #include "Game/GameObjects/Player/State/ThrowingR.h"
 #include "Game/GameObjects/Player/State/ThrowingL.h"
+#include "Game/GameObjects/Player/State/PlayerCatching.h"
 #include <map>
 
 
@@ -56,6 +57,7 @@ private:
 	std::unique_ptr<Running> m_running;    // 「走る」状態
 	std::unique_ptr<ThrowingR> m_throwingR;  // 「右で投げる」状態
 	std::unique_ptr<ThrowingL> m_throwingL;  // 「左で投げる」状態
+	std::unique_ptr<PlayerCatching> m_catching;  // 「キャッチ」状態
 
 	DirectX::SimpleMath::Vector3 m_position; // 座標
 	DirectX::SimpleMath::Vector3 m_velocity; // 速度
@@ -175,6 +177,7 @@ public:
 	Running* GetRunning() const { return m_running.get(); }
 	ThrowingR* GetThrowingR() const { return m_throwingR.get(); }
 	ThrowingL* GetThrowingL() const { return m_throwingL.get(); }
+	PlayerCatching* GetCatching() const { return m_catching.get(); }
 
 	
 };

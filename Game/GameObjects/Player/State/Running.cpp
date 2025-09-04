@@ -114,8 +114,32 @@ void Running::Update(float elapsedTime)
 		m_player->RotateToMouse();
 	}
 
+	// ボールをキャッチ
 	CatchHandBall();
-	ThrowBall(mouseTK);
+
+	if (m_player->GetCatchBall(Player::RIGHT))
+	{
+		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
+		SetBallPosition(ball, m_rightHandMatrix);
+	}
+	if (m_player->GetCatchBall(Player::LEFT))
+	{
+		Ball* ball = m_player->GetCatchBall(Player::LEFT);
+		SetBallPosition(ball, m_leftHandMatrix);
+	}
+
+	// 左クリックで投げる
+	if (mouseTK->leftButton)
+	{
+		ThrowBall();
+	}
+
+	// 右クリックでキャッチ
+	if (mouseTK->rightButton)
+	{
+		m_player->ChangeState(m_player->GetCatching());
+	}
+	
 
 	// キーによる移動
 	if (kb.W)
@@ -263,32 +287,22 @@ void Running::AnimationUpdate(float elapsedTime)
 /// ボールを投げる
 /// </summary>
 /// <param name="mouseTK">マウストラッカー</param>
-void Running::ThrowBall(DirectX::Mouse::ButtonStateTracker* mouseTK)
+void Running::ThrowBall()
 {
 	// 右手に持っていたら投げる
 	if (m_player->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
 		SetBallPosition(ball, m_rightHandMatrix);
-
-		// 左クリックで投げる
-		if (mouseTK->leftButton)
-		{
-			m_player->ChangeState(m_player->GetThrowingR());
-			return;
-		}
+		m_player->ChangeState(m_player->GetThrowingR());
+		return;
 	}
 	// 左手に持っていたら投げる
 	if (m_player->GetCatchBall(Player::LEFT))
 	{
 		Ball* ball = m_player->GetCatchBall(Player::LEFT);
 		SetBallPosition(ball, m_leftHandMatrix);
-
-		// 左クリックで投げる
-		if (mouseTK->leftButton)
-		{
-			m_player->ChangeState(m_player->GetThrowingL());
-		}
+		m_player->ChangeState(m_player->GetThrowingL());
 	}
 }
 

@@ -1,12 +1,12 @@
 ﻿/// <summary>
-/// EnemyStandingに関するソースファイル
+/// EnemyThrowingRに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
+/// <date>2025/07/16</date>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "EnemyStanding.h"
+#include "EnemyThrowingR.h"
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
@@ -21,10 +21,12 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-EnemyStanding::EnemyStanding(Enemy* enemy)
+EnemyThrowingR::EnemyThrowingR(Enemy* enemy)
 	: m_enemy(enemy)
 	, m_userResources(nullptr)
 	, m_model{}
+	, m_time{}
+	, m_isThowing(false)
 {
 	// モデルの作成
 	m_model = Resources::GetInstance()->GetEnemyModel();
@@ -32,7 +34,7 @@ EnemyStanding::EnemyStanding(Enemy* enemy)
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();
 	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources\\Animations\\Player_Idle.sdkmesh_anim");
+	m_animation->Load(L"resources\\Animations\\Player_ThrowR.sdkmesh_anim");
 	// アニメーションとモデルをバインドする
 	m_animation->Bind(*m_model);
 	// ボーン用のトランスフォーム配列を生成する
@@ -40,7 +42,7 @@ EnemyStanding::EnemyStanding(Enemy* enemy)
 	ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
 
 	// アニメーションの初期化
-	AnimationUpdate(0.0f);
+	AnimationUpdate();
 }
 
 
@@ -48,7 +50,7 @@ EnemyStanding::EnemyStanding(Enemy* enemy)
 /// <summary>
 /// デストラクタ
 /// </summary>
-EnemyStanding::~EnemyStanding()
+EnemyThrowingR::~EnemyThrowingR()
 {
 }
 
@@ -57,7 +59,7 @@ EnemyStanding::~EnemyStanding()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void EnemyStanding::Initialize()
+void EnemyThrowingR::Initialize()
 {
 	m_userResources = UserResources::GetUserResource();
 
@@ -69,7 +71,7 @@ void EnemyStanding::Initialize()
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
-	m_animation->SetEndTime(1.4f);
+	m_animation->SetEndTime(1.42f);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -81,6 +83,8 @@ void EnemyStanding::Initialize()
 	// 入力レイアウトの作成
 	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 
+	m_time = 0.0f;
+	m_isThowing = false;
 }
 
 
@@ -89,54 +93,93 @@ void EnemyStanding::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void EnemyStanding::Update(float elapsedTime)
+void EnemyThrowingR::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	auto kbTracker = m_userResources->GetKeyboardStateTracker();
+	auto kb = Keyboard::Get().GetState();
 
-	// プロジェクション行列
-	auto proj = m_userResources->GetProject();
-	auto view = m_userResources->GetView();
-
-
-	// アニメーションの更新
-	AnimationUpdate(elapsedTime);
-	  
-	// 手に持っていなかったら一番近いボールを探す
-	if (!m_enemy->GetCatchBall(Enemy::RIGHT)/*|| !m_enemy->GetCatchBall(Enemy::LEFT)*/)
+	// 投げていなかったら手に持たせる
+	if (!m_isThowing)
 	{
-		Ball* ball = m_enemy->GetBallManager()->GetBall(0);
-		m_enemy->SetBallIndex(0);
-		for (int i = 1; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
+		Player* player = m_enemy->GetScene()->GetPlayer();
+
+		// 方向
+		SimpleMath::Vector3 dir = m_enemy->GetPosition() - player->GetPosition();
+		dir.Normalize();
+
+		// 方向ベクトルの反転
+		SimpleMath::Vector3 targetUp;
+		targetUp = -dir;
+
+		// 現在の姿勢制御
+		SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
+
+		// 回転軸の計算
+		SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+		axis.Normalize();
+
+		// 回転角の計算
+		float dot = currentUp.Dot(targetUp);
+		float angle = acosf(dot);
+
+		// クォータニオンの作成
+		SimpleMath::Quaternion q;
+
+		// 角度が少しでもあれば軸を作る
+		if (angle > 0.01f)
 		{
-			if (m_enemy->GetBallManager()->GetBall(i)->GetCurrentState() == m_enemy->GetBallManager()->GetBall(i)->GetStopping())
-			{
-				ball = GetNearBall(ball, i);
-			}
+			q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+		}
+		// なければ何もしない
+		else
+		{
+			q = SimpleMath::Quaternion::Identity;
 		}
 
-		if (ball->GetCurrentState() == ball->GetStopping())
-		{
-			m_enemy->ChangeState(m_enemy->GetRunning());
-		}
+		m_enemy->SetRotation(m_enemy->GetRotation() * q);
+
+		// 右手に持たせる
+		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
+		SetBallPosition(ball, m_rightHandMatrix);
 		
-	}
-
-	// ボールを持つ
-	CatchHandBall();
-
-	// ボールを持っていたら投げる
-	if (m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex())->GetCurrentState() == m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex())->GetCatching())
-	{
-		ThrowBall();
+		// 時間になったら投げる
+		if (m_animation->GetAnimTime() > 0.6f)
+		{
+			ball->ChangeState(ball->GetMoving());
+			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
+			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
+			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation() * rotate));
+			m_enemy->SetCatchBall(Player::RIGHT, nullptr);
+			m_isThowing = true;
+		}
 	}
 	
 
-	// 敵の設定
+	// プレイヤーの設定
 	m_enemy->SetVelocity(m_enemy->GetGravity());
 	m_enemy->SetPosition(m_enemy->GetPosition() + m_enemy->GetVelocity() * elapsedTime);
 	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
+
+	// アニメーションを更新し終了したらステート変更
+	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
+	{
+		// 左手に持たせる
+		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
+		if(ball) SetBallPosition(ball, m_leftHandMatrix);
+
+		// アニメーションを更新する
+		m_animation->Update(elapsedTime);
+	}
+	else
+	{
+		if (kb.W) m_enemy->ChangeState(m_enemy->GetRunning());
+		else m_enemy->ChangeState(m_enemy->GetStanding());
+	}
+
+	// アニメーションの更新
+	AnimationUpdate();
+
 }
 
 
@@ -144,7 +187,7 @@ void EnemyStanding::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void EnemyStanding::Render()
+void EnemyThrowingR::Render()
 {
 	// デバックフォントの描画
 	auto* debugFont = m_userResources->GetDebugFont();
@@ -179,10 +222,6 @@ void EnemyStanding::Render()
 	// 影の描画
 	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
-
-	// デバック
-	//m_model->Draw(context, *states, m_worldMatrix, *view, *proj);
-
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
 
@@ -201,7 +240,11 @@ void EnemyStanding::Render()
 	context->IASetInputLayout(m_inputLayout.Get());
 
 	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation());
+
+	SimpleMath::Vector3 dir = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
+	SimpleMath::Quaternion rot = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
+	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation() * rot);
+
 	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
 
 	m_primitiveBatch->Begin();
@@ -210,7 +253,7 @@ void EnemyStanding::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();
 
-	debugFont->Render(L"EnemyStanding");
+	debugFont->Render(L"EnemyThrowingR");
 }
 
 
@@ -218,7 +261,7 @@ void EnemyStanding::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void EnemyStanding::Finalize()
+void EnemyThrowingR::Finalize()
 {
 }
 
@@ -228,20 +271,8 @@ void EnemyStanding::Finalize()
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void EnemyStanding::AnimationUpdate(float elapsedTime)
+void EnemyThrowingR::AnimationUpdate()
 {
-	// アニメーション時間がアニメーション終了時間より小さい場合はアニメーションを繰り返す
-	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
-	{
-		// アニメーションを更新する
-		m_animation->Update(elapsedTime);
-	}
-	else
-	{
-		// アニメーションの開始時間を設定する
-		m_animation->SetStartTime(0.0);
-	}
-
 	// アニメションにモデルを適用する
 	m_animation->Apply(*m_model, m_model->bones.size(), m_drawBones.get());
 	// ボーン数を取得する
@@ -256,39 +287,11 @@ void EnemyStanding::AnimationUpdate(float elapsedTime)
 
 
 /// <summary>
-/// ボールを投げる
-/// </summary>
-/// <param name="mouseTK">マウストラッカー</param>
-void EnemyStanding::ThrowBall()
-{
-	if (m_enemy->GetCatchBall(Player::RIGHT))
-	{
-		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
-		SetBallPosition(ball, m_rightHandMatrix);
-
-		m_enemy->ChangeState(m_enemy->GetThrowingR());
-		return;
-	}
-	if (m_enemy->GetCatchBall(Player::LEFT))
-	{
-		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
-		SetBallPosition(ball, m_leftHandMatrix);
-
-		/*if (mouseTK->leftButton)
-		{
-			m_enemy->ChangeState(m_enemy->GetThrowingL());
-		}*/
-	}
-}
-
-
-
-/// <summary>
 /// ボールの座標の設定
 /// </summary>
 /// <param name="ball">ボールのポインタ</param>
 /// <param name="handMatrix">手のマトリックス</param>
-void EnemyStanding::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+void EnemyThrowingR::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
 {
 	// ボーンに設定した境界球のワールド計算を行う
 	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
@@ -296,71 +299,4 @@ void EnemyStanding::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix hand
 	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
 	dir.Normalize();
 	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
-}
-
-
-
-/// <summary>
-/// 近い距離のボールを取得
-/// </summary>
-/// <param name="ball">ボールのポインタ</param>
-/// <param name="index">インデックス</param>
-/// <returns>近いボール</returns>
-Ball* EnemyStanding::GetNearBall(Ball* ball, int index)
-{
-	// 止まっていなかったらボールを返す
-	if (m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex())->GetCurrentState() != m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex())->GetStopping())
-	{
-		m_enemy->SetBallIndex(index);
-		return m_enemy->GetBallManager()->GetBall(index);
-	}
-
-	Ball* ball1 = m_enemy->GetBallManager()->GetBall(index);
-
-	SimpleMath::Vector3 dir1 = m_enemy->GetPosition() - ball->GetPosition();
-	SimpleMath::Vector3 dir2 = m_enemy->GetPosition() - ball1->GetPosition();
-
-	// 短いほうの距離を調べる
-	if (dir1.Length() > dir2.Length())
-	{
-		m_enemy->SetBallIndex(index);
-		return ball1;
-	}
-
-	return ball;
-}
-
-
-
-/// <summary>
-/// ボールを持つ
-/// </summary>
-void EnemyStanding::CatchHandBall()
-{
-	// 両手に持っていたら終了
-	if (m_enemy->GetCatchBall(Player::RIGHT) && m_enemy->GetCatchBall(Player::LEFT))
-	{
-		return;
-	}
-
-	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
-	{
-		// ボールのポインタを取得
-		Ball* ball = m_enemy->GetBallManager()->GetBall(i);
-
-		// 止まっているボールに当たったらボールを拾う
-		if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
-		{
-			ball->ChangeState(ball->GetCatching());
-
-			if (!m_enemy->GetCatchBall(Player::RIGHT))
-			{
-				m_enemy->SetCatchBall(Player::RIGHT, ball);
-			}
-			else
-			{
-				m_enemy->SetCatchBall(Player::LEFT, ball);
-			}
-		}
-	}
 }

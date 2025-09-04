@@ -203,8 +203,10 @@
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyRunning.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyStanding.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowing.h" />
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowingR.h" />
     <ClInclude Include="Game\GameObjects\Field\Field.h" />
     <ClInclude Include="Game\GameObjects\Player\Player.h" />
+    <ClInclude Include="Game\GameObjects\Player\State\PlayerCatching.h" />
     <ClInclude Include="Game\GameObjects\Player\State\Running.h" />
     <ClInclude Include="Game\GameObjects\Player\State\Standing.h" />
     <ClInclude Include="Game\GameObjects\Player\State\ThrowingL.h" />
@@ -237,8 +239,10 @@
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyRunning.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyStanding.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowing.cpp" />
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowingR.cpp" />
     <ClCompile Include="Game\GameObjects\Field\Field.cpp" />
     <ClCompile Include="Game\GameObjects\Player\Player.cpp" />
+    <ClCompile Include="Game\GameObjects\Player\State\PlayerCatching.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\Running.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\Standing.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\ThrowingL.cpp" />

@@ -62,14 +62,10 @@ void GameplayScene::Initialize()
 	m_player = Factory::CreatePlayer(this, m_ballManager.get(), SimpleMath::Vector3{2.0f,3.0f,2.0f});
 
 	// 敵の初期化
-	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), SimpleMath::Vector3{ 2.0f,5.0f,2.0f });
+	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), SimpleMath::Vector3{ 1.0f,2.0f,-2.0f });
 
 	m_cameraUp = std::make_unique<CameraUp>(m_player.get());
 	m_cameraUp->Initialize(SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
-
-	//// プレイヤーの初期化
-	//m_ball = Factory::CreateBall(this, SimpleMath::Vector3{ 1.0f,2.0f,4.0f });
-
 }
 
 
@@ -85,17 +81,15 @@ void GameplayScene::Update(float elapsedTime)
 	
 	m_cameraUp->Update(elapsedTime);
 	m_camera->Update(m_player.get(), m_cameraUp->GetPosition(), m_field->GetCollider().GetPosition());
-	/*m_camera->DebugMode();*/
+	//m_camera->DebugMode();
 
 	m_field->Update(elapsedTime);
 	m_player->Update(elapsedTime);
 	m_enemy->Update(elapsedTime);
-	/*m_ball->Update(elapsedTime);*/
 	m_ballManager->Update(elapsedTime);
 
 	IsHitEntityToField(m_player.get(), m_field.get());
 	IsHitEntityToField(m_enemy.get(), m_field.get());
-	/*IsHitEntityToField(m_ball.get(), m_field.get());*/
 	IsHitEntityToField(m_cameraUp.get(), m_field.get());
 
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
@@ -122,7 +116,6 @@ void GameplayScene::Render()
 	m_field->Render();
 	m_player->Render();
 	m_enemy->Render();
-	/*m_ball->Render();*/
 	m_ballManager->Render();
 	/*m_cameraUp->Render();*/
 }
@@ -135,7 +128,6 @@ void GameplayScene::Render()
 void GameplayScene::Finalize()
 {
 	m_field->Finalize();
-	/*m_ball->Finalize();*/
 	m_ballManager->Finalize();
 	m_player->Finalize();
 	m_enemy->Finalize();
@@ -179,12 +171,12 @@ void GameplayScene::OnDeviceLost()
 /// <param name="pField">フィールド</param>
 void GameplayScene::IsHitEntityToField(IEntity* pIEntity, Field* pField)
 {
+	// 重力の設定
+	pIEntity->SetGravity(pField->CorrectUp(pIEntity));
+
 	// 当たっていたら重なりの補填
 	if (IsHit(pIEntity->GetCollider(), pField->GetCollider()))
 	{
 		pIEntity->CorrectOverlap(*pField);
 	}
-
-	// 重力の設定
-	pIEntity->SetGravity(pField->CorrectUp(pIEntity));
 }

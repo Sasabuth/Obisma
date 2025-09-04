@@ -149,6 +149,12 @@
     <ClInclude Include="Game\GameObjects\Player\State\ThrowingR.h">
       <Filter>Game\GameObjects\Player\State</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowingR.h">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\PlayerCatching.h">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -241,6 +247,12 @@
       <Filter>Game\GameObjects\Player\State</Filter>
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Player\State\ThrowingR.cpp">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowingR.cpp">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\PlayerCatching.cpp">
       <Filter>Game\GameObjects\Player\State</Filter>
     </ClCompile>
   </ItemGroup>
