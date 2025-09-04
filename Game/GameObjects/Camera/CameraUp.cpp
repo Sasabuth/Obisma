@@ -208,6 +208,5 @@ void CameraUp::CorrectOverlap(Field& field)
 	delta.Normalize();
 
 	// 押し出しする
-	m_gravity = SimpleMath::Vector3::Zero;
 	m_position += delta * pushLength;
 }

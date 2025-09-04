@@ -45,7 +45,7 @@ void Game::Initialize(HWND window, int width, int height)
     */
 
     // シーンマネージャーの初期化
-    m_sceneManager->SetScene<TitleScene>();
+    m_sceneManager->SetScene<GameplayScene>();
 }
 
 #pragma region Frame Update

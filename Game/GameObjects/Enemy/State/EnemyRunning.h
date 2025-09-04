@@ -74,6 +74,9 @@ private:
 	// アニメーションの更新
 	void AnimationUpdate(float elapsedTime); 
 
+	// ボールの方向に走る
+	void RunToBall();
+
 	// ボールを持つ
 	void CatchHandBall();
 

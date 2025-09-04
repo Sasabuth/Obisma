@@ -28,14 +28,26 @@ std::unique_ptr<Player> Factory::CreatePlayer(GameplayScene* pScene, BallManager
 
 std::unique_ptr<Enemy> Factory::CreateEnemy(GameplayScene* pScene, BallManager* ballManager, const DirectX::SimpleMath::Vector3& initialPosition)
 {
-	// プレイヤーを宣言
+	// 敵を宣言
 	std::unique_ptr<Enemy> enemy;
-	// プレイヤーを生成
+	// 敵を生成
 	enemy = std::make_unique<Enemy>(pScene, ballManager);
-	// プレイヤーを初期化
+	// 敵を初期化
 	enemy->Initialize(initialPosition);
-	// プレイヤーを返す
+	// 敵を返す
 	return std::move(enemy);
+}
+
+std::unique_ptr<CameraUp> Factory::CreateCameraUp(Player* player, const DirectX::SimpleMath::Vector3& initialPosition)
+{
+	// カメラの上向きベクトルを宣言
+	std::unique_ptr<CameraUp> cameraUp;
+	// カメラの上向きベクトルを生成
+	cameraUp = std::make_unique<CameraUp>(player);
+	// カメラの上向きベクトルを初期化
+	cameraUp->Initialize(initialPosition);
+	// カメラの上向きベクトルを返す
+	return std::move(cameraUp);
 }
 
 std::unique_ptr<Field> Factory::CreateField(GameplayScene* pScene)

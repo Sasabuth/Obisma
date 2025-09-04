@@ -1,5 +1,5 @@
 /// <summary>
-/// プレイヤーに関するヘッダファイル
+/// CameraUpに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
 /// <date>2025/05/21</date>

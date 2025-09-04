@@ -11,6 +11,7 @@
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Enemy/Enemy.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Camera/CameraUp.h"
 #include "Game/GameObjects/Ball/Ball.h"
 #include "Game/GameObjects/Ball/BallManager.h"
 
@@ -43,6 +44,12 @@ public:
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
+	// カメラの上向きベクトルを生成する
+	static std::unique_ptr<CameraUp> CreateCameraUp(
+		Player* player,
+		const DirectX::SimpleMath::Vector3& initialPosition
+	);
+
 	// フィールド生成する
 	static std::unique_ptr<Field> CreateField(
 		GameplayScene* pScene
@@ -54,7 +61,7 @@ public:
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
-	// ボールを生成する
+	// ボールマネージャーを生成する
 	static std::unique_ptr<BallManager> CreateBallManager(
 		GameplayScene* pScene
 	);

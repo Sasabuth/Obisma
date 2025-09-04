@@ -28,13 +28,16 @@ class GameplayScene : public Scene
 private:
 	UserResources* m_userResources;
 
+	// フィールド
 	std::unique_ptr<Field> m_field;
 
-	//  デバッグカメラ
+	// カメラ
 	std::unique_ptr<Camera> m_camera;
+
+	// カメラの上向きベクトル
 	std::unique_ptr<CameraUp> m_cameraUp;
 
-	//  プレイヤー
+	// プレイヤー
 	std::unique_ptr<Player> m_player;
 
 	// 敵

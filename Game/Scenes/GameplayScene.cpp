@@ -64,8 +64,8 @@ void GameplayScene::Initialize()
 	// 敵の初期化
 	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), SimpleMath::Vector3{ 1.0f,2.0f,-2.0f });
 
-	m_cameraUp = std::make_unique<CameraUp>(m_player.get());
-	m_cameraUp->Initialize(SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
+	// カメラの上向きベクトルの初期化
+	m_cameraUp = Factory::CreateCameraUp(m_player.get(), SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
 }
 
 
@@ -79,24 +79,35 @@ void GameplayScene::Update(float elapsedTime)
 	// キーボードの取得
 	auto keyboard = m_userResources->GetKeyboardStateTracker();
 	
+	// カメラの上向きベクトルの更新
 	m_cameraUp->Update(elapsedTime);
+
+	// カメラの更新
 	m_camera->Update(m_player.get(), m_cameraUp->GetPosition(), m_field->GetCollider().GetPosition());
 	//m_camera->DebugMode();
 
+	// フィールドの更新
 	m_field->Update(elapsedTime);
+
+	// プレイヤーの更新
 	m_player->Update(elapsedTime);
+
+	// 敵の更新
 	m_enemy->Update(elapsedTime);
+
+	// ボールマネージャの更新
 	m_ballManager->Update(elapsedTime);
 
+	// 実体とフィールドの当たり判定
 	IsHitEntityToField(m_player.get(), m_field.get());
 	IsHitEntityToField(m_enemy.get(), m_field.get());
 	IsHitEntityToField(m_cameraUp.get(), m_field.get());
-
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
 	{
 		IsHitEntityToField(m_ballManager->GetBall(i), m_field.get());
 	}
 
+	// シーン変更
 	if (keyboard->IsKeyPressed(DirectX::Keyboard::Keys::Space))
 	{
 		ChangeScene<TitleScene>();
@@ -110,13 +121,23 @@ void GameplayScene::Update(float elapsedTime)
 /// </summary>
 void GameplayScene::Render()
 {
+	// デバックフォントの描画
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
 	debugFont->Render(L"GameplayScene");
 
+	// フィールドの描画
 	m_field->Render();
+
+	// プレイヤーの描画
 	m_player->Render();
+
+	// 敵の描画
 	m_enemy->Render();
+
+	// ボールマネージャーの描画
 	m_ballManager->Render();
+	
+	// カメラの上向きベクトルの描画
 	/*m_cameraUp->Render();*/
 }
 
@@ -127,11 +148,22 @@ void GameplayScene::Render()
 /// </summary>
 void GameplayScene::Finalize()
 {
+	// フィールドの終了
 	m_field->Finalize();
+
+	// ボールマネージャーの終了
 	m_ballManager->Finalize();
+
+	// プレイヤーの終了
 	m_player->Finalize();
+
+	// 敵の終了
 	m_enemy->Finalize();
+
+	// カメラの上向きベクトルの終了
 	m_cameraUp->Finalize();
+
+	// リソースのリセット
 	Resources::GetInstance()->Reset();
 }
 
