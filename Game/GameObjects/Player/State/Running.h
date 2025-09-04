@@ -1,8 +1,7 @@
 /// <summary>
-/// プレイヤーに関するヘッダファイル
+/// Runningに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
 
 // 多重インクルードの防止
 #pragma once

@@ -2,7 +2,6 @@
 /// PlayerCatchingに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/07/16</date>
 
 // 多重インクルードの防止
 #pragma once
@@ -26,7 +25,7 @@ class PlayerCatching : public IState
 private:
 
 
-	// 変数
+// 変数
 private:
 	UserResources* m_userResources;
 

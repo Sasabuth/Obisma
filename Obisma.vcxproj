@@ -202,7 +202,6 @@
     <ClInclude Include="Game\GameObjects\Enemy\Enemy.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyRunning.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyStanding.h" />
-    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowing.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowingR.h" />
     <ClInclude Include="Game\GameObjects\Field\Field.h" />
     <ClInclude Include="Game\GameObjects\Player\Player.h" />
@@ -238,7 +237,6 @@
     <ClCompile Include="Game\GameObjects\Enemy\Enemy.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyRunning.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyStanding.cpp" />
-    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowing.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowingR.cpp" />
     <ClCompile Include="Game\GameObjects\Field\Field.cpp" />
     <ClCompile Include="Game\GameObjects\Player\Player.cpp" />

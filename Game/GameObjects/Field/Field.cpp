@@ -2,7 +2,6 @@
 /// Fieldに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date></date>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
@@ -158,22 +157,20 @@ SimpleMath::Vector3 Field::CorrectUp(IEntity* iEntity)
 	{
 		q = Quaternion::Identity;
 	}
-
-
-
 	
 	// 回転の設定
 	iEntity->SetRotation(iEntity->GetRotation() * q);
 
-	// 重力の設定
-	/*iEntity->SetGravity(gravityDir);*/
-
-	// 速度
+	// 重力を返す
 	return gravityDir * 2;
 }
 
 
 
+/// <summary>
+/// コライダーの取得
+/// </summary>
+/// <returns>コライダー</returns>
 SphereCollider& Field::GetCollider()
 {
 	return m_collider;

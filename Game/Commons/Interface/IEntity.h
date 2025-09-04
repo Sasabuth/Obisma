@@ -1,10 +1,21 @@
+/// <summary>
+/// IEntityに関するヘッダファイル
+/// </summary>
+/// <author>仲森智史</author>
+
+// 多重インクルードの防止
 #pragma once
 
+// ヘッダファイルの読み込み
 #include "SimpleMath.h"
 
+
+// クラスの定義
 class SphereCollider;
 class Field;
 
+
+// クラスの定義
 class IEntity
 {
 public:
@@ -43,7 +54,7 @@ public:
 	virtual void CorrectOverlap(Field& field) = 0;
 
 public:
-
+	// コライダーの取得
 	virtual SphereCollider& GetCollider() = 0;
 };
 

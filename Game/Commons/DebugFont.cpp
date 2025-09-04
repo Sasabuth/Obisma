@@ -1,18 +1,29 @@
-﻿//--------------------------------------------------------------------------------------
-// File: DebugFont.cpp
-//
-// デバッグ用文字フォント描画クラス
-//
-// Date: 2025.2.26
-//--------------------------------------------------------------------------------------
+﻿/// <summary>
+/// DebugFontに関するヘッダファイル
+/// </summary>
+/// <author>仲森智史</author>
+
+// 多重インクルードの防止
+#pragma once
+
+// ヘッダファイルの読み込み
 #include "pch.h"
 #include "DebugFont.h"
 #include "DirectXHelpers.h"
 #include "VertexTypes.h"
 
+
+// 名前の省略
 using namespace DirectX;
 
-// コンストラクタ
+
+
+/// <summary>
+/// コンストラクタ
+/// </summary>
+/// <param name="device">デバイス</param>
+/// <param name="context">コンテキスト</param>
+/// <param name="fileName">ファイル名</param>
 DebugFont::DebugFont(ID3D11Device* device, ID3D11DeviceContext* context, wchar_t const* fileName)
 	: m_fontHeight{}
 	, m_states{ nullptr }
@@ -27,7 +38,11 @@ DebugFont::DebugFont(ID3D11Device* device, ID3D11DeviceContext* context, wchar_t
 	m_fontHeight = textSize.y;
 }
 
-// デストラクタ
+
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 DebugFont::~DebugFont()
 {
 	m_spriteFont.reset();
@@ -180,6 +195,15 @@ void DebugFont::Render(const wchar_t* string, DirectX::SimpleMath::Vector3 pos, 
 	m_strings.clear();
 }
 
+
+
+/// <summary>
+/// 描画
+/// </summary>
+/// <param name="string">文字列</param>
+/// <param name="rotate">クオータニオン</param>
+/// <param name="color">色</param>
+/// <param name="scale">拡大率</param>
 void DebugFont::Render(const wchar_t* string, DirectX::SimpleMath::Quaternion rotate, DirectX::FXMVECTOR color, float scale)
 {
 	if (wcscmp(m_fString, L"-1") == 0 || wcscmp(m_fString, string) == 0)

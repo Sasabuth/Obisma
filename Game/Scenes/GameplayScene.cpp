@@ -2,7 +2,6 @@
 /// Gameplayシーンに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date></date>
 
 
 // ヘッダファイルの読み込み

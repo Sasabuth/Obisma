@@ -1,3 +1,9 @@
+/// <summary>
+/// IStateに関するヘッダファイル
+/// </summary>
+/// <author>仲森智史</author>
+
+// 多重インクルードの防止
 #pragma once
 
 class IState

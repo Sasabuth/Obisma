@@ -137,9 +137,6 @@
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyStanding.h">
       <Filter>Game\GameObjects\Enemy\State</Filter>
     </ClInclude>
-    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowing.h">
-      <Filter>Game\GameObjects\Enemy\State</Filter>
-    </ClInclude>
     <ClInclude Include="Game\GameObjects\Ball\BallManager.h">
       <Filter>Game\GameObjects\Ball</Filter>
     </ClInclude>
@@ -235,9 +232,6 @@
       <Filter>Game\GameObjects\Enemy\State</Filter>
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyStanding.cpp">
-      <Filter>Game\GameObjects\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowing.cpp">
       <Filter>Game\GameObjects\Enemy\State</Filter>
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Ball\BallManager.cpp">

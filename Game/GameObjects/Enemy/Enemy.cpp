@@ -2,7 +2,6 @@
 /// Enemyに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
@@ -64,10 +63,6 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_running = std::make_unique<EnemyRunning>(this);
 	// 「走る」状態の初期化
 	m_running->Initialize();
-	// 「投げる」状態の生成
-	m_throwing = std::make_unique<EnemyThrowing>(this);
-	// 「投げる」状態の初期化
-	m_throwing->Initialize();
 	// 「右手で投げる」状態の生成
 	m_throwingR = std::make_unique<EnemyThrowingR>(this);
 	// 「右手で投げる」状態の初期化

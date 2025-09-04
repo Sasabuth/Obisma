@@ -2,7 +2,6 @@
 /// ThrowingLに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/07/16</date>
 
 // 多重インクルードの防止
 #pragma once
@@ -70,6 +69,7 @@ public:
 
 	// 終了処理
 	void Finalize() override;
+
 
 // 内部処理
 private:

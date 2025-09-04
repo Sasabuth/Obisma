@@ -1,23 +1,25 @@
-﻿//--------------------------------------------------------------------------------------
-// File: Camera.cpp
-//
-// デバッグ用カメラクラス
-//
-// Date: 2018.4.15
-// Author: Hideyasu Imase
-//--------------------------------------------------------------------------------------
+﻿/// <summary>
+/// Cameraに関するソースファイル
+/// </summary>
+/// <author>仲森智史</author>
+
 #include "pch.h"
 #include "Camera.h"
 #include "Mouse.h"
 #include "Game/Commons/UserResources.h"
 #include "Game/GameObjects/Player/Player.h"
 
-using namespace DirectX;
-const float Camera::DEFAULT_CAMERA_DISTANCE = 5.0f;
 
-//--------------------------------------------------------------------------------------
-// コンストラクタ
-//--------------------------------------------------------------------------------------
+// 名前の省略
+using namespace DirectX;
+
+
+
+/// <summary>
+/// コンストラクタ
+/// </summary>
+/// <param name="windowWidth">ウインドウサイズ（幅）</param>
+/// <param name="windowHeight">ウインドウサイズ（高さ）</param>
 Camera::Camera(int windowWidth, int windowHeight)
 	: m_yAngle(0.0f), m_yTmp(0.0f), m_xAngle(0.0f), m_xTmp(0.0f), m_x(0), m_y(0), m_scrollWheelValue(0), m_screenW(windowWidth), m_screenH(windowHeight)
 {
@@ -116,9 +118,13 @@ void Camera::DebugMode()
 	UserResources::GetUserResource()->SetView(&m_view);
 }
 
-//--------------------------------------------------------------------------------------
-// 行列の生成
-//--------------------------------------------------------------------------------------
+
+
+/// <summary>
+/// モーション
+/// </summary>
+/// <param name="x">X座標</param>
+/// <param name="y">Y座標</param>
 void Camera::Motion(int x, int y)
 {
 	// マウスポインタの位置のドラッグ開始位置からの変位 (相対値)
@@ -137,21 +143,35 @@ void Camera::Motion(int x, int y)
 	}
 }
 
+
+
+/// <summary>
+/// カメラのビュー行列の取得
+/// </summary>
+/// <returns>ビュー行列</returns>
 DirectX::SimpleMath::Matrix Camera::GetCameraMatrix()
 {
 	return m_view;
 }
 
+
+
+/// <summary>
+/// カメラの座標の取得
+/// </summary>
+/// <returns>視点の位置</returns>
 DirectX::SimpleMath::Vector3 Camera::GetEyePosition()
 {
 	return m_eye;
 }
 
-DirectX::SimpleMath::Vector3 Camera::GetTargetPosition()
-{
-	return m_target;
-}
 
+
+/// <summary>
+/// 画面サイズの設定
+/// </summary>
+/// <param name="windowWidth">ウィンドウサイズ(幅)</param>
+/// <param name="windowHeight">ウィンドウサイズ(高さ)</param>
 void Camera::SetWindowSize(int windowWidth, int windowHeight)
 {
 	// 画面サイズに対する相対的なスケールに調整
@@ -159,6 +179,14 @@ void Camera::SetWindowSize(int windowWidth, int windowHeight)
 	m_sy = 1.0f / float(windowHeight);
 }
 
+
+
+
+/// <summary>
+/// ウィンドウサイズの取得
+/// </summary>
+/// <param name="windowWidth">ウィンドウサイズ(幅)</param>
+/// <param name="windowHeight">ウィンドウサイズ(高さ)</param>
 void Camera::GetWindowSize(int & windowWidth, int & windowHeight)
 {
 	windowWidth = m_screenW;

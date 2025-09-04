@@ -1,21 +1,21 @@
-﻿//--------------------------------------------------------------------------------------
-// File: Camera.h
-//
-// デバッグ用カメラクラス
-//
-// Date: 2018.4.15
-// Author: Hideyasu Imase
-//--------------------------------------------------------------------------------------
+﻿/// <summary>
+/// Cameraに関するヘッダファイル
+/// </summary>
+/// <author>仲森智史</author>
+
+// 多重インクルードの防止
 #pragma once
 
+
+// クラスの定義
 class Player;
 
 
-// デバッグ用カメラクラス
+// クラスの定義
 class Camera
 {
 	// カメラの距離
-	static const float DEFAULT_CAMERA_DISTANCE;
+	static constexpr float DEFAULT_CAMERA_DISTANCE = 5.0f;
 
 	// 横回転
 	float m_yAngle, m_yTmp;
@@ -48,15 +48,11 @@ class Camera
 	int m_screenW, m_screenH;
 
 private:
-
+	// モーション
 	void Motion(int x, int y);
 
 public:
-	/// <summary>
-	/// コンストラクタ
-	/// </summary>
-	/// <param name="windowWidth">ウインドウサイズ（幅）</param>
-	/// <param name="windowHeight">ウインドウサイズ（高さ）</param>
+	// コンストラクタ
 	Camera(int windowWidth, int windowHeight);
 
 	// カメラの更新
@@ -65,34 +61,16 @@ public:
 	// デバック用
 	void DebugMode();
 
-	/// <summary>
-	/// デバッグカメラのビュー行列の取得関数
-	/// </summary>
-	/// <returns>ビュー行列</returns>
+	// カメラのビュー行列の取得
 	DirectX::SimpleMath::Matrix GetCameraMatrix();
 
-	/// <summary>
-	/// デバッグカメラの位置の取得関数
-	/// </summary>
-	/// <returns>視点の位置</returns>
+	// カメラの座標の取得
 	DirectX::SimpleMath::Vector3 GetEyePosition();
 
-	/// <summary>
-	/// デバッグカメラの注視点の取得関数
-	/// </summary>
-	/// <returns>注視点の位置</returns>
-	DirectX::SimpleMath::Vector3 GetTargetPosition();
-
-	/// <summary>
-	/// 画面サイズの設定関数
-	/// </summary>
-	/// <param name="windowWidth">ウインドウサイズ（幅）</param>
-	/// <param name="windowHeight">ウインドウサイズ（高さ）</param>
+	// 画面サイズの設定
 	void SetWindowSize(int windowWidth, int windowHeight);
 
-	/// <summary>
-	/// 画面サイズの取得関数
-	/// </summary>
+	// 画面サイズの取得
 	void GetWindowSize(int& windowWidth, int& windowHeight);
 };
 

@@ -1,8 +1,7 @@
 /// <summary>
-/// プレイヤーに関するヘッダファイル
+/// Enemyに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
 
 // 多重インクルードの防止
 #pragma once
@@ -14,7 +13,6 @@
 #include "Game/Commons/UserResources.h"
 #include "Game/GameObjects/Enemy/State/EnemyStanding.h"
 #include "Game/GameObjects/Enemy/State/EnemyRunning.h"
-#include "Game/GameObjects/Enemy/State/EnemyThrowing.h"
 #include "Game/GameObjects/Enemy/State/EnemyThrowingR.h"
 #include <map>
 
@@ -30,8 +28,9 @@ class Ball;
 class Enemy : public IEntity
 {
 public:
-	static constexpr float SHADOW_SIZE = 0.4f;
+	static constexpr float SHADOW_SIZE = 0.4f; // 影の大きさ
 
+	// 手
 	enum HAND
 	{
 		NONE = 0,
@@ -46,14 +45,13 @@ private:
 
 	GameplayScene* m_pScene;  // シーン
 
-	BallManager* m_ballManager;
+	BallManager* m_ballManager; // ボールマネージャーのポインタ
 
 	IState* m_currentState;  // 現在のステート
 
 	
 	std::unique_ptr<EnemyStanding> m_standing;  // 「立つ」状態
 	std::unique_ptr<EnemyRunning> m_running;    // 「走る」状態
-	std::unique_ptr<EnemyThrowing> m_throwing;  // 「投げる」状態
 	std::unique_ptr<EnemyThrowingR> m_throwingR;  // 「右手で投げる」状態
 
 	DirectX::SimpleMath::Vector3 m_position; // 座標
@@ -62,7 +60,7 @@ private:
 	DirectX::SimpleMath::Quaternion m_rotate; // 回転
 	DirectX::SimpleMath::Vector3 m_gravity;  // 重力
 
-	SphereCollider m_collider;
+	SphereCollider m_collider;  // コライダー
 
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
@@ -159,7 +157,6 @@ public:
 public:
 	EnemyStanding* GetStanding() const { return m_standing.get(); }
 	EnemyRunning* GetRunning() const { return m_running.get(); }
-	EnemyThrowing* GetThrowing() const { return m_throwing.get(); }
 	EnemyThrowingR* GetThrowingR() const { return m_throwingR.get(); }
 
 	

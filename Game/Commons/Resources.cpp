@@ -1,11 +1,28 @@
+/// <summary>
+/// Resourcesに関するヘッダファイル
+/// </summary>
+/// <author>仲森智史</author>
+
+// 多重インクルードの防止
+#pragma once
+
+// ヘッダファイルの読み込み
 #include "pch.h"
 #include "Resources.h"
 
+
+// 名前の省略
 using namespace DirectX;
 
+// シングルトンの初期化
 std::unique_ptr<Resources> Resources::m_resources = nullptr;
 
-// Resourcesクラスのインスタンスを取得する
+
+
+/// <summary>
+/// インスタンスの取得
+/// </summary>
+/// <returns>リソースのポインタ</returns>
 Resources* const Resources::GetInstance()
 {
 	if (m_resources == nullptr)
@@ -13,11 +30,16 @@ Resources* const Resources::GetInstance()
 		// Resourcesクラスのインスタンスを生成する
 		m_resources.reset(new Resources());
 	}
+
 	// Resourcesクラスのインスタンスを返す
 	return m_resources.get();
 }
 
-// リソースをロードする
+
+
+/// <summary>
+/// リソースのロード
+/// </summary>
 void Resources::LoadResource()
 {
 	// モデルの設定
@@ -72,6 +94,11 @@ void Resources::LoadResource()
 	);
 }
 
+
+
+/// <summary>
+/// リソースのリセット
+/// </summary>
 void Resources::Reset()
 {
 	m_fieldModel.reset();

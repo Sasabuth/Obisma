@@ -2,7 +2,6 @@
 /// EnemyRunningに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
@@ -89,14 +88,6 @@ void EnemyRunning::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void EnemyRunning::Update(float elapsedTime)
 {
-	auto kb = Keyboard::Get().GetState();
-	auto mouse = Mouse::Get().GetState();
-	auto mouseTK = m_userResources->GetMouseStateTracker();
-
-	// プロジェクション行列
-	auto proj = m_userResources->GetProject();
-	auto view = m_userResources->GetView();
-
 	// 速度の設定
 	m_enemy->SetVelocity(m_enemy->GetGravity());
 

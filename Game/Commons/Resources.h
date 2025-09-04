@@ -1,6 +1,12 @@
+/// <summary>
+/// Resourcesに関するヘッダファイル
+/// </summary>
+/// <author>仲森智史</author>
+
+// 多重インクルードの防止
 #pragma once
-#ifndef RESOURCES_DEFINED
-#define RESOURCES_DEFINED
+
+// ヘッダファイルの読み込み
 #include "Model.h"
 #include "Game/Commons/UserResources.h"
 
@@ -60,5 +66,3 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;
 
 };
-
-#endif		// RESOURCES_DEFINED

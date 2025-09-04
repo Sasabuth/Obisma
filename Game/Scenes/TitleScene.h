@@ -2,7 +2,6 @@
 /// Titleシーンに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date></date>
 
 
 // 多重インクルードの防止

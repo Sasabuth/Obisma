@@ -2,7 +2,6 @@
 /// CameraUpに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/07/15</date>
 
 // ヘッダファイルの読み込み
 #include "pch.h"

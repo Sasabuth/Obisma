@@ -1,8 +1,18 @@
+/// <summary>
+/// Spriteに関するヘッダファイル
+/// </summary>
+/// <author>仲森智史</author>
+
+// 多重インクルードの防止
+#pragma once
+
+// ヘッダファイルの読み込み
 #include "pch.h"
 #include "Sprite.h"
 
-using namespace DirectX;
 
+// 名前の省略
+using namespace DirectX;
 
 
 /// <summary>

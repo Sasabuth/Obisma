@@ -2,7 +2,6 @@
 /// EnemyStandingに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
@@ -91,15 +90,6 @@ void EnemyStanding::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void EnemyStanding::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
-	auto kbTracker = m_userResources->GetKeyboardStateTracker();
-
-	// プロジェクション行列
-	auto proj = m_userResources->GetProject();
-	auto view = m_userResources->GetView();
-
-
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
 	  
