@@ -26,7 +26,6 @@ using namespace DirectX;
 Moving::Moving(Ball* ball)
 	: m_ball(ball)
 	, m_userResources(nullptr)
-	, m_model{}
 	, m_larp(0.0f)
 {
 }
@@ -48,9 +47,6 @@ void Moving::Initialize()
 {
 	// ユーザーリソースの取得
 	m_userResources = UserResources::GetUserResource();
-
-	// モデルの取得
-	m_model = Resources::GetInstance()->GetBallModel();
 
 	m_larp = 0.0f;
 }
@@ -74,12 +70,13 @@ void Moving::Update(float elapsedTime)
 	SimpleMath::Vector3 ballGravity = SimpleMath::Vector3::Lerp(SimpleMath::Vector3::Zero, m_ball->GetGravity(), m_larp);
 
 	// ボールの設定
-	m_ball->SetVelocity(ballGravity + m_ball->GetSpeed() * 2);
+	m_ball->SetSpeed(m_ball->GetSpeed() * 0.98f);
+	m_ball->SetVelocity(m_ball->GetSpeed() + ballGravity);
 	m_ball->SetPosition(m_ball->GetPosition() + m_ball->GetVelocity() * elapsedTime);
 	m_ball->GetCollider().SetPosition(m_ball->GetPosition());
 
 	// 速度がなくなったらステート変更
-	if (m_ball->GetVelocity().Length() <= 0.425f)
+	if (m_ball->GetSpeed().Length() <= 0.1f)
 	{
 		m_ball->ChangeState(m_ball->GetStopping());
 	}
@@ -111,7 +108,7 @@ void Moving::Render()
 	world = scale * rotate * pos;
 
 	// モデルの描画
-	m_model->Draw(context, *states, world, *view, *proj);
+	m_ball->GetModel()->Draw(context, *states, world, *view, *proj);
 
 	// 影の描画
 	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
@@ -120,7 +117,7 @@ void Moving::Render()
 	// デバック
 	debugFont->Render(L"Moving");
 	debugFont->Render(L"Speed",m_ball->GetSpeed());
-	debugFont->Render(L"Length", m_ball->GetVelocity().Length());
+	debugFont->Render(L"Length", m_ball->GetVelocity());
 }
 
 

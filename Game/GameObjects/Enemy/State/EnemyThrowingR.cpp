@@ -9,6 +9,7 @@
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -148,7 +149,7 @@ void EnemyThrowingR::Update(float elapsedTime)
 			ball->ChangeState(ball->GetMoving());
 			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
 			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation() * rotate));
+			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation() * rotate) * 4.5);
 			m_enemy->SetCatchBall(Player::RIGHT, nullptr);
 			m_isThowing = true;
 		}

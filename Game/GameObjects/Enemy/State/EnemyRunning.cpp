@@ -10,6 +10,7 @@
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Camera/Camera.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -292,11 +293,7 @@ void EnemyRunning::ThrowBall()
 		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
 		SetBallPosition(ball, m_rightHandMatrix);
 
-		/*if (mouseTK->leftButton)
-		{
-			m_enemy->ChangeState(m_enemy->GetThrowingR());
-			return;
-		}*/
+		m_enemy->ChangeState(m_enemy->GetThrowingR());
 	}
 	if (m_enemy->GetCatchBall(Player::LEFT))
 	{
@@ -342,7 +339,11 @@ void EnemyRunning::CatchHandBall()
 	Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
 	if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 	{
+		// ボールの状態の変更
 		ball->ChangeState(ball->GetCatching());
+
+		// 色を変更する
+		ball->SetBallColorNum(Ball::BallColor::ENEMY);
 
 		if (!m_enemy->GetCatchBall(Player::RIGHT))
 		{

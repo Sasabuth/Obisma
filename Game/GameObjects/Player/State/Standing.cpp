@@ -9,6 +9,7 @@
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -113,6 +114,10 @@ void Standing::Update(float elapsedTime)
 	{
 		m_player->RotateToMouse();
 	}
+	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
+	{
+		m_player->RotateToMouse();
+	}
 
 	// ステートの変更
 	if (kbTracker->pressed.W)
@@ -145,7 +150,7 @@ void Standing::Update(float elapsedTime)
 	{
 		m_player->ChangeState(m_player->GetCatching());
 	}
-	
+
 
 	// プレイヤーの設定
 	m_player->SetVelocity(m_player->GetGravity());
@@ -323,7 +328,11 @@ void Standing::CatchHandBall()
 		Ball* ball = m_player->GetBallManager()->GetBall(i);
 		if (IsHit(m_player->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 		{
+			// ボールの状態の変更
 			ball->ChangeState(ball->GetCatching());
+
+			// 色を変更する
+			ball->SetBallColorNum(Ball::BallColor::PLAYER);
 
 			if (!m_player->GetCatchBall(Player::RIGHT))
 			{

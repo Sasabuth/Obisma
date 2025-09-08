@@ -85,3 +85,27 @@ std::unique_ptr<BallManager> Factory::CreateBallManager(GameplayScene* pScene)
 	// ボールマネージャーを返す
 	return std::move(ballManager);
 }
+
+std::unique_ptr<AirTarget> Factory::CreateAirTarget(GameplayScene* pScene, const DirectX::SimpleMath::Vector3& initialPosition)
+{
+	// 空中の的の宣言
+	std::unique_ptr<AirTarget> airTarget;
+	// 空中の的の生成
+	airTarget = std::make_unique<AirTarget>(pScene);
+	// 空中の的の初期化
+	airTarget->Initialize(initialPosition);
+	// 空中の的を返す
+	return std::move(airTarget);
+}
+
+std::unique_ptr<ScoreManager> Factory::CreateScoreManager()
+{
+	// スコアマネージャーの宣言
+	std::unique_ptr<ScoreManager> scoreManager;
+	// スコアマネージャーの生成
+	scoreManager = std::make_unique<ScoreManager>();
+	// スコアマネージャーの初期化
+	scoreManager->Initialize();
+	// スコアマネージャーを返す
+	return std::move(scoreManager);
+}

@@ -1,5 +1,5 @@
 /// <summary>
-/// Ballに関するヘッダファイル
+/// AirTargetに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
 
@@ -11,9 +11,9 @@
 #include "Game/Commons/Interface/IState.h"
 #include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
-#include "Game/GameObjects/Ball/State/Stopping.h"
-#include "Game/GameObjects/Ball/State/Moving.h"
-#include "Game/GameObjects/Ball/State/Catching.h"
+#include "Game/GameObjects/AirTarget/State/Floating.h"
+#include "Game/GameObjects/AirTarget/State/Hitting.h"
+
 
 // クラスの定義
 class GameplayScene;
@@ -21,26 +21,11 @@ class Camera;
 
 
 // クラスの定義
-class Ball : public IEntity
+class AirTarget : public IEntity
 {
 public:
-	static constexpr float BALL_SIZE = 0.15f;
-	static constexpr float SHADOW_SIZE = 0.2f;
-
-	enum BallColor
-	{
-		PLAYER = 0,
-		ENEMY,
-		NOMAL,
-		MAXCOLOR
-	};
-
-	static constexpr DirectX::SimpleMath::Vector4  BALLCOLOR[MAXCOLOR] =
-	{
-		{ 1,1,0,1 },  // プレイヤー
-		{ 1,0,0,1 },  // 敵
-		{ 1,1,1,1 },  // ノーマル
-	};
+	static constexpr float BALL_SIZE = 0.4f;
+	static constexpr float SHADOW_SIZE = 0.4f;
 
 // 変数
 private:
@@ -51,16 +36,13 @@ private:
 
 	IState* m_currentState;
 
-	// 「止まる」状態
-	std::unique_ptr<Stopping> m_stopping;
-	// 「動く」状態
-	std::unique_ptr<Moving> m_moving;
-	// 「とっている」状態
-	std::unique_ptr<Catching> m_catching;
+	// 「浮いている」状態
+	std::unique_ptr<Floating> m_floating;
+	// 「当たった」状態
+	std::unique_ptr<Hitting> m_hitting;
 
 	DirectX::SimpleMath::Vector3 m_position;
 	DirectX::SimpleMath::Vector3 m_velocity;
-	DirectX::SimpleMath::Vector3 m_speed;
 
 	DirectX::SimpleMath::Quaternion m_rotate;
 	DirectX::SimpleMath::Vector3 m_gravity;
@@ -68,8 +50,6 @@ private:
 	SphereCollider m_collider;
 
 	DirectX::SimpleMath::Vector3 m_hitPos;
-
-	int m_ballColorNum;  // ボールの色の番号
 
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
@@ -83,10 +63,10 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Ball(GameplayScene* pScene);
+	AirTarget(GameplayScene* pScene);
 
 	// デストラクタ
-	~Ball() override;
+	~AirTarget() override;
 
 	// 初期化
 	void Initialize(DirectX::SimpleMath::Vector3 position) override;
@@ -131,14 +111,6 @@ public:
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
 	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
 
-	// 速度
-	void SetSpeed(DirectX::SimpleMath::Vector3 speed) { m_speed = speed; }       // 設定
-	DirectX::SimpleMath::Vector3 GetSpeed() const { return m_speed; }		     // 取得
-
-	// ボールの色
-	void SetBallColorNum(int ballColorNum);                     // 設定
-	int GetBallColorNum() const { return m_ballColorNum; }   // 取得
-
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
 
@@ -154,9 +126,8 @@ public:
 
 // ステートの取得
 public:
-	Stopping* GetStopping() const { return m_stopping.get(); }
-	Moving* GetMoving() const { return m_moving.get(); }
-	Catching* GetCatching() const { return m_catching.get(); }
+	Floating* GetFloating() const { return m_floating.get(); }
+	Hitting* GetHitting() const { return m_hitting.get(); }
 
 
 // 内部処理

@@ -25,7 +25,6 @@ using namespace DirectX;
 Stopping::Stopping(Ball* ball)
 	: m_ball(ball)
 	, m_userResources(nullptr)
-	, m_model{}
 {
 }
 
@@ -45,8 +44,6 @@ Stopping::~Stopping()
 void Stopping::Initialize()
 {
 	m_userResources = UserResources::GetUserResource();
-
-	m_model = Resources::GetInstance()->GetBallModel();
 }
 
 
@@ -58,6 +55,9 @@ void Stopping::Initialize()
 void Stopping::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
+
+	// 白色にする
+	m_ball->SetBallColorNum(Ball::BallColor::NOMAL);
 
 	// プレイヤーの設定
 	m_ball->SetVelocity(m_ball->GetGravity());
@@ -91,7 +91,7 @@ void Stopping::Render()
 	world = scale * rotate * pos;
 
 	// モデルの描画
-	m_model->Draw(context, *states, world, *view, *proj);
+	m_ball->GetModel()->Draw(context, *states, world, *view, *proj);
 
 	// 影の描画
 	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);

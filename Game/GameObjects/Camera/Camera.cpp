@@ -39,11 +39,52 @@ Camera::Camera(int windowWidth, int windowHeight)
 /// <param name="field">フィールド</param>
 void Camera::Update(Player* player, SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field)
 {
+	using namespace DirectX::SimpleMath;
+
 	// プレイヤー位置
 	SimpleMath::Vector3 playerPos = player->GetPosition();
 
-	// 目の位置
-	SimpleMath::Vector3 eye = playerPos * 3;
+	// 重力の方向
+	Vector3 gravityDir = field - playerPos;
+	gravityDir.Normalize();
+
+	// 方向ベクトルの反転
+	Vector3 targetUp;
+	targetUp = -gravityDir;
+
+	// 現在の姿勢制御
+	Vector3 currentUp = Vector3::Transform(Vector3::UnitY, m_rotate);
+
+	// 回転軸の計算
+	SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+	axis.Normalize();
+
+	// 回転角の計算
+	float dot = currentUp.Dot(targetUp);
+	float angle = acosf(dot);
+
+	// クォータニオンの作成
+	Quaternion q;
+
+
+	// 角度が少しでもあれば軸を作る
+	if (angle > 0.01f)
+	{
+		q = Quaternion::CreateFromAxisAngle(axis, angle);
+	}
+	// なければ何もしない
+	else
+	{
+		q = Quaternion::Identity;
+	}
+
+	// 回転の設定
+	m_rotate *= q;
+
+	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_rotate);
+	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_rotate);
+
+	SimpleMath::Vector3 eye = player->GetPosition() * 3;
 
 	// 世界Y軸
 	SimpleMath::Vector3 up = upPos + field;

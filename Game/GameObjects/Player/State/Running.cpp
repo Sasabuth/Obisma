@@ -10,6 +10,7 @@
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects//Camera/Camera.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -112,6 +113,10 @@ void Running::Update(float elapsedTime)
 	{
 		m_player->RotateToMouse();
 	}
+	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
+	{
+		m_player->RotateToMouse();
+	}
 
 	// ボールをキャッチ
 	CatchHandBall();
@@ -150,11 +155,11 @@ void Running::Update(float elapsedTime)
 		m_player->ChangeState(m_player->GetStanding());
 	}
 
-	// 移動制限
-	if (m_player->GetPosition().y < 0.0f)
-	{
-		m_player->SetPosition(SimpleMath::Vector3(m_player->GetPosition().x, 0.0f, m_player->GetPosition().z));
-	}
+	//// 移動制限
+	//if (m_player->GetPosition().y < 0.0f)
+	//{
+	//	m_player->SetPosition(SimpleMath::Vector3(m_player->GetPosition().x, 0.0f, m_player->GetPosition().z));
+	//}
 
 	// プレイヤーの設定
 	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
@@ -229,11 +234,11 @@ void Running::Render()
 	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
 	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
 
-	/*m_primitiveBatch->Begin();
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	m_primitiveBatch->Begin();
+	/*DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Blue);
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
-	m_primitiveBatch->End();*/
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);*/
+	m_primitiveBatch->End();
 
 	// デバック
 	/*m_player->GetCollider().Draw(states, *view, *proj);*/
@@ -345,6 +350,9 @@ void Running::CatchHandBall()
 		{
 			// ボールの状態の変更
 			ball->ChangeState(ball->GetCatching());
+
+			// 色を変更する
+			ball->SetBallColorNum(Ball::BallColor::PLAYER);
 
 			// 右手に持っていなかったら右手に持たせる
      		if (!m_player->GetCatchBall(Player::RIGHT))

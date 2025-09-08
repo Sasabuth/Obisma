@@ -10,8 +10,10 @@
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects//Camera/Camera.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Scenes/TitleScene.h"
 
 
 // 名前の省略
@@ -86,6 +88,19 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 /// <param name="elapsedTime">経過時間</param> 
 void Enemy::Update(float elapsedTime)
 {
+	/*for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+	{
+		Ball* ball = m_ballManager->GetBall(i);
+
+		if (ball->GetCurrentState() == ball->GetMoving())
+		{
+			if (IsHit(m_collider, ball->GetCollider()))
+			{
+				m_pScene->ChangeScene<TitleScene>();
+			}
+		}
+	}*/
+
 	m_currentState->Update(elapsedTime);
 }
 

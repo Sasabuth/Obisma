@@ -9,6 +9,7 @@
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -67,7 +68,7 @@ void PlayerCatching::Initialize()
 	m_worldMatrix = SimpleMath::Matrix::Identity;
 
 	// コライダーの初期化
-	m_collider.Initialize(context, m_player->GetPosition(), 0.2f);
+	m_collider.Initialize(context, m_player->GetPosition(), COLLIDER_SIZE);
 
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
@@ -291,6 +292,9 @@ void PlayerCatching::CatchHandBall(int index)
 
 	// ボールの状態の変更
 	ball->ChangeState(ball->GetCatching());
+
+	// 色を変更する
+	ball->SetBallColorNum(Ball::BallColor::PLAYER);
 
 	// 右手に持っていなかったら右手に持たせる
 	if (!m_player->GetCatchBall(Player::RIGHT))

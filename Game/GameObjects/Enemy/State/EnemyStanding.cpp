@@ -9,6 +9,7 @@
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -341,15 +342,20 @@ void EnemyStanding::CatchHandBall()
 		// 止まっているボールに当たったらボールを拾う
 		if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 		{
+			// ボールの状態の変更
 			ball->ChangeState(ball->GetCatching());
 
-			if (!m_enemy->GetCatchBall(Player::RIGHT))
+			// 色を変更する
+			ball->SetBallColorNum(Ball::BallColor::ENEMY);
+
+
+			if (!m_enemy->GetCatchBall(Enemy::RIGHT))
 			{
-				m_enemy->SetCatchBall(Player::RIGHT, ball);
+				m_enemy->SetCatchBall(Enemy::RIGHT, ball);
 			}
 			else
 			{
-				m_enemy->SetCatchBall(Player::LEFT, ball);
+				m_enemy->SetCatchBall(Enemy::LEFT, ball);
 			}
 		}
 	}

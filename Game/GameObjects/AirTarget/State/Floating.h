@@ -1,8 +1,8 @@
 /// <summary>
-/// プレイヤーに関するヘッダファイル
+/// Floatingに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
+
 
 // 多重インクルードの防止
 #pragma once
@@ -13,13 +13,14 @@
 #include "Game/Commons/UserResources.h"
 
 
-// クラスの定義
-class Ball;
-
-
 
 // クラスの定義
-class Catching : public IState
+class AirTarget;
+
+
+
+// クラスの定義
+class Floating : public IState
 {
 private:
 
@@ -28,16 +29,16 @@ private:
 private:
 	UserResources* m_userResources;
 
-	Ball* m_ball;
+	AirTarget* m_airTarget;
 
 
 // 関数
 public:
 	// コンストラクタ
-	Catching(Ball* ball);
+	Floating(AirTarget* airTarget);
 
 	// デストラクタ
-	~Catching() override;
+	~Floating() override;
 
 	// 初期化
 	void Initialize() override;

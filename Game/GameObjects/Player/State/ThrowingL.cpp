@@ -9,6 +9,7 @@
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -101,14 +102,44 @@ void ThrowingL::Update(float elapsedTime)
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
-		Ball* ball = m_player->GetCatchBall(Player::LEFT);
-
-		// ボーンに設定した境界球のワールド計算を行う
-		DirectX::SimpleMath::Matrix sphereMatrix = m_leftHandMatrix * m_worldMatrix;
-		// バウンディングスフィアの中心点を設定する
-		SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
+		// 方向
+		SimpleMath::Vector3 dir = m_player->GetPosition() - m_player->GetHitPos();
 		dir.Normalize();
-		ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+
+		// 方向ベクトルの反転
+		SimpleMath::Vector3 targetUp;
+		targetUp = -dir;
+
+		// 現在の姿勢制御
+		SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation());
+
+		// 回転軸の計算
+		SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+		axis.Normalize();
+
+		// 回転角の計算
+		float dot = currentUp.Dot(targetUp);
+		float angle = acosf(dot);
+
+		// クォータニオンの作成
+		SimpleMath::Quaternion q;
+
+		// 角度が少しでもあれば軸を作る
+		if (angle > 0.01f)
+		{
+			q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+		}
+		// なければ何もしない
+		else
+		{
+			q = SimpleMath::Quaternion::Identity;
+		}
+
+		m_player->SetRotation(m_player->GetRotation() * q);
+
+		// 右手に持たせる
+		Ball* ball = m_player->GetCatchBall(Player::LEFT);
+		SetBallPosition(ball, m_leftHandMatrix);
 		
 		
 		// 時間になったら投げる
@@ -117,7 +148,7 @@ void ThrowingL::Update(float elapsedTime)
 			ball->ChangeState(ball->GetMoving());
 			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
 			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate));
+			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * Player::PLAYER_POWER);
 			m_player->SetCatchBall(Player::LEFT, nullptr);
 			m_isThowing = true;
 		}
@@ -245,4 +276,21 @@ void ThrowingL::AnimationUpdate()
 	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
+}
+
+
+
+/// <summary>
+/// ボールの座標の設定
+/// </summary>
+/// <param name="ball">ボールのポインタ</param>
+/// <param name="handMatrix">手のマトリックス</param>
+void ThrowingL::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+{
+	// ボーンに設定した境界球のワールド計算を行う
+	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
+	// バウンディングスフィアの中心点を設定する
+	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
+	dir.Normalize();
+	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 }

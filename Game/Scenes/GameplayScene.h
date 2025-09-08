@@ -15,9 +15,10 @@
 #include "Game/GameObjects/Camera/Camera.h"
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Enemy/Enemy.h"
-#include "Game/GameObjects/Ball/Ball.h"
 #include "Game/GameObjects/Ball/BallManager.h"
 #include "Game/GameObjects/Camera/CameraUp.h"
+#include "Game/GameObjects/AirTarget/AirTarget.h"
+#include "Game/GameObjects/ScoreManager/ScoreManager.h"
 
 
 // クラスの定義
@@ -42,9 +43,14 @@ private:
 	// 敵
 	std::unique_ptr<Enemy> m_enemy;
 
-	//  ボールマネージャー
+	// ボールマネージャー
 	std::unique_ptr<BallManager> m_ballManager;
 
+	// 空中の的
+	std::unique_ptr<AirTarget> m_airTarget;
+
+	// スコアマネージャー
+	std::unique_ptr<ScoreManager> m_scoreManager;
 
 
 // 関数
@@ -80,6 +86,7 @@ public:
 public:
 	Field& GetField() const { return *m_field; }
 	Player* GetPlayer() const { return m_player.get(); }
+	AirTarget* GetAirTarget() const { return m_airTarget.get(); }
 
 private:
 	void IsHitEntityToField(IEntity* pIEntity, Field* pField);

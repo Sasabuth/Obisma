@@ -23,7 +23,7 @@ class Ball;
 class EnemyThrowingR : public IState
 {
 private:
-
+	
 
 	// •Ï”
 private:

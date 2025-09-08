@@ -30,8 +30,6 @@ private:
 
 	Ball* m_ball;
 
-	DirectX::Model* m_model;  // ƒ‚ƒfƒ‹
-
 	float m_larp;
 
 // ŠÖ”

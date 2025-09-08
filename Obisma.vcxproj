@@ -192,6 +192,9 @@
     <ClInclude Include="Game\Commons\Sprite.h" />
     <ClInclude Include="Game\Commons\UserResources.h" />
     <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Game\GameObjects\AirTarget\AirTarget.h" />
+    <ClInclude Include="Game\GameObjects\AirTarget\State\Floating.h" />
+    <ClInclude Include="Game\GameObjects\AirTarget\State\Hitting.h" />
     <ClInclude Include="Game\GameObjects\Ball\Ball.h" />
     <ClInclude Include="Game\GameObjects\Ball\BallManager.h" />
     <ClInclude Include="Game\GameObjects\Ball\State\Catching.h" />
@@ -210,8 +213,10 @@
     <ClInclude Include="Game\GameObjects\Player\State\Standing.h" />
     <ClInclude Include="Game\GameObjects\Player\State\ThrowingL.h" />
     <ClInclude Include="Game\GameObjects\Player\State\ThrowingR.h" />
+    <ClInclude Include="Game\GameObjects\ScoreManager\ScoreManager.h" />
     <ClInclude Include="Game\Scenes\GameplayScene.h" />
     <ClInclude Include="Game\Scenes\TitleScene.h" />
+    <ClInclude Include="MemoryLeakDetector.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StepTimer.h" />
   </ItemGroup>
@@ -227,6 +232,9 @@
     <ClCompile Include="Game\Commons\Sprite.cpp" />
     <ClCompile Include="Game\Commons\UserResources.cpp" />
     <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Game\GameObjects\AirTarget\AirTarget.cpp" />
+    <ClCompile Include="Game\GameObjects\AirTarget\State\Floating.cpp" />
+    <ClCompile Include="Game\GameObjects\AirTarget\State\Hitting.cpp" />
     <ClCompile Include="Game\GameObjects\Ball\Ball.cpp" />
     <ClCompile Include="Game\GameObjects\Ball\BallManager.cpp" />
     <ClCompile Include="Game\GameObjects\Ball\State\Catching.cpp" />
@@ -245,6 +253,7 @@
     <ClCompile Include="Game\GameObjects\Player\State\Standing.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\ThrowingL.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\ThrowingR.cpp" />
+    <ClCompile Include="Game\GameObjects\ScoreManager\ScoreManager.cpp" />
     <ClCompile Include="Game\Scenes\GameplayScene.cpp" />
     <ClCompile Include="Game\Scenes\TitleScene.cpp" />
     <ClCompile Include="Main.cpp" />

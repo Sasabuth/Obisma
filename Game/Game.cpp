@@ -7,6 +7,7 @@
 
 #include "Game/Scenes/TitleScene.h"
 #include "Game/Scenes/GameplayScene.h"
+#include "Game/Commons/Resources.h"
 
 
 extern void ExitGame() noexcept;
@@ -195,6 +196,7 @@ void Game::CreateDeviceDependentResources()
     // TODO: Initialize device dependent objects here (independent of window size).
     device;
 
+
     // 共通ステートの作成
     m_states = std::make_unique<CommonStates>(device);
 
@@ -224,6 +226,9 @@ void Game::CreateDeviceDependentResources()
     m_userResources->SetStepTimerStates(&m_timer);
 
     m_sceneManager->CreateDeviceDependentResources();
+
+    // リソースのロード
+    Resources::GetInstance()->LoadResource();
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
@@ -250,6 +255,9 @@ void Game::OnDeviceLost()
 {
     // TODO: Add Direct3D resource cleanup here.
     m_sceneManager->OnDeviceLost();
+
+    // リソースのリセット
+    Resources::GetInstance()->Reset();
 }
 
 void Game::OnDeviceRestored()

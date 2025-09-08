@@ -30,8 +30,6 @@ private:
 
 	Ball* m_ball;
 
-	DirectX::Model* m_model;  // モデル
-
 // 関数
 public:
 	// コンストラクタ

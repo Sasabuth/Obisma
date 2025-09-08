@@ -76,22 +76,34 @@ void Resources::LoadResource()
 		}
 	);
 
-	// ボールのモデルをロードする
-	m_ballModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Ball.sdkmesh", *effectFactory);
-	m_ballModel->UpdateEffects(
-		[&](IEffect* pEffect)
-		{
-			// BasicEffectにキャストする
-			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
-
-			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 1));
-		}
-	);
-
 	// テクスチャの読み込み
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"Resources/Textures/Shadow.dds", nullptr, m_shadowTexture.ReleaseAndGetAddressOf())
 	);
+
+	// テクスチャがあるか
+	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Title.png", nullptr, m_titleTexture.GetAddressOf())))
+	{
+		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
+	}
+
+	// テクスチャがあるか
+	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/PlayerFace.png", nullptr, m_playerFaceTexture.GetAddressOf())))
+	{
+		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
+	}
+
+	// テクスチャがあるか
+	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/ScoreFont.png", nullptr, m_scoreFontTexture.GetAddressOf())))
+	{
+		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
+	}
+
+	// テクスチャがあるか
+	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/PlayerFrame.png", nullptr, m_playerFrameTexture.GetAddressOf())))
+	{
+		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
+	}
 }
 
 
@@ -102,7 +114,11 @@ void Resources::LoadResource()
 void Resources::Reset()
 {
 	m_fieldModel.reset();
-	m_ballModel.reset();
 	m_playerModel.reset();
+	m_enemyModel.reset();
 	m_shadowTexture.Reset();
+	m_titleTexture.Reset();
+	m_playerFaceTexture.Reset();
+	m_scoreFontTexture.Reset();
+	m_playerFrameTexture.Reset();
 }

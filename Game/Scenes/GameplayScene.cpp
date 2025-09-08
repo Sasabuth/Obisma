@@ -40,7 +40,6 @@ GameplayScene::~GameplayScene()
 /// </summary>
 void GameplayScene::Initialize()
 {
-	Resources::GetInstance()->LoadResource();
 	// ユーザーリソースの取得
 	m_userResources = UserResources::GetUserResource();
 
@@ -58,13 +57,19 @@ void GameplayScene::Initialize()
 	m_ballManager = Factory::CreateBallManager(this);
 
 	// プレイヤーの初期化
-	m_player = Factory::CreatePlayer(this, m_ballManager.get(), SimpleMath::Vector3{2.0f,3.0f,2.0f});
+	m_player = Factory::CreatePlayer(this, m_ballManager.get(), SimpleMath::Vector3{ 2.0f,3.0f,2.0f });
 
 	// 敵の初期化
 	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), SimpleMath::Vector3{ 1.0f,2.0f,-2.0f });
 
 	// カメラの上向きベクトルの初期化
 	m_cameraUp = Factory::CreateCameraUp(m_player.get(), SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
+
+	// 空中の的の初期化
+	m_airTarget = Factory::CreateAirTarget(this, SimpleMath::Vector3{ -2.0f,2.0f,3.0f });
+
+	// スコアマネージャーの初期化
+	m_scoreManager = Factory::CreateScoreManager();
 }
 
 
@@ -83,7 +88,7 @@ void GameplayScene::Update(float elapsedTime)
 
 	// カメラの更新
 	m_camera->Update(m_player.get(), m_cameraUp->GetPosition(), m_field->GetCollider().GetPosition());
-	//m_camera->DebugMode();
+	/*m_camera->DebugMode();*/
 
 	// フィールドの更新
 	m_field->Update(elapsedTime);
@@ -97,14 +102,26 @@ void GameplayScene::Update(float elapsedTime)
 	// ボールマネージャの更新
 	m_ballManager->Update(elapsedTime);
 
+	// 空中の的の更新
+	m_airTarget->Update(elapsedTime);
+
 	// 実体とフィールドの当たり判定
 	IsHitEntityToField(m_player.get(), m_field.get());
 	IsHitEntityToField(m_enemy.get(), m_field.get());
 	IsHitEntityToField(m_cameraUp.get(), m_field.get());
+	IsHitEntityToField(m_airTarget.get(), m_field.get());
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
 	{
 		IsHitEntityToField(m_ballManager->GetBall(i), m_field.get());
+
+		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
+		{
+			m_airTarget->ChangeState(m_airTarget->GetHitting());
+			m_scoreManager->SetScore(m_ballManager->GetBall(i)->GetBallColorNum());
+		}
 	}
+
+	
 
 	// シーン変更
 	if (keyboard->IsKeyPressed(DirectX::Keyboard::Keys::Space))
@@ -135,6 +152,12 @@ void GameplayScene::Render()
 
 	// ボールマネージャーの描画
 	m_ballManager->Render();
+
+	// 空中の的の描画
+	m_airTarget->Render();
+
+	// スコアマネージャーの描画
+	m_scoreManager->Render();
 	
 	// カメラの上向きベクトルの描画
 	/*m_cameraUp->Render();*/
@@ -162,8 +185,11 @@ void GameplayScene::Finalize()
 	// カメラの上向きベクトルの終了
 	m_cameraUp->Finalize();
 
-	// リソースのリセット
-	Resources::GetInstance()->Reset();
+	// 空中の的の終了
+	m_airTarget->Finalize();
+
+	// スコアマネージャーの終了
+	m_scoreManager->Finalize();
 }
 
 

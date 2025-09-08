@@ -21,6 +21,13 @@ using namespace DirectX;
 Sprite::Sprite()
 	: m_spriteBatch{ nullptr }
 {
+	// 
+	m_userResources = UserResources::GetUserResource();
+
+	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+
+	// スプライトバッチの作成
+	m_spriteBatch = std::make_unique<DirectX::DX11::SpriteBatch>(context);
 }
 
 
@@ -40,10 +47,9 @@ Sprite::~Sprite()
 /// <param name="device">デバイス</param>
 /// <param name="context">コンテキスト</param>
 /// <param name="path">パス</param>
-void Sprite::CreateTexture(ID3D11Device1* device, ID3D11DeviceContext1* context, const wchar_t* path)
+void Sprite::CreateTexture(const wchar_t* path)
 {
-	// スプライトバッチの作成
-	m_spriteBatch = std::make_unique<DirectX::DX11::SpriteBatch>(context);
+	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
 
 	// テクスチャがあるか
 	if (FAILED(DirectX::CreateWICTextureFromFile(device, path, nullptr, m_texture.GetAddressOf())))
@@ -58,6 +64,8 @@ void Sprite::CreateTexture(ID3D11Device1* device, ID3D11DeviceContext1* context,
 /// 描画
 /// </summary>
 /// <param name="position">座標</param>
+/// <param name="size">サイズ</param>
+/// <param name="scale">拡大率</param>
 void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale)
 {
 	m_spriteBatch->Begin();
@@ -66,10 +74,40 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 	m_spriteBatch->Draw(
 		m_texture.Get(),                      // テクスチャのポインタ
 		position,                             // 座標
-		nullptr,                              
+		nullptr,
 		DirectX::Colors::White,               // 色
 		0.0f,                                 // 回転
 		size / 2,                             // 中心点
+		scale,                                // 拡大率
+		DirectX::SpriteEffects_None           // 反転するか
+	);
+
+	m_spriteBatch->End();
+}
+
+
+
+/// <summary>
+/// 描画
+/// </summary>
+/// <param name="position">座標</param>
+/// <param name="rect">切り取り</param>
+/// <param name="size">サイズ</param>
+/// <param name="scale">拡大率</param>
+void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 rect, float width, float scale)
+{
+	m_spriteBatch->Begin();
+
+	RECT r = { rect.x - width, 0, rect.x, rect.y };
+
+	// スプライトを描画する
+	m_spriteBatch->Draw(
+		m_texture.Get(),                      // テクスチャのポインタ
+		position,                             // 座標
+		&r,
+		DirectX::Colors::White,               // 色
+		0.0f,                                 // 回転
+		SimpleMath::Vector2{ 0.0f,0.0f },     // 中心点
 		scale,                                // 拡大率
 		DirectX::SpriteEffects_None           // 反転するか
 	);

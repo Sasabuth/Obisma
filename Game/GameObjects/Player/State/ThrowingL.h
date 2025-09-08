@@ -15,6 +15,7 @@
 
 // クラスの定義
 class Player;
+class Ball;
 
 
 
@@ -75,5 +76,8 @@ public:
 private:
 	// アニメーションの更新
 	void AnimationUpdate();
+
+	// ボールの座標の設定
+	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 };
 

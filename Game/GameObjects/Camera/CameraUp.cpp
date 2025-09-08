@@ -203,9 +203,6 @@ void CameraUp::CorrectOverlap(Field& field)
 	// 差分を求める
 	float pushLength = minDistance - distance;
 
-	// 正規化
 	delta.Normalize();
-
-	// 押し出しする
 	m_position += delta * pushLength;
 }

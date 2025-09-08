@@ -31,7 +31,9 @@ class Player : public IEntity
 {
 public:
 	static constexpr float PLAYER_SIZE = 0.003f;
+	static constexpr float PLAYER_POWER = 4.5f;
 	static constexpr float SHADOW_SIZE = 0.4f;
+	static constexpr DirectX::SimpleMath::Vector4 BALLCOLOR = { 1,1,0,1 };
 
 	enum HAND
 	{

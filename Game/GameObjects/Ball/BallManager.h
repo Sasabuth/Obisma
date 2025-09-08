@@ -11,6 +11,7 @@
 #include "Game/Commons/Interface/IState.h"
 #include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include <vector>
 
 
@@ -18,15 +19,14 @@
 class GameplayScene;
 class Camera;
 
-class Ball;
-
 
 // クラスの定義
 class BallManager
 {
 public:
-	static constexpr int BALL_COUNT = 4;
+	static constexpr int BALL_COUNT = 4;  // ボールの数
 
+	// ボールの座標
 	static constexpr DirectX::SimpleMath::Vector3 BALL_POSITIONS[] =
 	{ 
 		DirectX::SimpleMath::Vector3{ 1.0f,2.0f,4.0f },

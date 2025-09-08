@@ -9,6 +9,7 @@
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -101,6 +102,41 @@ void ThrowingR::Update(float elapsedTime)
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
+		// 方向
+		SimpleMath::Vector3 dir = m_player->GetPosition() - m_player->GetHitPos();
+		dir.Normalize();
+
+		// 方向ベクトルの反転
+		SimpleMath::Vector3 targetUp;
+		targetUp = -dir;
+
+		// 現在の姿勢制御
+		SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation());
+
+		// 回転軸の計算
+		SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+		axis.Normalize();
+
+		// 回転角の計算
+		float dot = currentUp.Dot(targetUp);
+		float angle = acosf(dot);
+
+		// クォータニオンの作成
+		SimpleMath::Quaternion q;
+
+		// 角度が少しでもあれば軸を作る
+		if (angle > 0.01f)
+		{
+			q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+		}
+		// なければ何もしない
+		else
+		{
+			q = SimpleMath::Quaternion::Identity;
+		}
+
+		m_player->SetRotation(m_player->GetRotation() * q);
+
 		// 右手に持たせる
 		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
 		SetBallPosition(ball, m_rightHandMatrix);
@@ -111,7 +147,7 @@ void ThrowingR::Update(float elapsedTime)
 			ball->ChangeState(ball->GetMoving());
 			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
 			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate));
+			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * Player::PLAYER_POWER);
 			m_player->SetCatchBall(Player::RIGHT, nullptr);
 			m_isThowing = true;
 		}

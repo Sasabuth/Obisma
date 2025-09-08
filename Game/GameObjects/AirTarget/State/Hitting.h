@@ -1,8 +1,8 @@
 /// <summary>
-/// プレイヤーに関するヘッダファイル
+/// Hittingに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/05/21</date>
+
 
 // 多重インクルードの防止
 #pragma once
@@ -11,33 +11,56 @@
 #include "Game/Commons/Interface/IState.h"
 #include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
-
-
-// クラスの定義
-class Ball;
+#include <random>
 
 
 
 // クラスの定義
-class Catching : public IState
+class AirTarget;
+
+
+
+// クラスの定義
+class Hitting : public IState
 {
+// 定数
 private:
+	static constexpr int RAND_POS_COUNT = 10;
 
+	static constexpr float RAND_POS[RAND_POS_COUNT] =
+	{
+		-4.0f,
+		-3.5f,
+		-3.0f,
+		-2.5f,
+		-2.0f,
+		 2.0f,
+		 2.5f,
+		 3.0f,
+		 3.5f,
+		 4.0f,
+	};
+	
 
 // 変数
 private:
 	UserResources* m_userResources;
 
-	Ball* m_ball;
+	AirTarget* m_airTarget;
+
+	// ランダムなデバイス シードを使用してメルセンヌ ツイスター エンジンを作成します
+	std::random_device rd;
+
+
 
 
 // 関数
 public:
 	// コンストラクタ
-	Catching(Ball* ball);
+	Hitting(AirTarget* airTarget);
 
 	// デストラクタ
-	~Catching() override;
+	~Hitting() override;
 
 	// 初期化
 	void Initialize() override;

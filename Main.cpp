@@ -5,6 +5,8 @@
 #include "pch.h"
 #include "Game/Game.h"
 
+#include "MemoryLeakDetector.h"
+
 using namespace DirectX;
 
 #ifdef __clang__
@@ -65,7 +67,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     std::unique_ptr<Mouse> mouse;
     mouse = std::make_unique<Mouse>();
 
-
+    // ゲームの作成
     g_game = std::make_unique<Game>();
 
     // Register class and create window
@@ -112,6 +114,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 #if _DEBUG
         // デバッグ専用コード
         g_game->SetFullscreenState(FALSE);
+
+        // メモリーリーク検出機構のセットアップ
+        SetUpMemoryLeakDetector();
+        
 #else
         // リリース専用コード
         g_game->SetFullscreenState(TRUE);

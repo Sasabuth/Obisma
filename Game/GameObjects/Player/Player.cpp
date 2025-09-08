@@ -10,8 +10,10 @@
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects//Camera/Camera.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Scenes/TitleScene.h"
 
 
 // 名前の省略
@@ -92,6 +94,20 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 /// <param name="elapsedTime">経過時間</param> 
 void Player::Update(float elapsedTime)
 {
+	/*for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+	{
+		Ball* ball = m_ballManager->GetBall(i);
+
+		if (ball->GetCurrentState() == ball->GetMoving())
+		{
+			if (IsHit(m_collider, ball->GetCollider()))
+			{
+				m_pScene->ChangeScene<TitleScene>();
+			}
+		}
+	}*/
+	
+
 	m_currentState->Update(elapsedTime);
 }
 
@@ -110,7 +126,7 @@ void Player::Render()
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
-	m_collider.Draw(states, *view, *proj);
+	//m_collider.Draw(states, *view, *proj);
 }
 
 

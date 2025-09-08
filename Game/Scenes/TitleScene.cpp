@@ -9,6 +9,7 @@
 #include "TitleScene.h"
 
 #include "Game/Scenes/GameplayScene.h"
+#include "Game/Commons/Resources.h"
 
 
 // 名前の省略
@@ -49,7 +50,7 @@ void TitleScene::Initialize()
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	// テクスチャの初期化
-	m_texture.CreateTexture(device, context, L"Resources/Textures/Title.png");
+	m_texture.SetTexture(Resources::GetInstance()->GetTitleTexture());
 }
 
 

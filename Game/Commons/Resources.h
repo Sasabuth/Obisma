@@ -20,10 +20,16 @@ public:
 	DirectX::Model* GetPlayerModel() { return m_playerModel.get(); }
 	// 敵モデルの取得
 	DirectX::Model* GetEnemyModel() { return m_enemyModel.get(); }
-	// ボールモデルの取得
-	DirectX::Model* GetBallModel() { return m_ballModel.get(); }
-	// ボールモデルの取得
+	// 影のテクスチャの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetShadowTexture() { return m_shadowTexture.Get(); }
+	// タイトルのテクスチャの取得
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTitleTexture() { return m_titleTexture.Get(); }
+	// プレイヤーフェイスのテクスチャの取得
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetPlayerFace() { return m_playerFaceTexture.Get(); }
+	// スコアフォントのテクスチャの取得
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetScoreFont() { return m_scoreFontTexture.Get(); }
+	// プレイヤーフレームのテクスチャの取得
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetPlayerFrame() { return m_playerFrameTexture.Get(); }
 
 public:
 	Resources(Resources&&) = default;
@@ -60,9 +66,15 @@ private:
 	std::unique_ptr<DirectX::Model> m_enemyModel;
 	// フィールドモデル
 	std::unique_ptr<DirectX::Model> m_fieldModel;
-	// ボールモデル
-	std::unique_ptr<DirectX::Model> m_ballModel;
 	// 影のテクスチャ
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;
+	// タイトルのテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_titleTexture;
+	// プレイヤーフェイスのテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_playerFaceTexture;
+	// スコアフォントのテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_scoreFontTexture;
+	// プレイヤーフレームのテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_playerFrameTexture;
 
 };

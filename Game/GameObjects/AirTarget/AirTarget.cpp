@@ -1,11 +1,11 @@
 ﻿/// <summary>
-/// Ballに関するソースファイル
+/// AirTargetに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "Ball.h"
+#include "AirTarget.h"
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects//Camera/Camera.h"
@@ -21,10 +21,9 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Ball::Ball(GameplayScene* pScene)
+AirTarget::AirTarget(GameplayScene* pScene)
 	: m_pScene(pScene)
 	, m_currentState{}
-	, m_ballColorNum(0)
 	, m_userResources(nullptr)
 	, m_hitPos{}
 {
@@ -35,7 +34,7 @@ Ball::Ball(GameplayScene* pScene)
 /// <summary>
 /// デストラクタ
 /// </summary>
-Ball::~Ball()
+AirTarget::~AirTarget()
 {
 }
 
@@ -43,7 +42,7 @@ Ball::~Ball()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
+void AirTarget::Initialize(DirectX::SimpleMath::Vector3 position)
 {
 	m_userResources = UserResources::GetUserResource();
 	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
@@ -68,24 +67,17 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 		}
 	);
 
-	// 「立つ」状態の生成
-	m_stopping = std::make_unique<Stopping>(this);
-	// 「立つ」状態の初期化
-	m_stopping->Initialize();
-	// 「走る」状態の生成
-	m_moving = std::make_unique<Moving>(this);
-	// 「走る」状態の初期化
-	m_moving->Initialize();
-	// 「とられている」状態の生成
-	m_catching = std::make_unique<Catching>(this);
-	// 「とられている」状態の初期化
-	m_catching->Initialize();
+	// 「浮いている」状態の生成
+	m_floating = std::make_unique<Floating>(this);
+	// 「浮いている」状態の初期化
+	m_floating->Initialize();
+	// 「当たった」状態の生成
+	m_hitting = std::make_unique<Hitting>(this);
+	// 「当たった」状態の初期化
+	m_hitting->Initialize();
 
-	// 立つ状態にする
-	m_currentState = m_stopping.get();
-
-	// ボールの色の番号の初期化
-	m_ballColorNum = 0;
+	// 浮いている状態にする
+	m_currentState = m_floating.get();
 
 	// 影の初期化
 	InitializeShadow(device, context);
@@ -97,7 +89,7 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void Ball::Update(float elapsedTime)
+void AirTarget::Update(float elapsedTime)
 {
 	m_currentState->Update(elapsedTime);
 }
@@ -107,7 +99,7 @@ void Ball::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void Ball::Render()
+void AirTarget::Render()
 {
 	m_currentState->Render();
 
@@ -115,10 +107,7 @@ void Ball::Render()
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
-	//m_collider.Draw(states, *view, *proj);
-
-	auto debagFont = m_userResources->GetDebugFont();
-	debagFont->Render(L"BallColorNum", m_ballColorNum);
+	/*m_collider.Draw(states, *view, *proj);*/
 }
 
 
@@ -126,7 +115,7 @@ void Ball::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void Ball::Finalize()
+void AirTarget::Finalize()
 {
 	m_currentState->Finalize();
 }
@@ -137,7 +126,7 @@ void Ball::Finalize()
 /// 重なりの補填
 /// </summary>
 /// <param name="field">フィールド</param>
-void Ball::CorrectOverlap(Field& field)
+void AirTarget::CorrectOverlap(Field& field)
 {
 	// 差分を求める
 	SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
@@ -162,7 +151,7 @@ void Ball::CorrectOverlap(Field& field)
 /// ステートの変更
 /// </summary>
 /// <param name="newState">新しいステート</param>
-void Ball::ChangeState(IState* newState)
+void AirTarget::ChangeState(IState* newState)
 {
 	m_currentState = newState;
 	m_currentState->Initialize();
@@ -175,7 +164,7 @@ void Ball::ChangeState(IState* newState)
 /// </summary>
 /// <param name="device">デバイス</param>
 /// <param name="context">コンテキスト</param>
-void Ball::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
+void AirTarget::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 {
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<BasicEffect>(device);
@@ -209,7 +198,7 @@ void Ball::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 /// <param name="context">コンテキスト</param>
 /// <param name="states">コモンステート</param>
 /// <param name="radius">半径</param>
-void Ball::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius)
+void AirTarget::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius)
 {
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
@@ -268,26 +257,6 @@ void Ball::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* state
 
 
 /// <summary>
-/// ボールの色の設定
-/// </summary>
-/// <param name="ballColor">ボールの色</param>
-void Ball::SetBallColorNum(int ballColorNum)
-{
-	m_ballColorNum = ballColorNum;
-
-	// 色を変更する
-	m_model->UpdateEffects(
-		[&](IEffect* pEffect)
-		{
-			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
-			pBasicEffect->SetColorAndAlpha(BALLCOLOR[m_ballColorNum]);
-		}
-	);
-}
-
-
-
-/// <summary>
 /// レイと球体の交差
 /// </summary>
 /// <param name="rayPos">レイの座標</param>
@@ -296,7 +265,7 @@ void Ball::SetBallColorNum(int ballColorNum)
 /// <param name="radius">半径</param>
 /// <param name="hitPos">当たった座標</param>
 /// <returns>[true] 当たった　[false] 当たってない</returns>
-void Ball::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, float radius, DirectX::SimpleMath::Vector3& hitPos)
+void AirTarget::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, float radius, DirectX::SimpleMath::Vector3& hitPos)
 {
 	spherePos.x = spherePos.x - rayPos.x;
 	spherePos.y = spherePos.y - rayPos.y;

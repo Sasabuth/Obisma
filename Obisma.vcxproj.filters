@@ -47,6 +47,15 @@
     <Filter Include="Game\GameObjects\Enemy\State">
       <UniqueIdentifier>{79b32416-741c-461d-a756-c0cbd922f5b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\GameObjects\AirTarget">
+      <UniqueIdentifier>{190da48c-5b06-45ef-85fd-d217ead1f3a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObjects\AirTarget\State">
+      <UniqueIdentifier>{9f3744c1-85a4-40d8-ad74-5cd402c66441}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObjects\ScoreManager">
+      <UniqueIdentifier>{9ebb2606-ef36-4a45-b115-75286341dc27}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -152,6 +161,21 @@
     <ClInclude Include="Game\GameObjects\Player\State\PlayerCatching.h">
       <Filter>Game\GameObjects\Player\State</Filter>
     </ClInclude>
+    <ClInclude Include="MemoryLeakDetector.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\AirTarget\AirTarget.h">
+      <Filter>Game\GameObjects\AirTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\AirTarget\State\Hitting.h">
+      <Filter>Game\GameObjects\AirTarget\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\AirTarget\State\Floating.h">
+      <Filter>Game\GameObjects\AirTarget\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\ScoreManager\ScoreManager.h">
+      <Filter>Game\GameObjects\ScoreManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -248,6 +272,18 @@
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Player\State\PlayerCatching.cpp">
       <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\AirTarget\AirTarget.cpp">
+      <Filter>Game\GameObjects\AirTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\AirTarget\State\Hitting.cpp">
+      <Filter>Game\GameObjects\AirTarget\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\AirTarget\State\Floating.cpp">
+      <Filter>Game\GameObjects\AirTarget\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\ScoreManager\ScoreManager.cpp">
+      <Filter>Game\GameObjects\ScoreManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
