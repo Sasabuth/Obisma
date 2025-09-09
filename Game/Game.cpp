@@ -101,8 +101,8 @@ void Game::Render()
     // シーンマネージャーの描画
     m_sceneManager->Render();
 
-    // fpsの描画
-    m_debugFont->Render(L"fps", m_timer.GetFramesPerSecond());
+    //// fpsの描画
+    //m_debugFont->Render(L"fps", m_timer.GetFramesPerSecond());
 
     m_deviceResources->PIXEndEvent();
 

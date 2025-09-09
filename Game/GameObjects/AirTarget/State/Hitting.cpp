@@ -85,30 +85,30 @@ void Hitting::Render()
 	// デバックフォントの描画
 	auto* debugFont = m_userResources->GetDebugFont();
 
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	//auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	//auto states = m_userResources->GetCommonStates();
+	//auto view = m_userResources->GetView();
+	//auto proj = m_userResources->GetProject();
 
-	// ワールド座標
-	SimpleMath::Matrix world;
+	//// ワールド座標
+	//SimpleMath::Matrix world;
 
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_airTarget->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(AirTarget::BALL_SIZE));
+	//SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_airTarget->GetPosition());
+	//SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(AirTarget::BALL_SIZE));
 
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_airTarget->GetRotation()); // ※回転順に合わせて調整
+	//SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_airTarget->GetRotation()); // ※回転順に合わせて調整
 
-	world = scale * rotate * pos;
+	//world = scale * rotate * pos;
 
-	// モデルの描画
-	m_airTarget->GetModel()->Draw(context, *states, world, *view, *proj);
+	//// モデルの描画
+	//m_airTarget->GetModel()->Draw(context, *states, world, *view, *proj);
 
-	// 影の描画
-	m_airTarget->DrawShadow(context, states, AirTarget::SHADOW_SIZE);
+	//// 影の描画
+	//m_airTarget->DrawShadow(context, states, AirTarget::SHADOW_SIZE);
 
 	// デバック
-	debugFont->Render(L"Hitting");
-	debugFont->Render(L"Position", m_airTarget->GetPosition());
+	//debugFont->Render(L"Hitting");
+	//debugFont->Render(L"Position", m_airTarget->GetPosition());
 
 }
 

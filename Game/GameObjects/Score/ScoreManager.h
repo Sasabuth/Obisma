@@ -11,24 +11,21 @@
 #include "Game/Commons/UserResources.h"
 #include "Game/Commons/Sprite.h"
 
+#include "Game/GameObjects/Score/Score.h"
+
 
 // クラスの定義
 class ScoreManager
 {
 // 定数
 private:
-	static constexpr float NUMBER_WIDTH = 34.5f;
-	static constexpr int NUMBER_HEIGHT = 50;
 
 
 // 変数
 private:
 	UserResources* m_userResources;
 
-	int m_score;
-
-	Sprite m_sprite;
-	Sprite m_frameSprite;
+	std::vector<std::unique_ptr<Score>> m_scores;
 
 
 // 関数
@@ -48,13 +45,13 @@ public:
 	// 描画
 	void Render();
 
-	// 終了処理
-	void Finalize();
+	// 追加
+	void Add(std::unique_ptr<Score>& score) { m_scores.push_back(std::move(score)); }
 
-	// スコア
-	void SetScore(int ballColorNum);
 
-	// スコア描画
-	void ScoreDraw(int x, int y, int score, int size);
+// 設定/取得
+public:
+	int GetObjectCount() const { return (int)m_scores.size(); }
+	Score* GetScore(int index) const { return m_scores[index].get(); }
 };
 

@@ -96,8 +96,8 @@ void Catching::Render()
 	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
 
 	// デバック
-	debugFont->Render(L"Catching");
-	debugFont->Render(L"Position", m_ball->GetPosition());
+	/*debugFont->Render(L"Catching");
+	debugFont->Render(L"Position", m_ball->GetPosition());*/
 
 }
 

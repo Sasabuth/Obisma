@@ -14,7 +14,8 @@
 #include "Game/GameObjects/Ball/Ball.h"
 #include "Game/GameObjects/Ball/BallManager.h"
 #include "Game/GameObjects/AirTarget/AirTarget.h"
-#include "Game/GameObjects/ScoreManager/ScoreManager.h"
+#include "Game/GameObjects/Score/Score.h"
+#include "Game/GameObjects/Score/ScoreManager.h"
 
 
 // クラスの定義
@@ -72,6 +73,9 @@ public:
 		GameplayScene* pScene,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
+
+	// スコアを生成する
+	static std::unique_ptr<Score> CreateScore(int index);
 
 	// スコアマネージャーを生成する
 	static std::unique_ptr<ScoreManager> CreateScoreManager();

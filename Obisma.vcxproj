@@ -213,7 +213,8 @@
     <ClInclude Include="Game\GameObjects\Player\State\Standing.h" />
     <ClInclude Include="Game\GameObjects\Player\State\ThrowingL.h" />
     <ClInclude Include="Game\GameObjects\Player\State\ThrowingR.h" />
-    <ClInclude Include="Game\GameObjects\ScoreManager\ScoreManager.h" />
+    <ClInclude Include="Game\GameObjects\Score\Score.h" />
+    <ClInclude Include="Game\GameObjects\Score\ScoreManager.h" />
     <ClInclude Include="Game\Scenes\GameplayScene.h" />
     <ClInclude Include="Game\Scenes\TitleScene.h" />
     <ClInclude Include="MemoryLeakDetector.h" />
@@ -253,7 +254,8 @@
     <ClCompile Include="Game\GameObjects\Player\State\Standing.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\ThrowingL.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\ThrowingR.cpp" />
-    <ClCompile Include="Game\GameObjects\ScoreManager\ScoreManager.cpp" />
+    <ClCompile Include="Game\GameObjects\Score\Score.cpp" />
+    <ClCompile Include="Game\GameObjects\Score\ScoreManager.cpp" />
     <ClCompile Include="Game\Scenes\GameplayScene.cpp" />
     <ClCompile Include="Game\Scenes\TitleScene.cpp" />
     <ClCompile Include="Main.cpp" />

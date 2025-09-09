@@ -77,7 +77,7 @@ private:
 // •Ï”
 private:
 	DirectX::SimpleMath::Vector3 m_position;  // À•W
-	DirectX::SimpleMath::Vector3 m_extent;  // ”¼Œa
+	DirectX::SimpleMath::Vector3 m_extent;    // ”¼Œa
 
 	std::unique_ptr<DirectX::GeometricPrimitive> m_cube;  // —§•û‘Ì
 

@@ -242,7 +242,7 @@ void Running::Render()
 
 	// デバック
 	/*m_player->GetCollider().Draw(states, *view, *proj);*/
-	debugFont->Render(L"Running");
+	/*debugFont->Render(L"Running");*/
 }
 
 

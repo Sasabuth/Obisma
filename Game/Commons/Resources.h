@@ -20,16 +20,22 @@ public:
 	DirectX::Model* GetPlayerModel() { return m_playerModel.get(); }
 	// 敵モデルの取得
 	DirectX::Model* GetEnemyModel() { return m_enemyModel.get(); }
+	// 星モデルの取得
+	DirectX::Model* GetSterModel() { return m_sterModel.get(); }
+	// スカイドームの取得
+	DirectX::Model* GetSkydome() { return m_skydome.get(); }
+
+	// テクスチャ
 	// 影のテクスチャの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetShadowTexture() { return m_shadowTexture.Get(); }
 	// タイトルのテクスチャの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTitleTexture() { return m_titleTexture.Get(); }
 	// プレイヤーフェイスのテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetPlayerFace() { return m_playerFaceTexture.Get(); }
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetFaceTexture(int index) { return m_faceTextures[index].Get(); }
 	// スコアフォントのテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetScoreFont() { return m_scoreFontTexture.Get(); }
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetScoreFontTexture(int index) { return m_fontTextures[index].Get(); }
 	// プレイヤーフレームのテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetPlayerFrame() { return m_playerFrameTexture.Get(); }
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetScoreFrameTexture(int index) { return m_frameTextures[index].Get(); }
 
 public:
 	Resources(Resources&&) = default;
@@ -57,6 +63,8 @@ private:
 private:
 	// リソース
 	static std::unique_ptr<Resources> m_resources;
+
+	// モデル
 	// グラフィックス
 	UserResources* m_userResource = UserResources::GetUserResource();
 
@@ -66,15 +74,24 @@ private:
 	std::unique_ptr<DirectX::Model> m_enemyModel;
 	// フィールドモデル
 	std::unique_ptr<DirectX::Model> m_fieldModel;
+	// 星モデル
+	std::unique_ptr<DirectX::Model> m_sterModel;
+	// スカイドーム
+	std::unique_ptr<DirectX::Model> m_skydome;
+
+	// テクスチャ
 	// 影のテクスチャ
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;
 	// タイトルのテクスチャ
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_titleTexture;
-	// プレイヤーフェイスのテクスチャ
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_playerFaceTexture;
-	// スコアフォントのテクスチャ
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_scoreFontTexture;
-	// プレイヤーフレームのテクスチャ
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_playerFrameTexture;
+
+	// フレームのテクスチャの配列
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_frameTextures;
+
+	// 顔のテクスチャの配列
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_faceTextures;
+
+	// スコアフォントのテクスチャの配列
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_fontTextures;
 
 };

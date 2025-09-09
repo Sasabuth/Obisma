@@ -53,19 +53,7 @@ void AirTarget::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_collider.Initialize(context, m_position, BALL_SIZE);
 
 	// ボールのモデルをロードする
-	auto effectFactory = m_userResources->GetEffectFactory();
-	effectFactory->SetSharing(false);
-	effectFactory->SetDirectory(L"Resources/Models");
-	m_model = Model::CreateFromSDKMESH(device, L"Resources/Models/Ball.sdkmesh", *effectFactory);
-	m_model->UpdateEffects(
-		[&](IEffect* pEffect)
-		{
-			// BasicEffectにキャストする
-			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
-
-			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 1));
-		}
-	);
+	m_model = Resources::GetInstance()->GetSterModel();
 
 	// 「浮いている」状態の生成
 	m_floating = std::make_unique<Floating>(this);

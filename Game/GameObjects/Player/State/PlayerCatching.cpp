@@ -221,10 +221,10 @@ void PlayerCatching::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
-	debugFont->Render(L"PlayerCatching");
+	/*debugFont->Render(L"PlayerCatching");
 	debugFont->Render(L"CatchPos", SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation()));
 
-	m_collider.Draw(states, *view, *proj);
+	m_collider.Draw(states, *view, *proj);*/
 }
 
 

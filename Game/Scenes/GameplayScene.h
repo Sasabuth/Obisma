@@ -18,7 +18,7 @@
 #include "Game/GameObjects/Ball/BallManager.h"
 #include "Game/GameObjects/Camera/CameraUp.h"
 #include "Game/GameObjects/AirTarget/AirTarget.h"
-#include "Game/GameObjects/ScoreManager/ScoreManager.h"
+#include "Game/GameObjects/Score/ScoreManager.h"
 
 
 // ƒNƒ‰ƒX‚Ì’è‹`
@@ -87,6 +87,7 @@ public:
 	Field& GetField() const { return *m_field; }
 	Player* GetPlayer() const { return m_player.get(); }
 	AirTarget* GetAirTarget() const { return m_airTarget.get(); }
+
 
 private:
 	void IsHitEntityToField(IEntity* pIEntity, Field* pField);

@@ -32,7 +32,7 @@ private:
 	UserResources* m_userResources;
 	GameplayScene* m_pScene;
 
-	std::unique_ptr<DirectX::Model> m_model;  // モデル
+	DirectX::Model* m_model;  // モデル
 
 	IState* m_currentState;
 
@@ -121,7 +121,7 @@ public:
 	IState* GetCurrentState() const { return m_currentState; }
 
 	// モデルの取得
-	DirectX::Model* GetModel() const { return m_model.get(); }
+	DirectX::Model* GetModel() const { return m_model; }
 
 
 // ステートの取得

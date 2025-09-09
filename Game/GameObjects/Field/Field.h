@@ -30,6 +30,7 @@ private:
 	UserResources* m_userResource;  // シーン
 
 	DirectX::Model* m_model;  // モデル
+	DirectX::Model* m_skydomeModel;  // モデル
 
 	DirectX::SimpleMath::Vector3 m_position;  // 座標
 

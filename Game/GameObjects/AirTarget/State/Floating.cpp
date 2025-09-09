@@ -85,7 +85,9 @@ void Floating::Render()
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_airTarget->GetPosition());
 	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(AirTarget::BALL_SIZE));
 
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_airTarget->GetRotation()); // ※回転順に合わせて調整
+	static float rot = 0.0f;
+	rot += 1.0f;
+	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateRotationY(XMConvertToRadians(rot)) * SimpleMath::Matrix::CreateFromQuaternion(m_airTarget->GetRotation()); // ※回転順に合わせて調整
 
 	world = scale * rotate * pos;
 
@@ -96,8 +98,8 @@ void Floating::Render()
 	m_airTarget->DrawShadow(context, states, AirTarget::SHADOW_SIZE);
 
 	// デバック
-	debugFont->Render(L"Floating");
-	debugFont->Render(L"Position", m_airTarget->GetPosition());
+	/*debugFont->Render(L"Floating");
+	debugFont->Render(L"Position", m_airTarget->GetPosition());*/
 
 }
 

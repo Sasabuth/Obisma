@@ -53,7 +53,7 @@
     <Filter Include="Game\GameObjects\AirTarget\State">
       <UniqueIdentifier>{9f3744c1-85a4-40d8-ad74-5cd402c66441}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\GameObjects\ScoreManager">
+    <Filter Include="Game\GameObjects\Score">
       <UniqueIdentifier>{9ebb2606-ef36-4a45-b115-75286341dc27}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -173,8 +173,11 @@
     <ClInclude Include="Game\GameObjects\AirTarget\State\Floating.h">
       <Filter>Game\GameObjects\AirTarget\State</Filter>
     </ClInclude>
-    <ClInclude Include="Game\GameObjects\ScoreManager\ScoreManager.h">
-      <Filter>Game\GameObjects\ScoreManager</Filter>
+    <ClInclude Include="Game\GameObjects\Score\Score.h">
+      <Filter>Game\GameObjects\Score</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Score\ScoreManager.h">
+      <Filter>Game\GameObjects\Score</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -282,8 +285,11 @@
     <ClCompile Include="Game\GameObjects\AirTarget\State\Floating.cpp">
       <Filter>Game\GameObjects\AirTarget\State</Filter>
     </ClCompile>
-    <ClCompile Include="Game\GameObjects\ScoreManager\ScoreManager.cpp">
-      <Filter>Game\GameObjects\ScoreManager</Filter>
+    <ClCompile Include="Game\GameObjects\Score\Score.cpp">
+      <Filter>Game\GameObjects\Score</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Score\ScoreManager.cpp">
+      <Filter>Game\GameObjects\Score</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

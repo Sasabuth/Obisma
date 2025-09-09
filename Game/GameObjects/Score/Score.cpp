@@ -1,5 +1,5 @@
 /// <summary>
-/// ScoreManagerに関するソースファイル
+/// Scoreに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 
@@ -9,7 +9,7 @@
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "ScoreManager.h"
+#include "Score.h"
 
 #include "Game/Commons/Resources.h"
 
@@ -20,7 +20,7 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-ScoreManager::ScoreManager()
+Score::Score()
 	: m_userResources(nullptr)
 	, m_score(0)
 {
@@ -31,7 +31,7 @@ ScoreManager::ScoreManager()
 /// <summary>
 /// デストラクタ
 /// </summary>
-ScoreManager::~ScoreManager()
+Score::~Score()
 {
 }
 
@@ -39,26 +39,18 @@ ScoreManager::~ScoreManager()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void ScoreManager::Initialize()
+void Score::Initialize(int index)
 {
 	// ユーザーリソースの取得
 	m_userResources = UserResources::GetUserResource();
 
 	m_score = 0;
 
-	m_sprite.SetTexture(Resources::GetInstance()->GetScoreFont());
-	m_frameSprite.SetTexture(Resources::GetInstance()->GetPlayerFrame());
-}
+	m_position = POSITIONS[index];
 
-
-
-/// <summary>
-/// 更新処理
-/// </summary>
-/// <param name="elapsedTime"></param> 経過時間
-void ScoreManager::Update(float elapsedTime)
-{
-	UNREFERENCED_PARAMETER(elapsedTime);
+	m_scoreSprite.SetTexture(Resources::GetInstance()->GetScoreFontTexture(index));
+	m_frameSprite.SetTexture(Resources::GetInstance()->GetScoreFrameTexture(index));
+	m_faceSprite.SetTexture(Resources::GetInstance()->GetFaceTexture(index));
 }
 
 
@@ -66,24 +58,16 @@ void ScoreManager::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void ScoreManager::Render()
+void Score::Render()
 {
-	/*m_frameSprite.Draw(SimpleMath::Vector2(20, 20), SimpleMath::Vector2(0, 0), 0.3f);*/
-	ScoreDraw(0, 0, m_score, 1.0f);
+	m_frameSprite.Draw(m_position, SimpleMath::Vector2(0, 0), 0.3f);
+	m_faceSprite.Draw(m_position, SimpleMath::Vector2(0, 0), 0.1f);
+	ScoreDraw(m_position.x+80, m_position.y+10, m_score, 1.0f);
 
 	auto debagFont = m_userResources->GetDebugFont();
 
-	debagFont->Render(L"score", m_score);
+	//debagFont->Render(L"score", m_score);
 	
-}
-
-
-
-/// <summary>
-/// 終了処理
-/// </summary>
-void ScoreManager::Finalize()
-{
 }
 
 
@@ -91,8 +75,7 @@ void ScoreManager::Finalize()
 /// <summary>
 /// スコアの設定
 /// </summary>
-/// <param name="ballColorNum">ボールの色の番号</param>
-void ScoreManager::SetScore(int ballColorNum)
+void Score::SetScore()
 {
 	m_score += 1;
 }
@@ -106,7 +89,7 @@ void ScoreManager::SetScore(int ballColorNum)
 /// <param name="y">Y座標</param>
 /// <param name="score">スコア</param>
 /// <param name="size">サイズ</param>
-void ScoreManager::ScoreDraw(int x, int y, int score, int size)
+void Score::ScoreDraw(int x, int y, int score, int size)
 {
 	// スコアフォントの描画
 	int posX = x;
@@ -126,8 +109,8 @@ void ScoreManager::ScoreDraw(int x, int y, int score, int size)
 		int number = score % 10 + 1;
 
 		int sourceX = static_cast<int>(number * NUMBER_WIDTH);
-		m_sprite.Draw(SimpleMath::Vector2(posX, posY), SimpleMath::Vector2(sourceX, 50), NUMBER_WIDTH, size);
-		/*m_sprite.Draw(SimpleMath::Vector2(500, 0), SimpleMath::Vector2(0,0), size);*/
+		m_scoreSprite.Draw(SimpleMath::Vector2(posX, posY), SimpleMath::Vector2(sourceX, NUMBER_HEIGHT), NUMBER_WIDTH, size);
+		/*m_scoreSprite.Draw(SimpleMath::Vector2(500, 0), SimpleMath::Vector2(0,0), size);*/
 
 		score /= 10;
 		posX -= static_cast<int>(NUMBER_WIDTH);

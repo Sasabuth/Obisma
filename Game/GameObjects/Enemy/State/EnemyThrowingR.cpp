@@ -253,7 +253,7 @@ void EnemyThrowingR::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();
 
-	debugFont->Render(L"EnemyThrowingR");
+	/*debugFont->Render(L"EnemyThrowingR");*/
 }
 
 

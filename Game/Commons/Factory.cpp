@@ -98,6 +98,18 @@ std::unique_ptr<AirTarget> Factory::CreateAirTarget(GameplayScene* pScene, const
 	return std::move(airTarget);
 }
 
+std::unique_ptr<Score> Factory::CreateScore(int index)
+{
+	// スコアの宣言
+	std::unique_ptr<Score> score;
+	// スコアの生成
+	score = std::make_unique<Score>();
+	// スコアの初期化
+	score->Initialize(index);
+	// スコアを返す
+	return std::move(score);
+}
+
 std::unique_ptr<ScoreManager> Factory::CreateScoreManager()
 {
 	// スコアマネージャーの宣言

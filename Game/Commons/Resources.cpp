@@ -44,6 +44,7 @@ void Resources::LoadResource()
 {
 	// モデルの設定
 	auto device = m_userResource->GetDeviceResources()->GetD3DDevice();
+
 	auto effectFactory = m_userResource->GetEffectFactory();
 	effectFactory->SetDirectory(L"Resources/Models");
 
@@ -76,6 +77,22 @@ void Resources::LoadResource()
 		}
 	);
 
+	// 星モデルをロードする
+	m_sterModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Ster.sdkmesh", *effectFactory);
+	m_sterModel->UpdateEffects(
+		[&](IEffect* pEffect)
+		{
+			// BasicEffectにキャストする
+			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
+
+			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 1));
+		}
+	);
+
+
+	// スカイドームをロードする
+	m_skydome = Model::CreateFromSDKMESH(device, L"Resources/Models/skydome.sdkmesh", *effectFactory);
+
 	// テクスチャの読み込み
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"Resources/Textures/Shadow.dds", nullptr, m_shadowTexture.ReleaseAndGetAddressOf())
@@ -87,22 +104,36 @@ void Resources::LoadResource()
 		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
 	}
 
-	// テクスチャがあるか
-	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/PlayerFace.png", nullptr, m_playerFaceTexture.GetAddressOf())))
+	// フォントテクスチャの読み込み
+	m_fontTextures.resize(2);
+	for (size_t i = 0; i < m_fontTextures.size(); i++)
 	{
-		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
+		std::wstring filename = L"Resources/Textures/ScoreFont" + std::to_wstring(i) + L".png";
+		if (FAILED(CreateWICTextureFromFile(device, filename.c_str(), nullptr, m_fontTextures[i].ReleaseAndGetAddressOf())))
+		{
+			MessageBox(NULL, filename.c_str(), L"エラー", MB_OK);
+		}
 	}
 
-	// テクスチャがあるか
-	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/ScoreFont.png", nullptr, m_scoreFontTexture.GetAddressOf())))
+	// フレームテクスチャの読み込み
+	m_frameTextures.resize(2);
+	for (size_t i = 0; i < m_frameTextures.size(); i++)
 	{
-		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
+		std::wstring filename = L"Resources/Textures/ScoreFrame" + std::to_wstring(i) + L".png";
+		if (FAILED(CreateWICTextureFromFile(device, filename.c_str(), nullptr, m_frameTextures[i].ReleaseAndGetAddressOf())))
+		{
+			MessageBox(NULL, filename.c_str(), L"エラー", MB_OK);
+		}
 	}
-
-	// テクスチャがあるか
-	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/PlayerFrame.png", nullptr, m_playerFrameTexture.GetAddressOf())))
+	// 顔テクスチャの読み込み
+	m_faceTextures.resize(2);
+	for (size_t i = 0; i < m_faceTextures.size(); i++)
 	{
-		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
+		std::wstring filename = L"Resources/Textures/Face" + std::to_wstring(i) + L".png";
+		if (FAILED(CreateWICTextureFromFile(device, filename.c_str(), nullptr, m_faceTextures[i].ReleaseAndGetAddressOf())))
+		{
+			MessageBox(NULL, filename.c_str(), L"エラー", MB_OK);
+		}
 	}
 }
 
@@ -116,9 +147,21 @@ void Resources::Reset()
 	m_fieldModel.reset();
 	m_playerModel.reset();
 	m_enemyModel.reset();
+	m_sterModel.reset();
+	m_skydome.reset();
 	m_shadowTexture.Reset();
 	m_titleTexture.Reset();
-	m_playerFaceTexture.Reset();
-	m_scoreFontTexture.Reset();
-	m_playerFrameTexture.Reset();
+
+	for (size_t i = 0; i < m_fontTextures.size(); i++)
+	{
+		m_fontTextures[i].Reset();
+	}
+	for (size_t i = 0; i < m_frameTextures.size(); i++)
+	{
+		m_frameTextures[i].Reset();
+	}
+	for (size_t i = 0; i < m_faceTextures.size(); i++)
+	{
+		m_faceTextures[i].Reset();
+	}
 }

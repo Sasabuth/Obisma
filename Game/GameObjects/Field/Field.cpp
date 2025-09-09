@@ -22,6 +22,7 @@ Field::Field(GameplayScene* pScene)
 	, m_userResource(nullptr)
 	, m_position{}
 	, m_model{}
+	, m_skydomeModel{}
 {
 }
 
@@ -46,7 +47,6 @@ void Field::Initialize()
 
 	// モデルの設定
 	m_model = Resources::GetInstance()->GetFieldModel();
-
 	m_model->UpdateEffects(
 		// 引数にラムダ式として処理内容を指定する
 		[&](IEffect* pEffect)
@@ -63,6 +63,8 @@ void Field::Initialize()
 			pBasicEffect->SetEmissiveColor(DirectX::SimpleMath::Vector3(1, 1, 1));
 		}
 	);
+
+	m_skydomeModel = Resources::GetInstance()->GetSkydome();
 
 	// 座標の初期化
 	m_position = SimpleMath::Vector3{ 0.0f,0.0f,0.0f };
@@ -105,6 +107,12 @@ void Field::Render()
 
 	// モデルの描画
 	m_model->Draw(context, *states, world, *view, *proj);
+
+	// スカイドームの描画
+	SimpleMath::Matrix sWorld = SimpleMath::Matrix::CreateTranslation(m_position) * SimpleMath::Matrix::CreateScale(MODEL_SCALE*30);
+	m_skydomeModel->Draw(context, *states, sWorld, *view, *proj);
+	sWorld *= SimpleMath::Matrix::CreateRotationX(XMConvertToRadians(180));
+	m_skydomeModel->Draw(context, *states, sWorld, *view, *proj);
 
 	// デバック用
 	/*m_collider.Draw(states, *view, *proj);*/

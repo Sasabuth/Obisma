@@ -117,7 +117,7 @@ void GameplayScene::Update(float elapsedTime)
 		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
 		{
 			m_airTarget->ChangeState(m_airTarget->GetHitting());
-			m_scoreManager->SetScore(m_ballManager->GetBall(i)->GetBallColorNum());
+			m_scoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->SetScore();
 		}
 	}
 
@@ -139,7 +139,7 @@ void GameplayScene::Render()
 {
 	// デバックフォントの描画
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
-	debugFont->Render(L"GameplayScene");
+	//debugFont->Render(L"GameplayScene");
 
 	// フィールドの描画
 	m_field->Render();
@@ -159,8 +159,11 @@ void GameplayScene::Render()
 	// スコアマネージャーの描画
 	m_scoreManager->Render();
 	
+	// デバック用
 	// カメラの上向きベクトルの描画
 	/*m_cameraUp->Render();*/
+
+	
 }
 
 
@@ -187,9 +190,6 @@ void GameplayScene::Finalize()
 
 	// 空中の的の終了
 	m_airTarget->Finalize();
-
-	// スコアマネージャーの終了
-	m_scoreManager->Finalize();
 }
 
 

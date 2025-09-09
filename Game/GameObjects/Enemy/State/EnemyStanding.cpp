@@ -201,7 +201,7 @@ void EnemyStanding::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();
 
-	debugFont->Render(L"EnemyStanding");
+	/*debugFont->Render(L"EnemyStanding");*/
 }
 
 

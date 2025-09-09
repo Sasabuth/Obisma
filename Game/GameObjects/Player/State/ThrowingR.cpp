@@ -251,7 +251,7 @@ void ThrowingR::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
-	debugFont->Render(L"ThrowingR");
+	//debugFont->Render(L"ThrowingR");
 }
 
 

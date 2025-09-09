@@ -68,7 +68,10 @@ void Sprite::CreateTexture(const wchar_t* path)
 /// <param name="scale">Šg‘å—¦</param>
 void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale)
 {
-	m_spriteBatch->Begin();
+	auto states = m_userResources->GetCommonStates();
+
+	// ”¼“§–¾‚ÌÝ’è
+	m_spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, states->NonPremultiplied());
 
 	// ƒXƒvƒ‰ƒCƒg‚ð•`‰æ‚·‚é
 	m_spriteBatch->Draw(
@@ -96,7 +99,10 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 /// <param name="scale">Šg‘å—¦</param>
 void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 rect, float width, float scale)
 {
-	m_spriteBatch->Begin();
+	auto states = m_userResources->GetCommonStates();
+
+	// ”¼“§–¾‚ÌÝ’è
+	m_spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, states->NonPremultiplied());
 
 	RECT r = { rect.x - width, 0, rect.x, rect.y };
 

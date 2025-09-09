@@ -118,7 +118,7 @@ void Ball::Render()
 	//m_collider.Draw(states, *view, *proj);
 
 	auto debagFont = m_userResources->GetDebugFont();
-	debagFont->Render(L"BallColorNum", m_ballColorNum);
+	/*debagFont->Render(L"BallColorNum", m_ballColorNum);*/
 }
 
 
