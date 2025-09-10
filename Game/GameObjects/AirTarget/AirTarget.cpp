@@ -25,6 +25,7 @@ AirTarget::AirTarget(GameplayScene* pScene)
 	: m_pScene(pScene)
 	, m_currentState{}
 	, m_userResources(nullptr)
+	, m_model(nullptr)
 	, m_hitPos{}
 {
 }
@@ -92,10 +93,10 @@ void AirTarget::Render()
 	m_currentState->Render();
 
 	// デバック
-	auto states = m_userResources->GetCommonStates();
+	/*auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
-	/*m_collider.Draw(states, *view, *proj);*/
+	m_collider.Draw(states, *view, *proj);*/
 }
 
 

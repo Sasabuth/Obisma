@@ -73,16 +73,23 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 	// 半透明の設定
 	m_spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, states->NonPremultiplied());
 
+	// 解像度に応じた拡大率を計算
+	auto const scrennSize = UserResources::GetUserResource()->GetDeviceResources()->GetOutputSize();
+	float scaleX = scrennSize.right / BASE_WIDTH;
+	float scaleY = scrennSize.bottom / BASE_HEIGHT;
+
+	SimpleMath::Vector2 pos = SimpleMath::Vector2(position.x * scaleX, position.y * scaleY);
+
 	// スプライトを描画する
 	m_spriteBatch->Draw(
-		m_texture.Get(),                      // テクスチャのポインタ
-		position,                             // 座標
+		m_texture.Get(),              // テクスチャのポインタ
+		pos,                          // 座標
 		nullptr,
-		DirectX::Colors::White,               // 色
-		0.0f,                                 // 回転
-		size / 2,                             // 中心点
-		scale,                                // 拡大率
-		DirectX::SpriteEffects_None           // 反転するか
+		DirectX::Colors::White,       // 色
+		0.0f,                         // 回転
+		size / 2,                     // 中心点
+		scale * scaleX,               // 拡大率
+		DirectX::SpriteEffects_None   // 反転するか
 	);
 
 	m_spriteBatch->End();
@@ -104,17 +111,25 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 	// 半透明の設定
 	m_spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, states->NonPremultiplied());
 
+	// 数字を切り取る
 	RECT r = { (LONG)(rect.x - width), 0, (LONG)rect.x, (LONG)rect.y };
+
+	// 解像度に応じた拡大率を計算
+	auto const scrennSize = UserResources::GetUserResource()->GetDeviceResources()->GetOutputSize();
+	float scaleX = scrennSize.right  / BASE_WIDTH;
+	float scaleY = scrennSize.bottom / BASE_HEIGHT;
+
+	SimpleMath::Vector2 pos = SimpleMath::Vector2(position.x * scaleX, position.y * scaleY);
 
 	// スプライトを描画する
 	m_spriteBatch->Draw(
 		m_texture.Get(),                      // テクスチャのポインタ
-		position,                             // 座標
+		pos,                             // 座標
 		&r,
 		DirectX::Colors::White,               // 色
 		0.0f,                                 // 回転
 		SimpleMath::Vector2{ 0.0f,0.0f },     // 中心点
-		scale,                                // 拡大率
+		scale* scaleX,                                // 拡大率
 		DirectX::SpriteEffects_None           // 反転するか
 	);
 

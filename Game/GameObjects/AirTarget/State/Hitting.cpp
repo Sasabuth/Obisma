@@ -67,8 +67,8 @@ void Hitting::Update(float elapsedTime)
 
 	m_airTarget->GetCollider().SetPosition(m_airTarget->GetPosition());
 
-	float a = m_airTarget->GetPosition().x * m_airTarget->GetPosition().y * m_airTarget->GetPosition().z;
-	if (a < 28.8f && a> 12.0f || a < -12.0f && a > -28.8f)
+	float pos = m_airTarget->GetPosition().x * m_airTarget->GetPosition().y * m_airTarget->GetPosition().z;
+	if (pos < 28.8f && pos> 12.0f || pos < -12.0f && pos > -28.8f)
 	{
 		m_airTarget->ChangeState(m_airTarget->GetFloating());
 	}

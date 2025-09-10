@@ -36,6 +36,7 @@ ScoreManager::~ScoreManager()
 }
 
 
+
 /// <summary>
 /// ‰Šú‰»ˆ—
 /// </summary>

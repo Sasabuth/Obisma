@@ -40,6 +40,8 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetScoreFontTexture(int index) { return m_fontTextures[index].Get(); }
 	// プレイヤーフレームのテクスチャの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetScoreFrameTexture(int index) { return m_frameTextures[index].Get(); }
+	// 勝利のテクスチャの取得
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetWinTexture(int index) { return m_winTextures[index].Get(); }
 
 public:
 	Resources(Resources&&) = default;
@@ -101,5 +103,8 @@ private:
 
 	// スコアフォントのテクスチャの配列
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_fontTextures;
+
+	// 勝利のテクスチャの配列
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_winTextures;
 
 };

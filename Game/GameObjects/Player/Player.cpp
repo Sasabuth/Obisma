@@ -124,10 +124,10 @@ void Player::Render()
 	// デバック用
 	auto* debugFont = m_userResources->GetDebugFont();
 
-	auto states = m_userResources->GetCommonStates();
+	/*auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
-	//m_collider.Draw(states, *view, *proj);
+	m_collider.Draw(states, *view, *proj);*/
 }
 
 
@@ -401,8 +401,6 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 
 void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 {	
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();	
-	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
 
@@ -419,12 +417,8 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 	clipPos /= clipPos.w;
 
 	// スクリーン座標に変換
-	// レイの設定
-	auto const r = m_userResources->GetDeviceResources()->GetOutputSize();
-
-
-	float screenX = (clipPos.x * 0.5f + 0.5f) * r.right;
-	float screenY = (1.0f - (clipPos.y * 0.5f + 0.5f)) * r.bottom;
+	float screenX = (clipPos.x * 0.5f + 0.5f) * 1280;
+	float screenY = (1.0f - (clipPos.y * 0.5f + 0.5f)) * 720;
 
 	SimpleMath::Vector2 screenPos(screenX, screenY);
 	m_lockOnTexture.Draw(screenPos, SimpleMath::Vector2(1256, 1244), 0.1f);

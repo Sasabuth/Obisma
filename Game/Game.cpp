@@ -7,6 +7,7 @@
 
 #include "Game/Scenes/TitleScene.h"
 #include "Game/Scenes/GameplayScene.h"
+#include "Game/Scenes/ResultScene.h"
 #include "Game/Commons/Resources.h"
 
 
@@ -46,7 +47,7 @@ void Game::Initialize(HWND window, int width, int height)
     */
 
     // シーンマネージャーの初期化
-    m_sceneManager->SetScene<GameplayScene>();
+    m_sceneManager->SetScene<TitleScene>();
 }
 
 #pragma region Frame Update

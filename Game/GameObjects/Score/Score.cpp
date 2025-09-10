@@ -72,6 +72,21 @@ void Score::Render()
 
 
 /// <summary>
+/// スコアを下げる
+/// </summary>
+void Score::ScoreDown()
+{
+	if (m_score == 1)
+	{
+		m_score = 0;
+	}
+
+	m_score = std::ceil(m_score /= 2);
+}
+
+
+
+/// <summary>
 /// スコアの描画
 /// </summary>
 /// <param name="x">X座標</param>

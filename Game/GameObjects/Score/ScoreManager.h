@@ -51,6 +51,8 @@ public:
 	// ˆê”Ô‚‚¢ƒXƒRƒA‚Ì”Ô†‚ğæ“¾
 	int GetTopScoreNumber() const;
 
+
+
 // İ’è/æ“¾
 public:
 	int GetObjectCount() const { return (int)m_scores.size(); }

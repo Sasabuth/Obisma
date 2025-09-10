@@ -25,6 +25,7 @@ private:
 	// シーンマネージャーへのポインタ
 	SceneManager* m_sceneManager;
 
+
 public:
 
 	// コンストラクタ
@@ -58,10 +59,12 @@ public:
 
 	// シーンマネージャー設定関数
 	void SetSceneManager(SceneManager* sceneManager) { m_sceneManager = sceneManager; }
+	SceneManager* GetSceneManager() const { return m_sceneManager; }
 
 	// シーンの切り替え関数
 	template <class T>
 	void ChangeScene();
+
 };
 
 // シーンマネージャークラス
@@ -74,6 +77,9 @@ private:
 	// 次のシーンへのポインタ
 	Scene* m_nextScene;
 
+	// 勝者
+	int m_winner;
+
 	// シーン削除関数
 	void DeleteScene();
 
@@ -83,6 +89,7 @@ public:
 	SceneManager()
 		: m_scene(nullptr)
 		, m_nextScene(nullptr)
+		, m_winner(0)
 	{
 	};
 
@@ -112,6 +119,9 @@ public:
 	template <class T>
 	void SetNextScene();
 
+	// 勝者
+	void SetWinner(int winner) { m_winner = winner; }  // 設定
+	int GetWinner() const { return m_winner; }         // 取得
 };
 
 

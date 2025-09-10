@@ -60,7 +60,7 @@ public:
 	void ScoreUp() { m_score += 1; }
 
 	// ƒXƒRƒA‚ğ‰º‚°‚é
-	void ScoreDown() { m_score = std::ceil(m_score /= 2); }
+	void ScoreDown();
 
 
 // İ’è/æ“¾

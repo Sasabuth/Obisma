@@ -208,11 +208,7 @@ void PlayerCatching::Render()
 	context->IASetInputLayout(m_inputLayout.Get());
 
 	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
-
-	SimpleMath::Vector3 dir = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
-	SimpleMath::Quaternion rot = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation() * rot);
-
+	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
 	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
 
 	/*m_primitiveBatch->Begin();

@@ -21,6 +21,7 @@ private:
 	UserResources* m_pUserResources;
 
 	Sprite m_resultTexture;
+	Sprite m_winTexture;
 
 
 // ä÷êî

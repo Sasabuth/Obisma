@@ -147,6 +147,16 @@ void Resources::LoadResource()
 			MessageBox(NULL, filename.c_str(), L"エラー", MB_OK);
 		}
 	}
+	// 勝利テクスチャの読み込み
+	m_winTextures.resize(2);
+	for (size_t i = 0; i < m_winTextures.size(); i++)
+	{
+		std::wstring filename = L"Resources/Textures/Win" + std::to_wstring(i) + L".png";
+		if (FAILED(CreateWICTextureFromFile(device, filename.c_str(), nullptr, m_winTextures[i].ReleaseAndGetAddressOf())))
+		{
+			MessageBox(NULL, filename.c_str(), L"エラー", MB_OK);
+		}
+	}
 }
 
 

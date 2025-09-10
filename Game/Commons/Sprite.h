@@ -12,6 +12,11 @@
 // クラスの定義
 class Sprite
 {
+// 定数
+private:
+	static constexpr float BASE_WIDTH = 1280.0f;
+	static constexpr float BASE_HEIGHT = 720.0f;
+
 private:
 	// ユーザーリソース
 	UserResources* m_userResources;
@@ -33,10 +38,13 @@ public:
 	// テクスチャの作成
 	void CreateTexture(const wchar_t* path);
 
-	// テクスチャの設定
-	void SetTexture(Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture) { m_texture = texture; }
-
 	// 描画
 	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale);
 	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 rect, float width, float scale);
+
+// 設定/取得
+public:
+	// テクスチャの設定
+	void SetTexture(Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture) { m_texture = texture; }  // 設定
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTexture() const { return m_texture; }           // 取得
 };

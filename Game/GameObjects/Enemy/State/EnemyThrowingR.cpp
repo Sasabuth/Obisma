@@ -102,7 +102,7 @@ void EnemyThrowingR::Update(float elapsedTime)
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
-		Player* player = m_enemy->GetScene()->GetPlayer();
+		auto* player = m_enemy->GetScene()->GetAirTarget();
 
 		// 方向
 		SimpleMath::Vector3 dir = m_enemy->GetPosition() - player->GetPosition();

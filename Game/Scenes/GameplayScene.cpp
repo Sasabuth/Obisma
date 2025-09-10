@@ -36,6 +36,7 @@ GameplayScene::~GameplayScene()
 }
 
 
+
 /// <summary>
 /// 初期化処理
 /// </summary>
@@ -59,7 +60,7 @@ void GameplayScene::Initialize()
 
 	// プレイヤーの初期化
 	m_player = Factory::CreatePlayer(this, m_ballManager.get(), SimpleMath::Vector3{ 0.1f,3.0f,0.1f });
-
+	
 	// 敵の初期化
 	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), SimpleMath::Vector3{ 0.1f,-3.0f,0.1f });
 
@@ -131,6 +132,7 @@ void GameplayScene::Update(float elapsedTime)
 	if (m_gameTimer <= 0.0f)
 	{
 		m_gameTimer = MAX_TIME;
+		GetSceneManager()->SetWinner(m_scoreManager->GetTopScoreNumber());
 		ChangeScene<ResultScene>();
 	}
 }
@@ -149,7 +151,6 @@ void GameplayScene::Render()
 	// フィールドの描画
 	m_field->Render();
 
-
 	// 空中の的の描画
 	m_airTarget->Render();
 
@@ -161,7 +162,6 @@ void GameplayScene::Render()
 
 	// ボールマネージャーの描画
 	m_ballManager->Render();
-
 
 	// スコアマネージャーの描画
 	m_scoreManager->Render();

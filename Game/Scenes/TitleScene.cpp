@@ -62,9 +62,9 @@ void TitleScene::Update(float elapsedTime)
 	UNREFERENCED_PARAMETER(elapsedTime);
 
 	// キーボードの取得
-	auto keyboard = m_pUserResources->GetKeyboardStateTracker();
+	auto mouseTk = m_pUserResources->GetMouseStateTracker();
 
-	if (keyboard->IsKeyPressed(DirectX::Keyboard::Keys::Space))
+	if (mouseTk->leftButton == mouseTk->PRESSED)
 	{
 		ChangeScene<GameplayScene>();
 	}

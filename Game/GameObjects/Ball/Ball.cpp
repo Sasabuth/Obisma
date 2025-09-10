@@ -112,9 +112,9 @@ void Ball::Render()
 	m_currentState->Render();
 
 	// デバック
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	//auto states = m_userResources->GetCommonStates();
+	//auto view = m_userResources->GetView();
+	//auto proj = m_userResources->GetProject();
 	//m_collider.Draw(states, *view, *proj);
 
 	auto debagFont = m_userResources->GetDebugFont();

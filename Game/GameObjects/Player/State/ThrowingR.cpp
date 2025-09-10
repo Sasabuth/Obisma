@@ -98,6 +98,7 @@ void ThrowingR::Update(float elapsedTime)
 	UNREFERENCED_PARAMETER(elapsedTime);
 
 	auto kb = Keyboard::Get().GetState();
+	auto mouseTK = m_userResources->GetMouseStateTracker();
 
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
@@ -174,6 +175,10 @@ void ThrowingR::Update(float elapsedTime)
 	else
 	{
 		if (kb.W) m_player->ChangeState(m_player->GetRunning());
+		else if (mouseTK->rightButton == mouseTK->PRESSED)
+		{
+			m_player->ChangeState(m_player->GetCatching());
+		}
 		else m_player->ChangeState(m_player->GetStanding());
 	}
 
