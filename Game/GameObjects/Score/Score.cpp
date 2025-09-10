@@ -62,22 +62,11 @@ void Score::Render()
 {
 	m_frameSprite.Draw(m_position, SimpleMath::Vector2(0, 0), 0.3f);
 	m_faceSprite.Draw(m_position, SimpleMath::Vector2(0, 0), 0.1f);
-	ScoreDraw(m_position.x+80, m_position.y+10, m_score, 1.0f);
+	ScoreDraw(m_position.x+80, m_position.y+10, (int)m_score, 1.0f);
 
 	auto debagFont = m_userResources->GetDebugFont();
-
 	//debagFont->Render(L"score", m_score);
 	
-}
-
-
-
-/// <summary>
-/// スコアの設定
-/// </summary>
-void Score::SetScore()
-{
-	m_score += 1;
 }
 
 
@@ -89,11 +78,11 @@ void Score::SetScore()
 /// <param name="y">Y座標</param>
 /// <param name="score">スコア</param>
 /// <param name="size">サイズ</param>
-void Score::ScoreDraw(int x, int y, int score, int size)
+void Score::ScoreDraw(float x, float y, int score, float size)
 {
 	// スコアフォントの描画
-	int posX = x;
-	int posY = y;
+	float posX = x;
+	float posY = y;
 
 	int numDidits = 2;
 	//while (score != 0)
@@ -109,8 +98,7 @@ void Score::ScoreDraw(int x, int y, int score, int size)
 		int number = score % 10 + 1;
 
 		int sourceX = static_cast<int>(number * NUMBER_WIDTH);
-		m_scoreSprite.Draw(SimpleMath::Vector2(posX, posY), SimpleMath::Vector2(sourceX, NUMBER_HEIGHT), NUMBER_WIDTH, size);
-		/*m_scoreSprite.Draw(SimpleMath::Vector2(500, 0), SimpleMath::Vector2(0,0), size);*/
+		m_scoreSprite.Draw(SimpleMath::Vector2(posX, posY), SimpleMath::Vector2((float)sourceX, NUMBER_HEIGHT), NUMBER_WIDTH, size);
 
 		score /= 10;
 		posX -= static_cast<int>(NUMBER_WIDTH);

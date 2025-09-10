@@ -11,6 +11,7 @@
 #include "Game/Commons/UserResources.h"
 #include "Game/Commons/Sprite.h"
 #include "Game/Commons/Resources.h"
+#include <cmath>
 
 
 // クラスの定義
@@ -32,7 +33,7 @@ private:
 private:
 	UserResources* m_userResources;
 
-	int m_score;
+	float m_score;
 
 	DirectX::SimpleMath::Vector2 m_position;
 
@@ -55,17 +56,23 @@ public:
 	// 描画
 	void Render();
 
+	// スコアを上げる
+	void ScoreUp() { m_score += 1; }
+
+	// スコアを下げる
+	void ScoreDown() { m_score = std::ceil(m_score /= 2); }
+
 
 // 設定/取得
 public:
-	// スコアの設定
-	void SetScore();
+	// スコア
+	float GetScore() const { return m_score; }  // 取得
 
 
 // 内部処理
 private:
 	// スコア描画
-	void ScoreDraw(int x, int y, int score, int size);
+	void ScoreDraw(float x, float y, int score, float size);
 
 };
 

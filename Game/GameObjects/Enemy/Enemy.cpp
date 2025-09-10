@@ -13,7 +13,7 @@
 #include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
-#include "Game/Scenes/TitleScene.h"
+#include "Game/Commons/Factory.h"
 
 
 // 名前の省略
@@ -69,6 +69,10 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_throwingR = std::make_unique<EnemyThrowingR>(this);
 	// 「右手で投げる」状態の初期化
 	m_throwingR->Initialize();
+	// 「くらくら」状態の生成
+	m_dizzying = std::make_unique<EnemyDizzying>(this);
+	// 「くらくら」状態の初期化
+	m_dizzying->Initialize();
 
 	// 立つ状態にする
 	m_currentState = m_standing.get();
@@ -76,6 +80,8 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	// ボールを両手に持つための箱を用意する
 	m_isBall.insert(std::make_pair(RIGHT, nullptr));
 	m_isBall.insert(std::make_pair(LEFT, nullptr));
+
+	m_score = Factory::CreateScore(Ball::ENEMY);
 
 	InitializeShadow(device, context);
 }
@@ -305,6 +311,28 @@ void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* stat
 	m_primitiveBatch->Begin();
 	m_primitiveBatch->DrawIndexed(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, indexes, _countof(indexes), vertexes, _countof(vertexes));
 	m_primitiveBatch->End();
+}
+
+
+
+/// <summary>
+/// スコアを下げる
+/// </summary>
+void Enemy::ScoreDown()
+{
+	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+	{
+		Ball* ball = m_ballManager->GetBall(i);
+
+		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::ENEMY)
+		{
+			if (IsHit(m_collider, ball->GetCollider()))
+			{
+				m_currentState = m_dizzying.get();
+				m_score->ScoreDown();
+			}
+		}
+	}
 }
 
 

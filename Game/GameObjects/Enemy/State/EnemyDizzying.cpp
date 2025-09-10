@@ -1,11 +1,11 @@
 ﻿/// <summary>
-/// ThrowingLに関するソースファイル
+/// EnemyDizzyingに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "ThrowingL.h"
+#include "EnemyDizzying.h"
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
@@ -21,20 +21,19 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-ThrowingL::ThrowingL(Player* player)
-	: m_player(player)
+EnemyDizzying::EnemyDizzying(Enemy* enemy)
+	: m_enemy(enemy)
 	, m_userResources(nullptr)
 	, m_model{}
-	, m_time{}
-	, m_isThowing(false)
+	, m_time(0)
 {
 	// モデルの作成
-	m_model = Resources::GetInstance()->GetPlayerModel();
+	m_model = Resources::GetInstance()->GetEnemyModel();
 
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();
 	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources\\Animations\\Player_ThrowL.sdkmesh_anim");
+	m_animation->Load(L"resources\\Animations\\Dizzy.sdkmesh_anim");
 	// アニメーションとモデルをバインドする
 	m_animation->Bind(*m_model);
 	// ボーン用のトランスフォーム配列を生成する
@@ -50,7 +49,7 @@ ThrowingL::ThrowingL(Player* player)
 /// <summary>
 /// デストラクタ
 /// </summary>
-ThrowingL::~ThrowingL()
+EnemyDizzying::~EnemyDizzying()
 {
 }
 
@@ -59,7 +58,7 @@ ThrowingL::~ThrowingL()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void ThrowingL::Initialize()
+void EnemyDizzying::Initialize()
 {
 	m_userResources = UserResources::GetUserResource();
 
@@ -68,10 +67,13 @@ void ThrowingL::Initialize()
 
 	m_worldMatrix = SimpleMath::Matrix::Identity;
 
-	// アイドリングアニメーションの開始時間を設定する
+	// アニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
-	// アイドリングアニメーションの終了時間を設定する
-	m_animation->SetEndTime(1.42f);
+	// アニメーションの終了時間を設定する
+	m_animation->SetEndTime(1.2f);
+
+	// 時間の初期化
+	m_time = 0.0f;
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -82,9 +84,6 @@ void ThrowingL::Initialize()
 
 	// 入力レイアウトの作成
 	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
-
-	m_time = 0.0f;
-	m_isThowing = false;
 }
 
 
@@ -93,75 +92,25 @@ void ThrowingL::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void ThrowingL::Update(float elapsedTime)
+void EnemyDizzying::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
 	auto kb = Keyboard::Get().GetState();
 
-	// 投げていなかったら手に持たせる
-	if (!m_isThowing)
+	if (m_enemy->GetCatchBall(Player::RIGHT))
 	{
-		// 方向
-		SimpleMath::Vector3 dir = m_player->GetPosition() - m_player->GetHitPos();
-		dir.Normalize();
-
-		// 方向ベクトルの反転
-		SimpleMath::Vector3 targetUp;
-		targetUp = -dir;
-
-		// 現在の姿勢制御
-		SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation());
-
-		// 回転軸の計算
-		SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
-		axis.Normalize();
-
-		// 回転角の計算
-		float dot = currentUp.Dot(targetUp);
-		float angle = acosf(dot);
-
-		// クォータニオンの作成
-		SimpleMath::Quaternion q;
-
-		// 角度が少しでもあれば軸を作る
-		if (angle > 0.01f)
-		{
-			q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
-		}
-		// なければ何もしない
-		else
-		{
-			q = SimpleMath::Quaternion::Identity;
-		}
-
-		m_player->SetRotation(m_player->GetRotation() * q);
-
-		// 右手に持たせる
-		Ball* ball = m_player->GetCatchBall(Player::LEFT);
+		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
+		SetBallPosition(ball, m_rightHandMatrix);
+	}
+	if (m_enemy->GetCatchBall(Player::LEFT))
+	{
+		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
 		SetBallPosition(ball, m_leftHandMatrix);
-		
-		
-		// 時間になったら投げる
-		if (m_animation->GetAnimTime() > 0.6f)
-		{
-			ball->ChangeState(ball->GetMoving());
-			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
-			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * Player::PLAYER_POWER);
-			m_player->SetCatchBall(Player::LEFT, nullptr);
-			m_isThowing = true;
-		}
 	}
 
-	// スコアを下げる
-	m_player->ScoreDown();
-	
-
 	// プレイヤーの設定
-	m_player->SetVelocity(m_player->GetGravity());
-	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
-	m_player->GetCollider().SetPosition(m_player->GetPosition());
+	m_enemy->SetVelocity(m_enemy->GetGravity());
+	m_enemy->SetPosition(m_enemy->GetPosition() + m_enemy->GetVelocity() * elapsedTime);
+	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
 
 	// アニメーションを更新し終了したらステート変更
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
@@ -171,8 +120,15 @@ void ThrowingL::Update(float elapsedTime)
 	}
 	else
 	{
-		if (kb.W) m_player->ChangeState(m_player->GetRunning());
-		else m_player->ChangeState(m_player->GetStanding());
+		m_animation->SetStartTime(0.19f);
+	}
+
+	m_time += elapsedTime;
+	if (m_time > 3.0f)
+	{
+		if (kb.W) m_enemy->ChangeState(m_enemy->GetRunning());
+		else m_enemy->ChangeState(m_enemy->GetStanding());
+		m_time = 0.0f;
 	}
 
 	// アニメーションの更新
@@ -185,7 +141,7 @@ void ThrowingL::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void ThrowingL::Render()
+void EnemyDizzying::Render()
 {
 	// デバックフォントの描画
 	auto* debugFont = m_userResources->GetDebugFont();
@@ -196,10 +152,9 @@ void ThrowingL::Render()
 	auto proj = m_userResources->GetProject();
 
 	// ワールド座標
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
+	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
 	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation()); // ※回転順に合わせて調整
+	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation()); // ※回転順に合わせて調整
 
 	m_worldMatrix = scale * rotate * pos;
 
@@ -215,11 +170,11 @@ void ThrowingL::Render()
 		*proj
 	);
 
-	SimpleMath::Vector3 m_drawPos;
-
 	// 影の描画
-	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
+	SimpleMath::Vector3 m_drawPos;
+	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
+	// デバック用
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
 
@@ -237,21 +192,24 @@ void ThrowingL::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
+	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
 
-	SimpleMath::Vector3 dir = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
+	SimpleMath::Vector3 dir = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
 	SimpleMath::Quaternion rot = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation() * rot);
+	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation() * rot);
 
-	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
+	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
 
 	/*m_primitiveBatch->Begin();
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
+	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
-	/*debugFont->Render(L"ThrowingL");*/
+	/*debugFont->Render(L"EnemyDizzying");
+	debugFont->Render(L"CatchPos", SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation()));
+
+	m_collider.Draw(states, *view, *proj);*/
 }
 
 
@@ -259,7 +217,7 @@ void ThrowingL::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void ThrowingL::Finalize()
+void EnemyDizzying::Finalize()
 {
 }
 
@@ -269,13 +227,14 @@ void ThrowingL::Finalize()
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void ThrowingL::AnimationUpdate()
+void EnemyDizzying::AnimationUpdate()
 {
 	// アニメションにモデルを適用する
 	m_animation->Apply(*m_model, m_model->bones.size(), m_drawBones.get());
 	// ボーン数を取得する
 	size_t nbones = m_model->bones.size();
 	// ボーンマトリクスを設定する
+	m_rightHandMatrix = m_drawBones[15];
 	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
@@ -288,7 +247,7 @@ void ThrowingL::AnimationUpdate()
 /// </summary>
 /// <param name="ball">ボールのポインタ</param>
 /// <param name="handMatrix">手のマトリックス</param>
-void ThrowingL::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+void EnemyDizzying::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
 {
 	// ボーンに設定した境界球のワールド計算を行う
 	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;

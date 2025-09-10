@@ -24,6 +24,11 @@
 // クラスの定義
 class GameplayScene : public Scene
 {
+// 定数
+private:
+	static constexpr float MAX_TIME = 120.0f;
+
+
 // 変数
 private:
 	UserResources* m_userResources;
@@ -51,6 +56,9 @@ private:
 
 	// スコアマネージャー
 	std::unique_ptr<ScoreManager> m_scoreManager;
+
+	// ゲーム時間
+	float m_gameTimer;
 
 
 // 関数

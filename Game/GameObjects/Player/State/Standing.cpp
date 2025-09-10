@@ -110,13 +110,17 @@ void Standing::Update(float elapsedTime)
 	m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
 
 	// マウスの方向に回転
-	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
-	{
-		m_player->RotateToMouse();
-	}
 	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
 	{
 		m_player->RotateToMouse();
+	}
+	else if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
+	{
+		m_player->RotateToMouse();
+	}
+	else
+	{
+		m_player->SetHitPos(SimpleMath::Vector3::Zero);
 	}
 
 	// ステートの変更
@@ -140,17 +144,19 @@ void Standing::Update(float elapsedTime)
 	}
 
 	// ボールを投げる
-	if (mouseTK->leftButton)
+	if (mouseTK->leftButton == mouseTK->PRESSED)
 	{
 		ThrowBall();
 	}
 	
 	// 右クリックでキャッチ
-	if (mouseTK->rightButton)
+	if (mouseTK->rightButton == mouseTK->PRESSED)
 	{
 		m_player->ChangeState(m_player->GetCatching());
 	}
 
+	// スコアを下げる
+	m_player->ScoreDown();
 
 	// プレイヤーの設定
 	m_player->SetVelocity(m_player->GetGravity());
@@ -173,6 +179,11 @@ void Standing::Render()
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
 
+	/*if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
+	{
+		m_player->DrawLockOn(m_player->GetScene()->GetAirTarget()->GetPosition());
+	}*/
+
 	// ワールド座標
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
 	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
@@ -193,11 +204,11 @@ void Standing::Render()
 		*proj
 	);
 
-	SimpleMath::Vector3 m_drawPos;
+
 
 	// 影の描画
+	SimpleMath::Vector3 m_drawPos;
 	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
-	
 
 	// デバック
 	/*m_model->Draw(context, *states, world, *view, *proj);*/

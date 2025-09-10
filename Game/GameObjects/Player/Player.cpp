@@ -13,7 +13,7 @@
 #include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
-#include "Game/Scenes/TitleScene.h"
+#include "Game/Commons/Factory.h"
 
 
 // 名前の省略
@@ -74,6 +74,10 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_catching = std::make_unique<PlayerCatching>(this);
 	// 「キャッチ」状態の初期化
 	m_catching->Initialize();
+	// 「くらくら」状態の生成
+	m_dizzying = std::make_unique<Dizzying>(this);
+	// 「くらくら」状態の初期化
+	m_dizzying->Initialize();
 
 	// 立つ状態にする
 	m_currentState = m_standing.get();
@@ -82,8 +86,13 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_isBall.insert(std::make_pair(RIGHT, nullptr));
 	m_isBall.insert(std::make_pair(LEFT, nullptr));
 
+	// スコアの初期化
+	m_score = Factory::CreateScore(Ball::PLAYER);
+
 	// 影の初期化
 	InitializeShadow(device, context);
+
+	m_lockOnTexture.SetTexture(Resources::GetInstance()->GetLockOnTexture());
 }
 
 
@@ -93,21 +102,7 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
 void Player::Update(float elapsedTime)
-{
-	/*for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
-	{
-		Ball* ball = m_ballManager->GetBall(i);
-
-		if (ball->GetCurrentState() == ball->GetMoving())
-		{
-			if (IsHit(m_collider, ball->GetCollider()))
-			{
-				m_pScene->ChangeScene<TitleScene>();
-			}
-		}
-	}*/
-	
-
+{	
 	m_currentState->Update(elapsedTime);
 }
 
@@ -119,6 +114,12 @@ void Player::Update(float elapsedTime)
 void Player::Render()
 {
 	m_currentState->Render();
+
+	// ロックオンの描画
+	if (CalcRaySphere(m_mouseRay.position, m_mouseRay.direction, m_pScene->GetAirTarget()->GetPosition(), m_pScene->GetAirTarget()->GetCollider().GetRadius(), m_hitPos))
+	{
+		DrawLockOn(m_pScene->GetAirTarget()->GetPosition());
+	}
 
 	// デバック用
 	auto* debugFont = m_userResources->GetDebugFont();
@@ -396,6 +397,59 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 	m_primitiveBatch->Begin();
 	m_primitiveBatch->DrawIndexed(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, indexes, _countof(indexes), vertexes, _countof(vertexes));
 	m_primitiveBatch->End();
+}
+
+void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
+{	
+	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();	
+	auto states = m_userResources->GetCommonStates();
+	auto view = m_userResources->GetView();
+	auto proj = m_userResources->GetProject();
+
+	// ビュー射影行列
+	SimpleMath::Matrix viewProj = *view * *proj;
+
+	// ワールド座標を (x,y,z,1) の形にする
+	SimpleMath::Vector4 pos4(pos.x, pos.y, pos.z, 1.0f);
+
+	// クリップ座標に変換
+	SimpleMath::Vector4 clipPos = SimpleMath::Vector4::Transform(pos4, viewProj);
+
+	// w で割って NDC に
+	clipPos /= clipPos.w;
+
+	// スクリーン座標に変換
+	// レイの設定
+	auto const r = m_userResources->GetDeviceResources()->GetOutputSize();
+
+
+	float screenX = (clipPos.x * 0.5f + 0.5f) * r.right;
+	float screenY = (1.0f - (clipPos.y * 0.5f + 0.5f)) * r.bottom;
+
+	SimpleMath::Vector2 screenPos(screenX, screenY);
+	m_lockOnTexture.Draw(screenPos, SimpleMath::Vector2(1256, 1244), 0.1f);
+}
+
+
+
+/// <summary>
+/// スコアを下げる
+/// </summary>
+void Player::ScoreDown()
+{
+	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+	{
+		Ball* ball = m_ballManager->GetBall(i);
+
+		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::PLAYER)
+		{
+			if (IsHit(m_collider, ball->GetCollider()))
+			{
+				m_currentState = m_dizzying.get();
+				m_score->ScoreDown();
+			}
+		}
+	}
 }
 
 

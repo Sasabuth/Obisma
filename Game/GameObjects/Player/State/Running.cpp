@@ -109,13 +109,17 @@ void Running::Update(float elapsedTime)
 	m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
 
 	// マウスの方向に回転
-	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
-	{
-		m_player->RotateToMouse();
-	}
 	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
 	{
 		m_player->RotateToMouse();
+	}
+	else if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
+	{
+		m_player->RotateToMouse();
+	}
+	else
+	{
+		m_player->SetHitPos(SimpleMath::Vector3::Zero);
 	}
 
 	// ボールをキャッチ
@@ -133,13 +137,13 @@ void Running::Update(float elapsedTime)
 	}
 
 	// 左クリックで投げる
-	if (mouseTK->leftButton)
+	if (mouseTK->leftButton == mouseTK->PRESSED)
 	{
 		ThrowBall();
 	}
 
 	// 右クリックでキャッチ
-	if (mouseTK->rightButton)
+	if (mouseTK->rightButton == mouseTK->PRESSED)
 	{
 		m_player->ChangeState(m_player->GetCatching());
 	}
@@ -155,11 +159,8 @@ void Running::Update(float elapsedTime)
 		m_player->ChangeState(m_player->GetStanding());
 	}
 
-	//// 移動制限
-	//if (m_player->GetPosition().y < 0.0f)
-	//{
-	//	m_player->SetPosition(SimpleMath::Vector3(m_player->GetPosition().x, 0.0f, m_player->GetPosition().z));
-	//}
+	// スコアを下げる
+	m_player->ScoreDown();
 
 	// プレイヤーの設定
 	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
@@ -182,12 +183,11 @@ void Running::Render()
 	auto proj = m_userResources->GetProject();
 
 
-
-	SimpleMath::Vector3 m_drawPos;
-
-	// 影の描画
-	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
-
+	// ロックオンの描画
+	/*if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
+	{
+		m_player->DrawLockOn(m_player->GetScene()->GetAirTarget()->GetPosition());
+	}*/
 
 	// ワールド座標
 	SimpleMath::Matrix world;
@@ -210,6 +210,10 @@ void Running::Render()
 		*view,
 		*proj
 	);
+
+	// 影の描画
+	SimpleMath::Vector3 m_drawPos;
+	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
 
 

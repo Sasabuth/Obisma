@@ -104,6 +104,9 @@ void EnemyRunning::Update(float elapsedTime)
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
 
+	// スコアを下げる
+	m_enemy->ScoreDown();
+
 	// 敵の設定
 	m_enemy->SetPosition(m_enemy->GetPosition() + m_enemy->GetVelocity() * elapsedTime);
 	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
@@ -127,10 +130,8 @@ void EnemyRunning::Render()
 
 
 	SimpleMath::Vector3 m_drawPos;
-
 	// 影の描画
 	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
-
 
 	// ワールド座標
 	SimpleMath::Matrix world;

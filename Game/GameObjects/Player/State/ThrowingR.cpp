@@ -153,6 +153,8 @@ void ThrowingR::Update(float elapsedTime)
 		}
 	}
 	
+	// スコアを下げる
+	m_player->ScoreDown();
 
 	// プレイヤーの設定
 	m_player->SetVelocity(m_player->GetGravity());

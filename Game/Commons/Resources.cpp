@@ -99,7 +99,19 @@ void Resources::LoadResource()
 	);
 
 	// テクスチャがあるか
-	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Title.png", nullptr, m_titleTexture.GetAddressOf())))
+	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Space.jpg", nullptr, m_spaceTexture.ReleaseAndGetAddressOf())))
+	{
+		MessageBox(NULL, L"Resources/Textures/Space.jpg", L"エラー", MB_OK);
+	}
+
+	// テクスチャがあるか
+	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/LockOn.png", nullptr, m_lockOnTexture.ReleaseAndGetAddressOf())))
+	{
+		MessageBox(NULL, L"Resources/Textures/LockOn.png", L"エラー", MB_OK);
+	}
+
+	// テクスチャがあるか
+	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Title.png", nullptr, m_titleTexture.ReleaseAndGetAddressOf())))
 	{
 		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
 	}
@@ -150,7 +162,9 @@ void Resources::Reset()
 	m_sterModel.reset();
 	m_skydome.reset();
 	m_shadowTexture.Reset();
+	m_lockOnTexture.Reset();
 	m_titleTexture.Reset();
+	m_spaceTexture.Reset();
 
 	for (size_t i = 0; i < m_fontTextures.size(); i++)
 	{

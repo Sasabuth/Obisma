@@ -1,12 +1,12 @@
 /// <summary>
-/// Titleシーンに関するソースファイル
+/// Resultシーンに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "TitleScene.h"
+#include "ResultScene.h"
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/Commons/Resources.h"
@@ -19,7 +19,7 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-TitleScene::TitleScene()
+ResultScene::ResultScene()
 	: m_pUserResources(nullptr)
 {
 }
@@ -29,7 +29,7 @@ TitleScene::TitleScene()
 /// <summary>
 /// デストラクタ
 /// </summary>
-TitleScene::~TitleScene()
+ResultScene::~ResultScene()
 {
 }
 
@@ -37,7 +37,7 @@ TitleScene::~TitleScene()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void TitleScene::Initialize()
+void ResultScene::Initialize()
 {
 	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
@@ -47,8 +47,7 @@ void TitleScene::Initialize()
 	debugFont->Initialize();
 
 	// テクスチャの初期化
-	m_titleTexture.SetTexture(Resources::GetInstance()->GetTitleTexture());
-	m_spaceTexture.SetTexture(Resources::GetInstance()->GetSpaceTexture());
+	m_resultTexture.SetTexture(Resources::GetInstance()->GetTitleTexture());
 }
 
 
@@ -57,7 +56,7 @@ void TitleScene::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime"></param> 経過時間
-void TitleScene::Update(float elapsedTime)
+void ResultScene::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
@@ -75,13 +74,12 @@ void TitleScene::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void TitleScene::Render()
+void ResultScene::Render()
 {
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
-	debugFont->Render(L"TitleScene");
+	debugFont->Render(L"ResultScene");
 
-	m_spaceTexture.Draw(SimpleMath::Vector2::Zero, SimpleMath::Vector2::Zero, 3.0f);
-	m_titleTexture.Draw(SimpleMath::Vector2(640,260), SimpleMath::Vector2(1024,641), 0.7f);
+	m_resultTexture.Draw(SimpleMath::Vector2(640,260), SimpleMath::Vector2(1024,641), 0.7f);
 }
 
 
@@ -89,7 +87,7 @@ void TitleScene::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void TitleScene::Finalize()
+void ResultScene::Finalize()
 {
 }
 
@@ -98,7 +96,7 @@ void TitleScene::Finalize()
 /// <summary>
 /// デバイスに依存するリソースを作成する関数
 /// </summary>
-void TitleScene::CreateDeviceDependentResources()
+void ResultScene::CreateDeviceDependentResources()
 {
 }
 
@@ -107,7 +105,7 @@ void TitleScene::CreateDeviceDependentResources()
 /// <summary>
 /// ウインドウサイズに依存するリソースを作成する関数
 /// </summary>
-void TitleScene::CreateWindowSizeDependentResources()
+void ResultScene::CreateWindowSizeDependentResources()
 {
 }
 
@@ -116,6 +114,6 @@ void TitleScene::CreateWindowSizeDependentResources()
 /// <summary>
 /// デバイスロストした時に呼び出される関数
 /// </summary>
-void TitleScene::OnDeviceLost()
+void ResultScene::OnDeviceLost()
 {
 }

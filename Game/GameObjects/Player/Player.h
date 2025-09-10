@@ -16,6 +16,9 @@
 #include "Game/GameObjects/Player/State/ThrowingR.h"
 #include "Game/GameObjects/Player/State/ThrowingL.h"
 #include "Game/GameObjects/Player/State/PlayerCatching.h"
+#include "Game/GameObjects/Player/State/Dizzying.h"
+#include "Game/GameObjects/Score/Score.h"
+#include "Game/Commons/Sprite.h"
 #include <map>
 
 
@@ -54,19 +57,22 @@ private:
 	IState* m_currentState;  // 現在のステート
 
 	
-	std::unique_ptr<Standing> m_standing;  // 「立つ」状態
-	std::unique_ptr<Running> m_running;    // 「走る」状態
-	std::unique_ptr<ThrowingR> m_throwingR;  // 「右で投げる」状態
-	std::unique_ptr<ThrowingL> m_throwingL;  // 「左で投げる」状態
+	std::unique_ptr<Standing> m_standing;        // 「立つ」状態
+	std::unique_ptr<Running> m_running;          // 「走る」状態
+	std::unique_ptr<ThrowingR> m_throwingR;      // 「右で投げる」状態
+	std::unique_ptr<ThrowingL> m_throwingL;      // 「左で投げる」状態
 	std::unique_ptr<PlayerCatching> m_catching;  // 「キャッチ」状態
+	std::unique_ptr<Dizzying> m_dizzying;        //「くらくら」状態
 
-	DirectX::SimpleMath::Vector3 m_position; // 座標
-	DirectX::SimpleMath::Vector3 m_velocity; // 速度
+	DirectX::SimpleMath::Vector3 m_position;  // 座標
+	DirectX::SimpleMath::Vector3 m_velocity;  // 速度
 
 	DirectX::SimpleMath::Quaternion m_rotate; // 回転
-	DirectX::SimpleMath::Vector3 m_gravity;  // 重力
+	DirectX::SimpleMath::Vector3 m_gravity;   // 重力
 
 	SphereCollider m_collider;
+
+	std::unique_ptr<Score> m_score;        // スコア
 
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
@@ -75,6 +81,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  // 影のテクスチャ
+	Sprite m_lockOnTexture;  // ロックオンのテクスチャ
 
 	DirectX::SimpleMath::Ray m_mouseRay;  // マウスのレイ
 	DirectX::SimpleMath::Vector3 m_hitPos;  // 当たった点
@@ -132,6 +139,12 @@ public:
 	// 影の描画
 	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos);
 
+	// ロックオンの描画
+	void DrawLockOn(const DirectX::SimpleMath::Vector3& pos);
+
+	// スコアを下げる
+	void ScoreDown();
+
 
 // 設定/取得
 public:
@@ -159,6 +172,7 @@ public:
 	DirectX::SimpleMath::Ray GetMouseRay() const { return m_mouseRay; }
 
 	// 当たった座標
+	void SetHitPos(DirectX::SimpleMath::Vector3 hitPos) { m_hitPos = hitPos; }
 	DirectX::SimpleMath::Vector3& GetHitPos() { return m_hitPos; }
 
 	// シーン
@@ -171,6 +185,9 @@ public:
 	void SetCatchBall(int key, Ball* ball);  // 設定
 	Ball* GetCatchBall(int key) const;       // 取得
 
+	// スコア
+	Score* GetScore() { return m_score.get(); }
+
 
 // ステートの取得
 public:
@@ -179,6 +196,7 @@ public:
 	ThrowingR* GetThrowingR() const { return m_throwingR.get(); }
 	ThrowingL* GetThrowingL() const { return m_throwingL.get(); }
 	PlayerCatching* GetCatching() const { return m_catching.get(); }
+	Dizzying* GetDizzying() const { return m_dizzying.get(); }
 
 	
 };

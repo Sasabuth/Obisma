@@ -113,11 +113,11 @@ void CameraUp::Update(float elapsedTime)
 
 	if (dis.Length() >= 4.0f)
 	{
-		m_velocity -= SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_rotate) * 2;
+		m_velocity += SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_rotate) * 3;
 	}
 	else
 	{
-		m_velocity += SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_rotate) * 2;
+		m_velocity += SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_rotate) *3;
 	}
 
 	m_position += m_velocity * elapsedTime;

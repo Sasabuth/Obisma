@@ -15,22 +15,21 @@
 
 
 // クラスの定義
-class TitleScene : public Scene
+class ResultScene : public Scene
 {
 private:
 	UserResources* m_pUserResources;
 
-	Sprite m_titleTexture;
-	Sprite m_spaceTexture;
+	Sprite m_resultTexture;
 
 
 // 関数
 public:
 	// コンストラクタ
-	TitleScene();
+	ResultScene();
 
 	// デストラクタ
-	~TitleScene() override;;
+	~ResultScene() override;;
 
 	// 初期化
 	void Initialize() override;

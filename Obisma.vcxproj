@@ -203,11 +203,13 @@
     <ClInclude Include="Game\GameObjects\Camera\Camera.h" />
     <ClInclude Include="Game\GameObjects\Camera\CameraUp.h" />
     <ClInclude Include="Game\GameObjects\Enemy\Enemy.h" />
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyDizzying.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyRunning.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyStanding.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowingR.h" />
     <ClInclude Include="Game\GameObjects\Field\Field.h" />
     <ClInclude Include="Game\GameObjects\Player\Player.h" />
+    <ClInclude Include="Game\GameObjects\Player\State\Dizzying.h" />
     <ClInclude Include="Game\GameObjects\Player\State\PlayerCatching.h" />
     <ClInclude Include="Game\GameObjects\Player\State\Running.h" />
     <ClInclude Include="Game\GameObjects\Player\State\Standing.h" />
@@ -216,6 +218,7 @@
     <ClInclude Include="Game\GameObjects\Score\Score.h" />
     <ClInclude Include="Game\GameObjects\Score\ScoreManager.h" />
     <ClInclude Include="Game\Scenes\GameplayScene.h" />
+    <ClInclude Include="Game\Scenes\ResultScene.h" />
     <ClInclude Include="Game\Scenes\TitleScene.h" />
     <ClInclude Include="MemoryLeakDetector.h" />
     <ClInclude Include="pch.h" />
@@ -244,11 +247,13 @@
     <ClCompile Include="Game\GameObjects\Camera\Camera.cpp" />
     <ClCompile Include="Game\GameObjects\Camera\CameraUp.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\Enemy.cpp" />
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyDizzying.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyRunning.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyStanding.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowingR.cpp" />
     <ClCompile Include="Game\GameObjects\Field\Field.cpp" />
     <ClCompile Include="Game\GameObjects\Player\Player.cpp" />
+    <ClCompile Include="Game\GameObjects\Player\State\Dizzying.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\PlayerCatching.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\Running.cpp" />
     <ClCompile Include="Game\GameObjects\Player\State\Standing.cpp" />
@@ -257,6 +262,7 @@
     <ClCompile Include="Game\GameObjects\Score\Score.cpp" />
     <ClCompile Include="Game\GameObjects\Score\ScoreManager.cpp" />
     <ClCompile Include="Game\Scenes\GameplayScene.cpp" />
+    <ClCompile Include="Game\Scenes\ResultScene.cpp" />
     <ClCompile Include="Game\Scenes\TitleScene.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="pch.cpp">

@@ -14,6 +14,8 @@
 #include "Game/GameObjects/Enemy/State/EnemyStanding.h"
 #include "Game/GameObjects/Enemy/State/EnemyRunning.h"
 #include "Game/GameObjects/Enemy/State/EnemyThrowingR.h"
+#include "Game/GameObjects/Enemy/State/EnemyDizzying.h"
+#include "Game/GameObjects/Score/Score.h"
 #include <map>
 
 
@@ -54,6 +56,7 @@ private:
 	std::unique_ptr<EnemyStanding> m_standing;  // 「立つ」状態
 	std::unique_ptr<EnemyRunning> m_running;    // 「走る」状態
 	std::unique_ptr<EnemyThrowingR> m_throwingR;  // 「右手で投げる」状態
+	std::unique_ptr<EnemyDizzying> m_dizzying;  // 「くらくら」状態
 
 	DirectX::SimpleMath::Vector3 m_position; // 座標
 	DirectX::SimpleMath::Vector3 m_velocity; // 速度
@@ -62,6 +65,8 @@ private:
 	DirectX::SimpleMath::Vector3 m_gravity;  // 重力
 
 	SphereCollider m_collider;  // コライダー
+
+	std::unique_ptr<Score> m_score;  // スコア
 
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
 
@@ -117,6 +122,9 @@ public:
 	// 影の描画
 	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos);
 
+	// スコアを下げる
+	void ScoreDown();
+
 
 // 設定/取得
 public:
@@ -153,12 +161,16 @@ public:
 	void SetBallIndex(int index) { m_ballIndex = index; }  // 設定
 	int GetBallIndex() const { return m_ballIndex; }       // 取得
 
+	// スコア
+	Score* GetScore() const { return m_score.get(); }
+
 
 // ステートの取得
 public:
 	EnemyStanding* GetStanding() const { return m_standing.get(); }
 	EnemyRunning* GetRunning() const { return m_running.get(); }
 	EnemyThrowingR* GetThrowingR() const { return m_throwingR.get(); }
+	EnemyDizzying* GetDizzying() const { return m_dizzying.get(); }
 
 	
 };

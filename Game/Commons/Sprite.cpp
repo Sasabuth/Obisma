@@ -104,7 +104,7 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 	// 半透明の設定
 	m_spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, states->NonPremultiplied());
 
-	RECT r = { rect.x - width, 0, rect.x, rect.y };
+	RECT r = { (LONG)(rect.x - width), 0, (LONG)rect.x, (LONG)rect.y };
 
 	// スプライトを描画する
 	m_spriteBatch->Draw(

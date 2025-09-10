@@ -25,7 +25,7 @@ private:
 private:
 	UserResources* m_userResources;
 
-	std::vector<std::unique_ptr<Score>> m_scores;
+	std::vector<Score*> m_scores;
 
 
 // ŠÖ”
@@ -46,12 +46,14 @@ public:
 	void Render();
 
 	// ’Ç‰Á
-	void Add(std::unique_ptr<Score>& score) { m_scores.push_back(std::move(score)); }
+	void Add(Score* score) { m_scores.push_back(score); }
 
+	// ˆê”Ô‚‚¢ƒXƒRƒA‚Ì”Ô†‚ğæ“¾
+	int GetTopScoreNumber() const;
 
 // İ’è/æ“¾
 public:
 	int GetObjectCount() const { return (int)m_scores.size(); }
-	Score* GetScore(int index) const { return m_scores[index].get(); }
+	Score* GetScore(int index) const { return m_scores[index]; }
 };
 

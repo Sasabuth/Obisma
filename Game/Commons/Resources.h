@@ -28,8 +28,12 @@ public:
 	// テクスチャ
 	// 影のテクスチャの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetShadowTexture() { return m_shadowTexture.Get(); }
+	// ロックオンのテクスチャの取得
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetLockOnTexture() { return m_lockOnTexture.Get(); }
 	// タイトルのテクスチャの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTitleTexture() { return m_titleTexture.Get(); }
+	// 宇宙のテクスチャの取得
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetSpaceTexture() { return m_spaceTexture.Get(); }
 	// プレイヤーフェイスのテクスチャの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetFaceTexture(int index) { return m_faceTextures[index].Get(); }
 	// スコアフォントのテクスチャの取得
@@ -82,8 +86,12 @@ private:
 	// テクスチャ
 	// 影のテクスチャ
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;
+	// ロックオンのテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_lockOnTexture;
 	// タイトルのテクスチャ
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_titleTexture;
+	// 宇宙のテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_spaceTexture;
 
 	// フレームのテクスチャの配列
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_frameTextures;

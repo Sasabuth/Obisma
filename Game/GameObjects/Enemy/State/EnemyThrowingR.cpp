@@ -154,7 +154,9 @@ void EnemyThrowingR::Update(float elapsedTime)
 			m_isThowing = true;
 		}
 	}
-	
+
+	// スコアを下げる
+	m_enemy->ScoreDown();
 
 	// プレイヤーの設定
 	m_enemy->SetVelocity(m_enemy->GetGravity());
@@ -247,11 +249,11 @@ void EnemyThrowingR::Render()
 
 	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
 
-	m_primitiveBatch->Begin();
+	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
-	m_primitiveBatch->End();
+	m_primitiveBatch->End();*/
 
 	/*debugFont->Render(L"EnemyThrowingR");*/
 }

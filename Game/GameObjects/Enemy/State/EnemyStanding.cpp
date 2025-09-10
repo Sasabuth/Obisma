@@ -122,6 +122,9 @@ void EnemyStanding::Update(float elapsedTime)
 	{
 		ThrowBall();
 	}
+
+	// スコアを下げる
+	m_enemy->ScoreDown();
 	
 
 	// 敵の設定
@@ -195,11 +198,11 @@ void EnemyStanding::Render()
 	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation());
 	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
 
-	m_primitiveBatch->Begin();
+	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
-	m_primitiveBatch->End();
+	m_primitiveBatch->End();*/
 
 	/*debugFont->Render(L"EnemyStanding");*/
 }

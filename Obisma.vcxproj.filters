@@ -179,6 +179,15 @@
     <ClInclude Include="Game\GameObjects\Score\ScoreManager.h">
       <Filter>Game\GameObjects\Score</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\Dizzying.h">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scenes\ResultScene.h">
+      <Filter>Game\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyDizzying.h">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -290,6 +299,15 @@
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Score\ScoreManager.cpp">
       <Filter>Game\GameObjects\Score</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\Dizzying.cpp">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Scenes\ResultScene.cpp">
+      <Filter>Game\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyDizzying.cpp">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

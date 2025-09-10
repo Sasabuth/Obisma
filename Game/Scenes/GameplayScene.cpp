@@ -8,7 +8,7 @@
 #include "pch.h"
 #include "GameplayScene.h"
 
-#include "Game/Scenes/TitleScene.h"
+#include "Game/Scenes/ResultScene.h"
 #include "Game/Commons/Factory.h"
 #include "Game/Commons/Resources.h"
 
@@ -22,6 +22,7 @@ using namespace DirectX;
 /// </summary>
 GameplayScene::GameplayScene()
 	: m_userResources(nullptr)
+	, m_gameTimer(0)
 {
 }
 
@@ -57,10 +58,10 @@ void GameplayScene::Initialize()
 	m_ballManager = Factory::CreateBallManager(this);
 
 	// プレイヤーの初期化
-	m_player = Factory::CreatePlayer(this, m_ballManager.get(), SimpleMath::Vector3{ 2.0f,3.0f,2.0f });
+	m_player = Factory::CreatePlayer(this, m_ballManager.get(), SimpleMath::Vector3{ 0.1f,3.0f,0.1f });
 
 	// 敵の初期化
-	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), SimpleMath::Vector3{ 1.0f,2.0f,-2.0f });
+	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), SimpleMath::Vector3{ 0.1f,-3.0f,0.1f });
 
 	// カメラの上向きベクトルの初期化
 	m_cameraUp = Factory::CreateCameraUp(m_player.get(), SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
@@ -70,6 +71,11 @@ void GameplayScene::Initialize()
 
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
+	m_scoreManager->Add(m_player->GetScore());
+	m_scoreManager->Add(m_enemy->GetScore());
+
+	// ゲーム時間の初期化
+	m_gameTimer = MAX_TIME;
 }
 
 
@@ -79,10 +85,7 @@ void GameplayScene::Initialize()
 /// </summary>
 /// <param name="elapsedTime"></param> 経過時間
 void GameplayScene::Update(float elapsedTime)
-{
-	// キーボードの取得
-	auto keyboard = m_userResources->GetKeyboardStateTracker();
-	
+{	
 	// カメラの上向きベクトルの更新
 	m_cameraUp->Update(elapsedTime);
 
@@ -117,16 +120,18 @@ void GameplayScene::Update(float elapsedTime)
 		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
 		{
 			m_airTarget->ChangeState(m_airTarget->GetHitting());
-			m_scoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->SetScore();
+			m_scoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->ScoreUp();
 		}
 	}
 
-	
+	// ゲーム時間の初期化
+	m_gameTimer -= elapsedTime;
 
 	// シーン変更
-	if (keyboard->IsKeyPressed(DirectX::Keyboard::Keys::Space))
+	if (m_gameTimer <= 0.0f)
 	{
-		ChangeScene<TitleScene>();
+		m_gameTimer = MAX_TIME;
+		ChangeScene<ResultScene>();
 	}
 }
 
@@ -144,6 +149,10 @@ void GameplayScene::Render()
 	// フィールドの描画
 	m_field->Render();
 
+
+	// 空中の的の描画
+	m_airTarget->Render();
+
 	// プレイヤーの描画
 	m_player->Render();
 
@@ -153,15 +162,15 @@ void GameplayScene::Render()
 	// ボールマネージャーの描画
 	m_ballManager->Render();
 
-	// 空中の的の描画
-	m_airTarget->Render();
 
 	// スコアマネージャーの描画
 	m_scoreManager->Render();
 	
 	// デバック用
 	// カメラの上向きベクトルの描画
-	/*m_cameraUp->Render();*/
+	//m_cameraUp->Render();
+
+	debugFont->Render(L"Timer",m_gameTimer);
 
 	
 }
