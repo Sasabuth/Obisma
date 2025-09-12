@@ -50,7 +50,7 @@ std::unique_ptr<CameraUp> Factory::CreateCameraUp(Player* player, const DirectX:
 	return std::move(cameraUp);
 }
 
-std::unique_ptr<Field> Factory::CreateField(GameplayScene* pScene)
+std::unique_ptr<Field> Factory::CreateField(Scene* pScene)
 {
 	// フィールドの宣言
 	std::unique_ptr<Field> field;

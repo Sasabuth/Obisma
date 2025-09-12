@@ -33,7 +33,7 @@ EnemyRunning::EnemyRunning(Enemy* enemy)
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();
 	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources/Animations/Player_Run2.sdkmesh_anim");
+	m_animation->Load(L"resources/Animations/Player_Run.sdkmesh_anim");
 	// アニメーションとモデルをバインドする
 	m_animation->Bind(*m_model);
 
@@ -127,19 +127,10 @@ void EnemyRunning::Render()
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
 
-
-
-	SimpleMath::Vector3 m_drawPos;
-	// 影の描画
-	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
-
 	// ワールド座標
-	SimpleMath::Matrix world;
-
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_drawPos);
+	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
 	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateRotationY(XMConvertToRadians(-90.0f)) * SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation()); // ※回転順に合わせて調整
+	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
 
 	m_worldMatrix = scale * rotate * pos;
 
@@ -154,6 +145,10 @@ void EnemyRunning::Render()
 		*view,
 		*proj
 	);
+
+	// 影の描画
+	SimpleMath::Vector3 m_drawPos;
+	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -289,16 +284,16 @@ void EnemyRunning::RunToBall()
 /// <param name="mouseTK">マウストラッカー</param>
 void EnemyRunning::ThrowBall()
 {
-	if (m_enemy->GetCatchBall(Player::RIGHT))
+	if (m_enemy->GetCatchBall(Enemy::RIGHT))
 	{
-		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
+		Ball* ball = m_enemy->GetCatchBall(Enemy::RIGHT);
 		SetBallPosition(ball, m_rightHandMatrix);
 
 		m_enemy->ChangeState(m_enemy->GetThrowingR());
 	}
-	if (m_enemy->GetCatchBall(Player::LEFT))
+	if (m_enemy->GetCatchBall(Enemy::LEFT))
 	{
-		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
+		Ball* ball = m_enemy->GetCatchBall(Enemy::LEFT);
 		SetBallPosition(ball, m_leftHandMatrix);
 
 		/*if (mouseTK->leftButton)
@@ -332,28 +327,29 @@ void EnemyRunning::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handM
 /// </summary>
 void EnemyRunning::CatchHandBall()
 {
-	if (m_enemy->GetCatchBall(Player::RIGHT) && m_enemy->GetCatchBall(Player::LEFT))
-	{
-		return;
-	}
-
 	Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
 	if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 	{
+		// 両手に持っていたら終了
+		if (m_enemy->GetCatchBall(Enemy::RIGHT) && m_enemy->GetCatchBall(Enemy::LEFT))
+		{
+			return;
+		}
+
 		// ボールの状態の変更
 		ball->ChangeState(ball->GetCatching());
 
 		// 色を変更する
 		ball->SetBallColorNum(Ball::BallColor::ENEMY);
 
-		if (!m_enemy->GetCatchBall(Player::RIGHT))
+		if (!m_enemy->GetCatchBall(Enemy::RIGHT))
 		{
-			m_enemy->SetCatchBall(Player::RIGHT, ball);
+			m_enemy->SetCatchBall(Enemy::RIGHT, ball);
 			m_enemy->ChangeState(m_enemy->GetStanding());
 		}
 		else
 		{
-			m_enemy->SetCatchBall(Player::LEFT, ball);
+			m_enemy->SetCatchBall(Enemy::LEFT, ball);
 			m_enemy->ChangeState(m_enemy->GetStanding());
 		}
 

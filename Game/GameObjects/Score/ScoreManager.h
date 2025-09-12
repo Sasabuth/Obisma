@@ -23,8 +23,10 @@ private:
 
 // 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
 
+	// スコアの箱
 	std::vector<Score*> m_scores;
 
 
@@ -48,14 +50,15 @@ public:
 	// 追加
 	void Add(Score* score) { m_scores.push_back(score); }
 
-	// 一番高いスコアの番号を取得
-	int GetTopScoreNumber() const;
-
+	// 高い順に並べる
+	void SortRank() { std::sort(m_scores.begin(), m_scores.end(), [](const Score* a, const Score* b) { return a->GetScore() > b->GetScore(); }); }
 
 
 // 設定/取得
 public:
 	int GetObjectCount() const { return (int)m_scores.size(); }
 	Score* GetScore(int index) const { return m_scores[index]; }
+
+	int GetRank(int index) const { return m_scores[index]->GetIndex(); };
 };
 

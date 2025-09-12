@@ -11,7 +11,7 @@
 #include "Game/Commons/UserResources.h"
 
 // クラスの定義
-class GameplayScene;
+class Scene;
 class Camera;
 class IEntity;
 
@@ -26,7 +26,7 @@ private:
 
 // 変数
 private:
-	GameplayScene* m_pScene;  // シーン
+	Scene* m_pScene;  // シーン
 	UserResources* m_userResource;  // シーン
 
 	DirectX::Model* m_model;  // モデル
@@ -36,11 +36,13 @@ private:
 
 	SphereCollider m_collider;  // コライダー
 
+	float m_rotate;
+
 
 // 関数
 public:
 	// コンストラクタ
-	Field(GameplayScene* pScene);
+	Field(Scene* pScene);
 
 	// デストラクタ
 	~Field();
@@ -61,9 +63,12 @@ public:
 	DirectX::SimpleMath::Vector3 CorrectUp(IEntity* iEntity);
 
 
-// 取得
+// 設定/取得
 public:
 	// コライダーの取得
 	SphereCollider& GetCollider();
+
+	// 回転の設定
+	void SetRotate(float rotate) { m_rotate = rotate; }
 };
 

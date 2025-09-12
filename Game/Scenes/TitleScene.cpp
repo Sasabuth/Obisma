@@ -10,6 +10,7 @@
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
 
 
 // 名前の省略
@@ -21,6 +22,7 @@ using namespace DirectX;
 /// </summary>
 TitleScene::TitleScene()
 	: m_pUserResources(nullptr)
+	, m_speed(0.0f)
 {
 }
 
@@ -48,7 +50,16 @@ void TitleScene::Initialize()
 
 	// テクスチャの初期化
 	m_titleTexture.SetTexture(Resources::GetInstance()->GetTitleTexture());
-	m_spaceTexture.SetTexture(Resources::GetInstance()->GetSpaceTexture());
+	m_startTexture.SetTexture(Resources::GetInstance()->GetStartTexture());
+
+	// フィールドの初期化
+	m_field = Factory::CreateField(this);
+
+	// カメラの初期化
+	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
+
+	// 速度の初期化
+	m_speed = 0.0f;
 }
 
 
@@ -60,6 +71,17 @@ void TitleScene::Initialize()
 void TitleScene::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
+
+	// カメラの更新
+	m_camera->Update();
+
+	// フィールドの更新
+	m_field->Update(elapsedTime);
+	static float rotate = 0.0f;
+	rotate += 30.0f * elapsedTime;
+	m_field->SetRotate(rotate);
+
+	m_speed += 6.0f * elapsedTime;
 
 	// キーボードの取得
 	auto mouseTk = m_pUserResources->GetMouseStateTracker();
@@ -80,8 +102,12 @@ void TitleScene::Render()
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
 	debugFont->Render(L"TitleScene");
 
-	m_spaceTexture.Draw(SimpleMath::Vector2::Zero, SimpleMath::Vector2::Zero, 3.0f);
-	m_titleTexture.Draw(SimpleMath::Vector2(640,260), SimpleMath::Vector2(1024,641), 0.7f);
+	m_field->Render();
+
+
+
+	m_startTexture.Draw(SimpleMath::Vector2(120,550 + sin(m_speed)), SimpleMath::Vector2::Zero, 0.25f);
+	m_titleTexture.Draw(SimpleMath::Vector2(400,240), SimpleMath::Vector2(1024,641), 0.7f);
 }
 
 
@@ -91,6 +117,8 @@ void TitleScene::Render()
 /// </summary>
 void TitleScene::Finalize()
 {
+	// フィールドの終了
+	m_field->Finalize();
 }
 
 

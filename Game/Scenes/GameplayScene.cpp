@@ -77,6 +77,9 @@ void GameplayScene::Initialize()
 
 	// ゲーム時間の初期化
 	m_gameTimer = MAX_TIME;
+
+	// プレイ人数を初期化
+	GetSceneManager()->SetPlayerCount(2);
 }
 
 
@@ -132,7 +135,14 @@ void GameplayScene::Update(float elapsedTime)
 	if (m_gameTimer <= 0.0f)
 	{
 		m_gameTimer = MAX_TIME;
-		GetSceneManager()->SetWinner(m_scoreManager->GetTopScoreNumber());
+
+		m_scoreManager->SortRank();
+		for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
+		{
+			int a = m_scoreManager->GetRank(i);
+			GetSceneManager()->SetRank(i,m_scoreManager->GetRank(i));
+		}
+		
 		ChangeScene<ResultScene>();
 	}
 }
@@ -170,7 +180,7 @@ void GameplayScene::Render()
 	// カメラの上向きベクトルの描画
 	//m_cameraUp->Render();
 
-	debugFont->Render(L"Timer",m_gameTimer);
+	/*debugFont->Render(L"Timer",m_gameTimer);*/
 
 	
 }

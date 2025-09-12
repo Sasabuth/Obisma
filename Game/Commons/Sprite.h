@@ -39,7 +39,7 @@ public:
 	void CreateTexture(const wchar_t* path);
 
 	// ï`âÊ
-	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale);
+	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale, DirectX::XMVECTOR color=DirectX::Colors::White);
 	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 rect, float width, float scale);
 
 // ê›íË/éÊìæ

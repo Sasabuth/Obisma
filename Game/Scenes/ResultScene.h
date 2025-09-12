@@ -20,8 +20,12 @@ class ResultScene : public Scene
 private:
 	UserResources* m_pUserResources;
 
-	Sprite m_resultTexture;
-	Sprite m_winTexture;
+	std::vector<std::unique_ptr<Sprite>> m_faceTextures;
+	std::vector<std::unique_ptr<Sprite>> m_winTextures;
+	Sprite m_spaceTexture;
+
+	DirectX::SimpleMath::Vector2 m_position;
+	DirectX::SimpleMath::Vector2 m_position2;
 
 
 // ä÷êî

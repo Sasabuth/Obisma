@@ -92,6 +92,16 @@ void Resources::LoadResource()
 
 	// スカイドームをロードする
 	m_skydome = Model::CreateFromSDKMESH(device, L"Resources/Models/skydome.sdkmesh", *effectFactory);
+	m_skydome->UpdateEffects(
+		[&](IEffect* pEffect)
+		{
+			// BasicEffectにキャストする
+			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
+
+
+			pBasicEffect->SetAmbientLightColor(Colors::WhiteSmoke);
+		}
+	);
 
 	// テクスチャの読み込み
 	DX::ThrowIfFailed(
@@ -99,9 +109,9 @@ void Resources::LoadResource()
 	);
 
 	// テクスチャがあるか
-	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Space.jpg", nullptr, m_spaceTexture.ReleaseAndGetAddressOf())))
+	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Space.png", nullptr, m_spaceTexture.ReleaseAndGetAddressOf())))
 	{
-		MessageBox(NULL, L"Resources/Textures/Space.jpg", L"エラー", MB_OK);
+		MessageBox(NULL, L"Resources/Textures/Space.png", L"エラー", MB_OK);
 	}
 
 	// テクスチャがあるか
@@ -114,6 +124,12 @@ void Resources::LoadResource()
 	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Title.png", nullptr, m_titleTexture.ReleaseAndGetAddressOf())))
 	{
 		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
+	}
+
+	// テクスチャがあるか
+	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Start.png", nullptr, m_startTexture.ReleaseAndGetAddressOf())))
+	{
+		MessageBox(NULL, L"Resources/Textures/Start.png", L"エラー", MB_OK);
 	}
 
 	// フォントテクスチャの読み込み
@@ -148,11 +164,11 @@ void Resources::LoadResource()
 		}
 	}
 	// 勝利テクスチャの読み込み
-	m_winTextures.resize(2);
-	for (size_t i = 0; i < m_winTextures.size(); i++)
+	m_resultTextures.resize(2);
+	for (size_t i = 0; i < m_resultTextures.size(); i++)
 	{
-		std::wstring filename = L"Resources/Textures/Win" + std::to_wstring(i) + L".png";
-		if (FAILED(CreateWICTextureFromFile(device, filename.c_str(), nullptr, m_winTextures[i].ReleaseAndGetAddressOf())))
+		std::wstring filename = L"Resources/Textures/Result" + std::to_wstring(i) + L".png";
+		if (FAILED(CreateWICTextureFromFile(device, filename.c_str(), nullptr, m_resultTextures[i].ReleaseAndGetAddressOf())))
 		{
 			MessageBox(NULL, filename.c_str(), L"エラー", MB_OK);
 		}
@@ -175,6 +191,7 @@ void Resources::Reset()
 	m_lockOnTexture.Reset();
 	m_titleTexture.Reset();
 	m_spaceTexture.Reset();
+	m_startTexture.Reset();
 
 	for (size_t i = 0; i < m_fontTextures.size(); i++)
 	{

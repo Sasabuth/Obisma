@@ -25,6 +25,7 @@ using namespace DirectX;
 Floating::Floating(AirTarget* airTarget)
 	: m_airTarget(airTarget)
 	, m_userResources(nullptr)
+	, m_rotate(0)
 {
 }
 
@@ -45,6 +46,8 @@ void Floating::Initialize()
 {
 	// ユーザーリソースの取得
 	m_userResources = UserResources::GetUserResource();
+
+	m_rotate = 0.0f;
 }
 
 
@@ -58,6 +61,8 @@ void Floating::Update(float elapsedTime)
 	UNREFERENCED_PARAMETER(elapsedTime);
 
 	auto mouse = Mouse::Get().GetState();
+
+	m_rotate += 10.0f * elapsedTime;
 
 	// プレイヤーの設定
 	m_airTarget->SetVelocity(SimpleMath::Vector3::Zero);
@@ -85,9 +90,7 @@ void Floating::Render()
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_airTarget->GetPosition());
 	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(AirTarget::BALL_SIZE));
 
-	static float rot = 0.0f;
-	rot += 1.0f;
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateRotationY(XMConvertToRadians(rot)) * SimpleMath::Matrix::CreateFromQuaternion(m_airTarget->GetRotation()); // ※回転順に合わせて調整
+	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateRotationY(XMConvertToRadians(m_rotate)) * SimpleMath::Matrix::CreateFromQuaternion(m_airTarget->GetRotation()); // ※回転順に合わせて調整
 
 	world = scale * rotate * pos;
 

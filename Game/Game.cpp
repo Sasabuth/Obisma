@@ -245,7 +245,7 @@ void Game::CreateWindowSizeDependentResources()
         XMConvertToRadians(45.0f),
         static_cast<float>(rect.right) / static_cast<float>(rect.bottom),
         0.1f,
-        100.0f);
+        1000.0f);
 
     m_userResources->SetProject(&m_proj);
 

@@ -23,6 +23,7 @@ using namespace DirectX;
 Score::Score()
 	: m_userResources(nullptr)
 	, m_score(0)
+	, m_index(0)
 {
 }
 
@@ -47,6 +48,8 @@ void Score::Initialize(int index)
 	m_score = 0;
 
 	m_position = POSITIONS[index];
+
+	m_index = index;
 
 	m_scoreSprite.SetTexture(Resources::GetInstance()->GetScoreFontTexture(index));
 	m_frameSprite.SetTexture(Resources::GetInstance()->GetScoreFrameTexture(index));

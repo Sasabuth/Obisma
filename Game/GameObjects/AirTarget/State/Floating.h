@@ -31,6 +31,8 @@ private:
 
 	AirTarget* m_airTarget;
 
+	float m_rotate;
+
 
 // ŠÖ”
 public:

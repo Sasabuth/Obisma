@@ -66,7 +66,7 @@ void Sprite::CreateTexture(const wchar_t* path)
 /// <param name="position">座標</param>
 /// <param name="size">サイズ</param>
 /// <param name="scale">拡大率</param>
-void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale)
+void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale, DirectX::XMVECTOR color)
 {
 	auto states = m_userResources->GetCommonStates();
 
@@ -85,7 +85,7 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 		m_texture.Get(),              // テクスチャのポインタ
 		pos,                          // 座標
 		nullptr,
-		DirectX::Colors::White,       // 色
+		color,                        // 色
 		0.0f,                         // 回転
 		size / 2,                     // 中心点
 		scale * scaleX,               // 拡大率

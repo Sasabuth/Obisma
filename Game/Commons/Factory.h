@@ -20,6 +20,7 @@
 
 // クラスの定義
 class GameplayScene;
+class Scene;
 class Camera;
 
 
@@ -54,7 +55,7 @@ public:
 
 	// フィールド生成する
 	static std::unique_ptr<Field> CreateField(
-		GameplayScene* pScene
+		Scene* pScene
 	);
 
 	// ボールを生成する

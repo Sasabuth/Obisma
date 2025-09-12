@@ -12,6 +12,8 @@
 #include "Game/Commons/SceneManager.h"
 #include "Game/Commons/UserResources.h"
 #include "Game/Commons/Sprite.h"
+#include "Game/GameObjects/Camera/Camera.h"
+#include "Game/GameObjects/Field/Field.h"
 
 
 // クラスの定義
@@ -21,7 +23,17 @@ private:
 	UserResources* m_pUserResources;
 
 	Sprite m_titleTexture;
-	Sprite m_spaceTexture;
+	Sprite m_startTexture;
+
+	// カメラ
+	std::unique_ptr<Camera> m_camera;
+
+	// フィールド
+	std::unique_ptr<Field> m_field;
+
+	// 速度
+	float m_speed;
+
 
 
 // 関数

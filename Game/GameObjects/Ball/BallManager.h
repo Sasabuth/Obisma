@@ -29,10 +29,10 @@ public:
 	// É{Å[ÉãÇÃç¿ïW
 	static constexpr DirectX::SimpleMath::Vector3 BALL_POSITIONS[] =
 	{ 
-		DirectX::SimpleMath::Vector3{ 3.0f,0.1f,0.1f },
-		DirectX::SimpleMath::Vector3{ -3.0f,0.1f,0.1f },
-		DirectX::SimpleMath::Vector3{ 0.1f,0.1f,3.0f },
-		DirectX::SimpleMath::Vector3{ 0.1f,0.1f,-3.0f},
+		DirectX::SimpleMath::Vector3{ 3.0f, 0.1f, 0.1f },
+		DirectX::SimpleMath::Vector3{-3.0f, 0.1f, 0.1f },
+		DirectX::SimpleMath::Vector3{ 0.1f, 0.1f, 3.0f },
+		DirectX::SimpleMath::Vector3{ 0.1f, 0.1f,-3.0f },
 	};
 
 // ïœêî

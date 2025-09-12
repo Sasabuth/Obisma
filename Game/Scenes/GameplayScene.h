@@ -26,7 +26,7 @@ class GameplayScene : public Scene
 {
 // ’è”
 private:
-	static constexpr float MAX_TIME = 100.0f;
+	static constexpr float MAX_TIME = 40.0f;
 
 
 // •Ï”

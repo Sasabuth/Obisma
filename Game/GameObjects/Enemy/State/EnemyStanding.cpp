@@ -151,8 +151,7 @@ void EnemyStanding::Render()
 	// ワールド座標
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
 	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation()); // ※回転順に合わせて調整
+	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
 
 	m_worldMatrix = scale * rotate * pos;
 
@@ -168,14 +167,9 @@ void EnemyStanding::Render()
 		*proj
 	);
 
-	SimpleMath::Vector3 m_drawPos;
-
 	// 影の描画
+	SimpleMath::Vector3 m_drawPos;
 	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
-
-
-	// デバック
-	//m_model->Draw(context, *states, m_worldMatrix, *view, *proj);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -331,14 +325,14 @@ Ball* EnemyStanding::GetNearBall(Ball* ball, int index)
 /// </summary>
 void EnemyStanding::CatchHandBall()
 {
-	// 両手に持っていたら終了
-	if (m_enemy->GetCatchBall(Player::RIGHT) && m_enemy->GetCatchBall(Player::LEFT))
-	{
-		return;
-	}
-
 	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
 	{
+		// 両手に持っていたら終了
+		if (m_enemy->GetCatchBall(Enemy::RIGHT) && m_enemy->GetCatchBall(Enemy::LEFT))
+		{
+			return;
+		}
+
 		// ボールのポインタを取得
 		Ball* ball = m_enemy->GetBallManager()->GetBall(i);
 

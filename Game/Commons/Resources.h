@@ -34,6 +34,8 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTitleTexture() { return m_titleTexture.Get(); }
 	// 宇宙のテクスチャの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetSpaceTexture() { return m_spaceTexture.Get(); }
+	// スタートのテクスチャの取得
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetStartTexture() { return m_startTexture.Get(); }
 	// プレイヤーフェイスのテクスチャの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetFaceTexture(int index) { return m_faceTextures[index].Get(); }
 	// スコアフォントのテクスチャの取得
@@ -41,7 +43,7 @@ public:
 	// プレイヤーフレームのテクスチャの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetScoreFrameTexture(int index) { return m_frameTextures[index].Get(); }
 	// 勝利のテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetWinTexture(int index) { return m_winTextures[index].Get(); }
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetResultTexture(int index) { return m_resultTextures[index].Get(); }
 
 public:
 	Resources(Resources&&) = default;
@@ -94,6 +96,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_titleTexture;
 	// 宇宙のテクスチャ
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_spaceTexture;
+	// 宇宙のテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_startTexture;
 
 	// フレームのテクスチャの配列
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_frameTextures;
@@ -104,7 +108,7 @@ private:
 	// スコアフォントのテクスチャの配列
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_fontTextures;
 
-	// 勝利のテクスチャの配列
-	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_winTextures;
+	// 勝敗のテクスチャの配列
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_resultTextures;
 
 };

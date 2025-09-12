@@ -17,12 +17,13 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Field::Field(GameplayScene* pScene)
+Field::Field(Scene* pScene)
 	: m_pScene(pScene)
 	, m_userResource(nullptr)
 	, m_position{}
 	, m_model{}
 	, m_skydomeModel{}
+	, m_rotate(0)
 {
 }
 
@@ -102,17 +103,23 @@ void Field::Render()
 	auto view = m_userResource->GetView();
 	auto proj = m_userResource->GetProject();
 
+
+
 	// ワールド座標
-	SimpleMath::Matrix world = SimpleMath::Matrix::CreateTranslation(m_position) * SimpleMath::Matrix::CreateScale(MODEL_SCALE);
+	SimpleMath::Matrix world = SimpleMath::Matrix::CreateRotationY(XMConvertToRadians(m_rotate)) * SimpleMath::Matrix::CreateTranslation(m_position) * SimpleMath::Matrix::CreateScale(MODEL_SCALE);
 
 	// モデルの描画
 	m_model->Draw(context, *states, world, *view, *proj);
 
 	// スカイドームの描画
-	SimpleMath::Matrix sWorld = SimpleMath::Matrix::CreateTranslation(m_position) * SimpleMath::Matrix::CreateScale(MODEL_SCALE*30);
+	SimpleMath::Matrix sWorld = SimpleMath::Matrix::CreateRotationY(XMConvertToRadians(m_rotate/4)) * SimpleMath::Matrix::CreateTranslation(m_position) * SimpleMath::Matrix::CreateScale(MODEL_SCALE*300);
 	m_skydomeModel->Draw(context, *states, sWorld, *view, *proj);
-	sWorld *= SimpleMath::Matrix::CreateRotationX(XMConvertToRadians(180));
-	m_skydomeModel->Draw(context, *states, sWorld, *view, *proj);
+
+	//// 反転
+	//SimpleMath::Quaternion rot = SimpleMath::Quaternion::CreateFromAxisAngle(SimpleMath::Vector3::UnitX, XMConvertToRadians(180));
+	//SimpleMath::Matrix rSWorld = SimpleMath::Matrix::CreateFromQuaternion(rot) * sWorld;
+
+	//m_skydomeModel->Draw(context, *states, rSWorld, *view, *proj);
 
 	// デバック用
 	/*m_collider.Draw(states, *view, *proj);*/

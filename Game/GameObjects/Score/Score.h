@@ -34,6 +34,7 @@ private:
 	UserResources* m_userResources;
 
 	float m_score;
+	int m_index;
 
 	DirectX::SimpleMath::Vector2 m_position;
 
@@ -67,6 +68,9 @@ public:
 public:
 	// ƒXƒRƒA
 	float GetScore() const { return m_score; }  // æ“¾
+
+	// ‡ˆÊ
+	int GetIndex() const { return m_index; }  // æ“¾
 
 
 // “à•”ˆ—

@@ -203,8 +203,7 @@ void ThrowingL::Render()
 	// ワールド座標
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
 	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation()); // ※回転順に合わせて調整
+	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
 
 	m_worldMatrix = scale * rotate * pos;
 
@@ -220,9 +219,8 @@ void ThrowingL::Render()
 		*proj
 	);
 
-	SimpleMath::Vector3 m_drawPos;
-
 	// 影の描画
+	SimpleMath::Vector3 m_drawPos;
 	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
 	// 軸の描画

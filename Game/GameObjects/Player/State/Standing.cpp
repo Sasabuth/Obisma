@@ -187,8 +187,7 @@ void Standing::Render()
 	// ワールド座標
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
 	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation()); // ※回転順に合わせて調整
+	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
 
 	m_worldMatrix = scale * rotate * pos;
 
@@ -203,8 +202,6 @@ void Standing::Render()
 		*view,
 		*proj
 	);
-
-
 
 	// 影の描画
 	SimpleMath::Vector3 m_drawPos;
@@ -329,13 +326,14 @@ void Standing::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatri
 /// </summary>
 void Standing::CatchHandBall()
 {
-	if (m_player->GetCatchBall(Player::RIGHT) && m_player->GetCatchBall(Player::LEFT))
-	{
-		return;
-	}
-
 	for (int i = 0; i < m_player->GetBallManager()->GetObjectCount(); i++)
 	{
+		// 両手に持っていたら終了
+		if (m_player->GetCatchBall(Player::RIGHT) && m_player->GetCatchBall(Player::LEFT))
+		{
+			return;
+		}
+
 		Ball* ball = m_player->GetBallManager()->GetBall(i);
 		if (IsHit(m_player->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 		{

@@ -30,7 +30,6 @@ class Camera
 
 	// 生成されたビュー行列
 	DirectX::SimpleMath::Matrix m_view;
-	DirectX::SimpleMath::Quaternion m_rotate;
 
 	// スクロールフォイール値
 	int m_scrollWheelValue;
@@ -56,6 +55,7 @@ public:
 	Camera(int windowWidth, int windowHeight);
 
 	// カメラの更新
+	void Update();
 	void Update(Player* player, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field);
 
 	// デバック用

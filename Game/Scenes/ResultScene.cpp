@@ -47,9 +47,25 @@ void ResultScene::Initialize()
 	auto * debugFont = m_pUserResources->GetDebugFont();
 	debugFont->Initialize();
 
+	// デバック用
+	GetSceneManager()->SetPlayerCount(2);
+
 	// テクスチャの初期化
-	m_resultTexture.SetTexture(nullptr);
-	m_winTexture.SetTexture(nullptr);
+	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
+	{
+		std::unique_ptr<Sprite> faceSprite = std::make_unique<Sprite>();
+		faceSprite->SetTexture(nullptr);
+		m_faceTextures.push_back(std::move(faceSprite));
+
+		std::unique_ptr<Sprite> winSprite = std::make_unique<Sprite>();
+		winSprite->SetTexture(nullptr);
+		m_winTextures.push_back(std::move(winSprite));
+	}
+
+	m_spaceTexture.SetTexture(Resources::GetInstance()->GetSpaceTexture());
+
+	m_position = SimpleMath::Vector2(0, 360);
+	m_position2 = SimpleMath::Vector2(1280, 360);
 }
 
 
@@ -65,18 +81,35 @@ void ResultScene::Update(float elapsedTime)
 	// キーボードの取得
 	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
-	if(!m_resultTexture.GetTexture())
+	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 	{
-		m_resultTexture.SetTexture(Resources::GetInstance()->GetFaceTexture(GetSceneManager()->GetWinner()));
-	}
-	if(!m_winTexture.GetTexture())
-	{
-		m_winTexture.SetTexture(Resources::GetInstance()->GetWinTexture(GetSceneManager()->GetWinner()));
+		if (!m_faceTextures[i]->GetTexture())
+		{
+			m_faceTextures[i]->SetTexture(Resources::GetInstance()->GetFaceTexture(GetSceneManager()->GetRank(i)));
+		}
+
+		if (!m_winTextures[i]->GetTexture())
+		{
+			m_winTextures[i]->SetTexture(Resources::GetInstance()->GetResultTexture(i));
+		}
 	}
 
+	/*m_position.x -= 100.0f * elapsedTime;
+	m_position2.x -= 100.0f * elapsedTime;
+	if (m_position.x < -1280)
+	{
+		m_position.x = 1280;
+	}
+	if (m_position2.x < -1280)
+	{
+		m_position2.x = 1280;
+	}*/
+
+	
+
 	//// デバック
-	//m_resultTexture.SetTexture(Resources::GetInstance()->GetFaceTexture(0));
-	//m_winTexture.SetTexture(Resources::GetInstance()->GetWinTexture(0));
+	//m_faceTextures.SetTexture(Resources::GetInstance()->GetFaceTexture(0));
+	//m_winTextures.SetTexture(Resources::GetInstance()->GetWinTexture(0));
 
 	// シーンの変更
 	if (mouseTK->leftButton == mouseTK->PRESSED)
@@ -93,21 +126,26 @@ void ResultScene::Update(float elapsedTime)
 void ResultScene::Render()
 {
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
-	debugFont->Render(L"ResultScene");
+	//debugFont->Render(L"ResultScene");
 
-	if (GetSceneManager()->GetWinner() == 0)
+	//if (GetSceneManager()->GetWinner() == 0)
+	//{
+	//	debugFont->Render(L"PLAYER1_WIN");
+	//}
+	//if (GetSceneManager()->GetWinner() == 1)
+	//{
+	//	debugFont->Render(L"PLAYER2_WIN");
+	//}
+
+	m_spaceTexture.Draw(m_position, SimpleMath::Vector2(0, 1024), 1.26f, Colors::DarkGray);
+	m_spaceTexture.Draw(m_position2, SimpleMath::Vector2(0, 1024), 1.26f, Colors::DarkGray);
+
+	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 	{
-		debugFont->Render(L"PLAYER1_WIN");
-	}
-	if (GetSceneManager()->GetWinner() == 1)
-	{
-		debugFont->Render(L"PLAYER2_WIN");
+		m_faceTextures[i]->Draw(SimpleMath::Vector2(1280.0f / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), 300.0f), SimpleMath::Vector2(860, 660), 0.3f);
+		m_winTextures[i]->Draw(SimpleMath::Vector2(1280.0f / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), 170.0f), SimpleMath::Vector2(504, 371), 0.25f);
 	}
 	
-	auto const r = UserResources::GetUserResource()->GetDeviceResources()->GetOutputSize();
-
-	m_resultTexture.Draw(SimpleMath::Vector2(640, 200), SimpleMath::Vector2(860, 660), 0.4f);
-	m_winTexture.Draw(SimpleMath::Vector2(640, 350), SimpleMath::Vector2(932, 167), 0.4f);
 }
 
 

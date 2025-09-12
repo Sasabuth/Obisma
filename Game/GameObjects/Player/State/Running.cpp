@@ -136,17 +136,6 @@ void Running::Update(float elapsedTime)
 		SetBallPosition(ball, m_leftHandMatrix);
 	}
 
-	// 左クリックで投げる
-	if (mouseTK->leftButton == mouseTK->PRESSED)
-	{
-		ThrowBall();
-	}
-
-	// 右クリックでキャッチ
-	if (mouseTK->rightButton == mouseTK->PRESSED)
-	{
-		m_player->ChangeState(m_player->GetCatching());
-	}
 	
 
 	// キーによる移動
@@ -157,6 +146,19 @@ void Running::Update(float elapsedTime)
 	else
 	{
 		m_player->ChangeState(m_player->GetStanding());
+	}
+
+
+	// 左クリックで投げる
+	if (mouseTK->leftButton == mouseTK->PRESSED)
+	{
+		ThrowBall();
+	}
+
+	// 右クリックでキャッチ
+	if (mouseTK->rightButton == mouseTK->PRESSED)
+	{
+		m_player->ChangeState(m_player->GetCatching());
 	}
 
 	// スコアを下げる
@@ -182,20 +184,10 @@ void Running::Render()
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
 
-
-	// ロックオンの描画
-	/*if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
-	{
-		m_player->DrawLockOn(m_player->GetScene()->GetAirTarget()->GetPosition());
-	}*/
-
 	// ワールド座標
-	SimpleMath::Matrix world;
-
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
 	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation()); // ※回転順に合わせて調整
+	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
 
 	m_worldMatrix = scale * rotate * pos;
 
@@ -214,8 +206,6 @@ void Running::Render()
 	// 影の描画
 	SimpleMath::Vector3 m_drawPos;
 	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
-
-
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -338,15 +328,15 @@ void Running::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix
 /// </summary>
 void Running::CatchHandBall()
 {
-	// 両手に持っていたら終了
-	if (m_player->GetCatchBall(Player::RIGHT) && m_player->GetCatchBall(Player::LEFT))
-	{
-		return;
-	}
-
 	// どのボールが当たったか調べる
 	for (int i = 0; i < m_player->GetBallManager()->GetObjectCount(); i++)
 	{
+		// 両手に持っていたら終了
+		if (m_player->GetCatchBall(Player::RIGHT) && m_player->GetCatchBall(Player::LEFT))
+		{
+			return;
+		}
+
 		Ball* ball = m_player->GetBallManager()->GetBall(i);
 
 		// 止まっているボールに当たったら

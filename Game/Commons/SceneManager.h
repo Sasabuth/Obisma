@@ -77,8 +77,11 @@ private:
 	// 次のシーンへのポインタ
 	Scene* m_nextScene;
 
+	// プレイ人数
+	int m_playerCount;
+
 	// 勝者
-	int m_winner;
+	std::vector<int> m_rank;
 
 	// シーン削除関数
 	void DeleteScene();
@@ -89,7 +92,7 @@ public:
 	SceneManager()
 		: m_scene(nullptr)
 		, m_nextScene(nullptr)
-		, m_winner(0)
+		, m_playerCount(0)
 	{
 	};
 
@@ -120,8 +123,13 @@ public:
 	void SetNextScene();
 
 	// 勝者
-	void SetWinner(int winner) { m_winner = winner; }  // 設定
-	int GetWinner() const { return m_winner; }         // 取得
+	void SetPlayerCount(int playerCount) { m_playerCount = playerCount; }  // 設定
+	int GetPlayerCount() const { return m_playerCount; }                   // 取得
+
+	// 順位
+	void SetRank(int index,int charactorNum) { m_rank.resize(m_playerCount); m_rank[index] = charactorNum; }  // 設定
+	int GetRank(int index) const { return m_rank[index]; }         // 取得
+
 };
 
 

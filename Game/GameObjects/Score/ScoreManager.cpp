@@ -69,25 +69,3 @@ void ScoreManager::Render()
 		m_scores[i]->Render();
 	}
 }
-
-
-
-
-int ScoreManager::GetTopScoreNumber() const
-{
-	float score = m_scores[0]->GetScore();
-	int num = 0;
-
-	for (int i = 1; i < m_scores.size(); i++)
-	{
-		float score2 = m_scores[i]->GetScore();
-
-		if (score < score2)
-		{
-			score = score2;
-			num = i;
-		}
-	}
-
-	return num;
-}

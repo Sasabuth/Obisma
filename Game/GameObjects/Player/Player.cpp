@@ -399,6 +399,12 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 	m_primitiveBatch->End();
 }
 
+
+
+/// <summary>
+/// ロックオンの描画
+/// </summary>
+/// <param name="pos">座標</param>
 void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 {	
 	auto view = m_userResources->GetView();
@@ -407,13 +413,11 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 	// ビュー射影行列
 	SimpleMath::Matrix viewProj = *view * *proj;
 
-	// ワールド座標を (x,y,z,1) の形にする
+	// ワールド座標
 	SimpleMath::Vector4 pos4(pos.x, pos.y, pos.z, 1.0f);
 
 	// クリップ座標に変換
 	SimpleMath::Vector4 clipPos = SimpleMath::Vector4::Transform(pos4, viewProj);
-
-	// w で割って NDC に
 	clipPos /= clipPos.w;
 
 	// スクリーン座標に変換
