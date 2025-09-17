@@ -9,10 +9,26 @@
 // ヘッダファイルの読み込み
 #include "Model.h"
 #include "Game/Commons/UserResources.h"
+#include <unordered_map>
+
 
 // Resourcesクラスを定義する
 class Resources
 {
+// 定数
+private:
+	static constexpr const wchar_t* DEFAULT_MODEL_DIRECTORY = L"Resources/Models/";
+	static constexpr const wchar_t* DEFAULT_TEXTURE_DIRECTORY = L"Resources/Textures/";
+	static constexpr const wchar_t* DEFAULT_SOUND_DIRECTORY = L"Resources/Sounds/";
+
+
+// エイリアス宣言
+private:
+	using ResourceSound = std::unordered_map<std::wstring, std::unique_ptr<DirectX::SoundEffect>>;
+	using ResourceModel = std::unordered_map<std::wstring, std::unique_ptr<DirectX::Model>>;
+	using ResourceTexture = std::unordered_map<std::wstring, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>;
+
+
 public:
 	// フィールドモデルを取得
 	DirectX::Model* GetFieldModel() { return m_fieldModel.get(); }
@@ -25,26 +41,6 @@ public:
 	// スカイドームの取得
 	DirectX::Model* GetSkydome() { return m_skydome.get(); }
 
-	// テクスチャ
-	// 影のテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetShadowTexture() { return m_shadowTexture.Get(); }
-	// ロックオンのテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetLockOnTexture() { return m_lockOnTexture.Get(); }
-	// タイトルのテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTitleTexture() { return m_titleTexture.Get(); }
-	// 宇宙のテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetSpaceTexture() { return m_spaceTexture.Get(); }
-	// スタートのテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetStartTexture() { return m_startTexture.Get(); }
-	// プレイヤーフェイスのテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetFaceTexture(int index) { return m_faceTextures[index].Get(); }
-	// スコアフォントのテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetScoreFontTexture(int index) { return m_fontTextures[index].Get(); }
-	// プレイヤーフレームのテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetScoreFrameTexture(int index) { return m_frameTextures[index].Get(); }
-	// 勝利のテクスチャの取得
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetResultTexture(int index) { return m_resultTextures[index].Get(); }
-
 public:
 	Resources(Resources&&) = default;
 	Resources& operator= (Resources&&) = default;
@@ -56,16 +52,34 @@ public:
 	// リソースをロードする
 	void LoadResource();
 
+	// 音データの取得
+	std::unique_ptr<DirectX::SoundEffectInstance> GetSound(const std::wstring& filename);
+
+	// モデルデータの取得
+	DirectX::Model* GetModel(const std::wstring& filename);
+
+	// 画像データの取得
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTexture(const std::wstring& filename);
+
+	// 音量の設定
+	void SetVolume(float volume) { m_volume = volume; }
+
+	// リセット
 	void Reset();
+
 
 private:
 	// コンストラクタ
 	Resources() noexcept
 		:
 		m_fieldModel{},
-		m_playerModel{}
+		m_playerModel{},
+		m_volume{}
 	{
 		m_userResource = UserResources::GetUserResource();
+
+		DirectX::AUDIO_ENGINE_FLAGS eflags = DirectX::AudioEngine_Default;
+		m_audEngine = std::make_unique<DirectX::AudioEngine>(eflags);
 	}
 
 private:
@@ -86,29 +100,19 @@ private:
 	std::unique_ptr<DirectX::Model> m_sterModel;
 	// スカイドーム
 	std::unique_ptr<DirectX::Model> m_skydome;
+	
+	// 音エンジン
+	std::unique_ptr<DirectX::AudioEngine>  m_audEngine;
+	// 音データ群
+	ResourceSound m_sounds;  
 
-	// テクスチャ
-	// 影のテクスチャ
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;
-	// ロックオンのテクスチャ
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_lockOnTexture;
-	// タイトルのテクスチャ
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_titleTexture;
-	// 宇宙のテクスチャ
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_spaceTexture;
-	// 宇宙のテクスチャ
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_startTexture;
+	// モデルデータ群
+	ResourceModel m_models;      
 
-	// フレームのテクスチャの配列
-	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_frameTextures;
+	// 画像データ群
+	ResourceTexture m_textures;  
 
-	// 顔のテクスチャの配列
-	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_faceTextures;
-
-	// スコアフォントのテクスチャの配列
-	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_fontTextures;
-
-	// 勝敗のテクスチャの配列
-	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_resultTextures;
+	// 音量
+	float m_volume;
 
 };

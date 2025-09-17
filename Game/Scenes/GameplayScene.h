@@ -68,6 +68,9 @@ private:
 	Sprite m_frameSprite;
 	Sprite m_timerSprite;
 
+	// BGM
+	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
+
 
 // ä÷êî
 public:

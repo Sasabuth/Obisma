@@ -49,8 +49,8 @@ void TitleScene::Initialize()
 	debugFont->Initialize();
 
 	// テクスチャの初期化
-	m_titleTexture.SetTexture(Resources::GetInstance()->GetTitleTexture());
-	m_startTexture.SetTexture(Resources::GetInstance()->GetStartTexture());
+	m_titleTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Title.png"));
+	m_startTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Start.png"));
 
 	// フィールドの初期化
 	m_field = Factory::CreateField(this);
@@ -103,8 +103,6 @@ void TitleScene::Render()
 	debugFont->Render(L"TitleScene");
 
 	m_field->Render();
-
-
 
 	m_startTexture.Draw(SimpleMath::Vector2(120,550 + sin(m_speed)), SimpleMath::Vector2::Zero, 0.25f);
 	m_titleTexture.Draw(SimpleMath::Vector2(400,240), SimpleMath::Vector2(1024,641), 0.7f);

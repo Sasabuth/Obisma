@@ -38,7 +38,6 @@ private:
 	
 	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
 
-	
 	DirectX::SimpleMath::Matrix m_worldMatrix;  // ワールドマトリックス
 	DirectX::SimpleMath::Matrix m_rightHandMatrix; // 右手のマトリックス
 	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
@@ -69,6 +68,7 @@ public:
 
 	// 終了処理
 	void Finalize() override;
+
 
 // 内部処理
 private:

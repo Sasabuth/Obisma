@@ -92,7 +92,8 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	// 影の初期化
 	InitializeShadow(device, context);
 
-	m_lockOnTexture.SetTexture(Resources::GetInstance()->GetLockOnTexture());
+	// ロックオンテクスチャの初期化
+	m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOn.png"));
 }
 
 
@@ -329,7 +330,7 @@ void Player::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context
 	m_primitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionTexture>>(context);
 
 	// テクスチャの読み込み
-	m_shadowTexture = Resources::GetInstance()->GetShadowTexture();
+	m_shadowTexture = Resources::GetInstance()->GetTexture(L"Shadow.png");
 }
 
 

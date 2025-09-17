@@ -211,7 +211,7 @@ void Ball::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 	m_primitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionTexture>>(context);
 
 	// テクスチャの読み込み
-	m_shadowTexture = Resources::GetInstance()->GetShadowTexture();
+	m_shadowTexture = Resources::GetInstance()->GetTexture(L"Shadow.png");
 }
 
 

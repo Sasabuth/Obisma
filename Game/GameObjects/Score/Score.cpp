@@ -51,9 +51,9 @@ void Score::Initialize(int index)
 
 	m_index = index;
 
-	m_scoreSprite.SetTexture(Resources::GetInstance()->GetScoreFontTexture(index));
-	m_frameSprite.SetTexture(Resources::GetInstance()->GetScoreFrameTexture(index));
-	m_faceSprite.SetTexture(Resources::GetInstance()->GetFaceTexture(index));
+	m_scoreSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont" + std::to_wstring(index) + L".png"));
+	m_frameSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame" + std::to_wstring(index) + L".png"));
+	m_faceSprite.SetTexture(Resources::GetInstance()->GetTexture(L"Face" + std::to_wstring(index) + L".png"));
 }
 
 

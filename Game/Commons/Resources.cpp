@@ -102,77 +102,96 @@ void Resources::LoadResource()
 			pBasicEffect->SetAmbientLightColor(Colors::WhiteSmoke);
 		}
 	);
+}
 
-	// テクスチャの読み込み
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(device, L"Resources/Textures/Shadow.dds", nullptr, m_shadowTexture.ReleaseAndGetAddressOf())
-	);
 
-	// テクスチャがあるか
-	if (FAILED(DirectX::CreateDDSTextureFromFile(device, L"Resources/Models/Skydome.dds", nullptr, m_spaceTexture.ReleaseAndGetAddressOf())))
+
+/// <summary>
+/// 音の取得
+/// </summary>
+/// <param name="filename">ファイル名</param>
+/// <returns>音インスタンス</returns>
+std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetSound(const std::wstring& filename)
+{
+	// 未登録の場合
+	if (m_sounds.count(filename) == 0)
 	{
-		MessageBox(NULL, L"Resources/Models/Skydome.dds", L"エラー", MB_OK);
+		// 音ファイルの読み込み
+		std::wstring fullPath = DEFAULT_SOUND_DIRECTORY + std::wstring(filename);
+
+		std::unique_ptr<SoundEffect> sound = std::make_unique<SoundEffect>(m_audEngine.get(), fullPath.c_str());
+
+		// 音データのハンドルを登録
+		m_sounds.emplace(filename, std::move(sound));
 	}
 
-	// テクスチャがあるか
-	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/LockOn.png", nullptr, m_lockOnTexture.ReleaseAndGetAddressOf())))
+	// インスタンスの返却
+	std::unique_ptr<SoundEffectInstance> sound = m_sounds[filename]->CreateInstance();
+
+	// 音量の設定
+	sound->SetVolume(m_volume);
+
+	return sound;
+}
+
+
+
+/// <summary>
+/// モデルの取得
+/// </summary>
+/// <param name="filename">ファイル名</param>
+/// <returns>モデルのポインタ</returns>
+DirectX::Model* Resources::GetModel(const std::wstring& filename)
+{
+	// モデルの設定
+	auto device = m_userResource->GetDeviceResources()->GetD3DDevice();
+
+	auto effectFactory = m_userResource->GetEffectFactory();
+	effectFactory->SetDirectory(L"Resources/Models");
+
+	// 未登録の場合
+	if (m_models.count(filename) == 0)
 	{
-		MessageBox(NULL, L"Resources/Textures/LockOn.png", L"エラー", MB_OK);
+		// モデルファイルの読み込み
+		std::wstring fullPath = DEFAULT_MODEL_DIRECTORY + std::wstring(filename);
+
+		std::unique_ptr<Model> model = Model::CreateFromSDKMESH(device, fullPath.c_str(), *effectFactory);
+
+		// モデルデータのハンドルを登録
+		m_models.emplace(filename, std::move(model));
 	}
 
-	// テクスチャがあるか
-	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Title.png", nullptr, m_titleTexture.ReleaseAndGetAddressOf())))
-	{
-		MessageBox(NULL, L"Resources/Textures/Title.png", L"エラー", MB_OK);
-	}
+	return m_models[filename].get();
+}
 
-	// テクスチャがあるか
-	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Start.png", nullptr, m_startTexture.ReleaseAndGetAddressOf())))
-	{
-		MessageBox(NULL, L"Resources/Textures/Start.png", L"エラー", MB_OK);
-	}
 
-	// フォントテクスチャの読み込み
-	m_fontTextures.resize(3);
-	for (size_t i = 0; i < m_fontTextures.size(); i++)
+
+/// <summary>
+/// テクスチャの取得
+/// </summary>
+/// <param name="filename">ファイル名</param>
+/// <returns>テクスチャ</returns>
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetTexture(const std::wstring& filename)
+{
+	// モデルの設定
+	auto device = m_userResource->GetDeviceResources()->GetD3DDevice();
+
+	// 未登録の場合
+	if (m_textures.count(filename) == 0)
 	{
-		std::wstring filename = L"Resources/Textures/ScoreFont" + std::to_wstring(i) + L".png";
-		if (FAILED(CreateWICTextureFromFile(device, filename.c_str(), nullptr, m_fontTextures[i].ReleaseAndGetAddressOf())))
+		// テクスチャファイルの読み込み
+		std::wstring fullPath = DEFAULT_TEXTURE_DIRECTORY + std::wstring(filename);
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
+		if (FAILED(CreateWICTextureFromFile(device, fullPath.c_str(), nullptr, texture.ReleaseAndGetAddressOf())))
 		{
-			MessageBox(NULL, filename.c_str(), L"エラー", MB_OK);
+			MessageBox(NULL, fullPath.c_str(), L"エラー", MB_OK);
 		}
+
+		// テクスチャデータのハンドルを登録
+		m_textures.emplace(filename, std::move(texture));
 	}
 
-	// フレームテクスチャの読み込み
-	m_frameTextures.resize(3);
-	for (size_t i = 0; i < m_frameTextures.size(); i++)
-	{
-		std::wstring filename = L"Resources/Textures/ScoreFrame" + std::to_wstring(i) + L".png";
-		if (FAILED(CreateWICTextureFromFile(device, filename.c_str(), nullptr, m_frameTextures[i].ReleaseAndGetAddressOf())))
-		{
-			MessageBox(NULL, filename.c_str(), L"エラー", MB_OK);
-		}
-	}
-	// 顔テクスチャの読み込み
-	m_faceTextures.resize(2);
-	for (size_t i = 0; i < m_faceTextures.size(); i++)
-	{
-		std::wstring filename = L"Resources/Textures/Face" + std::to_wstring(i) + L".png";
-		if (FAILED(CreateWICTextureFromFile(device, filename.c_str(), nullptr, m_faceTextures[i].ReleaseAndGetAddressOf())))
-		{
-			MessageBox(NULL, filename.c_str(), L"エラー", MB_OK);
-		}
-	}
-	// 勝利テクスチャの読み込み
-	m_resultTextures.resize(2);
-	for (size_t i = 0; i < m_resultTextures.size(); i++)
-	{
-		std::wstring filename = L"Resources/Textures/Result" + std::to_wstring(i) + L".png";
-		if (FAILED(CreateWICTextureFromFile(device, filename.c_str(), nullptr, m_resultTextures[i].ReleaseAndGetAddressOf())))
-		{
-			MessageBox(NULL, filename.c_str(), L"エラー", MB_OK);
-		}
-	}
+	return m_textures[filename];
 }
 
 
@@ -187,22 +206,13 @@ void Resources::Reset()
 	m_enemyModel.reset();
 	m_sterModel.reset();
 	m_skydome.reset();
-	m_shadowTexture.Reset();
-	m_lockOnTexture.Reset();
-	m_titleTexture.Reset();
-	m_spaceTexture.Reset();
-	m_startTexture.Reset();
 
-	for (size_t i = 0; i < m_fontTextures.size(); i++)
-	{
-		m_fontTextures[i].Reset();
-	}
-	for (size_t i = 0; i < m_frameTextures.size(); i++)
-	{
-		m_frameTextures[i].Reset();
-	}
-	for (size_t i = 0; i < m_faceTextures.size(); i++)
-	{
-		m_faceTextures[i].Reset();
-	}
+	// 音データの削除
+	m_sounds.clear();
+
+	// モデルの削除
+	m_models.clear();
+
+	// テクスチャの削除
+	m_textures.clear();
 }

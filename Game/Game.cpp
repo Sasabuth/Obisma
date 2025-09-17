@@ -153,7 +153,6 @@ void Game::OnSuspending()
 void Game::OnResuming()
 {
     m_timer.ResetElapsedTime();
-
     // TODO: Game is being power-resumed (or returning from minimize).
 }
 

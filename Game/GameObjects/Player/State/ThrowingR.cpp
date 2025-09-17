@@ -158,8 +158,6 @@ void ThrowingR::Update(float elapsedTime)
 				rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(12));
 			}
 			ball->SetVelocity(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * Player::BALL_SPEED);
-
-			debug = ball->GetVelocity();
 			m_player->SetCatchBall(Player::RIGHT, nullptr);
 			m_isThowing = true;
 		}
@@ -254,13 +252,12 @@ void ThrowingR::Render()
 	context->IASetInputLayout(m_inputLayout.Get());
 
 	//SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
-	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
-	SimpleMath::Vector3 horizontal = debug;
+	/*SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());*/
 	//SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
 
 	m_primitiveBatch->Begin();
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	/*DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);*/
 	//DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();
 

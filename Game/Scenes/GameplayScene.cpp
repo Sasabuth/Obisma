@@ -78,8 +78,12 @@ void GameplayScene::Initialize()
 	// ゲーム時間の初期化
 	m_gameTimer = MAX_TIME;
 
-	m_frameSprite.SetTexture(Resources::GetInstance()->GetScoreFrameTexture(2));
-	m_timerSprite.SetTexture(Resources::GetInstance()->GetScoreFontTexture(2));
+	m_frameSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame2.png"));
+	m_timerSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont2.png"));
+
+	Resources::GetInstance()->SetVolume(0.0f);
+	m_bgm = Resources::GetInstance()->GetSound(L"Bgm.wav");
+	m_bgm->Play(true);
 
 	// プレイ人数を初期化
 	GetSceneManager()->SetPlayerCount(2);

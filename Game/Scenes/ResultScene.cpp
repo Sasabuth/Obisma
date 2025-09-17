@@ -62,7 +62,7 @@ void ResultScene::Initialize()
 		m_winTextures.push_back(std::move(winSprite));
 	}
 
-	m_spaceTexture.SetTexture(Resources::GetInstance()->GetSpaceTexture());
+	m_spaceTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Space.png"));
 
 	m_position = SimpleMath::Vector2(0, 360);
 	m_position2 = SimpleMath::Vector2(1280, 360);
@@ -85,12 +85,14 @@ void ResultScene::Update(float elapsedTime)
 	{
 		if (!m_faceTextures[i]->GetTexture())
 		{
-			m_faceTextures[i]->SetTexture(Resources::GetInstance()->GetFaceTexture(GetSceneManager()->GetRank(i)));
+			std::wstring filename = L"Face" + std::to_wstring(GetSceneManager()->GetRank(i)) + L".png";
+			m_faceTextures[i]->SetTexture(Resources::GetInstance()->GetTexture(filename.c_str()));
 		}
 
 		if (!m_winTextures[i]->GetTexture())
 		{
-			m_winTextures[i]->SetTexture(Resources::GetInstance()->GetResultTexture(i));
+			std::wstring filename = L"Result" + std::to_wstring(i) + L".png";
+			m_winTextures[i]->SetTexture(Resources::GetInstance()->GetTexture(filename.c_str()));
 		}
 	}
 
