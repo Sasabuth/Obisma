@@ -19,6 +19,7 @@
 #include "Game/GameObjects/Camera/CameraUp.h"
 #include "Game/GameObjects/AirTarget/AirTarget.h"
 #include "Game/GameObjects/Score/ScoreManager.h"
+#include "Game/Commons/Sprite.h"
 
 
 // クラスの定義
@@ -26,7 +27,10 @@ class GameplayScene : public Scene
 {
 // 定数
 private:
-	static constexpr float MAX_TIME = 40.0f;
+	static constexpr float MAX_TIME = 100.0f;
+
+	static constexpr float NUMBER_WIDTH = 34.5f;
+	static constexpr float NUMBER_HEIGHT = 50.0f;
 
 
 // 変数
@@ -59,6 +63,10 @@ private:
 
 	// ゲーム時間
 	float m_gameTimer;
+
+	// スプライト
+	Sprite m_frameSprite;
+	Sprite m_timerSprite;
 
 
 // 関数

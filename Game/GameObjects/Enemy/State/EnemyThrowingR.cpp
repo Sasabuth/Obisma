@@ -144,12 +144,21 @@ void EnemyThrowingR::Update(float elapsedTime)
 		SetBallPosition(ball, m_rightHandMatrix);
 		
 		// 時間になったら投げる
-		if (m_animation->GetAnimTime() > 0.6f)
+		if (m_animation->GetAnimTime() > 0.58f)
 		{
 			ball->ChangeState(ball->GetMoving());
 			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
-			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation() * rotate) * 4.5);
+			float angleDeg = XMConvertToDegrees(angle);
+			SimpleMath::Quaternion rotate;
+			if (angleDeg < 35.0f)
+			{
+				rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(30));
+			}
+			else
+			{
+				rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(12));
+			}
+			ball->SetVelocity(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation() * rotate) * Player::BALL_SPEED);
 			m_enemy->SetCatchBall(Player::RIGHT, nullptr);
 			m_isThowing = true;
 		}

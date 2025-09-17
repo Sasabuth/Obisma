@@ -117,8 +117,8 @@ void Ball::Render()
 	//auto proj = m_userResources->GetProject();
 	//m_collider.Draw(states, *view, *proj);
 
-	auto debagFont = m_userResources->GetDebugFont();
-	/*debagFont->Render(L"BallColorNum", m_ballColorNum);*/
+	/*auto debagFont = m_userResources->GetDebugFont();
+	debagFont->Render(L"BallColorNum", m_ballColorNum);*/
 }
 
 
@@ -154,6 +154,19 @@ void Ball::CorrectOverlap(Field& field)
 
 	// 押し出しする
 	m_position += delta * pushLength;
+
+	// 法線ベクトル
+	SimpleMath::Vector3 normalVec = m_gravity * -1.0f;
+	normalVec.Normalize();
+
+	// 反射ベクトル
+	SimpleMath::Vector3 reflVec = m_velocity - 2.0f * (m_velocity.Dot(normalVec)) * normalVec;
+
+	// 摩擦
+	reflVec *= 0.6f;
+
+	// 速度の設定
+	m_velocity = reflVec;
 }
 
 

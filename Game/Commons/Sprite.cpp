@@ -135,3 +135,36 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 
 	m_spriteBatch->End();
 }
+
+
+
+/// <summary>
+/// 桁数描画
+/// </summary>
+/// <param name="x">X座標</param>
+/// <param name="y">Y座標</param>
+/// <param name="width">縦の幅</param>
+/// <param name="height">横の幅</param>
+/// <param name="value">数字</param>
+/// <param name="size">サイズ</param>
+void Sprite::DigitsDraw(float x, float y, float width, float height, int value, float size)
+{
+	// スコアフォントの描画
+	float posX = x;
+	float posY = y;
+
+	int numDidits = 2;
+
+	posX += static_cast<int>(width * (numDidits));
+
+	for (int i = 0; i < numDidits; i++)
+	{
+		int number = value % 10 + 1;
+
+		int sourceX = static_cast<int>(number * width);
+		Draw(SimpleMath::Vector2(posX, posY), SimpleMath::Vector2((float)sourceX, height), width, size);
+
+		value /= 10;
+		posX -= static_cast<int>(width);
+	}
+}

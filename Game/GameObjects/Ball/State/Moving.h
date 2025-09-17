@@ -30,7 +30,6 @@ private:
 
 	Ball* m_ball;
 
-	float m_larp;
 
 // ŠÖ”
 public:

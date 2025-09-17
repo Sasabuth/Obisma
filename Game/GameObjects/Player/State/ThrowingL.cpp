@@ -144,12 +144,21 @@ void ThrowingL::Update(float elapsedTime)
 		
 		
 		// 時間になったら投げる
-		if (m_animation->GetAnimTime() > 0.6f)
+		if (m_animation->GetAnimTime() > 0.58f)
 		{
 			ball->ChangeState(ball->GetMoving());
 			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
-			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * Player::PLAYER_POWER);
+			float angleDeg = XMConvertToDegrees(angle);
+			SimpleMath::Quaternion rotate;
+			if (angleDeg < 35.0f)
+			{
+				rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(30));
+			}
+			else
+			{
+				rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(12));
+			}
+			ball->SetVelocity(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * Player::BALL_SPEED);
 			m_player->SetCatchBall(Player::LEFT, nullptr);
 			m_isThowing = true;
 		}

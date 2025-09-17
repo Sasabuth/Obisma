@@ -42,6 +42,10 @@ public:
 	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale, DirectX::XMVECTOR color=DirectX::Colors::White);
 	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 rect, float width, float scale);
 
+	// 桁数描画
+	void DigitsDraw(float x, float y, float width, float height, int value, float size);
+
+
 // 設定/取得
 public:
 	// テクスチャの設定

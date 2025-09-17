@@ -101,8 +101,8 @@ void Floating::Render()
 	m_airTarget->DrawShadow(context, states, AirTarget::SHADOW_SIZE);
 
 	// デバック
-	/*debugFont->Render(L"Floating");
-	debugFont->Render(L"Position", m_airTarget->GetPosition());*/
+	//debugFont->Render(L"Floating");
+	debugFont->Render(L"Position", m_airTarget->GetPosition().x * m_airTarget->GetPosition().y * m_airTarget->GetPosition().z);
 
 }
 

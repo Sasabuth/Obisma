@@ -33,10 +33,11 @@ private:
 
 	DirectX::Model* m_model;  // モデル
 
+	DirectX::SimpleMath::Vector3 debug;
+
 	DirectX::ModelBone::TransformArray m_drawBones;  // アニメーションボーン配列
 
 	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
-
 	
 	DirectX::SimpleMath::Matrix m_worldMatrix;  // ワールドマトリックス
 	DirectX::SimpleMath::Matrix m_rightHandMatrix;  // 右手のマトリックス

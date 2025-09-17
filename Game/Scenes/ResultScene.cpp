@@ -94,7 +94,7 @@ void ResultScene::Update(float elapsedTime)
 		}
 	}
 
-	/*m_position.x -= 100.0f * elapsedTime;
+	m_position.x -= 100.0f * elapsedTime;
 	m_position2.x -= 100.0f * elapsedTime;
 	if (m_position.x < -1280)
 	{
@@ -103,13 +103,7 @@ void ResultScene::Update(float elapsedTime)
 	if (m_position2.x < -1280)
 	{
 		m_position2.x = 1280;
-	}*/
-
-	
-
-	//// デバック
-	//m_faceTextures.SetTexture(Resources::GetInstance()->GetFaceTexture(0));
-	//m_winTextures.SetTexture(Resources::GetInstance()->GetWinTexture(0));
+	}
 
 	// シーンの変更
 	if (mouseTK->leftButton == mouseTK->PRESSED)

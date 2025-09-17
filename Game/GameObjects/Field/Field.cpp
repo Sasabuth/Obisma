@@ -177,7 +177,7 @@ SimpleMath::Vector3 Field::CorrectUp(IEntity* iEntity)
 	iEntity->SetRotation(iEntity->GetRotation() * q);
 
 	// d—Í‚ğ•Ô‚·
-	return gravityDir * 2;
+	return gravityDir * 3;
 }
 
 

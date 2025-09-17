@@ -78,6 +78,9 @@ void GameplayScene::Initialize()
 	// ゲーム時間の初期化
 	m_gameTimer = MAX_TIME;
 
+	m_frameSprite.SetTexture(Resources::GetInstance()->GetScoreFrameTexture(2));
+	m_timerSprite.SetTexture(Resources::GetInstance()->GetScoreFontTexture(2));
+
 	// プレイ人数を初期化
 	GetSceneManager()->SetPlayerCount(2);
 }
@@ -139,7 +142,6 @@ void GameplayScene::Update(float elapsedTime)
 		m_scoreManager->SortRank();
 		for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 		{
-			int a = m_scoreManager->GetRank(i);
 			GetSceneManager()->SetRank(i,m_scoreManager->GetRank(i));
 		}
 		
@@ -156,7 +158,7 @@ void GameplayScene::Render()
 {
 	// デバックフォントの描画
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
-	//debugFont->Render(L"GameplayScene");
+	debugFont->Render(L"GameplayScene");
 
 	// フィールドの描画
 	m_field->Render();
@@ -175,14 +177,15 @@ void GameplayScene::Render()
 
 	// スコアマネージャーの描画
 	m_scoreManager->Render();
+
+	m_frameSprite.Draw(SimpleMath::Vector2(640, 52), SimpleMath::Vector2(415, 239), 0.28f);
+	m_timerSprite.DigitsDraw(571, 25, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_gameTimer, 1.0f);
 	
 	// デバック用
 	// カメラの上向きベクトルの描画
 	//m_cameraUp->Render();
 
 	/*debugFont->Render(L"Timer",m_gameTimer);*/
-
-	
 }
 
 

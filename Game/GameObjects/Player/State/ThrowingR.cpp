@@ -143,12 +143,23 @@ void ThrowingR::Update(float elapsedTime)
 		SetBallPosition(ball, m_rightHandMatrix);
 		
 		// 時間になったら投げる
-		if (m_animation->GetAnimTime() > 0.6f)
+		if (m_animation->GetAnimTime() > 0.58f)
 		{
 			ball->ChangeState(ball->GetMoving());
 			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
-			SimpleMath::Quaternion rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-			ball->SetSpeed(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * Player::PLAYER_POWER);
+			float angleDeg = XMConvertToDegrees(angle);
+			SimpleMath::Quaternion rotate;
+			if (angleDeg < 35.0f)
+			{
+				rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(30));
+			}
+			else
+			{
+				rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(12));
+			}
+			ball->SetVelocity(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * Player::BALL_SPEED);
+
+			debug = ball->GetVelocity();
 			m_player->SetCatchBall(Player::RIGHT, nullptr);
 			m_isThowing = true;
 		}
@@ -242,19 +253,16 @@ void ThrowingR::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
+	//SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
+	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
+	SimpleMath::Vector3 horizontal = debug;
+	//SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
 
-	SimpleMath::Vector3 dir = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_player->GetRotation());
-	SimpleMath::Quaternion rot = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation() * rot);
-
-	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
-
-	/*m_primitiveBatch->Begin();
+	m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
-	m_primitiveBatch->End();*/
+	//DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
+	m_primitiveBatch->End();
 
 	//debugFont->Render(L"ThrowingR");
 }

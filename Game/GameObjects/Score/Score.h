@@ -20,7 +20,7 @@ class Score
 // ’è”
 private:
 	static constexpr float NUMBER_WIDTH = 34.5f;
-	static constexpr int NUMBER_HEIGHT = 50;
+	static constexpr float NUMBER_HEIGHT = 50.0f;
 
 	static constexpr DirectX::SimpleMath::Vector2 POSITIONS[] =
 	{
@@ -75,8 +75,7 @@ public:
 
 // “à•”ˆ—
 private:
-	// ƒXƒRƒA•`‰æ
-	void ScoreDraw(float x, float y, int score, float size);
+
 
 };
 

@@ -65,7 +65,7 @@ void Score::Render()
 {
 	m_frameSprite.Draw(m_position, SimpleMath::Vector2(0, 0), 0.3f);
 	m_faceSprite.Draw(m_position, SimpleMath::Vector2(0, 0), 0.1f);
-	ScoreDraw(m_position.x+80, m_position.y+10, (int)m_score, 1.0f);
+	m_scoreSprite.DigitsDraw(m_position.x + 80, m_position.y + 10, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_score, 1.0f);
 
 	auto debagFont = m_userResources->GetDebugFont();
 	//debagFont->Render(L"score", m_score);
@@ -85,40 +85,4 @@ void Score::ScoreDown()
 	}
 
 	m_score = std::ceil(m_score /= 2);
-}
-
-
-
-/// <summary>
-/// スコアの描画
-/// </summary>
-/// <param name="x">X座標</param>
-/// <param name="y">Y座標</param>
-/// <param name="score">スコア</param>
-/// <param name="size">サイズ</param>
-void Score::ScoreDraw(float x, float y, int score, float size)
-{
-	// スコアフォントの描画
-	float posX = x;
-	float posY = y;
-
-	int numDidits = 2;
-	//while (score != 0)
-	//{
-	//	score /= 10;
-	//	++numDidits;
-	//}
-
-	posX += static_cast<int>(NUMBER_WIDTH * (numDidits));
-
-	for (int i = 0; i < numDidits; i++)
-	{
-		int number = score % 10 + 1;
-
-		int sourceX = static_cast<int>(number * NUMBER_WIDTH);
-		m_scoreSprite.Draw(SimpleMath::Vector2(posX, posY), SimpleMath::Vector2((float)sourceX, NUMBER_HEIGHT), NUMBER_WIDTH, size);
-
-		score /= 10;
-		posX -= static_cast<int>(NUMBER_WIDTH);
-	}
 }

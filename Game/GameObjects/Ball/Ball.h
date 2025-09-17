@@ -60,7 +60,6 @@ private:
 
 	DirectX::SimpleMath::Vector3 m_position;
 	DirectX::SimpleMath::Vector3 m_velocity;
-	DirectX::SimpleMath::Vector3 m_speed;
 
 	DirectX::SimpleMath::Quaternion m_rotate;
 	DirectX::SimpleMath::Vector3 m_gravity;
@@ -131,12 +130,8 @@ public:
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
 	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
 
-	// 速度
-	void SetSpeed(DirectX::SimpleMath::Vector3 speed) { m_speed = speed; }       // 設定
-	DirectX::SimpleMath::Vector3 GetSpeed() const { return m_speed; }		     // 取得
-
 	// ボールの色
-	void SetBallColorNum(int ballColorNum);                     // 設定
+	void SetBallColorNum(int ballColorNum);                  // 設定
 	int GetBallColorNum() const { return m_ballColorNum; }   // 取得
 
 	// コライダー

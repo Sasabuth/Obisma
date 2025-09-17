@@ -109,9 +109,9 @@ void Resources::LoadResource()
 	);
 
 	// テクスチャがあるか
-	if (FAILED(DirectX::CreateWICTextureFromFile(device, L"Resources/Textures/Space.png", nullptr, m_spaceTexture.ReleaseAndGetAddressOf())))
+	if (FAILED(DirectX::CreateDDSTextureFromFile(device, L"Resources/Models/Skydome.dds", nullptr, m_spaceTexture.ReleaseAndGetAddressOf())))
 	{
-		MessageBox(NULL, L"Resources/Textures/Space.png", L"エラー", MB_OK);
+		MessageBox(NULL, L"Resources/Models/Skydome.dds", L"エラー", MB_OK);
 	}
 
 	// テクスチャがあるか
@@ -133,7 +133,7 @@ void Resources::LoadResource()
 	}
 
 	// フォントテクスチャの読み込み
-	m_fontTextures.resize(2);
+	m_fontTextures.resize(3);
 	for (size_t i = 0; i < m_fontTextures.size(); i++)
 	{
 		std::wstring filename = L"Resources/Textures/ScoreFont" + std::to_wstring(i) + L".png";
@@ -144,7 +144,7 @@ void Resources::LoadResource()
 	}
 
 	// フレームテクスチャの読み込み
-	m_frameTextures.resize(2);
+	m_frameTextures.resize(3);
 	for (size_t i = 0; i < m_frameTextures.size(); i++)
 	{
 		std::wstring filename = L"Resources/Textures/ScoreFrame" + std::to_wstring(i) + L".png";

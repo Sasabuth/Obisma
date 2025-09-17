@@ -31,7 +31,7 @@ class Enemy : public IEntity
 {
 public:
 	static constexpr float SHADOW_SIZE = 0.4f; // ‰e‚Ì‘å‚«‚³
-	static constexpr DirectX::SimpleMath::Vector4 BALLCOLOR = { 1,0,0,1 };
+	static constexpr float BALL_SPEED = 3.0f;  // ƒ{[ƒ‹‚Ì‘¬“x
 
 	// è
 	enum HAND
