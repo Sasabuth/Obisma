@@ -72,9 +72,6 @@ void Stopping::Update(float elapsedTime)
 /// </summary>
 void Stopping::Render()
 {
-	// デバックフォントの描画
-	auto* debugFont = m_userResources->GetDebugFont();
-
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -96,7 +93,8 @@ void Stopping::Render()
 	// 影の描画
 	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
 
-	// デバック
+	// デバック用
+	auto* debugFont = m_userResources->GetDebugFont();
 	/*debugFont->Render(L"Stopping");*/
 
 }

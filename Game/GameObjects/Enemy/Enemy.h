@@ -14,7 +14,9 @@
 #include "Game/GameObjects/Enemy/State/EnemyStanding.h"
 #include "Game/GameObjects/Enemy/State/EnemyRunning.h"
 #include "Game/GameObjects/Enemy/State/EnemyThrowingR.h"
+#include "Game/GameObjects/Enemy/State/EnemyThrowingL.h"
 #include "Game/GameObjects/Enemy/State/EnemyDizzying.h"
+#include "Game/GameObjects/Enemy/State/EnemyCatching.h"
 #include "Game/GameObjects/Score/Score.h"
 #include <map>
 
@@ -32,6 +34,8 @@ class Enemy : public IEntity
 public:
 	static constexpr float SHADOW_SIZE = 0.4f; // 影の大きさ
 	static constexpr float BALL_SPEED = 3.0f;  // ボールの速度
+	static constexpr float ENEMY_SIZE = 0.003f;
+	static constexpr float COLLIDER_SIZE = 0.5f;
 
 	// 手
 	enum HAND
@@ -52,11 +56,14 @@ private:
 
 	IState* m_currentState;  // 現在のステート
 
+	IEntity* m_target;  // ターゲット
 	
 	std::unique_ptr<EnemyStanding> m_standing;  // 「立つ」状態
 	std::unique_ptr<EnemyRunning> m_running;    // 「走る」状態
 	std::unique_ptr<EnemyThrowingR> m_throwingR;  // 「右手で投げる」状態
+	std::unique_ptr<EnemyThrowingL> m_throwingL;  // 「左手で投げる」状態
 	std::unique_ptr<EnemyDizzying> m_dizzying;  // 「くらくら」状態
+	std::unique_ptr<EnemyCatching> m_catching;  // 「とる」状態
 
 	DirectX::SimpleMath::Vector3 m_position; // 座標
 	DirectX::SimpleMath::Vector3 m_velocity; // 速度
@@ -65,6 +72,7 @@ private:
 	DirectX::SimpleMath::Vector3 m_gravity;  // 重力
 
 	SphereCollider m_collider;  // コライダー
+	SphereCollider m_catchCollider;
 
 	std::unique_ptr<Score> m_score;  // スコア
 
@@ -79,6 +87,7 @@ private:
 	std::map<int, Ball*> m_isBall;  // ボールを持っているか
 
 	int m_ballIndex;  // ボール用のインデックス
+
 
 
 // 関数
@@ -144,8 +153,15 @@ public:
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
 	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
 
+	// ターゲット
+	void SetTarget(IEntity* target) { m_target = target; }       // 設定
+	IEntity* GetTarget() const { return m_target; }		         // 取得
+
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
+
+	// キャッチ用コライダー
+	SphereCollider& GetCatchCollider() { return m_catchCollider; }
 
 	// シーン
 	GameplayScene* GetScene() const { return m_pScene; }
@@ -170,7 +186,9 @@ public:
 	EnemyStanding* GetStanding() const { return m_standing.get(); }
 	EnemyRunning* GetRunning() const { return m_running.get(); }
 	EnemyThrowingR* GetThrowingR() const { return m_throwingR.get(); }
+	EnemyThrowingL* GetThrowingL() const { return m_throwingL.get(); }
 	EnemyDizzying* GetDizzying() const { return m_dizzying.get(); }
+	EnemyCatching* GetCatching() const { return m_catching.get(); }
 
 	
 };

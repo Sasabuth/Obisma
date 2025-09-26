@@ -1,11 +1,11 @@
 ﻿/// <summary>
-/// EnemyDizzyingに関するソースファイル
+/// EnemyCatchingに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "EnemyDizzying.h"
+#include "EnemyCatching.h"
 
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects/Field/Field.h"
@@ -21,11 +21,11 @@ using namespace DirectX;
 /// <summary>
 /// コンストラクタ
 /// </summary>
-EnemyDizzying::EnemyDizzying(Enemy* enemy)
+EnemyCatching::EnemyCatching(Enemy* enemy)
 	: m_enemy(enemy)
 	, m_userResources(nullptr)
 	, m_model{}
-	, m_time(0)
+	, m_collider{}
 {
 	// モデルの作成
 	m_model = Resources::GetInstance()->GetEnemyModel();
@@ -33,7 +33,7 @@ EnemyDizzying::EnemyDizzying(Enemy* enemy)
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();
 	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources\\Animations\\Dizzy.sdkmesh_anim");
+	m_animation->Load(L"resources\\Animations\\Player_Catch.sdkmesh_anim");
 	// アニメーションとモデルをバインドする
 	m_animation->Bind(*m_model);
 	// ボーン用のトランスフォーム配列を生成する
@@ -49,7 +49,7 @@ EnemyDizzying::EnemyDizzying(Enemy* enemy)
 /// <summary>
 /// デストラクタ
 /// </summary>
-EnemyDizzying::~EnemyDizzying()
+EnemyCatching::~EnemyCatching()
 {
 }
 
@@ -58,7 +58,7 @@ EnemyDizzying::~EnemyDizzying()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void EnemyDizzying::Initialize()
+void EnemyCatching::Initialize()
 {
 	m_userResources = UserResources::GetUserResource();
 
@@ -67,13 +67,13 @@ void EnemyDizzying::Initialize()
 
 	m_worldMatrix = SimpleMath::Matrix::Identity;
 
-	// アニメーションの開始時間を設定する
-	m_animation->SetStartTime(0.0f);
-	// アニメーションの終了時間を設定する
-	m_animation->SetEndTime(1.2f);
+	// コライダーの初期化
+	m_collider.Initialize(context, m_enemy->GetPosition(), COLLIDER_SIZE);
 
-	// 時間の初期化
-	m_time = 0.0f;
+	// アイドリングアニメーションの開始時間を設定する
+	m_animation->SetStartTime(0.0f);
+	// アイドリングアニメーションの終了時間を設定する
+	m_animation->SetEndTime(0.5f);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -92,17 +92,39 @@ void EnemyDizzying::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void EnemyDizzying::Update(float elapsedTime)
+void EnemyCatching::Update(float elapsedTime)
 {
-	if (m_enemy->GetCatchBall(Player::RIGHT))
+	UNREFERENCED_PARAMETER(elapsedTime);
+
+	if (m_enemy->GetCatchBall(Enemy::RIGHT))
 	{
-		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
+		Ball* ball = m_enemy->GetCatchBall(Enemy::RIGHT);
 		SetBallPosition(ball, m_rightHandMatrix);
 	}
-	if (m_enemy->GetCatchBall(Player::LEFT))
+	if (m_enemy->GetCatchBall(Enemy::LEFT))
 	{
-		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
+		Ball* ball = m_enemy->GetCatchBall(Enemy::LEFT);
 		SetBallPosition(ball, m_leftHandMatrix);
+	}
+
+	// キャッチ用コライダーの設定
+	SimpleMath::Vector3 catchPos =
+		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) / 2.5 -
+		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY, m_enemy->GetRotation()) / 3;
+
+	m_collider.SetPosition(m_enemy->GetPosition() + catchPos);
+
+	// ボールをキャッチする
+	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
+	{
+		Ball* ball = m_enemy->GetBallManager()->GetBall(i);
+		if (ball->GetCurrentState() == ball->GetMoving())
+		{
+			if (IsHit(m_collider, ball->GetCollider()))
+			{
+				CatchHandBall(i);
+			}
+		}
 	}
 
 	// プレイヤーの設定
@@ -118,15 +140,7 @@ void EnemyDizzying::Update(float elapsedTime)
 	}
 	else
 	{
-		m_animation->SetStartTime(0.19f);
-	}
-
-	m_time += elapsedTime;
-	if (m_time > 3.0f)
-	{
-		m_enemy->SetTarget(nullptr);
 		m_enemy->ChangeState(m_enemy->GetStanding());
-		m_time = 0.0f;
 	}
 
 	// アニメーションの更新
@@ -139,7 +153,7 @@ void EnemyDizzying::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void EnemyDizzying::Render()
+void EnemyCatching::Render()
 {
 	// デバックフォントの描画
 	auto* debugFont = m_userResources->GetDebugFont();
@@ -151,7 +165,7 @@ void EnemyDizzying::Render()
 
 	// ワールド座標
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
+	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Enemy::ENEMY_SIZE));
 	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
 
 	m_worldMatrix = scale * rotate * pos;
@@ -170,7 +184,7 @@ void EnemyDizzying::Render()
 
 	// 影の描画
 	SimpleMath::Vector3 m_drawPos;
-	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
+	m_enemy->DrawShadow(context, states, Enemy::SHADOW_SIZE, m_drawPos);
 
 	// デバック用
 	// 軸の描画
@@ -200,7 +214,7 @@ void EnemyDizzying::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
-	/*debugFont->Render(L"EnemyDizzying");
+	/*debugFont->Render(L"EnemyCatching");
 	debugFont->Render(L"CatchPos", SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation()));
 
 	m_collider.Draw(states, *view, *proj);*/
@@ -211,7 +225,7 @@ void EnemyDizzying::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void EnemyDizzying::Finalize()
+void EnemyCatching::Finalize()
 {
 }
 
@@ -221,7 +235,7 @@ void EnemyDizzying::Finalize()
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void EnemyDizzying::AnimationUpdate()
+void EnemyCatching::AnimationUpdate()
 {
 	// アニメションにモデルを適用する
 	m_animation->Apply(*m_model, m_model->bones.size(), m_drawBones.get());
@@ -241,7 +255,7 @@ void EnemyDizzying::AnimationUpdate()
 /// </summary>
 /// <param name="ball">ボールのポインタ</param>
 /// <param name="handMatrix">手のマトリックス</param>
-void EnemyDizzying::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+void EnemyCatching::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
 {
 	// ボーンに設定した境界球のワールド計算を行う
 	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
@@ -249,4 +263,43 @@ void EnemyDizzying::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix hand
 	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
 	dir.Normalize();
 	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+}
+
+
+
+/// <summary>
+/// ボールを持つ
+/// </summary>
+void EnemyCatching::CatchHandBall(int index)
+{
+	// ボールのポインタを取得
+	Ball* ball = m_enemy->GetBallManager()->GetBall(index);
+
+	// 両手に持っていたら終了
+	if (m_enemy->GetCatchBall(Enemy::RIGHT) && m_enemy->GetCatchBall(Enemy::LEFT))
+	{
+		// ボールの状態の変更
+		ball->ChangeState(ball->GetStopping());
+		return;
+	}
+
+	// ボールの状態の変更
+	ball->ChangeState(ball->GetCatching());
+
+	// 色を変更する
+	ball->SetBallColorNum(Ball::BallColor::ENEMY);
+
+	// 番号の設定
+	m_enemy->SetBallIndex(index);
+
+	// 右手に持っていなかったら右手に持たせる
+	if (!m_enemy->GetCatchBall(Enemy::RIGHT))
+	{
+		m_enemy->SetCatchBall(Enemy::RIGHT, ball);
+	}
+	// それ以外なら左手に持たせる
+	else
+	{
+		m_enemy->SetCatchBall(Enemy::LEFT, ball);
+	}
 }

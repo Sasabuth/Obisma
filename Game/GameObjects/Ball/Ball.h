@@ -78,6 +78,10 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  // 影のテクスチャ
 
+	// SE
+	std::unique_ptr<DirectX::SoundEffectInstance> m_se;
+	bool m_isSound;
+
 
 // 関数
 public:
@@ -111,6 +115,8 @@ public:
 	// 影の描画
 	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius = 1.0f);
 
+	void NoSound() { m_isSound = false; }
+
 
 // 設定/取得
 public:
@@ -133,6 +139,8 @@ public:
 	// ボールの色
 	void SetBallColorNum(int ballColorNum);                  // 設定
 	int GetBallColorNum() const { return m_ballColorNum; }   // 取得
+
+	bool GetIsSound() const { return m_isSound; }
 
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }

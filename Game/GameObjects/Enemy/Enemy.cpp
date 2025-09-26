@@ -29,6 +29,7 @@ Enemy::Enemy(GameplayScene* pScene, BallManager* ballManager)
 	, m_ballManager(ballManager)
 	, m_currentState{}
 	, m_ballIndex(0)
+	, m_target(nullptr)
 {
 }
 
@@ -53,7 +54,8 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	m_position = position;
 
-	m_collider.Initialize(context, m_position, 0.5f);
+	m_collider.Initialize(context, m_position, COLLIDER_SIZE);
+	m_catchCollider.Initialize(context, m_position, COLLIDER_SIZE);
 
 	m_ballIndex = 0;
 
@@ -69,10 +71,18 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_throwingR = std::make_unique<EnemyThrowingR>(this);
 	// 「右手で投げる」状態の初期化
 	m_throwingR->Initialize();
+	// 「左手で投げる」状態の生成
+	m_throwingL = std::make_unique<EnemyThrowingL>(this);
+	// 「左手で投げる」状態の初期化
+	m_throwingL->Initialize();
 	// 「くらくら」状態の生成
 	m_dizzying = std::make_unique<EnemyDizzying>(this);
 	// 「くらくら」状態の初期化
 	m_dizzying->Initialize();
+	// 「とる」状態の生成
+	m_catching = std::make_unique<EnemyCatching>(this);
+	// 「とる」状態の初期化
+	m_catching->Initialize();
 
 	// 立つ状態にする
 	m_currentState = m_standing.get();
@@ -80,6 +90,8 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	// ボールを両手に持つための箱を用意する
 	m_isBall.insert(std::make_pair(RIGHT, nullptr));
 	m_isBall.insert(std::make_pair(LEFT, nullptr));
+
+	m_target = nullptr;
 
 	m_score = Factory::CreateScore(Ball::ENEMY);
 
@@ -118,6 +130,12 @@ void Enemy::Update(float elapsedTime)
 void Enemy::Render()
 {
 	m_currentState->Render();
+
+	auto states = m_userResources->GetCommonStates();
+	auto view = m_userResources->GetView();
+	auto proj = m_userResources->GetProject();
+
+	m_collider.Draw(states, *view, *proj);
 }
 
 

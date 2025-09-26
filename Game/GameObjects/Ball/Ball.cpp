@@ -27,6 +27,7 @@ Ball::Ball(GameplayScene* pScene)
 	, m_ballColorNum(0)
 	, m_userResources(nullptr)
 	, m_hitPos{}
+	, m_isSound(true)
 {
 }
 
@@ -86,9 +87,12 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	// ボールの色の番号の初期化
 	m_ballColorNum = 0;
+	
+	m_isSound = true;
 
 	// 影の初期化
 	InitializeShadow(device, context);
+
 }
 
 
@@ -164,6 +168,13 @@ void Ball::CorrectOverlap(Field& field)
 
 	// 摩擦
 	reflVec *= 0.6f;
+
+	if (!m_isSound)
+	{
+		m_se = Resources::GetInstance()->GetSound(L"BallBound.wav", m_position, false);
+		m_isSound = true;
+	}
+	
 
 	// 速度の設定
 	m_velocity = reflVec;

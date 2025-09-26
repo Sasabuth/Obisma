@@ -82,9 +82,6 @@ void Hitting::Update(float elapsedTime)
 /// </summary>
 void Hitting::Render()
 {
-	// デバックフォントの描画
-	auto* debugFont = m_userResources->GetDebugFont();
-
 	//auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 	//auto states = m_userResources->GetCommonStates();
 	//auto view = m_userResources->GetView();
@@ -107,6 +104,8 @@ void Hitting::Render()
 	//m_airTarget->DrawShadow(context, states, AirTarget::SHADOW_SIZE);
 
 	// デバック
+	// デバックフォントの描画
+	/*auto* debugFont = m_userResources->GetDebugFont();*/
 	//debugFont->Render(L"Hitting");
 	//debugFont->Render(L"Position", m_airTarget->GetPosition());
 

@@ -97,15 +97,13 @@ void EnemyThrowingR::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	auto kb = Keyboard::Get().GetState();
-
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
-		auto* player = m_enemy->GetScene()->GetAirTarget();
+		auto* entity = m_enemy->GetTarget();
 
 		// 方向
-		SimpleMath::Vector3 dir = m_enemy->GetPosition() - player->GetPosition();
+		SimpleMath::Vector3 dir = m_enemy->GetPosition() - entity->GetPosition();
 		dir.Normalize();
 
 		// 方向ベクトルの反転
@@ -184,8 +182,8 @@ void EnemyThrowingR::Update(float elapsedTime)
 	}
 	else
 	{
-		if (kb.W) m_enemy->ChangeState(m_enemy->GetRunning());
-		else m_enemy->ChangeState(m_enemy->GetStanding());
+		m_enemy->SetTarget(nullptr);
+		m_enemy->ChangeState(m_enemy->GetStanding());
 	}
 
 	// アニメーションの更新

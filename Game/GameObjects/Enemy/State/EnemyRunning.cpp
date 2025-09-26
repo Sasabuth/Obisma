@@ -93,13 +93,22 @@ void EnemyRunning::Update(float elapsedTime)
 	m_enemy->SetVelocity(m_enemy->GetGravity());
 
 	// ボールの方向に走る
-	RunToBall();
+	if (!m_enemy->GetCatchBall(Enemy::RIGHT) && !m_enemy->GetCatchBall(Enemy::LEFT))
+	{
+		RunToBall();
+	}
+	else
+	{
+		if(!m_enemy->GetTarget())  m_enemy->SetTarget(NearEntity());
 
-	// ボールを持つ
-	CatchHandBall();
+		RunToEntity();
+	}
 
 	// ボールを投げる
 	ThrowBall();
+
+	// ボールを持つ
+	CatchHandBall();
 
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
@@ -110,6 +119,22 @@ void EnemyRunning::Update(float elapsedTime)
 	// 敵の設定
 	m_enemy->SetPosition(m_enemy->GetPosition() + m_enemy->GetVelocity() * elapsedTime);
 	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
+
+	SimpleMath::Vector3 catchPos = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) / 2.5;
+
+	m_enemy->GetCatchCollider().SetPosition(m_enemy->GetPosition() + catchPos);
+
+	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
+	{
+		Ball* ball = m_enemy->GetBallManager()->GetBall(i);
+		if (IsHit(m_enemy->GetCatchCollider(), ball->GetCollider()))
+		{
+			if (ball->GetBallColorNum() != Ball::ENEMY && ball->GetCurrentState() == ball->GetMoving())
+			{
+				m_enemy->ChangeState(m_enemy->GetCatching());
+			}
+		}
+	}
 }
 
 
@@ -179,7 +204,8 @@ void EnemyRunning::Render()
 
 	// デバック
 	/*m_enemy->GetCollider().Draw(states, *view, *proj);*/
-	/*debugFont->Render(L"EnemyRunning");*/
+	debugFont->Render(L"EnemyRunning");
+	m_enemy->GetCatchCollider().Draw(states, *view, *proj);
 }
 
 
@@ -236,6 +262,7 @@ void EnemyRunning::RunToBall()
 		m_enemy->ChangeState(m_enemy->GetStanding());
 	}
 
+
 	// 方向
 	SimpleMath::Vector3 dir = m_enemy->GetPosition() - ball->GetPosition();
 	dir.Normalize();
@@ -276,6 +303,55 @@ void EnemyRunning::RunToBall()
 	m_enemy->SetVelocity(m_enemy->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * ENEMY_SPEED);
 }
 
+void EnemyRunning::RunToEntity()
+{
+	if (dynamic_cast<Ball*>(m_enemy->GetTarget()))
+	{
+		RunToBall();
+	}
+	else
+	{
+		// 方向
+		SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
+		dir.Normalize();
+
+		// 方向ベクトルの反転
+		SimpleMath::Vector3 targetUp;
+		targetUp = -dir;
+
+		// 現在の姿勢制御
+		SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
+
+		// 回転軸の計算
+		SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+		axis.Normalize();
+
+		// 回転角の計算
+		float dot = currentUp.Dot(targetUp);
+		float angle = acosf(dot);
+
+		// クォータニオンの作成
+		SimpleMath::Quaternion q;
+
+		// 角度が少しでもあれば軸を作る
+		if (angle > 0.01f)
+		{
+			q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+		}
+		// なければ何もしない
+		else
+		{
+			q = SimpleMath::Quaternion::Identity;
+		}
+
+		// 回転の設定
+		m_enemy->SetRotation(m_enemy->GetRotation() * q);
+
+		// 速度の設定
+		m_enemy->SetVelocity(m_enemy->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * ENEMY_SPEED);
+	}
+}
+
 
 
 /// <summary>
@@ -289,17 +365,29 @@ void EnemyRunning::ThrowBall()
 		Ball* ball = m_enemy->GetCatchBall(Enemy::RIGHT);
 		SetBallPosition(ball, m_rightHandMatrix);
 
-		m_enemy->ChangeState(m_enemy->GetThrowingR());
+		if (!dynamic_cast<Ball*>(m_enemy->GetTarget()))
+		{
+			SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
+			if (dir.Length() <= 2.0f)
+			{
+				m_enemy->ChangeState(m_enemy->GetThrowingR());
+				return;
+			}
+		}
 	}
 	if (m_enemy->GetCatchBall(Enemy::LEFT))
 	{
 		Ball* ball = m_enemy->GetCatchBall(Enemy::LEFT);
 		SetBallPosition(ball, m_leftHandMatrix);
 
-		/*if (mouseTK->leftButton)
+		if (!dynamic_cast<Ball*>(m_enemy->GetTarget()))
 		{
-			m_enemy->ChangeState(m_enemy->GetThrowingL());
-		}*/
+			SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
+			if (dir.Length() <= 2.0f)
+			{
+				m_enemy->ChangeState(m_enemy->GetThrowingL());
+			}
+		}
 	}
 }
 
@@ -318,6 +406,47 @@ void EnemyRunning::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handM
 	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
 	dir.Normalize();
 	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+}
+
+IEntity* EnemyRunning::NearEntity()
+{
+	Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
+	Player* player = m_enemy->GetScene()->GetPlayer();
+
+	SimpleMath::Vector3 dir1 = m_enemy->GetPosition() - ball->GetPosition();
+	SimpleMath::Vector3 dir2 = m_enemy->GetPosition() - player->GetPosition();
+
+	IEntity* entity;
+	SimpleMath::Vector3 nearDir;
+
+	// 短いほうの距離を調べる
+	if (ball->GetBallColorNum() == Ball::ENEMY)
+	{
+		entity = player;
+	}
+	else
+	{
+		if (dir1.Length() < dir2.Length())
+		{
+			entity = ball;
+		}
+		else
+		{
+			entity = player;
+			dir1 = dir2;
+		}
+	}
+
+	AirTarget* airTarget = m_enemy->GetScene()->GetAirTarget();
+	dir2 = m_enemy->GetPosition() - airTarget->GetPosition();
+
+	// 短いほうの距離を調べる
+	if (dir1.Length() > dir2.Length())
+	{
+		entity = airTarget;
+	}
+
+	return entity;
 }
 
 
@@ -345,11 +474,13 @@ void EnemyRunning::CatchHandBall()
 		if (!m_enemy->GetCatchBall(Enemy::RIGHT))
 		{
 			m_enemy->SetCatchBall(Enemy::RIGHT, ball);
+			m_enemy->SetTarget(nullptr);
 			m_enemy->ChangeState(m_enemy->GetStanding());
 		}
 		else
 		{
 			m_enemy->SetCatchBall(Enemy::LEFT, ball);
+			m_enemy->SetTarget(nullptr);
 			m_enemy->ChangeState(m_enemy->GetStanding());
 		}
 

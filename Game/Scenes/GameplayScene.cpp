@@ -81,9 +81,9 @@ void GameplayScene::Initialize()
 	m_frameSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame2.png"));
 	m_timerSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont2.png"));
 
-	Resources::GetInstance()->SetVolume(0.0f);
-	m_bgm = Resources::GetInstance()->GetSound(L"Bgm.wav");
-	m_bgm->Play(true);
+	Resources::GetInstance()->SetVolume(0.5f);
+	Resources::GetInstance()->SetListener(m_player->GetPosition());
+	m_bgm = Resources::GetInstance()->GetSound(L"Bgm.wav", m_player->GetPosition(), true);
 
 	// プレイ人数を初期化
 	GetSceneManager()->SetPlayerCount(2);
@@ -97,6 +97,9 @@ void GameplayScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void GameplayScene::Update(float elapsedTime)
 {	
+	// リスナーの設定
+	Resources::GetInstance()->SetListener(m_player->GetPosition());
+
 	// カメラの上向きベクトルの更新
 	m_cameraUp->Update(elapsedTime);
 

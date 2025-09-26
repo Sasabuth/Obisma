@@ -59,6 +59,12 @@ void Moving::Update(float elapsedTime)
 	auto kb = Keyboard::Get().GetState();
 	auto mouse = Mouse::Get().GetState();
 
+	if (m_ball->GetIsSound())
+	{
+		m_ball->NoSound();
+	}
+	
+
 	// ボールの設定
 	m_ball->SetVelocity(m_ball->GetVelocity() + m_ball->GetGravity() * elapsedTime);
 	m_ball->SetPosition(m_ball->GetPosition() + m_ball->GetVelocity() * elapsedTime);

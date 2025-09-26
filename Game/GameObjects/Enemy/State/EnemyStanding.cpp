@@ -93,9 +93,9 @@ void EnemyStanding::Update(float elapsedTime)
 {
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
-	  
+	
 	// 手に持っていなかったら一番近いボールを探す
-	if (!m_enemy->GetCatchBall(Enemy::RIGHT)/*|| !m_enemy->GetCatchBall(Enemy::LEFT)*/)
+	if (!m_enemy->GetCatchBall(Enemy::RIGHT) || !m_enemy->GetCatchBall(Enemy::LEFT))
 	{
 		Ball* ball = m_enemy->GetBallManager()->GetBall(0);
 		m_enemy->SetBallIndex(0);
@@ -111,26 +111,44 @@ void EnemyStanding::Update(float elapsedTime)
 		{
 			m_enemy->ChangeState(m_enemy->GetRunning());
 		}
-		
+	}
+	else
+	{
+		m_enemy->ChangeState(m_enemy->GetRunning());
 	}
 
 	// ボールを持つ
 	CatchHandBall();
 
 	// ボールを持っていたら投げる
-	if (m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex())->GetCurrentState() == m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex())->GetCatching())
-	{
-		ThrowBall();
-	}
+	/*ThrowBall();*/
 
 	// スコアを下げる
 	m_enemy->ScoreDown();
 	
-
 	// 敵の設定
 	m_enemy->SetVelocity(m_enemy->GetGravity());
 	m_enemy->SetPosition(m_enemy->GetPosition() + m_enemy->GetVelocity() * elapsedTime);
 	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
+
+	// キャッチ用コライダーの設定
+	SimpleMath::Vector3 catchPos =
+		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) / 2.5 -
+		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY, m_enemy->GetRotation()) / 3;
+
+	m_enemy->GetCatchCollider().SetPosition(m_enemy->GetPosition() + catchPos);
+
+	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
+	{
+		Ball* ball = m_enemy->GetBallManager()->GetBall(i);
+		if(IsHit(m_enemy->GetCatchCollider(), ball->GetCollider()))
+		{
+			if (ball->GetBallColorNum() != Ball::ENEMY && ball->GetCurrentState() == ball->GetMoving())
+			{
+				m_enemy->ChangeState(m_enemy->GetCatching());
+			}
+		}
+	}
 }
 
 
@@ -147,6 +165,8 @@ void EnemyStanding::Render()
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
+
+	m_enemy->GetCollider().Draw(states, *view, *proj);
 
 	// ワールド座標
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
@@ -198,7 +218,7 @@ void EnemyStanding::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
-	/*debugFont->Render(L"EnemyStanding");*/
+	debugFont->Render(L"EnemyStanding");
 }
 
 
@@ -249,11 +269,12 @@ void EnemyStanding::AnimationUpdate(float elapsedTime)
 /// <param name="mouseTK">マウストラッカー</param>
 void EnemyStanding::ThrowBall()
 {
+	SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetScene()->GetPlayer()->GetPosition();
+
 	if (m_enemy->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
 		SetBallPosition(ball, m_rightHandMatrix);
-
 		m_enemy->ChangeState(m_enemy->GetThrowingR());
 		return;
 	}
@@ -267,6 +288,7 @@ void EnemyStanding::ThrowBall()
 			m_enemy->ChangeState(m_enemy->GetThrowingL());
 		}*/
 	}
+
 }
 
 
@@ -325,6 +347,17 @@ Ball* EnemyStanding::GetNearBall(Ball* ball, int index)
 /// </summary>
 void EnemyStanding::CatchHandBall()
 {
+	if (m_enemy->GetCatchBall(Player::RIGHT))
+	{
+		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
+		SetBallPosition(ball, m_rightHandMatrix);
+	}
+	if (m_enemy->GetCatchBall(Player::LEFT))
+	{
+		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
+		SetBallPosition(ball, m_leftHandMatrix);
+	}
+
 	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
 	{
 		// 両手に持っていたら終了

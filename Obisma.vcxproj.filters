@@ -188,6 +188,12 @@
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyDizzying.h">
       <Filter>Game\GameObjects\Enemy\State</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowingL.h">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyCatching.h">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -307,6 +313,12 @@
       <Filter>Game\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyDizzying.cpp">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowingL.cpp">
+      <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyCatching.cpp">
       <Filter>Game\GameObjects\Enemy\State</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,8 +1,7 @@
 /// <summary>
-/// ThrowingLに関するヘッダファイル
+/// EnemyThrowingLに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-/// <date>2025/07/16</date>
 
 // 多重インクルードの防止
 #pragma once
@@ -15,12 +14,13 @@
 
 
 // クラスの定義
-class Player;
+class Enemy;
+class Ball;
 
 
 
 // クラスの定義
-class ThrowingL : public IState
+class EnemyThrowingL : public IState
 {
 private:
 
@@ -29,7 +29,7 @@ private:
 private:
 	UserResources* m_userResources;
 
-	Player* m_player;
+	Enemy* m_enemy;
 
 	DirectX::Model* m_model;  // モデル
 
@@ -54,10 +54,10 @@ private:
 	// 関数
 public:
 	// コンストラクタ
-	ThrowingL(Player* player);
+	EnemyThrowingL(Enemy* enemy);
 
 	// デストラクタ
-	~ThrowingL() override;
+	~EnemyThrowingL() override;
 
 	// 初期化
 	void Initialize() override;
@@ -71,9 +71,13 @@ public:
 	// 終了処理
 	void Finalize() override;
 
+
 // 内部処理
 private:
 	// アニメーションの更新
 	void AnimationUpdate();
+
+	// ボールの座標の設定
+	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 };
 

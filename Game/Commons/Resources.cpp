@@ -111,7 +111,7 @@ void Resources::LoadResource()
 /// </summary>
 /// <param name="filename">ファイル名</param>
 /// <returns>音インスタンス</returns>
-std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetSound(const std::wstring& filename)
+std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetSound(const std::wstring& filename, DirectX::SimpleMath::Vector3 emitterPos, bool loop)
 {
 	// 未登録の場合
 	if (m_sounds.count(filename) == 0)
@@ -131,6 +131,10 @@ std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetSound(const std::wst
 	// 音量の設定
 	sound->SetVolume(m_volume);
 
+	AudioEmitter emitter;
+	emitter.SetPosition(emitterPos);
+	sound->Apply3D(m_listener, emitter);
+	sound->Play(loop);
 	return sound;
 }
 
@@ -182,10 +186,7 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetTexture(const std
 		// テクスチャファイルの読み込み
 		std::wstring fullPath = DEFAULT_TEXTURE_DIRECTORY + std::wstring(filename);
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
-		if (FAILED(CreateWICTextureFromFile(device, fullPath.c_str(), nullptr, texture.ReleaseAndGetAddressOf())))
-		{
-			MessageBox(NULL, fullPath.c_str(), L"エラー", MB_OK);
-		}
+		DX::ThrowIfFailed(CreateWICTextureFromFile(device, fullPath.c_str(), nullptr, texture.ReleaseAndGetAddressOf()));
 
 		// テクスチャデータのハンドルを登録
 		m_textures.emplace(filename, std::move(texture));

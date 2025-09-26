@@ -1,8 +1,7 @@
 /// <summary>
-/// EnemyRunningに関するヘッダファイル
+/// EnemyCatchingに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
-
 
 // 多重インクルードの防止
 #pragma once
@@ -15,19 +14,20 @@
 
 
 // クラスの定義
-class IEntity;
 class Enemy;
 class Ball;
 
 
 
 // クラスの定義
-class EnemyRunning : public IState
+class EnemyCatching : public IState
 {
+// 定数
 private:
-	static constexpr float ENEMY_SPEED = 2.2f;
+	static constexpr float COLLIDER_SIZE = 0.25f;
 
-	// 変数
+
+// 変数
 private:
 	UserResources* m_userResources;
 
@@ -35,13 +35,15 @@ private:
 
 	DirectX::Model* m_model;  // モデル
 
+	SphereCollider m_collider;
+
 	DirectX::ModelBone::TransformArray m_drawBones;  // アニメーションボーン配列
 
 	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
 
-	// ワールドマトリックス
-	DirectX::SimpleMath::Matrix m_worldMatrix;
-	DirectX::SimpleMath::Matrix m_rightHandMatrix; // 右手のマトリックス
+	
+	DirectX::SimpleMath::Matrix m_worldMatrix;  // ワールドマトリックス
+	DirectX::SimpleMath::Matrix m_rightHandMatrix;  // 右手のマトリックス
 	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
 
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
@@ -54,10 +56,10 @@ private:
 	// 関数
 public:
 	// コンストラクタ
-	EnemyRunning(Enemy* enemy);
+	EnemyCatching(Enemy* enemy);
 
 	// デストラクタ
-	~EnemyRunning() override;
+	~EnemyCatching() override;
 
 	// 初期化
 	void Initialize() override;
@@ -71,26 +73,15 @@ public:
 	// 終了処理
 	void Finalize() override;
 
+// 内部処理
 private:
 	// アニメーションの更新
-	void AnimationUpdate(float elapsedTime); 
-
-	// ボールの方向に走る
-	void RunToBall();
-
-	// 実体の方向に走る
-	void RunToEntity();
-
-	// ボールを持つ
-	void CatchHandBall();
-
-	// ボールを投げる
-	void ThrowBall();
+	void AnimationUpdate();
 
 	// ボールの座標の設定
 	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 
-	// 一番近い実体を探す
-	IEntity* NearEntity();
+	// ボールをキャッチ
+	void CatchHandBall(int index);
 };
 

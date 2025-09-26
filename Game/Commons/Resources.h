@@ -53,7 +53,7 @@ public:
 	void LoadResource();
 
 	// 音データの取得
-	std::unique_ptr<DirectX::SoundEffectInstance> GetSound(const std::wstring& filename);
+	std::unique_ptr<DirectX::SoundEffectInstance> GetSound(const std::wstring& filename, DirectX::SimpleMath::Vector3 emitterPos, bool loop);
 
 	// モデルデータの取得
 	DirectX::Model* GetModel(const std::wstring& filename);
@@ -63,6 +63,9 @@ public:
 
 	// 音量の設定
 	void SetVolume(float volume) { m_volume = volume; }
+
+	// リスナーの設定
+	void SetListener(const DirectX::SimpleMath::Vector3& pos) { m_listener.SetPosition(pos); }
 
 	// リセット
 	void Reset();
@@ -114,5 +117,8 @@ private:
 
 	// 音量
 	float m_volume;
+
+	// リスナー
+	DirectX::AudioListener m_listener;
 
 };

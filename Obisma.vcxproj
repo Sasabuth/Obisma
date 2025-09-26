@@ -203,9 +203,11 @@
     <ClInclude Include="Game\GameObjects\Camera\Camera.h" />
     <ClInclude Include="Game\GameObjects\Camera\CameraUp.h" />
     <ClInclude Include="Game\GameObjects\Enemy\Enemy.h" />
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyCatching.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyDizzying.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyRunning.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyStanding.h" />
+    <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowingL.h" />
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowingR.h" />
     <ClInclude Include="Game\GameObjects\Field\Field.h" />
     <ClInclude Include="Game\GameObjects\Player\Player.h" />
@@ -247,9 +249,11 @@
     <ClCompile Include="Game\GameObjects\Camera\Camera.cpp" />
     <ClCompile Include="Game\GameObjects\Camera\CameraUp.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\Enemy.cpp" />
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyCatching.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyDizzying.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyRunning.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyStanding.cpp" />
+    <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowingL.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowingR.cpp" />
     <ClCompile Include="Game\GameObjects\Field\Field.cpp" />
     <ClCompile Include="Game\GameObjects\Player\Player.cpp" />
