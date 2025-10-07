@@ -22,6 +22,7 @@ using namespace DirectX;
 /// </summary>
 ResultScene::ResultScene()
 	: m_pUserResources(nullptr)
+	, m_speed(0.0f)
 {
 }
 
@@ -63,9 +64,14 @@ void ResultScene::Initialize()
 	}
 
 	m_spaceTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Space.png"));
+	m_backTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Back.png"));
 
 	m_position = SimpleMath::Vector2(0, 360);
 	m_position2 = SimpleMath::Vector2(1280, 360);
+
+	m_speed = 0.0f;
+
+	m_bgm = Resources::GetInstance()->GetSound(L"ResultBgm.wav", SimpleMath::Vector3::Zero, true);
 }
 
 
@@ -107,6 +113,8 @@ void ResultScene::Update(float elapsedTime)
 		m_position2.x = 1280;
 	}
 
+	m_speed += 6.0f * elapsedTime;
+
 	// ƒV[ƒ“‚Ì•ÏX
 	if (mouseTK->leftButton == mouseTK->PRESSED)
 	{
@@ -141,6 +149,8 @@ void ResultScene::Render()
 		m_faceTextures[i]->Draw(SimpleMath::Vector2(1280.0f / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), 300.0f), SimpleMath::Vector2(860, 660), 0.3f);
 		m_winTextures[i]->Draw(SimpleMath::Vector2(1280.0f / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), 170.0f), SimpleMath::Vector2(504, 371), 0.25f);
 	}
+
+	m_backTexture.Draw(SimpleMath::Vector2(340, 550 + sin(m_speed)), SimpleMath::Vector2::Zero, 0.25f);
 	
 }
 

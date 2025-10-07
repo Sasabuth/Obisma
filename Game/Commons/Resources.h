@@ -65,7 +65,8 @@ public:
 	void SetVolume(float volume) { m_volume = volume; }
 
 	// リスナーの設定
-	void SetListener(const DirectX::SimpleMath::Vector3& pos) { m_listener.SetPosition(pos); }
+	void SetListener(const DirectX::SimpleMath::Vector3& pos, const DirectX::SimpleMath::Vector3& forward, const DirectX::SimpleMath::Vector3& up);
+	DirectX::AudioListener GetListener() const { return m_listener; }
 
 	// リセット
 	void Reset();

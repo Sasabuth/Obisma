@@ -82,6 +82,8 @@ private:
 	std::unique_ptr<DirectX::SoundEffectInstance> m_se;
 	bool m_isSound;
 
+	float m_soundSpan;
+
 
 // ŠÖ”
 public:

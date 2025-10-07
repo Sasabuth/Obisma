@@ -23,9 +23,15 @@ private:
 	std::vector<std::unique_ptr<Sprite>> m_faceTextures;
 	std::vector<std::unique_ptr<Sprite>> m_winTextures;
 	Sprite m_spaceTexture;
+	Sprite m_backTexture;
 
 	DirectX::SimpleMath::Vector2 m_position;
 	DirectX::SimpleMath::Vector2 m_position2;
+
+	// BGM
+	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
+
+	float m_speed;
 
 
 // ä÷êî

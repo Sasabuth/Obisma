@@ -88,6 +88,8 @@ private:
 
 	int m_ballIndex;  // ボール用のインデックス
 
+	float m_invincibleTime;  // 無敵時間
+
 
 
 // 関数
@@ -176,6 +178,9 @@ public:
 	// ボールインデックス
 	void SetBallIndex(int index) { m_ballIndex = index; }  // 設定
 	int GetBallIndex() const { return m_ballIndex; }       // 取得
+
+	// 無敵時間
+	void SetInvincibleTime(float time) { m_invincibleTime = time; }
 
 	// スコア
 	Score* GetScore() const { return m_score.get(); }

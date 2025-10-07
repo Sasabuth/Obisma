@@ -29,6 +29,7 @@ Enemy::Enemy(GameplayScene* pScene, BallManager* ballManager)
 	, m_ballManager(ballManager)
 	, m_currentState{}
 	, m_ballIndex(0)
+	, m_invincibleTime(0.0f)
 	, m_target(nullptr)
 {
 }
@@ -55,7 +56,7 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_position = position;
 
 	m_collider.Initialize(context, m_position, COLLIDER_SIZE);
-	m_catchCollider.Initialize(context, m_position, COLLIDER_SIZE);
+	m_catchCollider.Initialize(context, m_position, COLLIDER_SIZE - 0.1f);
 
 	m_ballIndex = 0;
 
@@ -90,6 +91,8 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	// ボールを両手に持つための箱を用意する
 	m_isBall.insert(std::make_pair(RIGHT, nullptr));
 	m_isBall.insert(std::make_pair(LEFT, nullptr));
+
+	m_invincibleTime = 0.0f;
 
 	m_target = nullptr;
 
@@ -131,11 +134,11 @@ void Enemy::Render()
 {
 	m_currentState->Render();
 
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	//auto states = m_userResources->GetCommonStates();
+	//auto view = m_userResources->GetView();
+	//auto proj = m_userResources->GetProject();
 
-	m_collider.Draw(states, *view, *proj);
+	//m_collider.Draw(states, *view, *proj);
 }
 
 
@@ -344,7 +347,7 @@ void Enemy::ScoreDown()
 
 		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::ENEMY)
 		{
-			if (IsHit(m_collider, ball->GetCollider()))
+			if (IsHit(m_collider, ball->GetCollider()) && m_invincibleTime <= 0.0f)
 			{
 				m_currentState = m_dizzying.get();
 				m_score->ScoreDown();

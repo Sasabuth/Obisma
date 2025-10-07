@@ -126,13 +126,15 @@ std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetSound(const std::wst
 	}
 
 	// インスタンスの返却
-	std::unique_ptr<SoundEffectInstance> sound = m_sounds[filename]->CreateInstance();
+	std::unique_ptr<SoundEffectInstance> sound = m_sounds[filename]->CreateInstance(DirectX::SoundEffectInstance_Use3D);
 
 	// 音量の設定
 	sound->SetVolume(m_volume);
 
 	AudioEmitter emitter;
 	emitter.SetPosition(emitterPos);
+	emitter.CurveDistanceScaler = 10.0f;
+	emitter.DopplerScaler = 1.0f;
 	sound->Apply3D(m_listener, emitter);
 	sound->Play(loop);
 	return sound;
@@ -196,6 +198,14 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetTexture(const std
 }
 
 
+
+void Resources::SetListener(const DirectX::SimpleMath::Vector3& pos, const DirectX::SimpleMath::Vector3& forward, const DirectX::SimpleMath::Vector3& up)
+{
+	// リスナーの座標
+	m_listener.SetPosition(pos);
+	// リスナーの向き
+	m_listener.SetOrientation(forward, up);
+}
 
 /// <summary>
 /// リソースのリセット

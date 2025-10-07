@@ -126,6 +126,7 @@ void EnemyDizzying::Update(float elapsedTime)
 	{
 		m_enemy->SetTarget(nullptr);
 		m_enemy->ChangeState(m_enemy->GetStanding());
+		m_enemy->SetInvincibleTime(3.0f);
 		m_time = 0.0f;
 	}
 

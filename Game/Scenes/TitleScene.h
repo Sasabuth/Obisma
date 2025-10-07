@@ -34,6 +34,9 @@ private:
 	// ‘¬“x
 	float m_speed;
 
+	// BGM
+	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
+
 
 
 // ŠÖ”

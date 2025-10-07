@@ -28,6 +28,7 @@ Player::Player(GameplayScene* pScene, BallManager* ballManager)
 	, m_userResources(nullptr)
 	, m_ballManager(ballManager)
 	, m_currentState{}
+	, m_invincibleTime(0.0f)
 {
 }
 
@@ -85,6 +86,9 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	// ボールを両手に持つための箱を用意する
 	m_isBall.insert(std::make_pair(RIGHT, nullptr));
 	m_isBall.insert(std::make_pair(LEFT, nullptr));
+
+	// 無敵時間の初期化
+	m_invincibleTime = 0.0f;
 
 	// スコアの初期化
 	m_score = Factory::CreateScore(Ball::PLAYER);
@@ -442,7 +446,7 @@ void Player::ScoreDown()
 
 		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::PLAYER)
 		{
-			if (IsHit(m_collider, ball->GetCollider()))
+			if (IsHit(m_collider, ball->GetCollider()) && m_invincibleTime <= 0.0f)
 			{
 				m_currentState = m_dizzying.get();
 				m_score->ScoreDown();

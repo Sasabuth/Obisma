@@ -78,9 +78,6 @@ private:
 	// ボールを持つ
 	void CatchHandBall();
 
-	// ボールを投げる
-	void ThrowBall();
-
 	// ボールの座標の設定
 	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 

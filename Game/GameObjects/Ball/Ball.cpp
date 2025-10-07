@@ -27,7 +27,9 @@ Ball::Ball(GameplayScene* pScene)
 	, m_ballColorNum(0)
 	, m_userResources(nullptr)
 	, m_hitPos{}
+	, m_soundSpan(0.0f)
 	, m_isSound(true)
+	
 {
 }
 
@@ -87,6 +89,8 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	// ボールの色の番号の初期化
 	m_ballColorNum = 0;
+
+	m_soundSpan = 0.0f;
 	
 	m_isSound = true;
 
@@ -104,6 +108,24 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 void Ball::Update(float elapsedTime)
 {
 	m_currentState->Update(elapsedTime);
+
+	if (m_se && m_se->GetState() == DirectX::SoundState::PLAYING)
+	{
+		DirectX::AudioEmitter emitter;
+		emitter.SetPosition(m_position); // 常に最新の位置を設定
+
+		// 減衰距離の設定（GetSoundの瞬間と同じ値を設定）
+		emitter.CurveDistanceScaler = 6.0f; // 例
+		emitter.DopplerScaler = 2.0f;
+
+		// リスナーの位置を取得
+		DirectX::AudioListener listener = Resources::GetInstance()->GetListener();
+
+		// 3D効果を適用：この呼び出しが距離減衰を毎フレーム更新する
+		m_se->Apply3D(listener, emitter);
+	}
+
+	m_soundSpan += 1.0f * elapsedTime;
 }
 
 
@@ -121,8 +143,8 @@ void Ball::Render()
 	//auto proj = m_userResources->GetProject();
 	//m_collider.Draw(states, *view, *proj);
 
-	/*auto debagFont = m_userResources->GetDebugFont();
-	debagFont->Render(L"BallColorNum", m_ballColorNum);*/
+	//auto debagFont = m_userResources->GetDebugFont();
+	//debagFont->Render(L"SoundSpan", m_soundSpan);
 }
 
 
@@ -169,12 +191,13 @@ void Ball::CorrectOverlap(Field& field)
 	// 摩擦
 	reflVec *= 0.6f;
 
-	if (!m_isSound)
+	if (!m_isSound && m_soundSpan >= 0.1f)
 	{
 		m_se = Resources::GetInstance()->GetSound(L"BallBound.wav", m_position, false);
 		m_isSound = true;
 	}
 	
+	m_soundSpan = 0.0f;
 
 	// 速度の設定
 	m_velocity = reflVec;

@@ -204,8 +204,8 @@ void EnemyRunning::Render()
 
 	// デバック
 	/*m_enemy->GetCollider().Draw(states, *view, *proj);*/
-	debugFont->Render(L"EnemyRunning");
-	m_enemy->GetCatchCollider().Draw(states, *view, *proj);
+	/*debugFont->Render(L"EnemyRunning");
+	m_enemy->GetCatchCollider().Draw(states, *view, *proj);*/
 }
 
 
@@ -303,6 +303,11 @@ void EnemyRunning::RunToBall()
 	m_enemy->SetVelocity(m_enemy->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * ENEMY_SPEED);
 }
 
+
+
+/// <summary>
+/// 実体の方向に走る
+/// </summary>
 void EnemyRunning::RunToEntity()
 {
 	if (dynamic_cast<Ball*>(m_enemy->GetTarget()))
@@ -311,6 +316,8 @@ void EnemyRunning::RunToEntity()
 	}
 	else
 	{
+		m_enemy->SetTarget(NearEntity());
+
 		// 方向
 		SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
 		dir.Normalize();
@@ -408,8 +415,16 @@ void EnemyRunning::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handM
 	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 }
 
+
+
+/// <summary>
+/// 一番近い実体を探す
+/// </summary>
+/// <returns>実体</returns>
 IEntity* EnemyRunning::NearEntity()
 {
+	auto kb = Keyboard::Get().GetState();
+
 	Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
 	Player* player = m_enemy->GetScene()->GetPlayer();
 
@@ -420,9 +435,10 @@ IEntity* EnemyRunning::NearEntity()
 	SimpleMath::Vector3 nearDir;
 
 	// 短いほうの距離を調べる
-	if (ball->GetBallColorNum() == Ball::ENEMY)
+	if (ball->GetCurrentState() != ball->GetStopping())
 	{
 		entity = player;
+		dir1 = dir2;
 	}
 	else
 	{

@@ -95,7 +95,7 @@ void EnemyStanding::Update(float elapsedTime)
 	AnimationUpdate(elapsedTime);
 	
 	// 手に持っていなかったら一番近いボールを探す
-	if (!m_enemy->GetCatchBall(Enemy::RIGHT) || !m_enemy->GetCatchBall(Enemy::LEFT))
+	if (!m_enemy->GetCatchBall(Enemy::RIGHT) && !m_enemy->GetCatchBall(Enemy::LEFT))
 	{
 		Ball* ball = m_enemy->GetBallManager()->GetBall(0);
 		m_enemy->SetBallIndex(0);
@@ -111,6 +111,20 @@ void EnemyStanding::Update(float elapsedTime)
 		{
 			m_enemy->ChangeState(m_enemy->GetRunning());
 		}
+	}
+	else if (!m_enemy->GetCatchBall(Enemy::RIGHT) || !m_enemy->GetCatchBall(Enemy::LEFT))
+	{
+		Ball* ball = m_enemy->GetBallManager()->GetBall(0);
+		m_enemy->SetBallIndex(0);
+		for (int i = 1; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
+		{
+			if (m_enemy->GetBallManager()->GetBall(i)->GetCurrentState() == m_enemy->GetBallManager()->GetBall(i)->GetStopping())
+			{
+				ball = GetNearBall(ball, i);
+			}
+		}
+
+		m_enemy->ChangeState(m_enemy->GetRunning());
 	}
 	else
 	{
@@ -166,7 +180,7 @@ void EnemyStanding::Render()
 	auto view = m_userResources->GetView();
 	auto proj = m_userResources->GetProject();
 
-	m_enemy->GetCollider().Draw(states, *view, *proj);
+	/*m_enemy->GetCollider().Draw(states, *view, *proj);*/
 
 	// ワールド座標
 	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
@@ -218,7 +232,7 @@ void EnemyStanding::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
-	debugFont->Render(L"EnemyStanding");
+	/*debugFont->Render(L"EnemyStanding");*/
 }
 
 
@@ -259,36 +273,6 @@ void EnemyStanding::AnimationUpdate(float elapsedTime)
 	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
-}
-
-
-
-/// <summary>
-/// ボールを投げる
-/// </summary>
-/// <param name="mouseTK">マウストラッカー</param>
-void EnemyStanding::ThrowBall()
-{
-	SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetScene()->GetPlayer()->GetPosition();
-
-	if (m_enemy->GetCatchBall(Player::RIGHT))
-	{
-		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
-		SetBallPosition(ball, m_rightHandMatrix);
-		m_enemy->ChangeState(m_enemy->GetThrowingR());
-		return;
-	}
-	if (m_enemy->GetCatchBall(Player::LEFT))
-	{
-		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
-		SetBallPosition(ball, m_leftHandMatrix);
-
-		/*if (mouseTK->leftButton)
-		{
-			m_enemy->ChangeState(m_enemy->GetThrowingL());
-		}*/
-	}
-
 }
 
 

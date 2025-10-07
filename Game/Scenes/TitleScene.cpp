@@ -60,6 +60,9 @@ void TitleScene::Initialize()
 
 	// ‘¬“x‚Ì‰Šú‰»
 	m_speed = 0.0f;
+
+	Resources::GetInstance()->SetVolume(0.2f);
+	m_bgm = Resources::GetInstance()->GetSound(L"TitleBgm.wav", SimpleMath::Vector3::Zero, true);
 }
 
 

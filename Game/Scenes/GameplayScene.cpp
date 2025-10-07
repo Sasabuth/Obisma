@@ -81,9 +81,12 @@ void GameplayScene::Initialize()
 	m_frameSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame2.png"));
 	m_timerSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont2.png"));
 
-	Resources::GetInstance()->SetVolume(0.5f);
-	Resources::GetInstance()->SetListener(m_player->GetPosition());
-	m_bgm = Resources::GetInstance()->GetSound(L"Bgm.wav", m_player->GetPosition(), true);
+	Resources::GetInstance()->SetListener(m_player->GetPosition(),
+		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation()),
+		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY, m_player->GetRotation())
+	);
+
+	/*m_bgm = Resources::GetInstance()->GetSound(L"GameBgm.wav", m_player->GetPosition(), true);*/
 
 	// プレイ人数を初期化
 	GetSceneManager()->SetPlayerCount(2);
@@ -97,8 +100,46 @@ void GameplayScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void GameplayScene::Update(float elapsedTime)
 {	
+	// 方向
+	SimpleMath::Vector3 dir = m_player->GetPosition() - m_cameraUp->GetPosition();
+	dir.Normalize();
+
+	// 方向ベクトルの反転
+	SimpleMath::Vector3 targetUp;
+	targetUp = -dir;
+
+	// 現在の姿勢制御
+	SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation());
+
+	// 回転軸の計算
+	SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+	axis.Normalize();
+
+	// 回転角の計算
+	float dot = currentUp.Dot(targetUp);
+	float angle = acosf(dot);
+
+	// クォータニオンの作成
+	SimpleMath::Quaternion q;
+
+	// 角度が少しでもあれば軸を作る
+	if (angle > 0.01f)
+	{
+		q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+	}
+	// なければ何もしない
+	else
+	{
+		q = SimpleMath::Quaternion::Identity;
+	}
+
+	q = m_player->GetRotation() * q;
+
 	// リスナーの設定
-	Resources::GetInstance()->SetListener(m_player->GetPosition());
+	Resources::GetInstance()->SetListener(m_player->GetPosition(),
+		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, q),
+		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY, m_player->GetRotation())
+	);
 
 	// カメラの上向きベクトルの更新
 	m_cameraUp->Update(elapsedTime);
@@ -190,7 +231,7 @@ void GameplayScene::Render()
 	
 	// デバック用
 	// カメラの上向きベクトルの描画
-	//m_cameraUp->Render();
+	/*m_cameraUp->Render();*/
 
 	/*debugFont->Render(L"Timer",m_gameTimer);*/
 }

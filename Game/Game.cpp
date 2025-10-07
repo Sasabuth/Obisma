@@ -13,8 +13,6 @@
 
 extern void ExitGame() noexcept;
 
-using namespace DirectX;
-
 using Microsoft::WRL::ComPtr;
 
 Game::Game() noexcept(false)
@@ -48,6 +46,8 @@ void Game::Initialize(HWND window, int width, int height)
 
     // シーンマネージャーの初期化
     m_sceneManager->SetScene<TitleScene>();
+
+
 }
 
 #pragma region Frame Update
@@ -70,8 +70,8 @@ void Game::Update(DX::StepTimer const& timer)
     // TODO: Add your game logic here.
     elapsedTime;
 
-    auto kb = Keyboard::Get().GetState();
-    auto mouse = Mouse::Get().GetState();
+    auto kb = DirectX::Keyboard::Get().GetState();
+    auto mouse = DirectX::Mouse::Get().GetState();
 
     m_keyboardTracker.Update(kb);
     m_mouseTracker.Update(mouse);
@@ -121,7 +121,7 @@ void Game::Clear()
     auto renderTarget = m_deviceResources->GetRenderTargetView();
     auto depthStencil = m_deviceResources->GetDepthStencilView();
 
-    context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
+    context->ClearRenderTargetView(renderTarget, DirectX::Colors::CornflowerBlue);
     context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     context->OMSetRenderTargets(1, &renderTarget, depthStencil);
 
@@ -198,7 +198,7 @@ void Game::CreateDeviceDependentResources()
 
 
     // 共通ステートの作成
-    m_states = std::make_unique<CommonStates>(device);
+    m_states = std::make_unique<DirectX::CommonStates>(device);
 
     // デバックフォントの作成
     m_debugFont = std::make_unique<DebugFont>(device, context, L"Resources/Font/SegoeUI_18.spritefont");
@@ -240,8 +240,8 @@ void Game::CreateWindowSizeDependentResources()
     RECT rect = m_deviceResources->GetOutputSize();
 
     //  射影行列の作成
-    m_proj = SimpleMath::Matrix::CreatePerspectiveFieldOfView(
-        XMConvertToRadians(45.0f),
+    m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(
+        DirectX::XMConvertToRadians(45.0f),
         static_cast<float>(rect.right) / static_cast<float>(rect.bottom),
         0.1f,
         1000.0f);

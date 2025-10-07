@@ -110,8 +110,8 @@ void Moving::Render()
 
 
 	// デバック
-	debugFont->Render(L"Moving");
-	debugFont->Render(L"Speed",m_ball->GetVelocity().Length());
+	/*debugFont->Render(L"Moving");
+	debugFont->Render(L"Speed",m_ball->GetVelocity().Length());*/
 	//debugFont->Render(L"Length", m_ball->GetVelocity());
 }
 

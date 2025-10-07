@@ -87,6 +87,9 @@ private:
 
 	std::map<int, Ball*> m_isBall;  // ボールを持っているか
 
+	float m_invincibleTime;
+
+
 // 関数
 public:
 	// コンストラクタ
@@ -183,6 +186,9 @@ public:
 	// ボール
 	void SetCatchBall(int key, Ball* ball);  // 設定
 	Ball* GetCatchBall(int key) const;       // 取得
+
+	// 無敵時間
+	void SetInvincibleTime(float time) { m_invincibleTime = time; }
 
 	// スコア
 	Score* GetScore() { return m_score.get(); }
