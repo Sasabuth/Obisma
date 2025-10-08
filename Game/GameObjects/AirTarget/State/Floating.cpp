@@ -15,9 +15,6 @@
 #include "Game/GameObjects/AirTarget/AirTarget.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -60,12 +57,12 @@ void Floating::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	auto mouse = Mouse::Get().GetState();
+	auto mouse = DirectX::Mouse::Get().GetState();
 
 	m_rotate += 10.0f * elapsedTime;
 
 	// プレイヤーの設定
-	m_airTarget->SetVelocity(SimpleMath::Vector3::Zero);
+	m_airTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
 	m_airTarget->GetCollider().SetPosition(m_airTarget->GetPosition());
 }
 
@@ -85,12 +82,14 @@ void Floating::Render()
 	auto proj = m_userResources->GetProject();
 
 	// ワールド座標
-	SimpleMath::Matrix world;
+	DirectX::SimpleMath::Matrix world;
 
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_airTarget->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(AirTarget::BALL_SIZE));
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_airTarget->GetPosition());
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(AirTarget::BALL_SIZE));
 
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateRotationY(XMConvertToRadians(m_rotate)) * SimpleMath::Matrix::CreateFromQuaternion(m_airTarget->GetRotation()); // ※回転順に合わせて調整
+	DirectX::SimpleMath::Matrix rotate =
+		DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate)) *
+		DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_airTarget->GetRotation());
 
 	world = scale * rotate * pos;
 

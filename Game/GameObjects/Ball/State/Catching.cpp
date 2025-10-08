@@ -15,9 +15,6 @@
 #include "Game/GameObjects/Ball/Ball.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -57,10 +54,8 @@ void Catching::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	auto mouse = Mouse::Get().GetState();
-
 	// プレイヤーの設定
-	m_ball->SetVelocity(SimpleMath::Vector3::Zero);
+	m_ball->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
 	m_ball->GetCollider().SetPosition(m_ball->GetPosition());
 }
 
@@ -77,14 +72,20 @@ void Catching::Render()
 	auto proj = m_userResources->GetProject();
 
 	// ワールド座標
-	SimpleMath::Matrix world;
+	DirectX::SimpleMath::Matrix world;
 
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_ball->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Ball::BALL_SIZE));
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_ball->GetPosition());
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Ball::BALL_SIZE));
 
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_ball->GetRotation()); // ※回転順に合わせて調整
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_ball->GetRotation()); // ※回転順に合わせて調整
 
 	world = scale * rotate * pos;
+
+	// アニメーションモデルを描画
+	if (m_ball->GetInvincibleTime() >= 0.0f && sinf(m_ball->GetInvincibleTime() * 10) <= 0.0f)
+	{
+		return;
+	}
 
 	// モデルの描画
 	m_ball->GetModel()->Draw(context, *states, world, *view, *proj);

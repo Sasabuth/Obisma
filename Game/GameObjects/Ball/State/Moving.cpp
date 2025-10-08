@@ -16,9 +16,6 @@
 #include "Game/GameObjects/Ball/Ball.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -56,9 +53,6 @@ void Moving::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void Moving::Update(float elapsedTime)
 {
-	auto kb = Keyboard::Get().GetState();
-	auto mouse = Mouse::Get().GetState();
-
 	if (m_ball->GetIsSound())
 	{
 		m_ball->NoSound();
@@ -93,12 +87,12 @@ void Moving::Render()
 	auto proj = m_userResources->GetProject();
 
 	// ワールド座標
-	SimpleMath::Matrix world;
+	DirectX::SimpleMath::Matrix world;
 
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_ball->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Ball::BALL_SIZE));
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_ball->GetPosition());
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Ball::BALL_SIZE));
 
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_ball->GetRotation());
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_ball->GetRotation());
 
 	world = scale * rotate * pos;
 

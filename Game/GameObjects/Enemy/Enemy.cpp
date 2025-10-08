@@ -16,9 +16,6 @@
 #include "Game/Commons/Factory.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -54,6 +51,8 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_position = position;
+
+	m_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 
 	m_collider.Initialize(context, m_position, COLLIDER_SIZE);
 	m_catchCollider.Initialize(context, m_position, COLLIDER_SIZE - 0.1f);
@@ -109,20 +108,9 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 /// <param name="elapsedTime">経過時間</param> 
 void Enemy::Update(float elapsedTime)
 {
-	/*for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
-	{
-		Ball* ball = m_ballManager->GetBall(i);
-
-		if (ball->GetCurrentState() == ball->GetMoving())
-		{
-			if (IsHit(m_collider, ball->GetCollider()))
-			{
-				m_pScene->ChangeScene<TitleScene>();
-			}
-		}
-	}*/
-
 	m_currentState->Update(elapsedTime);
+
+	m_invincibleTime -= elapsedTime;
 }
 
 
@@ -160,7 +148,7 @@ void Enemy::Finalize()
 void Enemy::CorrectOverlap(Field& field)
 {
 	// 差分を求める
-	SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
+	DirectX::SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
 
 	// 長さを求める
 	float distance = delta.Length();
@@ -234,6 +222,17 @@ bool Enemy::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMa
 	return true;
 }
 
+void Enemy::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+{
+	// ボーンに設定した境界球のワールド計算を行う
+	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
+	// バウンディングスフィアの中心点を設定する
+	DirectX::SimpleMath::Vector3 dir = DirectX::SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
+	dir.Normalize();
+	ball->SetPosition(DirectX::SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+	ball->SetInvincibleTime(m_invincibleTime);
+}
+
 
 
 /// <summary>
@@ -244,7 +243,7 @@ bool Enemy::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMa
 void Enemy::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 {
 	// ベーシックエフェクトの作成
-	m_basicEffect = std::make_unique<BasicEffect>(device);
+	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
 	// ライティングOFF
 	m_basicEffect->SetLightingEnabled(false);
 	// 頂点カラーOFF
@@ -254,14 +253,14 @@ void Enemy::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 
 	// 入力レイアウトの作成
 	DX::ThrowIfFailed(
-		CreateInputLayoutFromEffect<VertexPositionTexture>(
+		DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionTexture>(
 			device,
 			m_basicEffect.get(),
 			m_inputLayout.ReleaseAndGetAddressOf())
 	);
 
 	// プリミティブバッチの作成
-	m_primitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionTexture>>(context);
+	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>>(context);
 
 	// テクスチャの読み込み
 	m_shadowTexture = Resources::GetInstance()->GetTexture(L"Shadow.png");
@@ -281,7 +280,7 @@ void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* stat
 	auto proj = m_userResources->GetProject();
 
 	// エフェクトの設定＆適用
-	m_basicEffect->SetWorld(SimpleMath::Matrix::Identity);
+	m_basicEffect->SetWorld(DirectX::SimpleMath::Matrix::Identity);
 	m_basicEffect->SetView(*view);
 	m_basicEffect->SetProjection(*proj);
 	m_basicEffect->SetTexture(m_shadowTexture.Get());
@@ -300,30 +299,30 @@ void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* stat
 	// アルファブレンド
 	context->OMSetBlendState(states->AlphaBlend(), nullptr, 0xffffffff);
 
-	VertexPositionTexture vertexes[] =
+	DirectX::VertexPositionTexture vertexes[] =
 	{
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(0.0f, 0.0f)),  // 0
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(1.0f, 0.0f)),  // 1
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(0.0f, 1.0f)),  // 2
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(1.0f, 1.0f))   // 3
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(0.0f, 0.0f)),  // 0
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(1.0f, 0.0f)),  // 1
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(0.0f, 1.0f)),  // 2
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(1.0f, 1.0f))   // 3
 	};
 
 	uint16_t indexes[] = { 2,3,1,2,1,0 };
 
-	vertexes[0].position = SimpleMath::Vector3(-radius, 0.01f, -radius);
-	vertexes[1].position = SimpleMath::Vector3(radius, 0.01f, -radius);
-	vertexes[2].position = SimpleMath::Vector3(-radius, 0.01f, radius);
-	vertexes[3].position = SimpleMath::Vector3(radius, 0.01f, radius);
+	vertexes[0].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, -radius);
+	vertexes[1].position = DirectX::SimpleMath::Vector3(radius, 0.01f, -radius);
+	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, radius);
+	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.01f, radius);
 
 	// レイ
-	SimpleMath::Ray ray{ m_position, m_gravity };
+	DirectX::SimpleMath::Ray ray{ m_position, m_gravity };
 
 	// レイが当たった座標に影を出す
 	if (CalcRaySphere(ray.position, ray.direction, m_pScene->GetField().GetCollider().GetPosition(), m_pScene->GetField().GetCollider().GetRadius(), hitPos))
 	{
 		for (int i = 0; i < 4; ++i)
 		{
-			SimpleMath::Vector3 rotatedOffset = SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
+			DirectX::SimpleMath::Vector3 rotatedOffset = DirectX::SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
 			vertexes[i].position = rotatedOffset + hitPos;
 		}
 	}

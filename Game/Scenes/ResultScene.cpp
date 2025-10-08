@@ -13,9 +13,6 @@
 #include "Game/Commons/Resources.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -66,12 +63,12 @@ void ResultScene::Initialize()
 	m_spaceTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Space.png"));
 	m_backTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Back.png"));
 
-	m_position = SimpleMath::Vector2(0, 360);
-	m_position2 = SimpleMath::Vector2(1280, 360);
+	m_position = DirectX::SimpleMath::Vector2(0, 360);
+	m_position2 = DirectX::SimpleMath::Vector2(1280, 360);
 
 	m_speed = 0.0f;
 
-	m_bgm = Resources::GetInstance()->GetSound(L"ResultBgm.wav", SimpleMath::Vector3::Zero, true);
+	m_bgm = Resources::GetInstance()->GetSound(L"ResultBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
 }
 
 
@@ -141,16 +138,16 @@ void ResultScene::Render()
 	//	debugFont->Render(L"PLAYER2_WIN");
 	//}
 
-	m_spaceTexture.Draw(m_position, SimpleMath::Vector2(0, 1024), 1.26f, Colors::DarkGray);
-	m_spaceTexture.Draw(m_position2, SimpleMath::Vector2(0, 1024), 1.26f, Colors::DarkGray);
+	m_spaceTexture.Draw(m_position, DirectX::SimpleMath::Vector2(0, 1024), 1.26f, DirectX::Colors::DarkGray);
+	m_spaceTexture.Draw(m_position2, DirectX::SimpleMath::Vector2(0, 1024), 1.26f, DirectX::Colors::DarkGray);
 
 	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 	{
-		m_faceTextures[i]->Draw(SimpleMath::Vector2(1280.0f / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), 300.0f), SimpleMath::Vector2(860, 660), 0.3f);
-		m_winTextures[i]->Draw(SimpleMath::Vector2(1280.0f / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), 170.0f), SimpleMath::Vector2(504, 371), 0.25f);
+		m_faceTextures[i]->Draw(DirectX::SimpleMath::Vector2(1280.0f / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), 300.0f), DirectX::SimpleMath::Vector2(860, 660), 0.3f);
+		m_winTextures[i]->Draw(DirectX::SimpleMath::Vector2(1280.0f / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), 170.0f), DirectX::SimpleMath::Vector2(504, 371), 0.25f);
 	}
 
-	m_backTexture.Draw(SimpleMath::Vector2(340, 550 + sin(m_speed)), SimpleMath::Vector2::Zero, 0.25f);
+	m_backTexture.Draw(DirectX::SimpleMath::Vector2(340, 550 + sin(m_speed)), DirectX::SimpleMath::Vector2::Zero, 0.25f);
 	
 }
 

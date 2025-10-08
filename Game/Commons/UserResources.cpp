@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Game/Commons/UserResources.h"
 
-using namespace DirectX;
+
 
 // ユーザーリソースの初期化
 std::unique_ptr<UserResources> UserResources::s_userResource = nullptr;

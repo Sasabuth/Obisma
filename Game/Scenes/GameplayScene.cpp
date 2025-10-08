@@ -13,9 +13,6 @@
 #include "Game/Commons/Resources.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -59,16 +56,16 @@ void GameplayScene::Initialize()
 	m_ballManager = Factory::CreateBallManager(this);
 
 	// プレイヤーの初期化
-	m_player = Factory::CreatePlayer(this, m_ballManager.get(), SimpleMath::Vector3{ 0.1f,3.0f,0.1f });
-	
+	m_player = Factory::CreatePlayer(this, m_ballManager.get(), DirectX::SimpleMath::Vector3{ 0.1f,3.0f,0.1f });
+
 	// 敵の初期化
-	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), SimpleMath::Vector3{ 0.1f,-3.0f,0.1f });
+	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), DirectX::SimpleMath::Vector3{ 0.1f,-3.0f,0.1f });
 
 	// カメラの上向きベクトルの初期化
-	m_cameraUp = Factory::CreateCameraUp(m_player.get(), SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
+	m_cameraUp = Factory::CreateCameraUp(m_player.get(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
 
 	// 空中の的の初期化
-	m_airTarget = Factory::CreateAirTarget(this, SimpleMath::Vector3{ -2.0f,2.0f,3.0f });
+	m_airTarget = Factory::CreateAirTarget(this, DirectX::SimpleMath::Vector3{ -2.0f,2.0f,3.0f });
 
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
@@ -82,8 +79,8 @@ void GameplayScene::Initialize()
 	m_timerSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont2.png"));
 
 	Resources::GetInstance()->SetListener(m_player->GetPosition(),
-		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation()),
-		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY, m_player->GetRotation())
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
 	);
 
 	/*m_bgm = Resources::GetInstance()->GetSound(L"GameBgm.wav", m_player->GetPosition(), true);*/
@@ -99,20 +96,20 @@ void GameplayScene::Initialize()
 /// </summary>
 /// <param name="elapsedTime"></param> 経過時間
 void GameplayScene::Update(float elapsedTime)
-{	
+{
 	// 方向
-	SimpleMath::Vector3 dir = m_player->GetPosition() - m_cameraUp->GetPosition();
+	DirectX::SimpleMath::Vector3 dir = m_player->GetPosition() - m_cameraUp->GetPosition();
 	dir.Normalize();
 
 	// 方向ベクトルの反転
-	SimpleMath::Vector3 targetUp;
+	DirectX::SimpleMath::Vector3 targetUp;
 	targetUp = -dir;
 
 	// 現在の姿勢制御
-	SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation());
 
 	// 回転軸の計算
-	SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+	DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
 	axis.Normalize();
 
 	// 回転角の計算
@@ -120,25 +117,25 @@ void GameplayScene::Update(float elapsedTime)
 	float angle = acosf(dot);
 
 	// クォータニオンの作成
-	SimpleMath::Quaternion q;
+	DirectX::SimpleMath::Quaternion q;
 
 	// 角度が少しでもあれば軸を作る
 	if (angle > 0.01f)
 	{
-		q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+		q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
 	}
 	// なければ何もしない
 	else
 	{
-		q = SimpleMath::Quaternion::Identity;
+		q = DirectX::SimpleMath::Quaternion::Identity;
 	}
 
 	q = m_player->GetRotation() * q;
 
 	// リスナーの設定
 	Resources::GetInstance()->SetListener(m_player->GetPosition(),
-		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, q),
-		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY, m_player->GetRotation())
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, q),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
 	);
 
 	// カメラの上向きベクトルの更新
@@ -190,9 +187,9 @@ void GameplayScene::Update(float elapsedTime)
 		m_scoreManager->SortRank();
 		for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 		{
-			GetSceneManager()->SetRank(i,m_scoreManager->GetRank(i));
+			GetSceneManager()->SetRank(i, m_scoreManager->GetRank(i));
 		}
-		
+
 		ChangeScene<ResultScene>();
 	}
 }
@@ -226,7 +223,7 @@ void GameplayScene::Render()
 	// スコアマネージャーの描画
 	m_scoreManager->Render();
 
-	m_frameSprite.Draw(SimpleMath::Vector2(640, 52), SimpleMath::Vector2(415, 239), 0.28f);
+	m_frameSprite.Draw(DirectX::SimpleMath::Vector2(640, 52), DirectX::SimpleMath::Vector2(415, 239), 0.28f);
 	m_timerSprite.DigitsDraw(571, 25, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_gameTimer, 1.0f);
 	
 	// デバック用

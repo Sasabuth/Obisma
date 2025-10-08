@@ -13,10 +13,6 @@
 #include "Game/Commons/Factory.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
-
 /// <summary>
 /// コンストラクタ
 /// </summary>
@@ -62,7 +58,7 @@ void TitleScene::Initialize()
 	m_speed = 0.0f;
 
 	Resources::GetInstance()->SetVolume(0.2f);
-	m_bgm = Resources::GetInstance()->GetSound(L"TitleBgm.wav", SimpleMath::Vector3::Zero, true);
+	m_bgm = Resources::GetInstance()->GetSound(L"TitleBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
 }
 
 
@@ -107,8 +103,8 @@ void TitleScene::Render()
 
 	m_field->Render();
 
-	m_startTexture.Draw(SimpleMath::Vector2(120,550 + sin(m_speed)), SimpleMath::Vector2::Zero, 0.25f);
-	m_titleTexture.Draw(SimpleMath::Vector2(400,240), SimpleMath::Vector2(1024,641), 0.7f);
+	m_startTexture.Draw(DirectX::SimpleMath::Vector2(120, 550 + sin(m_speed)), DirectX::SimpleMath::Vector2::Zero, 0.25f);
+	m_titleTexture.Draw(DirectX::SimpleMath::Vector2(400, 240), DirectX::SimpleMath::Vector2(1024,641), 0.7f);
 }
 
 

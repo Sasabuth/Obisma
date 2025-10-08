@@ -15,9 +15,6 @@
 #include "Game/Commons/Resources.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -78,7 +75,7 @@ void EnemyRunning::Initialize()
 	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
 
 	// 入力レイアウトの作成
-	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 }
 
 
@@ -120,7 +117,7 @@ void EnemyRunning::Update(float elapsedTime)
 	m_enemy->SetPosition(m_enemy->GetPosition() + m_enemy->GetVelocity() * elapsedTime);
 	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
 
-	SimpleMath::Vector3 catchPos = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) / 2.5;
+	DirectX::SimpleMath::Vector3 catchPos = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) / 2.5;
 
 	m_enemy->GetCatchCollider().SetPosition(m_enemy->GetPosition() + catchPos);
 
@@ -153,26 +150,32 @@ void EnemyRunning::Render()
 	auto proj = m_userResources->GetProject();
 
 	// ワールド座標
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Player::PLAYER_SIZE));
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
 
-	m_worldMatrix = scale * rotate * pos;
+	m_enemy->SetWorld(scale * rotate * pos);
+
+	// アニメーションモデルを描画
+	if (m_enemy->GetInvincibleTime() >= 0.0f && sinf(m_enemy->GetInvincibleTime() * 10) <= 0.0f)
+	{
+		return;
+	}
 
 	// ボーン数を取得
 	size_t nbones = m_model->bones.size();
-	// アニメーションモデルを描画
+
 	m_model->DrawSkinned(
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_worldMatrix,
+		m_enemy->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
-	SimpleMath::Vector3 m_drawPos;
+	DirectX::SimpleMath::Vector3 m_drawPos;
 	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
 	// 軸の描画
@@ -192,9 +195,9 @@ void EnemyRunning::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation());
-	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
 
 	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
@@ -264,18 +267,18 @@ void EnemyRunning::RunToBall()
 
 
 	// 方向
-	SimpleMath::Vector3 dir = m_enemy->GetPosition() - ball->GetPosition();
+	DirectX::SimpleMath::Vector3 dir = m_enemy->GetPosition() - ball->GetPosition();
 	dir.Normalize();
 
 	// 方向ベクトルの反転
-	SimpleMath::Vector3 targetUp;
+	DirectX::SimpleMath::Vector3 targetUp;
 	targetUp = -dir;
 
 	// 現在の姿勢制御
-	SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
 
 	// 回転軸の計算
-	SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+	DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
 	axis.Normalize();
 
 	// 回転角の計算
@@ -283,24 +286,24 @@ void EnemyRunning::RunToBall()
 	float angle = acosf(dot);
 
 	// クォータニオンの作成
-	SimpleMath::Quaternion q;
+	DirectX::SimpleMath::Quaternion q;
 
 	// 角度が少しでもあれば軸を作る
 	if (angle > 0.01f)
 	{
-		q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+		q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
 	}
 	// なければ何もしない
 	else
 	{
-		q = SimpleMath::Quaternion::Identity;
+		q = DirectX::SimpleMath::Quaternion::Identity;
 	}
 
 	// 回転の設定
 	m_enemy->SetRotation(m_enemy->GetRotation() * q);
 
 	// 速度の設定
-	m_enemy->SetVelocity(m_enemy->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * ENEMY_SPEED);
+	m_enemy->SetVelocity(m_enemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * ENEMY_SPEED);
 }
 
 
@@ -319,18 +322,18 @@ void EnemyRunning::RunToEntity()
 		m_enemy->SetTarget(NearEntity());
 
 		// 方向
-		SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
+		DirectX::SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
 		dir.Normalize();
 
 		// 方向ベクトルの反転
-		SimpleMath::Vector3 targetUp;
+		DirectX::SimpleMath::Vector3 targetUp;
 		targetUp = -dir;
 
 		// 現在の姿勢制御
-		SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
+		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
 
 		// 回転軸の計算
-		SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+		DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
 		axis.Normalize();
 
 		// 回転角の計算
@@ -338,24 +341,24 @@ void EnemyRunning::RunToEntity()
 		float angle = acosf(dot);
 
 		// クォータニオンの作成
-		SimpleMath::Quaternion q;
+		DirectX::SimpleMath::Quaternion q;
 
 		// 角度が少しでもあれば軸を作る
 		if (angle > 0.01f)
 		{
-			q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+			q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
 		}
 		// なければ何もしない
 		else
 		{
-			q = SimpleMath::Quaternion::Identity;
+			q = DirectX::SimpleMath::Quaternion::Identity;
 		}
 
 		// 回転の設定
 		m_enemy->SetRotation(m_enemy->GetRotation() * q);
 
 		// 速度の設定
-		m_enemy->SetVelocity(m_enemy->GetVelocity() - SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * ENEMY_SPEED);
+		m_enemy->SetVelocity(m_enemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * ENEMY_SPEED);
 	}
 }
 
@@ -370,11 +373,11 @@ void EnemyRunning::ThrowBall()
 	if (m_enemy->GetCatchBall(Enemy::RIGHT))
 	{
 		Ball* ball = m_enemy->GetCatchBall(Enemy::RIGHT);
-		SetBallPosition(ball, m_rightHandMatrix);
+		m_enemy->SetBallPosition(ball, m_rightHandMatrix);
 
 		if (!dynamic_cast<Ball*>(m_enemy->GetTarget()))
 		{
-			SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
+			DirectX::SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
 			if (dir.Length() <= 2.0f)
 			{
 				m_enemy->ChangeState(m_enemy->GetThrowingR());
@@ -385,11 +388,11 @@ void EnemyRunning::ThrowBall()
 	if (m_enemy->GetCatchBall(Enemy::LEFT))
 	{
 		Ball* ball = m_enemy->GetCatchBall(Enemy::LEFT);
-		SetBallPosition(ball, m_leftHandMatrix);
+		m_enemy->SetBallPosition(ball, m_leftHandMatrix);
 
 		if (!dynamic_cast<Ball*>(m_enemy->GetTarget()))
 		{
-			SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
+			DirectX::SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
 			if (dir.Length() <= 2.0f)
 			{
 				m_enemy->ChangeState(m_enemy->GetThrowingL());
@@ -400,22 +403,6 @@ void EnemyRunning::ThrowBall()
 
 
 
-/// <summary>
-/// ボールの座標の設定
-/// </summary>
-/// <param name="ball">ボールのポインタ</param>
-/// <param name="handMatrix">手のマトリックス</param>
-void EnemyRunning::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
-{
-	// ボーンに設定した境界球のワールド計算を行う
-	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
-	// バウンディングスフィアの中心点を設定する
-	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-	dir.Normalize();
-	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
-}
-
-
 
 /// <summary>
 /// 一番近い実体を探す
@@ -423,16 +410,14 @@ void EnemyRunning::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handM
 /// <returns>実体</returns>
 IEntity* EnemyRunning::NearEntity()
 {
-	auto kb = Keyboard::Get().GetState();
-
 	Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
 	Player* player = m_enemy->GetScene()->GetPlayer();
 
-	SimpleMath::Vector3 dir1 = m_enemy->GetPosition() - ball->GetPosition();
-	SimpleMath::Vector3 dir2 = m_enemy->GetPosition() - player->GetPosition();
+	DirectX::SimpleMath::Vector3 dir1 = m_enemy->GetPosition() - ball->GetPosition();
+	DirectX::SimpleMath::Vector3 dir2 = m_enemy->GetPosition() - player->GetPosition();
 
 	IEntity* entity;
-	SimpleMath::Vector3 nearDir;
+	DirectX::SimpleMath::Vector3 nearDir;
 
 	// 短いほうの距離を調べる
 	if (ball->GetCurrentState() != ball->GetStopping())

@@ -14,9 +14,6 @@
 #include "Game/Commons/Resources.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -66,8 +63,6 @@ void EnemyThrowingR::Initialize()
 	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
-	m_worldMatrix = SimpleMath::Matrix::Identity;
-
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
@@ -81,7 +76,7 @@ void EnemyThrowingR::Initialize()
 	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
 
 	// 入力レイアウトの作成
-	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 
 	m_time = 0.0f;
 	m_isThowing = false;
@@ -95,26 +90,24 @@ void EnemyThrowingR::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void EnemyThrowingR::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
 		auto* entity = m_enemy->GetTarget();
 
 		// 方向
-		SimpleMath::Vector3 dir = m_enemy->GetPosition() - entity->GetPosition();
+		DirectX::SimpleMath::Vector3 dir = m_enemy->GetPosition() - entity->GetPosition();
 		dir.Normalize();
 
 		// 方向ベクトルの反転
-		SimpleMath::Vector3 targetUp;
+		DirectX::SimpleMath::Vector3 targetUp;
 		targetUp = -dir;
 
 		// 現在の姿勢制御
-		SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
+		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
 
 		// 回転軸の計算
-		SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+		DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
 		axis.Normalize();
 
 		// 回転角の計算
@@ -122,41 +115,41 @@ void EnemyThrowingR::Update(float elapsedTime)
 		float angle = acosf(dot);
 
 		// クォータニオンの作成
-		SimpleMath::Quaternion q;
+		DirectX::SimpleMath::Quaternion q;
 
 		// 角度が少しでもあれば軸を作る
 		if (angle > 0.01f)
 		{
-			q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+			q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
 		}
 		// なければ何もしない
 		else
 		{
-			q = SimpleMath::Quaternion::Identity;
+			q = DirectX::SimpleMath::Quaternion::Identity;
 		}
 
 		m_enemy->SetRotation(m_enemy->GetRotation() * q);
 
 		// 右手に持たせる
 		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
-		SetBallPosition(ball, m_rightHandMatrix);
-		
+		m_enemy->SetBallPosition(ball, m_rightHandMatrix);
+
 		// 時間になったら投げる
 		if (m_animation->GetAnimTime() > 0.58f)
 		{
 			ball->ChangeState(ball->GetMoving());
-			SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
-			float angleDeg = XMConvertToDegrees(angle);
-			SimpleMath::Quaternion rotate;
+			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
+			float angleDeg = DirectX::XMConvertToDegrees(angle);
+			DirectX::SimpleMath::Quaternion rotate;
 			if (angleDeg < 35.0f)
 			{
-				rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(30));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(30));
 			}
 			else
 			{
-				rotate = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(12));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(12));
 			}
-			ball->SetVelocity(SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation() * rotate) * Player::BALL_SPEED);
+			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation() * rotate) * Player::BALL_SPEED);
 			m_enemy->SetCatchBall(Player::RIGHT, nullptr);
 			m_isThowing = true;
 		}
@@ -175,7 +168,7 @@ void EnemyThrowingR::Update(float elapsedTime)
 	{
 		// 左手に持たせる
 		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
-		if(ball) SetBallPosition(ball, m_leftHandMatrix);
+		if (ball) m_enemy->SetBallPosition(ball, m_leftHandMatrix);
 
 		// アニメーションを更新する
 		m_animation->Update(elapsedTime);
@@ -207,26 +200,32 @@ void EnemyThrowingR::Render()
 	auto proj = m_userResources->GetProject();
 
 	// ワールド座標
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Player::PLAYER_SIZE));
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
 
-	m_worldMatrix = scale * rotate * pos;
+	m_enemy->SetWorld(scale * rotate * pos);
+	
+	// アニメーションモデルを描画
+	if (m_enemy->GetInvincibleTime() >= 0.0f && sinf(m_enemy->GetInvincibleTime() * 10) <= 0.0f)
+	{
+		return;
+	}
 
 	// ボーン数を取得
 	size_t nbones = m_model->bones.size();
-	// アニメーションモデルを描画
+
 	m_model->DrawSkinned(
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_worldMatrix,
+		m_enemy->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
-	SimpleMath::Vector3 m_drawPos;
+	DirectX::SimpleMath::Vector3 m_drawPos;
 	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
 	// 軸の描画
@@ -246,13 +245,13 @@ void EnemyThrowingR::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
 
-	SimpleMath::Vector3 dir = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
-	SimpleMath::Quaternion rot = SimpleMath::Quaternion::CreateFromAxisAngle(forward, XMConvertToRadians(15));
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation() * rot);
+	DirectX::SimpleMath::Vector3 dir = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
+	DirectX::SimpleMath::Quaternion rot = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(15));
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation() * rot);
 
-	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
 
 	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
@@ -289,21 +288,4 @@ void EnemyThrowingR::AnimationUpdate()
 	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
-}
-
-
-
-/// <summary>
-/// ボールの座標の設定
-/// </summary>
-/// <param name="ball">ボールのポインタ</param>
-/// <param name="handMatrix">手のマトリックス</param>
-void EnemyThrowingR::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
-{
-	// ボーンに設定した境界球のワールド計算を行う
-	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
-	// バウンディングスフィアの中心点を設定する
-	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-	dir.Normalize();
-	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 }

@@ -11,9 +11,6 @@
 #include "Sprite.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -78,7 +75,7 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 	float scaleX = scrennSize.right / BASE_WIDTH;
 	float scaleY = scrennSize.bottom / BASE_HEIGHT;
 
-	SimpleMath::Vector2 pos = SimpleMath::Vector2(position.x * scaleX, position.y * scaleY);
+	DirectX::SimpleMath::Vector2 pos = DirectX::SimpleMath::Vector2(position.x * scaleX, position.y * scaleY);
 
 	// スプライトを描画する
 	m_spriteBatch->Draw(
@@ -119,7 +116,7 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 	float scaleX = scrennSize.right  / BASE_WIDTH;
 	float scaleY = scrennSize.bottom / BASE_HEIGHT;
 
-	SimpleMath::Vector2 pos = SimpleMath::Vector2(position.x * scaleX, position.y * scaleY);
+	DirectX::SimpleMath::Vector2 pos = DirectX::SimpleMath::Vector2(position.x * scaleX, position.y * scaleY);
 
 	// スプライトを描画する
 	m_spriteBatch->Draw(
@@ -128,8 +125,8 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 		&r,
 		DirectX::Colors::White,               // 色
 		0.0f,                                 // 回転
-		SimpleMath::Vector2{ 0.0f,0.0f },     // 中心点
-		scale* scaleX,                                // 拡大率
+		DirectX::SimpleMath::Vector2{ 0.0f,0.0f },     // 中心点
+		scale * scaleX,                                // 拡大率
 		DirectX::SpriteEffects_None           // 反転するか
 	);
 
@@ -162,7 +159,7 @@ void Sprite::DigitsDraw(float x, float y, float width, float height, int value, 
 		int number = value % 10 + 1;
 
 		int sourceX = static_cast<int>(number * width);
-		Draw(SimpleMath::Vector2(posX, posY), SimpleMath::Vector2((float)sourceX, height), width, size);
+		Draw(DirectX::SimpleMath::Vector2(posX, posY), DirectX::SimpleMath::Vector2((float)sourceX, height), width, size);
 
 		value /= 10;
 		posX -= static_cast<int>(width);

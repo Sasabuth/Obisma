@@ -84,6 +84,8 @@ private:
 
 	float m_soundSpan;
 
+	float m_invincibleTime;
+
 
 // ŠÖ”
 public:
@@ -141,6 +143,10 @@ public:
 	// ƒ{[ƒ‹‚ÌF
 	void SetBallColorNum(int ballColorNum);                  // İ’è
 	int GetBallColorNum() const { return m_ballColorNum; }   // æ“¾
+
+	// –³“GŠÔ
+	void SetInvincibleTime(float time) { m_invincibleTime = time; }
+	float GetInvincibleTime() const { return m_invincibleTime; }
 
 	bool GetIsSound() const { return m_isSound; }
 

@@ -41,8 +41,6 @@ private:
 
 	float m_time;  // 時間
 
-	
-	DirectX::SimpleMath::Matrix m_worldMatrix;  // ワールドマトリックス
 	DirectX::SimpleMath::Matrix m_rightHandMatrix;  // 右手のマトリックス
 	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
 
@@ -77,8 +75,5 @@ public:
 private:
 	// アニメーションの更新
 	void AnimationUpdate();
-
-	// ボールの座標の設定
-	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 };
 

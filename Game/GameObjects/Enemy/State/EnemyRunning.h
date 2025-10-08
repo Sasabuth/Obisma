@@ -39,8 +39,6 @@ private:
 
 	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
 
-	// ワールドマトリックス
-	DirectX::SimpleMath::Matrix m_worldMatrix;
 	DirectX::SimpleMath::Matrix m_rightHandMatrix; // 右手のマトリックス
 	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
 
@@ -86,9 +84,6 @@ private:
 
 	// ボールを投げる
 	void ThrowBall();
-
-	// ボールの座標の設定
-	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 
 	// 一番近い実体を探す
 	IEntity* NearEntity();

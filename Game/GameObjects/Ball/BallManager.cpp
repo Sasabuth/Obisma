@@ -15,9 +15,6 @@
 #include "Game/Commons/Factory.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ

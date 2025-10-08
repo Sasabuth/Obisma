@@ -14,9 +14,6 @@
 #include "Game/Commons/Resources.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -65,8 +62,6 @@ void Dizzying::Initialize()
 	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
-	m_worldMatrix = SimpleMath::Matrix::Identity;
-
 	// アニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アニメーションの終了時間を設定する
@@ -83,7 +78,7 @@ void Dizzying::Initialize()
 	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
 
 	// 入力レイアウトの作成
-	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 }
 
 
@@ -94,17 +89,17 @@ void Dizzying::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void Dizzying::Update(float elapsedTime)
 {
-	auto kb = Keyboard::Get().GetState();
+	auto kb = DirectX::Keyboard::Get().GetState();
 
 	if (m_player->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
-		SetBallPosition(ball, m_rightHandMatrix);
+		m_player->SetBallPosition(ball, m_rightHandMatrix);
 	}
 	if (m_player->GetCatchBall(Player::LEFT))
 	{
 		Ball* ball = m_player->GetCatchBall(Player::LEFT);
-		SetBallPosition(ball, m_leftHandMatrix);
+		m_player->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
 	// プレイヤーの設定
@@ -153,26 +148,32 @@ void Dizzying::Render()
 	auto proj = m_userResources->GetProject();
 
 	// ワールド座標
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Player::PLAYER_SIZE));
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
 
-	m_worldMatrix = scale * rotate * pos;
+	m_player->SetWorld(scale * rotate * pos);
+
+	// アニメーションモデルを描画
+	if (m_player->GetInvincibleTime() >= 0.0f && sinf(m_player->GetInvincibleTime() * 10) <= 0.0f)
+	{
+		return;
+	}
 
 	// ボーン数を取得
 	size_t nbones = m_model->bones.size();
-	// アニメーションモデルを描画
+
 	m_model->DrawSkinned(
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_worldMatrix,
+		m_player->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
-	SimpleMath::Vector3 m_drawPos;
+	DirectX::SimpleMath::Vector3 m_drawPos;
 	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
 	// デバック用
@@ -193,9 +194,9 @@ void Dizzying::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
-	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
 
 	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
@@ -204,7 +205,7 @@ void Dizzying::Render()
 	m_primitiveBatch->End();*/
 
 	/*debugFont->Render(L"Dizzying");
-	debugFont->Render(L"CatchPos", SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_player->GetRotation()));
+	debugFont->Render(L"CatchPos", DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()));
 
 	m_collider.Draw(states, *view, *proj);*/
 }
@@ -235,21 +236,4 @@ void Dizzying::AnimationUpdate()
 	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
-}
-
-
-
-/// <summary>
-/// ボールの座標の設定
-/// </summary>
-/// <param name="ball">ボールのポインタ</param>
-/// <param name="handMatrix">手のマトリックス</param>
-void Dizzying::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
-{
-	// ボーンに設定した境界球のワールド計算を行う
-	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
-	// バウンディングスフィアの中心点を設定する
-	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-	dir.Normalize();
-	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 }

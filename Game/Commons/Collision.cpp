@@ -13,8 +13,6 @@
 #include "Collision.h"
 
 
-using namespace DirectX;
-
 
 // メンバ関数の定義 ===========================================================
 //*************************************************************************
@@ -28,7 +26,7 @@ using namespace DirectX;
  * @param[in] なし
  */
 SphereCollider::SphereCollider()
-	: m_position{ SimpleMath::Vector3{0.0f,0.0f,0.0f} }
+	: m_position{ DirectX::SimpleMath::Vector3{0.0f,0.0f,0.0f} }
     , m_radius{ 0.0f }
 	, m_sphere{ nullptr }
 {
@@ -202,9 +200,9 @@ void CubeCollider::Initialize(ID3D11DeviceContext* pContext, DirectX::SimpleMath
 /// <param name="proj">プロジェクション行列</param>
 void CubeCollider::Draw(DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, DirectX::FXMVECTOR color)
 {
-	SimpleMath::Matrix world;
+	DirectX::SimpleMath::Matrix world;
 
-	world = SimpleMath::Matrix::CreateTranslation(m_position);
+	world = DirectX::SimpleMath::Matrix::CreateTranslation(m_position);
 	m_cube->Draw(world, view, proj, color);
 }
 

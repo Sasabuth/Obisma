@@ -14,8 +14,6 @@
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
 
-// –¼‘O‚ÌÈ—ª
-using namespace DirectX;
 
 
 /// <summary>

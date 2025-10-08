@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "Game/Commons/SceneManager.h"
 
-using namespace DirectX;
-
 
 
 // XVŠÖ”

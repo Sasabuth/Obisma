@@ -63,11 +63,11 @@ private:
 	std::unique_ptr<PlayerCatching> m_catching;  // 「キャッチ」状態
 	std::unique_ptr<Dizzying> m_dizzying;        //「くらくら」状態
 
-	DirectX::SimpleMath::Vector3 m_position;  // 座標
-	DirectX::SimpleMath::Vector3 m_velocity;  // 速度
-
-	DirectX::SimpleMath::Quaternion m_rotate; // 回転
-	DirectX::SimpleMath::Vector3 m_gravity;   // 重力
+	DirectX::SimpleMath::Vector3 m_position;   // 座標
+	DirectX::SimpleMath::Vector3 m_velocity;   // 速度
+	DirectX::SimpleMath::Quaternion m_rotate;  // 回転
+	DirectX::SimpleMath::Vector3 m_gravity;    // 重力
+	DirectX::SimpleMath::Matrix m_worldMatrix; // ワールド座標
 
 	SphereCollider m_collider;
 
@@ -125,6 +125,13 @@ public:
 
 	// レイと球体の交差
 	bool CalcRaySphere(
+		DirectX::SimpleMath::Vector3 spherePos,
+		float radius,
+		DirectX::SimpleMath::Vector3& hitPos
+	);
+
+	// レイと球体の交差
+	bool CalcRaySphere(
 		DirectX::SimpleMath::Vector3 rayPos,
 		DirectX::SimpleMath::Vector3 rayDir,
 		DirectX::SimpleMath::Vector3 spherePos,
@@ -134,6 +141,9 @@ public:
 
 	// マウスの方向に回転
 	void RotateToMouse();
+
+	// ボールの座標の設定
+	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 
 	// 影の初期化
 	void InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context);
@@ -166,6 +176,10 @@ public:
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
 	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
 
+	// ワールド
+	void SetWorld(DirectX::SimpleMath::Matrix world)  { m_worldMatrix = world; }       // 設定
+	DirectX::SimpleMath::Matrix GetWorld() const  { return m_worldMatrix; }		       // 取得
+
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
 
@@ -189,6 +203,7 @@ public:
 
 	// 無敵時間
 	void SetInvincibleTime(float time) { m_invincibleTime = time; }
+	float GetInvincibleTime() const { return m_invincibleTime; }
 
 	// スコア
 	Score* GetScore() { return m_score.get(); }

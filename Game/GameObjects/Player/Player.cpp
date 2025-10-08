@@ -16,9 +16,6 @@
 #include "Game/Commons/Factory.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -52,6 +49,8 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_position = position;
+
+	m_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 
 	m_collider.Initialize(context, m_position, 0.5f);
 
@@ -109,6 +108,8 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 void Player::Update(float elapsedTime)
 {	
 	m_currentState->Update(elapsedTime);
+
+	m_invincibleTime -= elapsedTime;
 }
 
 
@@ -118,16 +119,46 @@ void Player::Update(float elapsedTime)
 /// </summary>
 void Player::Render()
 {
+	
 	m_currentState->Render();
+	
 
-	// ロックオンの描画
-	if (CalcRaySphere(m_mouseRay.position, m_mouseRay.direction, m_pScene->GetAirTarget()->GetPosition(), m_pScene->GetAirTarget()->GetCollider().GetRadius(), m_hitPos))
+	//// ロックオンの描画
+	//if (CalcRaySphere(m_pScene->GetAirTarget()->GetPosition(), m_pScene->GetAirTarget()->GetCollider().GetRadius(), m_hitPos))
+	//{
+	//	DrawLockOn(m_pScene->GetAirTarget()->GetPosition());
+	//}
+
+	DirectX::SimpleMath::Vector3 hitPos1;
+	DirectX::SimpleMath::Vector3 hitPos2;
+
+	// マウスの方向に回転
+	if (CalcRaySphere(GetScene()->GetAirTarget()->GetPosition(), GetScene()->GetAirTarget()->GetCollider().GetRadius(), hitPos1) &&
+		CalcRaySphere(GetScene()->GetField().GetCollider().GetPosition(), GetScene()->GetField().GetCollider().GetRadius(), hitPos2))
 	{
-		DrawLockOn(m_pScene->GetAirTarget()->GetPosition());
+		hitPos1 = m_mouseRay.position - hitPos1;
+		hitPos2 = m_mouseRay.position - hitPos2;
+
+		float a = hitPos1.Length();
+		float b = hitPos2.Length();
+
+		if (a < b)
+		{
+			DrawLockOn(m_pScene->GetAirTarget()->GetPosition());
+		}
+	}
+	else
+	{
+		// ロックオンの描画
+		if (CalcRaySphere(m_pScene->GetAirTarget()->GetPosition(), m_pScene->GetAirTarget()->GetCollider().GetRadius(), m_hitPos))
+		{
+			DrawLockOn(m_pScene->GetAirTarget()->GetPosition());
+		}
 	}
 
 	// デバック用
 	auto* debugFont = m_userResources->GetDebugFont();
+	debugFont->Render(L"InvincibleTime", m_invincibleTime);
 
 	/*auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -154,7 +185,7 @@ void Player::Finalize()
 void Player::CorrectOverlap(Field& field)
 {
 	// 差分を求める
-	SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
+	DirectX::SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
 
 	// 長さを求める
 	float distance = delta.Length();
@@ -198,21 +229,65 @@ DirectX::SimpleMath::Ray Player::CreatePickingRay(int mouseX, int mouseY, int sc
 	float py = (1.0f - 2.0f * mouseY / screenHeight);
 
 	// 2点を作って距離を計算
-	SimpleMath::Vector3 nearPoint = SimpleMath::Vector3(px, py, 0.0f);
-	SimpleMath::Vector3 farPoint = SimpleMath::Vector3(px, py, 1.0f);
+	DirectX::SimpleMath::Vector3 nearPoint = DirectX::SimpleMath::Vector3(px, py, 0.0f);
+	DirectX::SimpleMath::Vector3 farPoint = DirectX::SimpleMath::Vector3(px, py, 1.0f);
 
 	// ワールド座標に変換
-	SimpleMath::Matrix viewProj = view * proj;
-	SimpleMath::Matrix invViewProj;
+	DirectX::SimpleMath::Matrix viewProj = view * proj;
+	DirectX::SimpleMath::Matrix invViewProj;
 	viewProj.Invert(invViewProj);
 
 	// レイの座標とベクトルを求める
-	SimpleMath::Vector3 rayOrigin = SimpleMath::Vector3::Transform(nearPoint, invViewProj);
-	SimpleMath::Vector3 rayTarget = SimpleMath::Vector3::Transform(farPoint, invViewProj);
-	SimpleMath::Vector3 rayDir = rayTarget - rayOrigin;
+	DirectX::SimpleMath::Vector3 rayOrigin = DirectX::SimpleMath::Vector3::Transform(nearPoint, invViewProj);
+	DirectX::SimpleMath::Vector3 rayTarget = DirectX::SimpleMath::Vector3::Transform(farPoint, invViewProj);
+	DirectX::SimpleMath::Vector3 rayDir = rayTarget - rayOrigin;
 	rayDir.Normalize();
 
-	return SimpleMath::Ray(rayOrigin, rayDir);
+	return DirectX::SimpleMath::Ray(rayOrigin, rayDir);
+}
+
+
+
+/// <summary>
+/// レイと球体の交差
+/// </summary>
+/// <param name="spherePos">球の座標</param>
+/// <param name="radius">半径</param>
+/// <param name="hitPos">当たった座標</param>
+/// <returns>[true] 当たった　[false] 当たってない</returns>
+bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 spherePos, float radius, DirectX::SimpleMath::Vector3& hitPos)
+{
+	spherePos.x = spherePos.x - m_mouseRay.position.x;
+	spherePos.y = spherePos.y - m_mouseRay.position.y;
+	spherePos.z = spherePos.z - m_mouseRay.position.z;
+
+	float A = m_mouseRay.direction.x * m_mouseRay.direction.x + m_mouseRay.direction.y * m_mouseRay.direction.y + m_mouseRay.direction.z * m_mouseRay.direction.z;
+	float B = m_mouseRay.direction.x * spherePos.x + m_mouseRay.direction.y * spherePos.y + m_mouseRay.direction.z * spherePos.z;
+	float C = spherePos.x * spherePos.x + spherePos.y * spherePos.y + spherePos.z * spherePos.z - radius * radius;
+
+	// レイが存在するか
+	if (A == 0.0f)
+		return false; 
+
+	// 衝突しているか
+	float s = B * B - A * C;
+	if (s < 0.0f)
+		return false; 
+
+	s = sqrtf(s);
+	float a1 = (B - s) / A;
+	float a2 = (B + s) / A;
+
+	// マイナス方向に当たっていないか
+	if (a1 < 0.0f || a2 < 0.0f)
+		return false; 
+	
+	// 当たった座標を入れる
+	hitPos.x = m_mouseRay.position.x + a1 * m_mouseRay.direction.x;
+	hitPos.y = m_mouseRay.position.y + a1 * m_mouseRay.direction.y;
+	hitPos.z = m_mouseRay.position.z + a1 * m_mouseRay.direction.z;
+
+	return true;
 }
 
 
@@ -238,12 +313,12 @@ bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleM
 
 	// レイが存在するか
 	if (A == 0.0f)
-		return false; 
+		return false;
 
 	// 衝突しているか
 	float s = B * B - A * C;
 	if (s < 0.0f)
-		return false; 
+		return false;
 
 	s = sqrtf(s);
 	float a1 = (B - s) / A;
@@ -251,8 +326,8 @@ bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleM
 
 	// マイナス方向に当たっていないか
 	if (a1 < 0.0f || a2 < 0.0f)
-		return false; 
-	
+		return false;
+
 	// 当たった座標を入れる
 	hitPos.x = rayPos.x + a1 * rayDir.x;
 	hitPos.y = rayPos.y + a1 * rayDir.y;
@@ -269,18 +344,18 @@ bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleM
 void Player::RotateToMouse()
 {
 	// 方向
-	SimpleMath::Vector3 dir = m_position - m_hitPos;
+	DirectX::SimpleMath::Vector3 dir = m_position - m_hitPos;
 	dir.Normalize();
 
 	// 方向ベクトルの反転
-	SimpleMath::Vector3 targetUp;
+	DirectX::SimpleMath::Vector3 targetUp;
 	targetUp = -dir;
 
 	// 現在の姿勢制御
-	SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_rotate);
+	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_rotate);
 
 	// 回転軸の計算
-	SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+	DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
 	axis.Normalize();
 
 	// 回転角の計算
@@ -288,20 +363,38 @@ void Player::RotateToMouse()
 	float angle = acosf(dot);
 
 	// クォータニオンの作成
-	SimpleMath::Quaternion q;
+	DirectX::SimpleMath::Quaternion q;
 
 	// 角度が少しでもあれば軸を作る
 	if (angle > 0.01f)
 	{
-		q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+		q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
 	}
 	// なければ何もしない
 	else
 	{
-		q = SimpleMath::Quaternion::Identity;
+		q = DirectX::SimpleMath::Quaternion::Identity;
 	}
 
 	m_rotate *= q;
+}
+
+
+
+/// <summary>
+/// ボールの座標の設定
+/// </summary>
+/// <param name="ball">ボールのポインタ</param>
+/// <param name="handMatrix">手のマトリックス</param>
+void Player::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+{
+	// ボーンに設定した境界球のワールド計算を行う
+	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
+	// バウンディングスフィアの中心点を設定する
+	DirectX::SimpleMath::Vector3 dir = DirectX::SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
+	dir.Normalize();
+	ball->SetPosition(DirectX::SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+	ball->SetInvincibleTime(m_invincibleTime);
 }
 
 
@@ -314,7 +407,7 @@ void Player::RotateToMouse()
 void Player::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 {
 	// ベーシックエフェクトの作成
-	m_basicEffect = std::make_unique<BasicEffect>(device);
+	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
 	// ライティングOFF
 	m_basicEffect->SetLightingEnabled(false);
 	// 頂点カラーOFF
@@ -324,14 +417,14 @@ void Player::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context
 
 	// 入力レイアウトの作成
 	DX::ThrowIfFailed(
-		CreateInputLayoutFromEffect<VertexPositionTexture>(
+		DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionTexture>(
 			device,
 			m_basicEffect.get(),
 			m_inputLayout.ReleaseAndGetAddressOf())
 	);
 
 	// プリミティブバッチの作成
-	m_primitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionTexture>>(context);
+	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>>(context);
 
 	// テクスチャの読み込み
 	m_shadowTexture = Resources::GetInstance()->GetTexture(L"Shadow.png");
@@ -351,7 +444,7 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 	auto proj = m_userResources->GetProject();
 
 	// エフェクトの設定＆適用
-	m_basicEffect->SetWorld(SimpleMath::Matrix::Identity);
+	m_basicEffect->SetWorld(DirectX::SimpleMath::Matrix::Identity);
 	m_basicEffect->SetView(*view);
 	m_basicEffect->SetProjection(*proj);
 	m_basicEffect->SetTexture(m_shadowTexture.Get());
@@ -370,30 +463,30 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 	// アルファブレンド
 	context->OMSetBlendState(states->AlphaBlend(), nullptr, 0xffffffff);
 
-	VertexPositionTexture vertexes[] =
+	DirectX::VertexPositionTexture vertexes[] =
 	{
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(0.0f, 0.0f)),  // 0
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(1.0f, 0.0f)),  // 1
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(0.0f, 1.0f)),  // 2
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(1.0f, 1.0f))   // 3
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(0.0f, 0.0f)),  // 0
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(1.0f, 0.0f)),  // 1
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(0.0f, 1.0f)),  // 2
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(1.0f, 1.0f))   // 3
 	};
 
 	uint16_t indexes[] = { 2,3,1,2,1,0 };
 
-	vertexes[0].position = SimpleMath::Vector3(-radius, 0.01f, -radius);
-	vertexes[1].position = SimpleMath::Vector3(radius, 0.01f, -radius);
-	vertexes[2].position = SimpleMath::Vector3(-radius, 0.01f, radius);
-	vertexes[3].position = SimpleMath::Vector3(radius, 0.01f, radius);
+	vertexes[0].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, -radius);
+	vertexes[1].position = DirectX::SimpleMath::Vector3(radius, 0.01f, -radius);
+	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, radius);
+	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.01f, radius);
 
 	// レイ
-	SimpleMath::Ray ray{ m_position, m_gravity };
+	DirectX::SimpleMath::Ray ray{ m_position, m_gravity };
 
 	// レイが当たった座標に影を出す
 	if (CalcRaySphere(ray.position, ray.direction, m_pScene->GetField().GetCollider().GetPosition(), m_pScene->GetField().GetCollider().GetRadius(), hitPos))
 	{
 		for (int i = 0; i < 4; ++i)
 		{
-			SimpleMath::Vector3 rotatedOffset = SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
+			DirectX::SimpleMath::Vector3 rotatedOffset = DirectX::SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
 			vertexes[i].position = rotatedOffset + hitPos;
 		}
 	}
@@ -416,21 +509,21 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 	auto proj = m_userResources->GetProject();
 
 	// ビュー射影行列
-	SimpleMath::Matrix viewProj = *view * *proj;
+	DirectX::SimpleMath::Matrix viewProj = *view * *proj;
 
 	// ワールド座標
-	SimpleMath::Vector4 pos4(pos.x, pos.y, pos.z, 1.0f);
+	DirectX::SimpleMath::Vector4 pos4(pos.x, pos.y, pos.z, 1.0f);
 
 	// クリップ座標に変換
-	SimpleMath::Vector4 clipPos = SimpleMath::Vector4::Transform(pos4, viewProj);
+	DirectX::SimpleMath::Vector4 clipPos = DirectX::SimpleMath::Vector4::Transform(pos4, viewProj);
 	clipPos /= clipPos.w;
 
 	// スクリーン座標に変換
 	float screenX = (clipPos.x * 0.5f + 0.5f) * 1280;
 	float screenY = (1.0f - (clipPos.y * 0.5f + 0.5f)) * 720;
 
-	SimpleMath::Vector2 screenPos(screenX, screenY);
-	m_lockOnTexture.Draw(screenPos, SimpleMath::Vector2(1256, 1244), 0.1f);
+	DirectX::SimpleMath::Vector2 screenPos(screenX, screenY);
+	m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
 }
 
 

@@ -75,7 +75,8 @@ AnimationSDKMESH::AnimationSDKMESH() noexcept
 	m_boneToTrack{},				// ボーンからトラック 
 	m_animBones{},					// アニメーションボーン
 	m_boneNumber{},				// ボーン数
-	m_boneTransforms{}		// ボーントランスフォーム
+	m_boneTransforms{},		// ボーントランスフォーム
+	m_blendFactor{}         // ブレンドファクター
 {
 }
 

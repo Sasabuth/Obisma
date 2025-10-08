@@ -14,9 +14,6 @@
 #include "Game/Commons/Resources.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -64,8 +61,6 @@ void EnemyStanding::Initialize()
 	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
-	m_worldMatrix = SimpleMath::Matrix::Identity;
-
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
@@ -79,7 +74,7 @@ void EnemyStanding::Initialize()
 	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
 
 	// 入力レイアウトの作成
-	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 
 }
 
@@ -146,16 +141,16 @@ void EnemyStanding::Update(float elapsedTime)
 	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
 
 	// キャッチ用コライダーの設定
-	SimpleMath::Vector3 catchPos =
-		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) / 2.5 -
-		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY, m_enemy->GetRotation()) / 3;
+	DirectX::SimpleMath::Vector3 catchPos =
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) / 2.5 -
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_enemy->GetRotation()) / 3;
 
 	m_enemy->GetCatchCollider().SetPosition(m_enemy->GetPosition() + catchPos);
 
 	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
 	{
 		Ball* ball = m_enemy->GetBallManager()->GetBall(i);
-		if(IsHit(m_enemy->GetCatchCollider(), ball->GetCollider()))
+		if (IsHit(m_enemy->GetCatchCollider(), ball->GetCollider()))
 		{
 			if (ball->GetBallColorNum() != Ball::ENEMY && ball->GetCurrentState() == ball->GetMoving())
 			{
@@ -183,26 +178,32 @@ void EnemyStanding::Render()
 	/*m_enemy->GetCollider().Draw(states, *view, *proj);*/
 
 	// ワールド座標
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Player::PLAYER_SIZE));
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
 
-	m_worldMatrix = scale * rotate * pos;
+	m_enemy->SetWorld(scale * rotate * pos);
+
+	// アニメーションモデルを描画
+	if (m_enemy->GetInvincibleTime() >= 0.0f && sinf(m_enemy->GetInvincibleTime() * 10) <= 0.0f)
+	{
+		return;
+	}
 
 	// ボーン数を取得
 	size_t nbones = m_model->bones.size();
-	// アニメーションモデルを描画
+
 	m_model->DrawSkinned(
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_worldMatrix,
+		m_enemy->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
-	SimpleMath::Vector3 m_drawPos;
+	DirectX::SimpleMath::Vector3 m_drawPos;
 	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
 	// 軸の描画
@@ -222,9 +223,9 @@ void EnemyStanding::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation());
-	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
 
 	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
@@ -278,23 +279,6 @@ void EnemyStanding::AnimationUpdate(float elapsedTime)
 
 
 /// <summary>
-/// ボールの座標の設定
-/// </summary>
-/// <param name="ball">ボールのポインタ</param>
-/// <param name="handMatrix">手のマトリックス</param>
-void EnemyStanding::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
-{
-	// ボーンに設定した境界球のワールド計算を行う
-	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
-	// バウンディングスフィアの中心点を設定する
-	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-	dir.Normalize();
-	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
-}
-
-
-
-/// <summary>
 /// 近い距離のボールを取得
 /// </summary>
 /// <param name="ball">ボールのポインタ</param>
@@ -311,8 +295,8 @@ Ball* EnemyStanding::GetNearBall(Ball* ball, int index)
 
 	Ball* ball1 = m_enemy->GetBallManager()->GetBall(index);
 
-	SimpleMath::Vector3 dir1 = m_enemy->GetPosition() - ball->GetPosition();
-	SimpleMath::Vector3 dir2 = m_enemy->GetPosition() - ball1->GetPosition();
+	DirectX::SimpleMath::Vector3 dir1 = m_enemy->GetPosition() - ball->GetPosition();
+	DirectX::SimpleMath::Vector3 dir2 = m_enemy->GetPosition() - ball1->GetPosition();
 
 	// 短いほうの距離を調べる
 	if (dir1.Length() > dir2.Length())
@@ -334,12 +318,12 @@ void EnemyStanding::CatchHandBall()
 	if (m_enemy->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
-		SetBallPosition(ball, m_rightHandMatrix);
+		m_enemy->SetBallPosition(ball, m_rightHandMatrix);
 	}
 	if (m_enemy->GetCatchBall(Player::LEFT))
 	{
 		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
-		SetBallPosition(ball, m_leftHandMatrix);
+		m_enemy->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
 	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)

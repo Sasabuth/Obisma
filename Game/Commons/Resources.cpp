@@ -11,8 +11,6 @@
 #include "Resources.h"
 
 
-// 名前の省略
-using namespace DirectX;
 
 // シングルトンの初期化
 std::unique_ptr<Resources> Resources::m_resources = nullptr;
@@ -49,57 +47,57 @@ void Resources::LoadResource()
 	effectFactory->SetDirectory(L"Resources/Models");
 
 	// フィールドのモデルをロードする
-	m_fieldModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Planet.sdkmesh", *effectFactory);
+	m_fieldModel = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/Planet.sdkmesh", *effectFactory);
 
 	// プレーヤーモデルローダーフラグ
 	DirectX::ModelLoaderFlags flags = DirectX::ModelLoader_Clockwise | DirectX::ModelLoader_IncludeBones;
 	// プレーヤーモデルをロードする
-	m_playerModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Player.sdkmesh", *effectFactory, flags);
+	m_playerModel = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/Player.sdkmesh", *effectFactory, flags);
 	m_playerModel->UpdateEffects(
-		[&](IEffect* pEffect)
+		[&](DirectX::IEffect* pEffect)
 		{
 			// BasicEffectにキャストする
 			auto pBasicEffect = dynamic_cast<DirectX::SkinnedEffect*> (pEffect);
 
-			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 0.5));
+			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 0.5));
 		}
 	);
 
 	// 敵モデルをロードする
-	m_enemyModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Enemy.sdkmesh", *effectFactory, flags);
+	m_enemyModel = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/Enemy.sdkmesh", *effectFactory, flags);
 	m_enemyModel->UpdateEffects(
-		[&](IEffect* pEffect)
+		[&](DirectX::IEffect* pEffect)
 		{
 			// BasicEffectにキャストする
 			auto pBasicEffect = dynamic_cast<DirectX::SkinnedEffect*> (pEffect);
 
-			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 0.5));
+			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 0.5));
 		}
 	);
 
 	// 星モデルをロードする
-	m_sterModel = Model::CreateFromSDKMESH(device, L"Resources/Models/Ster.sdkmesh", *effectFactory);
+	m_sterModel = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/Ster.sdkmesh", *effectFactory);
 	m_sterModel->UpdateEffects(
-		[&](IEffect* pEffect)
+		[&](DirectX::IEffect* pEffect)
 		{
 			// BasicEffectにキャストする
 			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
 
-			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 1));
+			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 1));
 		}
 	);
 
 
 	// スカイドームをロードする
-	m_skydome = Model::CreateFromSDKMESH(device, L"Resources/Models/skydome.sdkmesh", *effectFactory);
+	m_skydome = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/skydome.sdkmesh", *effectFactory);
 	m_skydome->UpdateEffects(
-		[&](IEffect* pEffect)
+		[&](DirectX::IEffect* pEffect)
 		{
 			// BasicEffectにキャストする
 			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
 
 
-			pBasicEffect->SetAmbientLightColor(Colors::WhiteSmoke);
+			pBasicEffect->SetAmbientLightColor(DirectX::Colors::WhiteSmoke);
 		}
 	);
 }
@@ -119,19 +117,19 @@ std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetSound(const std::wst
 		// 音ファイルの読み込み
 		std::wstring fullPath = DEFAULT_SOUND_DIRECTORY + std::wstring(filename);
 
-		std::unique_ptr<SoundEffect> sound = std::make_unique<SoundEffect>(m_audEngine.get(), fullPath.c_str());
+		std::unique_ptr<DirectX::SoundEffect> sound = std::make_unique<DirectX::SoundEffect>(m_audEngine.get(), fullPath.c_str());
 
 		// 音データのハンドルを登録
 		m_sounds.emplace(filename, std::move(sound));
 	}
 
 	// インスタンスの返却
-	std::unique_ptr<SoundEffectInstance> sound = m_sounds[filename]->CreateInstance(DirectX::SoundEffectInstance_Use3D);
+	std::unique_ptr<DirectX::SoundEffectInstance> sound = m_sounds[filename]->CreateInstance(DirectX::SoundEffectInstance_Use3D);
 
 	// 音量の設定
 	sound->SetVolume(m_volume);
 
-	AudioEmitter emitter;
+	DirectX::AudioEmitter emitter;
 	emitter.SetPosition(emitterPos);
 	emitter.CurveDistanceScaler = 10.0f;
 	emitter.DopplerScaler = 1.0f;
@@ -161,7 +159,7 @@ DirectX::Model* Resources::GetModel(const std::wstring& filename)
 		// モデルファイルの読み込み
 		std::wstring fullPath = DEFAULT_MODEL_DIRECTORY + std::wstring(filename);
 
-		std::unique_ptr<Model> model = Model::CreateFromSDKMESH(device, fullPath.c_str(), *effectFactory);
+		std::unique_ptr<DirectX::Model> model = DirectX::Model::CreateFromSDKMESH(device, fullPath.c_str(), *effectFactory);
 
 		// モデルデータのハンドルを登録
 		m_models.emplace(filename, std::move(model));
@@ -188,7 +186,7 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetTexture(const std
 		// テクスチャファイルの読み込み
 		std::wstring fullPath = DEFAULT_TEXTURE_DIRECTORY + std::wstring(filename);
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
-		DX::ThrowIfFailed(CreateWICTextureFromFile(device, fullPath.c_str(), nullptr, texture.ReleaseAndGetAddressOf()));
+		DX::ThrowIfFailed(DirectX::CreateWICTextureFromFile(device, fullPath.c_str(), nullptr, texture.ReleaseAndGetAddressOf()));
 
 		// テクスチャデータのハンドルを登録
 		m_textures.emplace(filename, std::move(texture));

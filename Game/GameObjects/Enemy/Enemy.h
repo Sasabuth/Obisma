@@ -34,6 +34,7 @@ class Enemy : public IEntity
 public:
 	static constexpr float SHADOW_SIZE = 0.4f; // 影の大きさ
 	static constexpr float BALL_SPEED = 3.0f;  // ボールの速度
+	static constexpr float BALL_POS = 3.2f;  // ボールの座標
 	static constexpr float ENEMY_SIZE = 0.003f;
 	static constexpr float COLLIDER_SIZE = 0.5f;
 
@@ -51,6 +52,8 @@ private:
 	UserResources* m_userResources;  // ユーザーリソース
 
 	GameplayScene* m_pScene;  // シーン
+
+	DirectX::SimpleMath::Matrix m_worldMatrix;
 
 	BallManager* m_ballManager; // ボールマネージャーのポインタ
 
@@ -127,6 +130,9 @@ public:
 		DirectX::SimpleMath::Vector3& hitPos
 	);
 
+	// ボールの座標の設定
+	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
+
 	// 影の初期化
 	void InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context);
 
@@ -155,6 +161,10 @@ public:
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
 	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
 
+	// ワールド
+	void SetWorld(DirectX::SimpleMath::Matrix world) { m_worldMatrix = world; }       // 設定
+	DirectX::SimpleMath::Matrix GetWorld() const { return m_worldMatrix; }		       // 取得
+
 	// ターゲット
 	void SetTarget(IEntity* target) { m_target = target; }       // 設定
 	IEntity* GetTarget() const { return m_target; }		         // 取得
@@ -181,6 +191,7 @@ public:
 
 	// 無敵時間
 	void SetInvincibleTime(float time) { m_invincibleTime = time; }
+	float GetInvincibleTime() const { return m_invincibleTime; }
 
 	// スコア
 	Score* GetScore() const { return m_score.get(); }

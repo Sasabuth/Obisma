@@ -14,9 +14,6 @@
 #include "Game/Commons/Resources.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -29,6 +26,7 @@ Ball::Ball(GameplayScene* pScene)
 	, m_hitPos{}
 	, m_soundSpan(0.0f)
 	, m_isSound(true)
+	, m_invincibleTime(0.0f)
 	
 {
 }
@@ -60,14 +58,14 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 	auto effectFactory = m_userResources->GetEffectFactory();
 	effectFactory->SetSharing(false);
 	effectFactory->SetDirectory(L"Resources/Models");
-	m_model = Model::CreateFromSDKMESH(device, L"Resources/Models/Ball.sdkmesh", *effectFactory);
+	m_model = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/Ball.sdkmesh", *effectFactory);
 	m_model->UpdateEffects(
-		[&](IEffect* pEffect)
+		[&](DirectX::IEffect* pEffect)
 		{
 			// BasicEffectにキャストする
 			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
 
-			pBasicEffect->SetAmbientLightColor(SimpleMath::Vector4(1, 1, 1, 1));
+			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 1));
 		}
 	);
 
@@ -91,6 +89,8 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_ballColorNum = 0;
 
 	m_soundSpan = 0.0f;
+
+	m_invincibleTime = 0.0f;
 	
 	m_isSound = true;
 
@@ -166,7 +166,7 @@ void Ball::Finalize()
 void Ball::CorrectOverlap(Field& field)
 {
 	// 差分を求める
-	SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
+	DirectX::SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
 
 	// 長さを求める
 	float distance = delta.Length();
@@ -182,11 +182,11 @@ void Ball::CorrectOverlap(Field& field)
 	m_position += delta * pushLength;
 
 	// 法線ベクトル
-	SimpleMath::Vector3 normalVec = m_gravity * -1.0f;
+	DirectX::SimpleMath::Vector3 normalVec = m_gravity * -1.0f;
 	normalVec.Normalize();
 
 	// 反射ベクトル
-	SimpleMath::Vector3 reflVec = m_velocity - 2.0f * (m_velocity.Dot(normalVec)) * normalVec;
+	DirectX::SimpleMath::Vector3 reflVec = m_velocity - 2.0f * (m_velocity.Dot(normalVec)) * normalVec;
 
 	// 摩擦
 	reflVec *= 0.6f;
@@ -196,7 +196,7 @@ void Ball::CorrectOverlap(Field& field)
 		m_se = Resources::GetInstance()->GetSound(L"BallBound.wav", m_position, false);
 		m_isSound = true;
 	}
-	
+
 	m_soundSpan = 0.0f;
 
 	// 速度の設定
@@ -225,7 +225,7 @@ void Ball::ChangeState(IState* newState)
 void Ball::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 {
 	// ベーシックエフェクトの作成
-	m_basicEffect = std::make_unique<BasicEffect>(device);
+	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
 	// ライティングOFF
 	m_basicEffect->SetLightingEnabled(false);
 	// 頂点カラーOFF
@@ -235,14 +235,14 @@ void Ball::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 
 	// 入力レイアウトの作成
 	DX::ThrowIfFailed(
-		CreateInputLayoutFromEffect<VertexPositionTexture>(
+		DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionTexture>(
 			device,
 			m_basicEffect.get(),
 			m_inputLayout.ReleaseAndGetAddressOf())
 	);
 
 	// プリミティブバッチの作成
-	m_primitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionTexture>>(context);
+	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>>(context);
 
 	// テクスチャの読み込み
 	m_shadowTexture = Resources::GetInstance()->GetTexture(L"Shadow.png");
@@ -262,7 +262,7 @@ void Ball::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* state
 	auto proj = m_userResources->GetProject();
 
 	// エフェクトの設定＆適用
-	m_basicEffect->SetWorld(SimpleMath::Matrix::Identity);
+	m_basicEffect->SetWorld(DirectX::SimpleMath::Matrix::Identity);
 	m_basicEffect->SetView(*view);
 	m_basicEffect->SetProjection(*proj);
 	m_basicEffect->SetTexture(m_shadowTexture.Get());
@@ -278,29 +278,29 @@ void Ball::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* state
 	// アルファブレンド
 	context->OMSetBlendState(states->AlphaBlend(), nullptr, 0xffffffff);
 
-	VertexPositionTexture vertexes[] =
+	DirectX::VertexPositionTexture vertexes[] =
 	{
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(0.0f, 0.0f)),  // 0
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(1.0f, 0.0f)),  // 1
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(0.0f, 1.0f)),  // 2
-		VertexPositionTexture(SimpleMath::Vector3::Zero, SimpleMath::Vector2(1.0f, 1.0f))   // 3
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(0.0f, 0.0f)),  // 0
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(1.0f, 0.0f)),  // 1
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(0.0f, 1.0f)),  // 2
+		DirectX::VertexPositionTexture(DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector2(1.0f, 1.0f))   // 3
 	};
 
 	uint16_t indexes[] = { 2,3,1,2,1,0 };
 
-	vertexes[0].position = SimpleMath::Vector3(-radius, 0.01f, -radius);
-	vertexes[1].position = SimpleMath::Vector3(radius, 0.01f, -radius);
-	vertexes[2].position = SimpleMath::Vector3(-radius, 0.01f, radius);
-	vertexes[3].position = SimpleMath::Vector3(radius, 0.01f, radius);
+	vertexes[0].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, -radius);
+	vertexes[1].position = DirectX::SimpleMath::Vector3(radius, 0.01f, -radius);
+	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, radius);
+	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.01f, radius);
 
 	// レイ
-	SimpleMath::Ray ray(m_position, m_gravity);
+	DirectX::SimpleMath::Ray ray(m_position, m_gravity);
 
 	// レイの当たったところの座標を設定
 	CalcRaySphere(ray.position, ray.direction, m_pScene->GetField().GetCollider().GetPosition(), m_pScene->GetField().GetCollider().GetRadius(), m_hitPos);
 	for (int i = 0; i < 4; ++i)
 	{
-		SimpleMath::Vector3 rotatedOffset = SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
+		DirectX::SimpleMath::Vector3 rotatedOffset = DirectX::SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
 		vertexes[i].position = rotatedOffset + m_hitPos;
 	}
 
@@ -324,7 +324,7 @@ void Ball::SetBallColorNum(int ballColorNum)
 
 	// 色を変更する
 	m_model->UpdateEffects(
-		[&](IEffect* pEffect)
+		[&](DirectX::IEffect* pEffect)
 		{
 			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
 			pBasicEffect->SetColorAndAlpha(BALLCOLOR[m_ballColorNum]);

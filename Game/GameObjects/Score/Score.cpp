@@ -13,8 +13,6 @@
 
 #include "Game/Commons/Resources.h"
 
-// –¼‘O‚ÌÈ—ª
-using namespace DirectX;
 
 
 /// <summary>
@@ -63,8 +61,8 @@ void Score::Initialize(int index)
 /// </summary>
 void Score::Render()
 {
-	m_frameSprite.Draw(m_position, SimpleMath::Vector2(0, 0), 0.3f);
-	m_faceSprite.Draw(m_position, SimpleMath::Vector2(0, 0), 0.1f);
+	m_frameSprite.Draw(m_position, DirectX::SimpleMath::Vector2(0, 0), 0.3f);
+	m_faceSprite.Draw(m_position, DirectX::SimpleMath::Vector2(0, 0), 0.1f);
 	m_scoreSprite.DigitsDraw(m_position.x + 80, m_position.y + 10, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_score, 1.0f);
 
 	auto debagFont = m_userResources->GetDebugFont();

@@ -15,9 +15,6 @@
 #include "Game/GameObjects/Player/Player.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -60,7 +57,7 @@ void CameraUp::Initialize(DirectX::SimpleMath::Vector3 position)
     m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
     
     // 入力レイアウトの作成
-    CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 }
 
 
@@ -75,18 +72,18 @@ void CameraUp::Update(float elapsedTime)
 	m_velocity = m_gravity;
 
 	// 重力の方向
-	SimpleMath::Vector3 dir = m_position - m_player->GetPosition();
+	DirectX::SimpleMath::Vector3 dir = m_position - m_player->GetPosition();
 	dir.Normalize();
 
 	// 方向ベクトルの反転
-	SimpleMath::Vector3 targetUp;
+	DirectX::SimpleMath::Vector3 targetUp;
 	targetUp = -dir;
 
 	// 現在の姿勢制御
-	SimpleMath::Vector3 currentUp = SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_rotate);
+	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_rotate);
 
 	// 回転軸の計算
-	SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+	DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
 	axis.Normalize();
 
 	// 回転角の計算
@@ -94,30 +91,30 @@ void CameraUp::Update(float elapsedTime)
 	float angle = acosf(dot);
 
 	// クォータニオンの作成
-	SimpleMath::Quaternion q;
+	DirectX::SimpleMath::Quaternion q;
 
 	// 角度が少しでもあれば軸を作る
 	if (angle > 0.01f)
 	{
-		q = SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+		q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
 	}
 	// なければ何もしない
 	else
 	{
-		q = SimpleMath::Quaternion::Identity;
+		q = DirectX::SimpleMath::Quaternion::Identity;
 	}
 
 	m_rotate *= q;
 
-	SimpleMath::Vector3 dis = m_position - m_player->GetPosition();
+	DirectX::SimpleMath::Vector3 dis = m_position - m_player->GetPosition();
 
 	if (dis.Length() >= 4.0f)
 	{
-		m_velocity += SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_rotate) * 3;
+		m_velocity += DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_rotate) * 3;
 	}
 	else
 	{
-		m_velocity += SimpleMath::Vector3::Transform(-SimpleMath::Vector3::UnitX, m_rotate) *3;
+		m_velocity += DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_rotate) * 3;
 	}
 
 	m_position += m_velocity * elapsedTime;
@@ -155,9 +152,9 @@ void CameraUp::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_rotate);
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_rotate);
-	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_rotate);
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_rotate);
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_rotate);
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_rotate);
 
 	m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_position, forward, false, DirectX::Colors::Yellow);
@@ -167,7 +164,7 @@ void CameraUp::Render()
 
 	//// デバックフォントの描画
 	//auto* debugFont = m_userResources->GetDebugFont();
-	
+
 	//// デバック用
 	m_collider.Draw(states, *view, *proj);
 
@@ -194,7 +191,7 @@ void CameraUp::Finalize()
 void CameraUp::CorrectOverlap(Field& field)
 {
 	// 差分を求める
-	SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
+	DirectX::SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
 
 	// 長さを求める
 	float distance = delta.Length();

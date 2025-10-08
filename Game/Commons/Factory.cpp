@@ -11,8 +11,6 @@
 #include "pch.h"
 #include "Factory.h"
 
-// –¼‘O‚ÌÈ—ª
-using namespace DirectX;
 
 std::unique_ptr<Player> Factory::CreatePlayer(GameplayScene* pScene, BallManager* ballManager, const DirectX::SimpleMath::Vector3& initialPosition)
 {

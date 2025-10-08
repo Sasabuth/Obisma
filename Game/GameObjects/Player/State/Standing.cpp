@@ -14,9 +14,6 @@
 #include "Game/Commons/Resources.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -64,8 +61,6 @@ void Standing::Initialize()
 	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
-	m_worldMatrix = SimpleMath::Matrix::Identity;
-	
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
@@ -79,7 +74,7 @@ void Standing::Initialize()
 	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
 
 	// 入力レイアウトの作成
-	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 
 }
 
@@ -94,7 +89,7 @@ void Standing::Update(float elapsedTime)
 	UNREFERENCED_PARAMETER(elapsedTime);
 
 	auto kbTracker = m_userResources->GetKeyboardStateTracker();
-	auto mouse = Mouse::Get().GetState();
+	auto mouse = DirectX::Mouse::Get().GetState();
 	auto mouseTK = m_userResources->GetMouseStateTracker();
 
 	// プロジェクション行列
@@ -109,19 +104,8 @@ void Standing::Update(float elapsedTime)
 	auto const r = m_userResources->GetDeviceResources()->GetOutputSize();
 	m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
 
-	// マウスの方向に回転
-	if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
-	{
-		m_player->RotateToMouse();
-	}
-	else if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
-	{
-		m_player->RotateToMouse();
-	}
-	else
-	{
-		m_player->SetHitPos(SimpleMath::Vector3::Zero);
-	}
+	// マウス方向の回転の更新
+	UpdateRotateToMouse();
 
 	// ステートの変更
 	if (kbTracker->pressed.W)
@@ -135,12 +119,12 @@ void Standing::Update(float elapsedTime)
 	if (m_player->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
-		SetBallPosition(ball, m_rightHandMatrix);
+		m_player->SetBallPosition(ball, m_rightHandMatrix);
 	}
 	if (m_player->GetCatchBall(Player::LEFT))
 	{
 		Ball* ball = m_player->GetCatchBall(Player::LEFT);
-		SetBallPosition(ball, m_leftHandMatrix);
+		m_player->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
 	// ボールを投げる
@@ -148,7 +132,7 @@ void Standing::Update(float elapsedTime)
 	{
 		ThrowBall();
 	}
-	
+
 	// 右クリックでキャッチ
 	if (mouseTK->rightButton == mouseTK->PRESSED)
 	{
@@ -185,26 +169,33 @@ void Standing::Render()
 	}*/
 
 	// ワールド座標
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Player::PLAYER_SIZE));
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Player::PLAYER_SIZE));
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
 
-	m_worldMatrix = scale * rotate * pos;
+	m_player->SetWorld(scale * rotate * pos);
+
+	// 無敵時間中なら点滅描画
+	if (m_player->GetInvincibleTime() >= 0.0f && sinf(m_player->GetInvincibleTime() * 10) <= 0.0f)
+	{
+		return;
+	}
 
 	// ボーン数を取得
 	size_t nbones = m_model->bones.size();
+
 	// アニメーションモデルを描画
 	m_model->DrawSkinned(
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_worldMatrix,
+		m_player->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
-	SimpleMath::Vector3 m_drawPos;
+	DirectX::SimpleMath::Vector3 m_drawPos;
 	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
 
 	// デバック
@@ -227,9 +218,9 @@ void Standing::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
-	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
 
 	//m_primitiveBatch->Begin();
 	//DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
@@ -289,7 +280,7 @@ void Standing::ThrowBall()
 	if (m_player->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
-		SetBallPosition(ball, m_rightHandMatrix);
+		m_player->SetBallPosition(ball, m_rightHandMatrix);
 		m_player->ChangeState(m_player->GetThrowingR());
 		return;
 		
@@ -297,7 +288,7 @@ void Standing::ThrowBall()
 	if (m_player->GetCatchBall(Player::LEFT))
 	{
 		Ball* ball = m_player->GetCatchBall(Player::LEFT);
-		SetBallPosition(ball, m_leftHandMatrix);
+		m_player->SetBallPosition(ball, m_leftHandMatrix);
 		m_player->ChangeState(m_player->GetThrowingL());
 	}
 }
@@ -305,18 +296,52 @@ void Standing::ThrowBall()
 
 
 /// <summary>
-/// ボールの座標の設定
+/// マウス方向の回転の更新
 /// </summary>
-/// <param name="ball">ボールのポインタ</param>
-/// <param name="handMatrix">手のマトリックス</param>
-void Standing::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
+void Standing::UpdateRotateToMouse()
 {
-	// ボーンに設定した境界球のワールド計算を行う
-	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
-	// バウンディングスフィアの中心点を設定する
-	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-	dir.Normalize();
-	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+	// 当たった座標
+	DirectX::SimpleMath::Vector3 hitPos1;
+	DirectX::SimpleMath::Vector3 hitPos2;
+
+	// どちらが先に当たったか
+	if (m_player->CalcRaySphere(m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), hitPos1) &&
+		m_player->CalcRaySphere(m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), hitPos2))
+	{
+		DirectX::SimpleMath::Vector3 a;
+		DirectX::SimpleMath::Vector3 b;
+
+		a = m_player->GetMouseRay().position - hitPos1;
+		b = m_player->GetMouseRay().position - hitPos2;
+
+		if (a.Length() < b.Length())
+		{
+			m_player->SetHitPos(hitPos1);
+		}
+		else
+		{
+			m_player->SetHitPos(hitPos2);
+		}
+
+		// マウス方向に回転
+		m_player->RotateToMouse();
+	}
+	else
+	{
+		// マウス方向に回転
+		if (m_player->CalcRaySphere(m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
+		{
+			m_player->RotateToMouse();
+		}
+		else if (m_player->CalcRaySphere(m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
+		{
+			m_player->RotateToMouse();
+		}
+		else
+		{
+			m_player->SetHitPos(DirectX::SimpleMath::Vector3::Zero);
+		}
+	}
 }
 
 

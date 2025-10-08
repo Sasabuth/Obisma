@@ -10,10 +10,6 @@
 #include "Game/GameObjects/Player/Player.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
-
 
 /// <summary>
 /// コンストラクタ
@@ -26,7 +22,7 @@ Camera::Camera(int windowWidth, int windowHeight)
 	SetWindowSize(windowWidth, windowHeight);
 
 	// マウスのフォイール値をリセット
-	Mouse::Get().ResetScrollWheelValue();
+	DirectX::Mouse::Get().ResetScrollWheelValue();
 }
 
 
@@ -34,17 +30,17 @@ Camera::Camera(int windowWidth, int windowHeight)
 void Camera::Update()
 {
 	// プレイヤー位置
-	SimpleMath::Vector3 pos = SimpleMath::Vector3{ 5,2,0 };
+	DirectX::SimpleMath::Vector3 pos = DirectX::SimpleMath::Vector3{ 5,2,0 };
 
-	SimpleMath::Vector3 eye = SimpleMath::Vector3{ 5,2,-10 };
+	DirectX::SimpleMath::Vector3 eye = DirectX::SimpleMath::Vector3{ 5,2,-10 };
 
 	// 世界Y軸
-	SimpleMath::Vector3 up = SimpleMath::Vector3::Up;
+	DirectX::SimpleMath::Vector3 up = DirectX::SimpleMath::Vector3::Up;
 
 	// ビュー行列更新
 	m_eye = eye;
 	m_target = pos;
-	m_view = SimpleMath::Matrix::CreateLookAt(eye, pos, up);
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, pos, up);
 	UserResources::GetUserResource()->SetView(&m_view);
 }
 
@@ -56,21 +52,21 @@ void Camera::Update()
 /// <param name="player">プレイヤー</param>
 /// <param name="upPos">上向きベクトル</param>
 /// <param name="field">フィールド</param>
-void Camera::Update(Player* player, SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field)
+void Camera::Update(Player* player, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field)
 {
 	// プレイヤー位置
-	SimpleMath::Vector3 playerPos = player->GetPosition();
+	DirectX::SimpleMath::Vector3 playerPos = player->GetPosition();
 
-	SimpleMath::Vector3 eye = player->GetPosition() * 3;
+	DirectX::SimpleMath::Vector3 eye = player->GetPosition() * 3;
 
 	// 世界Y軸
-	SimpleMath::Vector3 up = upPos + field;
+	DirectX::SimpleMath::Vector3 up = upPos + field;
 	up.Normalize();
 
 	// ビュー行列更新
 	m_eye = eye;
 	m_target = playerPos;
-	m_view = SimpleMath::Matrix::CreateLookAt(eye, player->GetPosition(), up);
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, player->GetPosition(), up);
 	UserResources::GetUserResource()->SetView(&m_view);
 }
 
@@ -81,21 +77,21 @@ void Camera::Update(Player* player, SimpleMath::Vector3 upPos, DirectX::SimpleMa
 /// </summary>
 void Camera::DebugMode()
 {
-	auto state = Mouse::Get().GetState();
+	auto state = DirectX::Mouse::Get().GetState();
 
 	// 相対モードなら何もしない
-	if (state.positionMode == Mouse::MODE_RELATIVE) return;
+	if (state.positionMode == DirectX::Mouse::MODE_RELATIVE) return;
 
 	m_tracker.Update(state);
 
 	// マウスの左ボタンが押された
-	if (m_tracker.leftButton == Mouse::ButtonStateTracker::ButtonState::PRESSED)
+	if (m_tracker.leftButton == DirectX::Mouse::ButtonStateTracker::ButtonState::PRESSED)
 	{
 		// マウスの座標を取得
 		m_x = state.x;
 		m_y = state.y;
 	}
-	else if (m_tracker.leftButton == Mouse::ButtonStateTracker::ButtonState::RELEASED)
+	else if (m_tracker.leftButton == DirectX::Mouse::ButtonStateTracker::ButtonState::RELEASED)
 	{
 		// 現在の回転を保存
 		m_xAngle = m_xTmp;
@@ -112,27 +108,27 @@ void Camera::DebugMode()
 	if (m_scrollWheelValue > 0)
 	{
 		m_scrollWheelValue = 0;
-		Mouse::Get().ResetScrollWheelValue();
+		DirectX::Mouse::Get().ResetScrollWheelValue();
 	}
 
 	// ビュー行列を算出する
-	SimpleMath::Matrix rotY = SimpleMath::Matrix::CreateRotationY(m_yTmp);
-	SimpleMath::Matrix rotX = SimpleMath::Matrix::CreateRotationX(m_xTmp);
+	DirectX::SimpleMath::Matrix rotY = DirectX::SimpleMath::Matrix::CreateRotationY(m_yTmp);
+	DirectX::SimpleMath::Matrix rotX = DirectX::SimpleMath::Matrix::CreateRotationX(m_xTmp);
 
-	SimpleMath::Matrix rt = rotY * rotX;
+	DirectX::SimpleMath::Matrix rt = rotY * rotX;
 
-	SimpleMath::Vector3 eye(0.0f, 1.0f, 1.0f);
-	SimpleMath::Vector3 target(0.0f, 0.0f, 0.0f);
-	SimpleMath::Vector3 up(0.0f, 1.0f, 0.0f);
+	DirectX::SimpleMath::Vector3 eye(0.0f, 1.0f, 1.0f);
+	DirectX::SimpleMath::Vector3 target(0.0f, 0.0f, 0.0f);
+	DirectX::SimpleMath::Vector3 up(0.0f, 1.0f, 0.0f);
 
-	eye = SimpleMath::Vector3::Transform(eye, rt.Invert());
+	eye = DirectX::SimpleMath::Vector3::Transform(eye, rt.Invert());
 	eye *= (DEFAULT_CAMERA_DISTANCE - m_scrollWheelValue / 100);
-	up = SimpleMath::Vector3::Transform(up, rt.Invert());
+	up = DirectX::SimpleMath::Vector3::Transform(up, rt.Invert());
 
 	m_eye = eye;
 	m_target = target;
 
-	m_view = SimpleMath::Matrix::CreateLookAt(eye, target, up);
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, target, up);
 	UserResources::GetUserResource()->SetView(&m_view);
 }
 
@@ -152,9 +148,9 @@ void Camera::Motion(int x, int y)
 	if (dx != 0.0f || dy != 0.0f)
 	{
 		// Ｙ軸の回転
-		float yAngle = dx * XM_PI;
+		float yAngle = dx * DirectX::XM_PI;
 		// Ｘ軸の回転
-		float xAngle = dy * XM_PI;
+		float xAngle = dy * DirectX::XM_PI;
 
 		m_xTmp = m_xAngle + xAngle;
 		m_yTmp = m_yAngle + yAngle;

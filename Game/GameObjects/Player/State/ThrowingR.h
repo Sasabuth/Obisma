@@ -36,8 +36,7 @@ private:
 	DirectX::ModelBone::TransformArray m_drawBones;  // アニメーションボーン配列
 
 	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
-	
-	DirectX::SimpleMath::Matrix m_worldMatrix;  // ワールドマトリックス
+
 	DirectX::SimpleMath::Matrix m_rightHandMatrix;  // 右手のマトリックス
 	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
 
@@ -76,8 +75,5 @@ public:
 private:
 	// アニメーションの更新
 	void AnimationUpdate();
-
-	// ボールの座標の設定
-	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 };
 

@@ -15,9 +15,6 @@
 #include "Game/GameObjects/AirTarget/AirTarget.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -57,13 +54,11 @@ void Hitting::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	auto mouse = Mouse::Get().GetState();
-
 	std::uniform_int_distribution<int> dist(0, RAND_POS_COUNT - 1);
 
 	// プレイヤーの設定
-	m_airTarget->SetVelocity(SimpleMath::Vector3::Zero);
-	m_airTarget->SetPosition(SimpleMath::Vector3(RAND_POS[dist(rd)], RAND_POS[dist(rd)], RAND_POS[dist(rd)]));
+	m_airTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
+	m_airTarget->SetPosition(DirectX::SimpleMath::Vector3(RAND_POS[dist(rd)], RAND_POS[dist(rd)], RAND_POS[dist(rd)]));
 
 	m_airTarget->GetCollider().SetPosition(m_airTarget->GetPosition());
 

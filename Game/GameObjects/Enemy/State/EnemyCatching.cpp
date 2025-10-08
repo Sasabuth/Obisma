@@ -14,9 +14,6 @@
 #include "Game/Commons/Resources.h"
 
 
-// 名前の省略
-using namespace DirectX;
-
 
 /// <summary>
 /// コンストラクタ
@@ -65,8 +62,6 @@ void EnemyCatching::Initialize()
 	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 
-	m_worldMatrix = SimpleMath::Matrix::Identity;
-
 	// コライダーの初期化
 	m_collider.Initialize(context, m_enemy->GetPosition(), COLLIDER_SIZE);
 
@@ -83,7 +78,7 @@ void EnemyCatching::Initialize()
 	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
 
 	// 入力レイアウトの作成
-	CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 }
 
 
@@ -94,23 +89,21 @@ void EnemyCatching::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void EnemyCatching::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
 	if (m_enemy->GetCatchBall(Enemy::RIGHT))
 	{
 		Ball* ball = m_enemy->GetCatchBall(Enemy::RIGHT);
-		SetBallPosition(ball, m_rightHandMatrix);
+		m_enemy->SetBallPosition(ball, m_rightHandMatrix);
 	}
 	if (m_enemy->GetCatchBall(Enemy::LEFT))
 	{
 		Ball* ball = m_enemy->GetCatchBall(Enemy::LEFT);
-		SetBallPosition(ball, m_leftHandMatrix);
+		m_enemy->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
 	// キャッチ用コライダーの設定
-	SimpleMath::Vector3 catchPos =
-		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) / 2.5 -
-		SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitY, m_enemy->GetRotation()) / 3;
+	DirectX::SimpleMath::Vector3 catchPos =
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) / 2.5 -
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_enemy->GetRotation()) / 3;
 
 	m_collider.SetPosition(m_enemy->GetPosition() + catchPos);
 
@@ -164,26 +157,32 @@ void EnemyCatching::Render()
 	auto proj = m_userResources->GetProject();
 
 	// ワールド座標
-	SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
-	SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(Enemy::ENEMY_SIZE));
-	SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Enemy::ENEMY_SIZE));
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
 
-	m_worldMatrix = scale * rotate * pos;
+	m_enemy->SetWorld(scale * rotate * pos);
+
+	// アニメーションモデルを描画
+	if (m_enemy->GetInvincibleTime() >= 0.0f && sinf(m_enemy->GetInvincibleTime() * 10) <= 0.0f)
+	{
+		return;
+	}
 
 	// ボーン数を取得
 	size_t nbones = m_model->bones.size();
-	// アニメーションモデルを描画
+
 	m_model->DrawSkinned(
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_worldMatrix,
+		m_enemy->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
-	SimpleMath::Vector3 m_drawPos;
+	DirectX::SimpleMath::Vector3 m_drawPos;
 	m_enemy->DrawShadow(context, states, Enemy::SHADOW_SIZE, m_drawPos);
 
 	// デバック用
@@ -204,9 +203,9 @@ void EnemyCatching::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	SimpleMath::Vector3 forward = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
-	SimpleMath::Vector3 horizontal = SimpleMath::Vector3::Transform(SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation());
-	SimpleMath::Vector3 vertical = SimpleMath::Vector3::Transform(SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
 
 	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
@@ -215,7 +214,7 @@ void EnemyCatching::Render()
 	m_primitiveBatch->End();*/
 
 	/*debugFont->Render(L"EnemyCatching");
-	debugFont->Render(L"CatchPos", SimpleMath::Vector3::Transform(SimpleMath::Vector3::UnitX, m_enemy->GetRotation()));
+	debugFont->Render(L"CatchPos", DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()));
 
 	m_collider.Draw(states, *view, *proj);*/
 }
@@ -246,23 +245,6 @@ void EnemyCatching::AnimationUpdate()
 	m_leftHandMatrix = m_drawBones[20];
 	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
 	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
-}
-
-
-
-/// <summary>
-/// ボールの座標の設定
-/// </summary>
-/// <param name="ball">ボールのポインタ</param>
-/// <param name="handMatrix">手のマトリックス</param>
-void EnemyCatching::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
-{
-	// ボーンに設定した境界球のワールド計算を行う
-	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
-	// バウンディングスフィアの中心点を設定する
-	SimpleMath::Vector3 dir = SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-	dir.Normalize();
-	ball->SetPosition(SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
 }
 
 
