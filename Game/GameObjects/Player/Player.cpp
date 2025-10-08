@@ -119,15 +119,7 @@ void Player::Update(float elapsedTime)
 /// </summary>
 void Player::Render()
 {
-	
 	m_currentState->Render();
-	
-
-	//// ロックオンの描画
-	//if (CalcRaySphere(m_pScene->GetAirTarget()->GetPosition(), m_pScene->GetAirTarget()->GetCollider().GetRadius(), m_hitPos))
-	//{
-	//	DrawLockOn(m_pScene->GetAirTarget()->GetPosition());
-	//}
 
 	DirectX::SimpleMath::Vector3 hitPos1;
 	DirectX::SimpleMath::Vector3 hitPos2;
@@ -139,10 +131,7 @@ void Player::Render()
 		hitPos1 = m_mouseRay.position - hitPos1;
 		hitPos2 = m_mouseRay.position - hitPos2;
 
-		float a = hitPos1.Length();
-		float b = hitPos2.Length();
-
-		if (a < b)
+		if (hitPos1.Length() < hitPos2.Length())
 		{
 			DrawLockOn(m_pScene->GetAirTarget()->GetPosition());
 		}
@@ -158,7 +147,7 @@ void Player::Render()
 
 	// デバック用
 	auto* debugFont = m_userResources->GetDebugFont();
-	debugFont->Render(L"InvincibleTime", m_invincibleTime);
+	/*debugFont->Render(L"InvincibleTime", m_invincibleTime);*/
 
 	/*auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();

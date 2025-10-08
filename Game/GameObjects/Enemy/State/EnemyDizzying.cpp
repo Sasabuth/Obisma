@@ -117,11 +117,11 @@ void EnemyDizzying::Update(float elapsedTime)
 	}
 
 	m_time += elapsedTime;
-	if (m_time > 3.0f)
+	if (m_time > DIZZY_TIME)
 	{
 		m_enemy->SetTarget(nullptr);
 		m_enemy->ChangeState(m_enemy->GetStanding());
-		m_enemy->SetInvincibleTime(3.0f);
+		m_enemy->SetInvincibleTime(INTERVAL);
 		m_time = 0.0f;
 	}
 

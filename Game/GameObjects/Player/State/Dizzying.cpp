@@ -119,12 +119,12 @@ void Dizzying::Update(float elapsedTime)
 	}
 
 	m_time += elapsedTime;
-	if (m_time > 3.0f)
+	if (m_time > DIZZY_TIME)
 	{
 		if (kb.W) m_player->ChangeState(m_player->GetRunning());
 		else m_player->ChangeState(m_player->GetStanding());
 		m_time = 0.0f;
-		m_player->SetInvincibleTime(3.0f);
+		m_player->SetInvincibleTime(INTERVAL);
 	}
 
 	// アニメーションの更新

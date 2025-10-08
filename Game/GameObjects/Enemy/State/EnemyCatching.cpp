@@ -134,6 +134,7 @@ void EnemyCatching::Update(float elapsedTime)
 	else
 	{
 		m_enemy->ChangeState(m_enemy->GetStanding());
+		m_enemy->SetTarget(nullptr);
 	}
 
 	// アニメーションの更新

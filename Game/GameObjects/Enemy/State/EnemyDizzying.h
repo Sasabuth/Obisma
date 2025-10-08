@@ -26,6 +26,9 @@ class EnemyDizzying : public IState
 private:
 	static constexpr float COLLIDER_SIZE = 0.25f;
 
+	static constexpr float INTERVAL = 3.0f;
+	static constexpr float DIZZY_TIME = 3.0f;
+
 
 // ïœêî
 private:

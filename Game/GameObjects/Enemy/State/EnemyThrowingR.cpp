@@ -143,7 +143,7 @@ void EnemyThrowingR::Update(float elapsedTime)
 			DirectX::SimpleMath::Quaternion rotate;
 			if (angleDeg < 35.0f)
 			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(30));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(25));
 			}
 			else
 			{
