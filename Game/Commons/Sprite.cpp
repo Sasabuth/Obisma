@@ -10,6 +10,9 @@
 #include "pch.h"
 #include "Sprite.h"
 
+#include "Game/Commons/Collision.h"
+#include "Game/Commons/Resources.h"
+
 
 
 /// <summary>
@@ -86,6 +89,46 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 		0.0f,                         // 回転
 		size / 2,                     // 中心点
 		scale * scaleX,               // 拡大率
+		DirectX::SpriteEffects_None   // 反転するか
+	);
+
+	m_spriteBatch->End();
+}
+
+
+
+/// <summary>
+/// 描画
+/// </summary>
+/// <param name="position">座標</param>
+/// <param name="size">サイズ</param>
+/// <param name="scale">拡大率</param>
+/// <param name="color">色</param>
+void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, DirectX::SimpleMath::Vector2 scale, DirectX::XMVECTOR color)
+{
+	auto states = m_userResources->GetCommonStates();
+
+	// 半透明の設定
+	m_spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, states->NonPremultiplied());
+
+	// 解像度に応じた拡大率を計算
+	auto const scrennSize = UserResources::GetUserResource()->GetDeviceResources()->GetOutputSize();
+	float scaleX = scrennSize.right / BASE_WIDTH;
+	float scaleY = scrennSize.bottom / BASE_HEIGHT;
+
+	DirectX::SimpleMath::Vector2 pos = DirectX::SimpleMath::Vector2(position.x * scaleX, position.y * scaleY);
+	scale.x *= scaleX;
+	scale.y *= scaleY;
+
+	// スプライトを描画する
+	m_spriteBatch->Draw(
+		m_texture.Get(),              // テクスチャのポインタ
+		pos,                          // 座標
+		nullptr,
+		color,                        // 色
+		0.0f,                         // 回転
+		size / 2,                     // 中心点
+		scale,                        // 拡大率
 		DirectX::SpriteEffects_None   // 反転するか
 	);
 

@@ -259,6 +259,9 @@ void PlayerCatching::AnimationUpdate()
 /// </summary>
 void PlayerCatching::CatchHandBall(int index)
 {
+	// SEを出す
+	m_se = Resources::GetInstance()->GetSESound(L"BallCatch.wav", m_player->GetPosition(), false);
+
 	// ボールのポインタを取得
 	Ball* ball = m_player->GetBallManager()->GetBall(index);
 

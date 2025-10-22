@@ -50,6 +50,9 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
 
+	// SE
+	std::unique_ptr<DirectX::SoundEffectInstance> m_se;
+
 
 	// 関数
 public:

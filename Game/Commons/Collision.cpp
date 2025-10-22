@@ -12,6 +12,225 @@
 #include "pch.h"
 #include "Collision.h"
 
+#include "Game/Commons/Resources.h"
+#include "Game/Commons/Sprite.h"
+
+
+
+// メンバ関数の定義 ===========================================================
+//*************************************************************************
+// 
+// 短形コライダー
+// 
+//*************************************************************************
+/**
+ * @brief コンストラクタ
+ */
+BoxCollider2D::BoxCollider2D()
+	: m_center{}
+	, m_halfSize{}
+	, m_scale(1.0f)
+	, m_debug{}
+{
+	m_debug = std::make_unique<Sprite>();
+	m_debug->SetTexture(Resources::GetInstance()->GetTexture(L"debug.png"));
+}
+
+
+
+/**
+ * @brief デストラクタ
+ */
+BoxCollider2D::~BoxCollider2D()
+{
+}
+
+
+
+/**
+ * @brief 描画
+ *
+ * @param[in] color 描画色
+ *
+ * @return なし
+ */
+void BoxCollider2D::Draw(DirectX::FXMVECTOR color)
+{
+	m_debug->Draw(m_center, DirectX::SimpleMath::Vector2(1, 1), m_halfSize * m_scale * 2, color);
+}
+
+
+
+/**
+ * @brief 左端の取得
+ *
+ * @param[in] なし
+ *
+ * @return 左端のX座標
+ */
+float BoxCollider2D::GetLeft() const
+{
+	return m_center.x - m_halfSize.x * m_scale;
+}
+
+
+
+/**
+ * @brief 上端の取得
+ *
+ * @param[in] なし
+ *
+ * @return 上端のY座標
+ */
+float BoxCollider2D::GetTop() const
+{
+	return m_center.y - m_halfSize.y * m_scale;
+}
+
+
+
+/**
+ * @brief 右端の取得
+ *
+ * @param[in] なし
+ *
+ * @return 右端のX座標
+ */
+float BoxCollider2D::GetRight() const
+{
+	return m_center.x + m_halfSize.x * m_scale;
+}
+
+
+
+/**
+ * @brief 下端の取得
+ *
+ * @param[in] なし
+ *
+ * @return 下端のY座標
+ */
+float BoxCollider2D::GetBottom() const
+{
+	return m_center.y + m_halfSize.y * m_scale;
+}
+
+
+
+// メンバ関数の定義 ===========================================================
+//*************************************************************************
+// 
+// 円のコライダー
+// 
+//*************************************************************************
+// コンストラクタ
+CircleCollider2D::CircleCollider2D()
+	: m_centerX(0.0f)
+	, m_centerY(0.0f)
+	, m_radius(0.0f)
+	, m_debug{}
+
+{
+	m_debug = std::make_unique<Sprite>();
+	m_debug->SetTexture(Resources::GetInstance()->GetTexture(L"debug.png"));
+}
+
+
+
+/**
+ * @brief デストラクタ
+ */
+CircleCollider2D::~CircleCollider2D()
+{
+}
+
+
+
+/**
+ * @brief 描画
+ *
+ * @param[in] color 描画色
+ *
+ * @return なし
+ */
+void CircleCollider2D::Draw()
+{
+	m_debug->Draw(DirectX::SimpleMath::Vector2(m_centerX, m_centerY), DirectX::SimpleMath::Vector2(1, 1), m_radius);
+}
+
+
+
+/**
+ * @brief 中心座標(X座標)の取得
+ *
+ * @param[in] なし
+ *
+ * @return 中心座標(X座標)
+ */
+float CircleCollider2D::GetCenterX() const
+{
+	return m_centerX;
+}
+
+
+
+/**
+ * @brief 中心座標(Y座標)の取得
+ *
+ * @param[in] なし
+ *
+ * @return 中心座標(Y座標)
+ */
+float CircleCollider2D::GetCenterY() const
+{
+	return m_centerY;
+}
+
+
+
+/**
+ * @brief 半径の取得
+ *
+ * @param[in] なし
+ *
+ * @return 半径
+ */
+float CircleCollider2D::GetRadius() const
+{
+	return m_radius;
+}
+
+
+
+/**
+ * @brief 円形の中心座標の設定
+ *
+ * @param[in] centerX 円形の中心座標(X座標)
+ * @param[in] centerY 円形の中心座標(Y座標)
+ *
+ * @return なし
+ */
+void CircleCollider2D::SetPosition(float centerX, float centerY)
+{
+	m_centerX = centerX;
+	m_centerY = centerY;
+}
+
+
+
+/**
+ * @brief 円形の中心座標の設定
+ *
+ * @param[in] centerX 矩形の中心座標(X座標)
+ * @param[in] centerY 矩形の中心座標(Y座標)
+ *
+ * @return なし
+ */
+void CircleCollider2D::SetRadius(float radius)
+{
+	m_radius = radius;
+}
+
 
 
 // メンバ関数の定義 ===========================================================
@@ -204,6 +423,28 @@ void CubeCollider::Draw(DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::M
 
 	world = DirectX::SimpleMath::Matrix::CreateTranslation(m_position);
 	m_cube->Draw(world, view, proj, color);
+}
+
+
+
+/// <summary>
+/// 矩形コライダーと 矩形コライダーの当たり判定
+/// </summary>
+/// <param name="boxA">ボックスA</param>
+/// <param name="boxB">ボックスB</param>
+/// <returns>当たったか</returns>
+bool IsHit(const BoxCollider2D& boxA, const BoxCollider2D& boxB)
+{
+	// 当たり判定
+	if ((boxA.GetLeft() < boxB.GetRight()) &&
+		(boxA.GetRight() > boxB.GetLeft()) &&
+		(boxA.GetTop() < boxB.GetBottom()) &&
+		(boxA.GetBottom() > boxB.GetTop()))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 

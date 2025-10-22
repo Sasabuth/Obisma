@@ -18,7 +18,6 @@
 /// </summary>
 TitleScene::TitleScene()
 	: m_pUserResources(nullptr)
-	, m_speed(0.0f)
 {
 }
 
@@ -46,7 +45,6 @@ void TitleScene::Initialize()
 
 	// テクスチャの初期化
 	m_titleTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Title.png"));
-	m_startTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Start.png"));
 
 	// フィールドの初期化
 	m_field = Factory::CreateField(this);
@@ -54,11 +52,30 @@ void TitleScene::Initialize()
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
 
-	// 速度の初期化
-	m_speed = 0.0f;
+	// オーディオUI
+	m_audioUI.Initialize();
 
-	Resources::GetInstance()->SetVolume(0.2f);
-	m_bgm = Resources::GetInstance()->GetSound(L"TitleBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
+	m_bgm = Resources::GetInstance()->GetBGMSound(L"TitleBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
+
+	// コライダーの設定
+	m_collider.SetSize(DirectX::SimpleMath::Vector2(20.0f));
+
+	// ボタンの設定
+	m_button[0].SetTexture(Resources::GetInstance()->GetTexture(L"Start.png"));
+	m_button[0].SetFunc([this]() { ChangeScene<GameplayScene>(); });
+
+	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Audio.png"));
+	m_button[1].SetFunc([this]() { m_audioUI.Click(); });
+
+	m_button[2].SetTexture(Resources::GetInstance()->GetTexture(L"End.png"));
+	m_button[2].SetFunc([this]() { PostQuitMessage(0); });
+
+	for (int i = 0; i < MENU_COUNT; i++)
+	{
+		m_button[i].SetPosition(MENU_POSITIONS[i]);
+		m_button[i].SetSize(MENU_SIZES[i]);
+		m_button[i].SetScale(0.2f);
+	}
 }
 
 
@@ -71,24 +88,49 @@ void TitleScene::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	// カメラの更新
-	m_camera->Update();
+	// マウスの座標に合わせる
+	auto mouse = DirectX::Mouse::Get().GetState();
+	// 現在のウィンドウサイズを取得
+	auto const outputSize = m_pUserResources->GetDeviceResources()->GetOutputSize();
+	float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
+	float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
 
-	// フィールドの更新
-	m_field->Update(elapsedTime);
-	static float rotate = 0.0f;
-	rotate += 30.0f * elapsedTime;
-	m_field->SetRotate(rotate);
+	m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
 
-	m_speed += 6.0f * elapsedTime;
-
-	// キーボードの取得
-	auto mouseTk = m_pUserResources->GetMouseStateTracker();
-
-	if (mouseTk->leftButton == mouseTk->PRESSED)
+	// オーディオUIの更新
+	if (m_audioUI.IsOpen())
 	{
-		ChangeScene<GameplayScene>();
+		m_audioUI.Update(m_collider);
 	}
+	else
+	{
+		// カメラの更新
+		m_camera->Update();
+
+		// フィールドの更新
+		m_field->Update(elapsedTime);
+		static float rotate = 0.0f;
+		rotate += 30.0f * elapsedTime;
+		m_field->SetRotate(rotate);
+
+		// キーボードの取得
+		auto mouseTk = m_pUserResources->GetMouseStateTracker();
+
+		// ボタンの上で左クリックをするとクリック処理をする
+		for (int i = 0; i < MENU_COUNT; i++)
+		{
+			if (IsHit(m_collider, m_button[i].GetCollider()))
+			{
+				if (mouseTk->leftButton == mouseTk->PRESSED)
+				{
+					m_button[i].Click();
+				}
+			}
+		}
+	}
+
+	// BGMの音量の設定
+	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
 }
 
 
@@ -101,10 +143,34 @@ void TitleScene::Render()
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
 	debugFont->Render(L"TitleScene");
 
+	// フィールドの描画
 	m_field->Render();
 
-	m_startTexture.Draw(DirectX::SimpleMath::Vector2(120, 550 + sin(m_speed)), DirectX::SimpleMath::Vector2::Zero, 0.25f);
-	m_titleTexture.Draw(DirectX::SimpleMath::Vector2(400, 240), DirectX::SimpleMath::Vector2(1024,641), 0.7f);
+	// タイトルの描画
+	m_titleTexture.Draw(DirectX::SimpleMath::Vector2(400, 240), DirectX::SimpleMath::Vector2(1024, 641), 0.7f);
+	
+	if (m_audioUI.IsOpen())
+	{
+		m_audioUI.Draw();
+	}
+	else
+	{
+		for (int i = 0; i < MENU_COUNT; i++)
+		{
+			if (IsHit(m_collider, m_button[i].GetCollider()))
+			{
+				m_button[i].Draw(DirectX::Colors::Red);
+			}
+			else
+			{
+				m_button[i].Draw();
+			}
+		}
+	}
+
+
+	// デバック用
+	/*m_collider.Draw();*/
 }
 
 

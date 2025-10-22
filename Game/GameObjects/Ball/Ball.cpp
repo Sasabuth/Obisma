@@ -109,22 +109,10 @@ void Ball::Update(float elapsedTime)
 {
 	m_currentState->Update(elapsedTime);
 
-	if (m_se && m_se->GetState() == DirectX::SoundState::PLAYING)
-	{
-		DirectX::AudioEmitter emitter;
-		emitter.SetPosition(m_position); // 常に最新の位置を設定
+	// 3Dサウンドの設定
+	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
 
-		// 減衰距離の設定（GetSoundの瞬間と同じ値を設定）
-		emitter.CurveDistanceScaler = 6.0f; // 例
-		emitter.DopplerScaler = 2.0f;
-
-		// リスナーの位置を取得
-		DirectX::AudioListener listener = Resources::GetInstance()->GetListener();
-
-		// 3D効果を適用：この呼び出しが距離減衰を毎フレーム更新する
-		m_se->Apply3D(listener, emitter);
-	}
-
+	// サウンド間隔の更新
 	m_soundSpan += 1.0f * elapsedTime;
 }
 
@@ -193,7 +181,7 @@ void Ball::CorrectOverlap(Field& field)
 
 	if (!m_isSound && m_soundSpan >= 0.1f)
 	{
-		m_se = Resources::GetInstance()->GetSound(L"BallBound.wav", m_position, false);
+		m_se = Resources::GetInstance()->GetSESound(L"BallBound.wav", m_position, false);
 		m_isSound = true;
 	}
 

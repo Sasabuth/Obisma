@@ -200,6 +200,7 @@
     <ClInclude Include="Game\GameObjects\Ball\State\Catching.h" />
     <ClInclude Include="Game\GameObjects\Ball\State\Moving.h" />
     <ClInclude Include="Game\GameObjects\Ball\State\Stopping.h" />
+    <ClInclude Include="Game\GameObjects\Button\Button.h" />
     <ClInclude Include="Game\GameObjects\Camera\Camera.h" />
     <ClInclude Include="Game\GameObjects\Camera\CameraUp.h" />
     <ClInclude Include="Game\GameObjects\Enemy\Enemy.h" />
@@ -219,6 +220,7 @@
     <ClInclude Include="Game\GameObjects\Player\State\ThrowingR.h" />
     <ClInclude Include="Game\GameObjects\Score\Score.h" />
     <ClInclude Include="Game\GameObjects\Score\ScoreManager.h" />
+    <ClInclude Include="Game\GameObjects\UI\AudioUI.h" />
     <ClInclude Include="Game\Scenes\GameplayScene.h" />
     <ClInclude Include="Game\Scenes\ResultScene.h" />
     <ClInclude Include="Game\Scenes\TitleScene.h" />
@@ -246,6 +248,7 @@
     <ClCompile Include="Game\GameObjects\Ball\State\Catching.cpp" />
     <ClCompile Include="Game\GameObjects\Ball\State\Moving.cpp" />
     <ClCompile Include="Game\GameObjects\Ball\State\Stopping.cpp" />
+    <ClCompile Include="Game\GameObjects\Button\Button.cpp" />
     <ClCompile Include="Game\GameObjects\Camera\Camera.cpp" />
     <ClCompile Include="Game\GameObjects\Camera\CameraUp.cpp" />
     <ClCompile Include="Game\GameObjects\Enemy\Enemy.cpp" />
@@ -265,6 +268,7 @@
     <ClCompile Include="Game\GameObjects\Player\State\ThrowingR.cpp" />
     <ClCompile Include="Game\GameObjects\Score\Score.cpp" />
     <ClCompile Include="Game\GameObjects\Score\ScoreManager.cpp" />
+    <ClCompile Include="Game\GameObjects\UI\AudioUI.cpp" />
     <ClCompile Include="Game\Scenes\GameplayScene.cpp" />
     <ClCompile Include="Game\Scenes\ResultScene.cpp" />
     <ClCompile Include="Game\Scenes\TitleScene.cpp" />

@@ -10,7 +10,120 @@
 #include <GeometricPrimitive.h>
 
 
+// クラスの定義
+class Sprite;
 
+//-----------------------------------------------------------------------
+// 2D用
+//-----------------------------------------------------------------------
+// 矩形コライダー
+class BoxCollider2D
+{
+	// データメンバの宣言 -----------------------------------------------
+private:
+	DirectX::SimpleMath::Vector2 m_center; // 中心座標
+	DirectX::SimpleMath::Vector2 m_halfSize; // 中心座標
+	float m_scale;
+
+	std::unique_ptr<Sprite> m_debug;
+
+
+	// メンバ関数の宣言 -------------------------------------------------
+	// コンストラクタ/デストラクタ
+public:
+	BoxCollider2D();
+	~BoxCollider2D();
+
+
+	// 操作
+public:
+	// 描画
+	void Draw(DirectX::FXMVECTOR color = DirectX::Colors::White);
+
+
+	// 取得/設定
+public:
+	// 左端の取得
+	float GetLeft() const;
+
+	// 上端の取得
+	float GetTop() const;
+
+	// 右端の取得
+	float GetRight() const;
+
+	// 下端の取得
+	float GetBottom() const;
+
+
+	// 中心座標の設定
+	void SetPosition(DirectX::SimpleMath::Vector2 pos) { m_center = pos; };
+	// 座標の取得
+	DirectX::SimpleMath::Vector2 GetPosition() const { return m_center; }
+
+	// サイズの設定
+	void SetSize(DirectX::SimpleMath::Vector2 size) { m_halfSize = size / 2; };
+	// サイズの取得
+	DirectX::SimpleMath::Vector2 GetSize() const { return m_halfSize * 2; }
+	// 拡大率の設定
+	void SetScale(float scale) { m_scale = scale; };
+	// 拡大率の設定
+	float GetScale() const { return m_scale; };
+
+};
+
+
+
+// 円のコライダー
+class CircleCollider2D
+{
+	// データメンバの宣言 -----------------------------------------------
+private:
+	float m_centerX;    ///< 中心座標(X座標)
+	float m_centerY;    ///< 中心座標(Y座標)
+	float m_radius;     ///< 半径
+
+	std::unique_ptr<Sprite> m_debug;
+
+
+
+	// メンバ関数の宣言 -------------------------------------------------
+	// コンストラクタ/デストラクタ
+public:
+	CircleCollider2D();
+	~CircleCollider2D();
+
+
+	// 操作
+public:
+	// 描画
+	void Draw();
+
+
+	// 取得/設定
+public:
+	// 中心座標(X座標)の取得
+	float GetCenterX() const;
+
+	// 中心座標(Y座標)の取得
+	float GetCenterY() const;
+
+	// 半径の取得
+	float GetRadius() const;
+
+
+	// 中心座標の設定
+	void SetPosition(float centerX, float centerY);
+
+	// サイズの設定
+	void SetRadius(float radius);
+};
+
+
+
+//-----------------------------------------------------------------------
+// 3D用
+//-----------------------------------------------------------------------
 // クラスの定義
 class SphereCollider
 {
@@ -121,5 +234,6 @@ private:
 
 
 // 当たり判定
+bool IsHit(const BoxCollider2D& boxA, const BoxCollider2D& boxB);          // 矩形コライダーと矩形コライダーの当たり判定
 bool IsHit(const SphereCollider& sphereA, const SphereCollider& sphereB);  // 球と球
 bool IsHit(const CubeCollider& cubeA, const CubeCollider& cubeB);          // 立方体と立方体

@@ -59,6 +59,8 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  // 影のテクスチャ
 
+	std::unique_ptr<DirectX::SoundEffectInstance> m_se;
+
 
 // 関数
 public:

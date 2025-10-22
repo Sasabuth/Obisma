@@ -8,6 +8,9 @@
 
 // ヘッダファイルの読み込み
 #include "Game/Commons/UserResources.h"
+#include "Game/Commons/Collision.h"
+
+
 
 // クラスの定義
 class Sprite
@@ -39,7 +42,8 @@ public:
 	void CreateTexture(const wchar_t* path);
 
 	// 描画
-	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale, DirectX::XMVECTOR color=DirectX::Colors::White);
+	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, float scale, DirectX::XMVECTOR color = DirectX::Colors::White);
+	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 size, DirectX::SimpleMath::Vector2 scale, DirectX::XMVECTOR color = DirectX::Colors::White);
 	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 rect, float width, float scale);
 
 	// 桁数描画

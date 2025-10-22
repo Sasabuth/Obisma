@@ -532,6 +532,8 @@ void Player::ScoreDown()
 			{
 				m_currentState = m_dizzying.get();
 				m_score->ScoreDown();
+
+				m_se = Resources::GetInstance()->GetSESound(L"BallHit.wav", m_position, false);
 			}
 		}
 	}

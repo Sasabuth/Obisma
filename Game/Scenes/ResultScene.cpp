@@ -68,7 +68,7 @@ void ResultScene::Initialize()
 
 	m_speed = 0.0f;
 
-	m_bgm = Resources::GetInstance()->GetSound(L"ResultBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
+	m_bgm = Resources::GetInstance()->GetBGMSound(L"ResultBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
 }
 
 
@@ -117,6 +117,9 @@ void ResultScene::Update(float elapsedTime)
 	{
 		ChangeScene<TitleScene>();
 	}
+
+	// BGM‚Ì‰¹—Ê‚ÌÝ’è
+	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
 }
 
 

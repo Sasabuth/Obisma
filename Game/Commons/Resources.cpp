@@ -109,7 +109,7 @@ void Resources::LoadResource()
 /// </summary>
 /// <param name="filename">ファイル名</param>
 /// <returns>音インスタンス</returns>
-std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetSound(const std::wstring& filename, DirectX::SimpleMath::Vector3 emitterPos, bool loop)
+std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetBGMSound(const std::wstring& filename, DirectX::SimpleMath::Vector3 emitterPos, bool loop)
 {
 	// 未登録の場合
 	if (m_sounds.count(filename) == 0)
@@ -127,7 +127,43 @@ std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetSound(const std::wst
 	std::unique_ptr<DirectX::SoundEffectInstance> sound = m_sounds[filename]->CreateInstance(DirectX::SoundEffectInstance_Use3D);
 
 	// 音量の設定
-	sound->SetVolume(m_volume);
+	sound->SetVolume(m_bgmVolume);
+
+	DirectX::AudioEmitter emitter;
+	emitter.SetPosition(emitterPos);
+	emitter.CurveDistanceScaler = 10.0f;
+	emitter.DopplerScaler = 1.0f;
+	sound->Apply3D(m_listener, emitter);
+	sound->Play(loop);
+	return sound;
+}
+
+
+
+/// <summary>
+/// 音の取得
+/// </summary>
+/// <param name="filename">ファイル名</param>
+/// <returns>音インスタンス</returns>
+std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetSESound(const std::wstring& filename, DirectX::SimpleMath::Vector3 emitterPos, bool loop)
+{
+	// 未登録の場合
+	if (m_sounds.count(filename) == 0)
+	{
+		// 音ファイルの読み込み
+		std::wstring fullPath = DEFAULT_SOUND_DIRECTORY + std::wstring(filename);
+
+		std::unique_ptr<DirectX::SoundEffect> sound = std::make_unique<DirectX::SoundEffect>(m_audEngine.get(), fullPath.c_str());
+
+		// 音データのハンドルを登録
+		m_sounds.emplace(filename, std::move(sound));
+	}
+
+	// インスタンスの返却
+	std::unique_ptr<DirectX::SoundEffectInstance> sound = m_sounds[filename]->CreateInstance(DirectX::SoundEffectInstance_Use3D);
+
+	// 音量の設定
+	sound->SetVolume(m_seVolume);
 
 	DirectX::AudioEmitter emitter;
 	emitter.SetPosition(emitterPos);
@@ -197,6 +233,12 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetTexture(const std
 
 
 
+/// <summary>
+/// リスナーの設定
+/// </summary>
+/// <param name="pos">座標</param>
+/// <param name="forward">前向きベクトル</param>
+/// <param name="up">上向きベクトル</param>
 void Resources::SetListener(const DirectX::SimpleMath::Vector3& pos, const DirectX::SimpleMath::Vector3& forward, const DirectX::SimpleMath::Vector3& up)
 {
 	// リスナーの座標
@@ -204,6 +246,34 @@ void Resources::SetListener(const DirectX::SimpleMath::Vector3& pos, const Direc
 	// リスナーの向き
 	m_listener.SetOrientation(forward, up);
 }
+
+
+
+/// <summary>
+/// 3Dサウンドの設定
+/// </summary>
+/// <param name="sound">サウンド</param>
+/// <param name="pos">座標</param>
+void Resources::Set3DSound(DirectX::SoundEffectInstance* sound, const DirectX::SimpleMath::Vector3& pos)
+{
+	if (sound && sound->GetState() == DirectX::SoundState::PLAYING)
+	{
+		DirectX::AudioEmitter emitter;
+		emitter.SetPosition(pos); // 常に最新の位置を設定
+
+		// 減衰距離の設定（GetSoundの瞬間と同じ値を設定）
+		emitter.CurveDistanceScaler = 6.0f; // 例
+		emitter.DopplerScaler = 2.0f;
+
+		// リスナーの位置を取得
+		DirectX::AudioListener listener = Resources::GetInstance()->GetListener();
+
+		// 3D効果を適用：この呼び出しが距離減衰を毎フレーム更新する
+		sound->Apply3D(listener, emitter);
+	}
+}
+
+
 
 /// <summary>
 /// リソースのリセット

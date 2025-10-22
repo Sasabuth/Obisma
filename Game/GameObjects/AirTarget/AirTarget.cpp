@@ -78,6 +78,8 @@ void AirTarget::Initialize(DirectX::SimpleMath::Vector3 position)
 void AirTarget::Update(float elapsedTime)
 {
 	m_currentState->Update(elapsedTime);
+
+	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
 }
 
 
@@ -139,6 +141,11 @@ void AirTarget::CorrectOverlap(Field& field)
 /// <param name="newState">新しいステート</param>
 void AirTarget::ChangeState(IState* newState)
 {
+	if (m_currentState == m_floating.get())
+	{
+		m_se = Resources::GetInstance()->GetSESound(L"GetSter.wav", m_position, false);
+	}
+
 	m_currentState = newState;
 	m_currentState->Initialize();
 }

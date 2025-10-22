@@ -78,15 +78,17 @@ void GameplayScene::Initialize()
 	m_frameSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame2.png"));
 	m_timerSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont2.png"));
 
+	// リスナーの設定
 	Resources::GetInstance()->SetListener(m_player->GetPosition(),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
 	);
 
-	/*m_bgm = Resources::GetInstance()->GetSound(L"GameBgm.wav", m_player->GetPosition(), true);*/
+	// BGM
+	m_bgm = Resources::GetInstance()->GetBGMSound(L"GameBgm.wav", m_player->GetPosition(), true);
 
 	// プレイ人数を初期化
-	GetSceneManager()->SetPlayerCount(2);
+	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
 }
 
 
@@ -97,46 +99,8 @@ void GameplayScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void GameplayScene::Update(float elapsedTime)
 {
-	// 方向
-	DirectX::SimpleMath::Vector3 dir = m_player->GetPosition() - m_cameraUp->GetPosition();
-	dir.Normalize();
-
-	// 方向ベクトルの反転
-	DirectX::SimpleMath::Vector3 targetUp;
-	targetUp = -dir;
-
-	// 現在の姿勢制御
-	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation());
-
-	// 回転軸の計算
-	DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
-	axis.Normalize();
-
-	// 回転角の計算
-	float dot = currentUp.Dot(targetUp);
-	float angle = acosf(dot);
-
-	// クォータニオンの作成
-	DirectX::SimpleMath::Quaternion q;
-
-	// 角度が少しでもあれば軸を作る
-	if (angle > 0.01f)
-	{
-		q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
-	}
-	// なければ何もしない
-	else
-	{
-		q = DirectX::SimpleMath::Quaternion::Identity;
-	}
-
-	q = m_player->GetRotation() * q;
-
 	// リスナーの設定
-	Resources::GetInstance()->SetListener(m_player->GetPosition(),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, q),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
-	);
+	SetListener();
 
 	// カメラの上向きベクトルの更新
 	m_cameraUp->Update(elapsedTime);
@@ -192,6 +156,9 @@ void GameplayScene::Update(float elapsedTime)
 
 		ChangeScene<ResultScene>();
 	}
+
+	// BGMの音量の設定
+	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
 }
 
 
@@ -303,4 +270,53 @@ void GameplayScene::IsHitEntityToField(IEntity* pIEntity, Field* pField)
 	{
 		pIEntity->CorrectOverlap(*pField);
 	}
+}
+
+
+
+/// <summary>
+/// リスナーの設定
+/// </summary>
+void GameplayScene::SetListener()
+{
+	// 方向
+	DirectX::SimpleMath::Vector3 dir = m_player->GetPosition() - m_cameraUp->GetPosition();
+	dir.Normalize();
+
+	// 方向ベクトルの反転
+	DirectX::SimpleMath::Vector3 targetUp;
+	targetUp = -dir;
+
+	// 現在の姿勢制御
+	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation());
+
+	// 回転軸の計算
+	DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+	axis.Normalize();
+
+	// 回転角の計算
+	float dot = currentUp.Dot(targetUp);
+	float angle = acosf(dot);
+
+	// クォータニオンの作成
+	DirectX::SimpleMath::Quaternion q;
+
+	// 角度が少しでもあれば軸を作る
+	if (angle > 0.01f)
+	{
+		q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+	}
+	// なければ何もしない
+	else
+	{
+		q = DirectX::SimpleMath::Quaternion::Identity;
+	}
+
+	q = m_player->GetRotation() * q;
+
+	// リスナーの設定
+	Resources::GetInstance()->SetListener(m_player->GetPosition(),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, q),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
+	);
 }

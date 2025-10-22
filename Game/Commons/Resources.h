@@ -53,7 +53,8 @@ public:
 	void LoadResource();
 
 	// 音データの取得
-	std::unique_ptr<DirectX::SoundEffectInstance> GetSound(const std::wstring& filename, DirectX::SimpleMath::Vector3 emitterPos, bool loop);
+	std::unique_ptr<DirectX::SoundEffectInstance> GetBGMSound(const std::wstring& filename, DirectX::SimpleMath::Vector3 emitterPos, bool loop);
+	std::unique_ptr<DirectX::SoundEffectInstance> GetSESound(const std::wstring& filename, DirectX::SimpleMath::Vector3 emitterPos, bool loop);
 
 	// モデルデータの取得
 	DirectX::Model* GetModel(const std::wstring& filename);
@@ -62,11 +63,16 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTexture(const std::wstring& filename);
 
 	// 音量の設定
-	void SetVolume(float volume) { m_volume = volume; }
+	void SetBGMVolume(float volume) { m_bgmVolume = volume; }
+	float GetBGMVolume() const { return m_bgmVolume; }
+	void SetSEVolume(float volume) { m_seVolume = volume; }
 
 	// リスナーの設定
 	void SetListener(const DirectX::SimpleMath::Vector3& pos, const DirectX::SimpleMath::Vector3& forward, const DirectX::SimpleMath::Vector3& up);
 	DirectX::AudioListener GetListener() const { return m_listener; }
+
+	// 3Dサウンドの設定
+	void Set3DSound(DirectX::SoundEffectInstance* sound, const DirectX::SimpleMath::Vector3& pos);
 
 	// リセット
 	void Reset();
@@ -78,7 +84,8 @@ private:
 		:
 		m_fieldModel{},
 		m_playerModel{},
-		m_volume{}
+		m_bgmVolume{},
+		m_seVolume{}
 	{
 		m_userResource = UserResources::GetUserResource();
 
@@ -117,7 +124,8 @@ private:
 	ResourceTexture m_textures;  
 
 	// 音量
-	float m_volume;
+	float m_bgmVolume;
+	float m_seVolume;;
 
 	// リスナー
 	DirectX::AudioListener m_listener;

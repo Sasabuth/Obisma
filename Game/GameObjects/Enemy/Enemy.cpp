@@ -110,6 +110,7 @@ void Enemy::Update(float elapsedTime)
 {
 	m_currentState->Update(elapsedTime);
 
+	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
 	m_invincibleTime -= elapsedTime;
 }
 
@@ -222,6 +223,13 @@ bool Enemy::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMa
 	return true;
 }
 
+
+
+/// <summary>
+/// ボール座標の設定
+/// </summary>
+/// <param name="ball">ボールのポインタ</param>
+/// <param name="handMatrix">手のマトリックス</param>
 void Enemy::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
 {
 	// ボーンに設定した境界球のワールド計算を行う
@@ -350,6 +358,8 @@ void Enemy::ScoreDown()
 			{
 				m_currentState = m_dizzying.get();
 				m_score->ScoreDown();
+
+				m_se = Resources::GetInstance()->GetSESound(L"BallHit.wav", m_position, false);
 			}
 		}
 	}

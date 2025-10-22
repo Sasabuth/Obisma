@@ -56,6 +56,12 @@
     <Filter Include="Game\GameObjects\Score">
       <UniqueIdentifier>{9ebb2606-ef36-4a45-b115-75286341dc27}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\GameObjects\Button">
+      <UniqueIdentifier>{10246d2f-c1f5-46ac-8808-45e42b2ed659}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObjects\UI">
+      <UniqueIdentifier>{c4bcd554-8b54-46d5-86fa-d2f7df97534b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -194,15 +200,18 @@
     <ClInclude Include="Game\GameObjects\Player\State\ThrowingR.h">
       <Filter>Game\GameObjects\Player\State</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\Button\Button.h">
+      <Filter>Game\GameObjects\Button</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\UI\AudioUI.h">
+      <Filter>Game\GameObjects\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="DeviceResources.cpp">
       <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Game.cpp">
-      <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Game\Commons\Collision.cpp">
       <Filter>Game\Commons</Filter>
@@ -320,6 +329,15 @@
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyCatching.cpp">
       <Filter>Game\GameObjects\Enemy\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Game.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Button\Button.cpp">
+      <Filter>Game\GameObjects\Button</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\UI\AudioUI.cpp">
+      <Filter>Game\GameObjects\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

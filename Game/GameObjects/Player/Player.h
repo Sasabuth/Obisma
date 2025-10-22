@@ -89,6 +89,9 @@ private:
 
 	float m_invincibleTime;
 
+	// SE
+	std::unique_ptr<DirectX::SoundEffectInstance> m_se;
+
 
 // ŠÖ”
 public:

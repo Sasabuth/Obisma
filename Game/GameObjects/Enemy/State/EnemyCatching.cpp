@@ -140,6 +140,7 @@ void EnemyCatching::Update(float elapsedTime)
 	// アニメーションの更新
 	AnimationUpdate();
 
+	Resources::GetInstance()->Set3DSound(m_se.get(), m_enemy->GetPosition());
 }
 
 
@@ -255,6 +256,9 @@ void EnemyCatching::AnimationUpdate()
 /// </summary>
 void EnemyCatching::CatchHandBall(int index)
 {
+	// SEを出す
+	m_se = Resources::GetInstance()->GetSESound(L"BallCatch.wav", m_enemy->GetPosition(), false);
+
 	// ボールのポインタを取得
 	Ball* ball = m_enemy->GetBallManager()->GetBall(index);
 

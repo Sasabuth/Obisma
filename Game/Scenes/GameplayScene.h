@@ -28,6 +28,7 @@ class GameplayScene : public Scene
 // íËêî
 private:
 	static constexpr float MAX_TIME = 100.0f;
+	static constexpr int PLAYER_COUNT = 2;
 
 	static constexpr float NUMBER_WIDTH = 34.5f;
 	static constexpr float NUMBER_HEIGHT = 50.0f;
@@ -110,6 +111,8 @@ public:
 
 private:
 	void IsHitEntityToField(IEntity* pIEntity, Field* pField);
+
+	void SetListener();
 
 };
 
