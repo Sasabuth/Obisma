@@ -18,27 +18,37 @@ class Player;
 // クラスの定義
 class CameraUp : public IEntity
 {
+// 定数
 public:
 
 
 // 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
+
+	// プレイヤー
 	Player* m_player;
 
+	// 座標
 	DirectX::SimpleMath::Vector3 m_position;
+	// 速度
 	DirectX::SimpleMath::Vector3 m_velocity;
-
+	// 回転
 	DirectX::SimpleMath::Quaternion m_rotate;
+	// 重力
 	DirectX::SimpleMath::Vector3 m_gravity;
-
+	// コライダー
 	SphereCollider m_collider;
 
-	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
+	// ベーシックエフェクト
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  
 
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  // プリミティブバッチ
+	// プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch; 
 
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
+	// 入力レイアウトへのポインタ
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout; 
 
 
 // 関数

@@ -22,34 +22,45 @@ class Ball;
 // クラスの定義
 class EnemyThrowingL : public IState
 {
+// 定数
 private:
 
 
-	// 変数
+// 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
 
+	// 敵
 	Enemy* m_enemy;
 
-	DirectX::Model* m_model;  // モデル
+	// モデル
+	DirectX::Model* m_model; 
 
-	DirectX::ModelBone::TransformArray m_drawBones;  // アニメーションボーン配列
+	// アニメーションボーン配列
+	DirectX::ModelBone::TransformArray m_drawBones;
+	// アニメーション
+	std::unique_ptr<DX::AnimationSDKMESH> m_animation; 
 
-	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
+	// 左手のマトリックス
+	DirectX::SimpleMath::Matrix m_leftHandMatrix;  
 
-	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
+	// 時間
+	float m_time;  
+	// 投げたか
+	bool m_isThowing;  
 
-	float m_time;  // 時間
-	bool m_isThowing;  // 投げたか
+	// ベーシックエフェクト
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect; 
 
-	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
+	// プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch; 
 
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  // プリミティブバッチ
+	// 入力レイアウトへのポインタ
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
 
-
-	// 関数
+// 関数
 public:
 	// コンストラクタ
 	EnemyThrowingL(Enemy* enemy);

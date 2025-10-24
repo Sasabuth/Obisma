@@ -23,32 +23,42 @@ class Ball;
 // クラスの定義
 class EnemyStanding : public IState
 {
+// 定数
 private:
 
 
-	// 変数
+// 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
 
+	// 敵
 	Enemy* m_enemy;
 
-	DirectX::Model* m_model;  // モデル
+	// モデル
+	DirectX::Model* m_model;  
 
-	DirectX::ModelBone::TransformArray m_drawBones;  // アニメーションボーン配列
+	// アニメーションボーン配列
+	DirectX::ModelBone::TransformArray m_drawBones; 
+	// アニメーション
+	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  
 
-	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
+	// 右手のマトリックス
+	DirectX::SimpleMath::Matrix m_rightHandMatrix; 
+	// 左手のマトリックス
+	DirectX::SimpleMath::Matrix m_leftHandMatrix; 
 
-	DirectX::SimpleMath::Matrix m_rightHandMatrix; // 右手のマトリックス
-	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
+	// ベーシックエフェクト
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;
 
-	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
+	// プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  
 
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  // プリミティブバッチ
+	// 入力レイアウトへのポインタ
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  
 
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
 
-
-	// 関数
+// 関数
 public:
 	// コンストラクタ
 	EnemyStanding(Enemy* enemy);
@@ -67,6 +77,7 @@ public:
 
 	// 終了処理
 	void Finalize() override;
+
 
 // 内部処理
 private:

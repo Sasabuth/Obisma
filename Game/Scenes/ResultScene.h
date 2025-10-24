@@ -18,19 +18,29 @@
 class ResultScene : public Scene
 {
 private:
+	// ユーザーリソース
 	UserResources* m_pUserResources;
 
+	// フェイステクスチャ
 	std::vector<std::unique_ptr<Sprite>> m_faceTextures;
+
+	// 勝利テクスチャ
 	std::vector<std::unique_ptr<Sprite>> m_winTextures;
+
+	// スペーステクスチャ
 	Sprite m_spaceTexture;
+
+	// 戻るテクスチャ
 	Sprite m_backTexture;
 
+	// 座標
 	DirectX::SimpleMath::Vector2 m_position;
 	DirectX::SimpleMath::Vector2 m_position2;
 
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
 
+	// 速度
 	float m_speed;
 
 

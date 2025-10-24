@@ -26,8 +26,10 @@ private:
 
 // 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
 
+	// ボール
 	Ball* m_ball;
 
 

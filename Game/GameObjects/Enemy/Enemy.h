@@ -49,49 +49,68 @@ public:
 
 // 変数
 private:
-	UserResources* m_userResources;  // ユーザーリソース
+	// ユーザーリソース
+	UserResources* m_userResources; 
 
-	GameplayScene* m_pScene;  // シーン
+	// シーン
+	GameplayScene* m_pScene; 
 
+	// ワールド座標
 	DirectX::SimpleMath::Matrix m_worldMatrix;
 
-	BallManager* m_ballManager; // ボールマネージャーのポインタ
+	// ボールマネージャーのポインタ
+	BallManager* m_ballManager;
 
-	IState* m_currentState;  // 現在のステート
+	// 現在のステート
+	IState* m_currentState;  
 
-	IEntity* m_target;  // ターゲット
+	// ターゲット
+	IEntity* m_target; 
 	
-	std::unique_ptr<EnemyStanding> m_standing;  // 「立つ」状態
-	std::unique_ptr<EnemyRunning> m_running;    // 「走る」状態
-	std::unique_ptr<EnemyThrowingR> m_throwingR;  // 「右手で投げる」状態
-	std::unique_ptr<EnemyThrowingL> m_throwingL;  // 「左手で投げる」状態
-	std::unique_ptr<EnemyDizzying> m_dizzying;  // 「くらくら」状態
-	std::unique_ptr<EnemyCatching> m_catching;  // 「とる」状態
+	// ステート
+	std::unique_ptr<EnemyStanding> m_standing;   // 「立つ」	
+	std::unique_ptr<EnemyRunning> m_running;     // 「走る」	
+	std::unique_ptr<EnemyThrowingR> m_throwingR; // 「右手で投げる」	
+	std::unique_ptr<EnemyThrowingL> m_throwingL; // 「左手で投げる」	
+	std::unique_ptr<EnemyDizzying> m_dizzying;   // 「くらくら」	
+	std::unique_ptr<EnemyCatching> m_catching;   // 「とる」	
 
-	DirectX::SimpleMath::Vector3 m_position; // 座標
-	DirectX::SimpleMath::Vector3 m_velocity; // 速度
-
-	DirectX::SimpleMath::Quaternion m_rotate; // 回転
-	DirectX::SimpleMath::Vector3 m_gravity;  // 重力
-
-	SphereCollider m_collider;  // コライダー
+	// 座標
+	DirectX::SimpleMath::Vector3 m_position; 
+	// 速度
+	DirectX::SimpleMath::Vector3 m_velocity; 
+	// 回転
+	DirectX::SimpleMath::Quaternion m_rotate; 
+	// 重力
+	DirectX::SimpleMath::Vector3 m_gravity;  
+	// コライダー
+	SphereCollider m_collider;  
+	// キャッチコライダー
 	SphereCollider m_catchCollider;
 
-	std::unique_ptr<Score> m_score;  // スコア
+	// スコア
+	std::unique_ptr<Score> m_score;  
 
-	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
+	// ベーシックエフェクト
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect; 
 
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>> m_primitiveBatch;  // プリミティブバッチ
+	// プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>> m_primitiveBatch; 
 
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
+	// 入力レイアウトへのポインタ
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  // 影のテクスチャ
+	// 影のテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  
 
-	std::map<int, Ball*> m_isBall;  // ボールを持っているか
+	// ボールを持っているか
+	std::map<int, Ball*> m_isBall;  
 
-	int m_ballIndex;  // ボール用のインデックス
+	// ボール用のインデックス
+	int m_ballIndex;  
 
-	float m_invincibleTime;  // 無敵時間
+	// 無敵時間
+	float m_invincibleTime;  
 
 	// SE
 	std::unique_ptr<DirectX::SoundEffectInstance> m_se;

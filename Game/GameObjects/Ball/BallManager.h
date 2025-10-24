@@ -35,12 +35,18 @@ public:
 		DirectX::SimpleMath::Vector3{ 0.1f, 0.1f,-3.0f },
 	};
 
+
 // 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
+
+	// シーン
 	GameplayScene* m_pScene;
 
+	// ボールの配列
 	std::vector<std::unique_ptr<Ball>> m_balls;
+
 
 // 関数
 public:
@@ -68,7 +74,10 @@ public:
 
 // 設定/取得
 public:
+	// オブジェクトの数の取得
 	int GetObjectCount() const { return (int)m_balls.size(); }
+
+	// ボールの取得
 	Ball* GetBall(int index) const { return m_balls[index].get(); }
 
 

@@ -26,16 +26,25 @@ private:
 
 // 変数
 private:
-	Scene* m_pScene;  // シーン
-	UserResources* m_userResource;  // シーン
+	// ユーザーリソース
+	UserResources* m_userResource;
 
-	DirectX::Model* m_model;  // モデル
-	DirectX::Model* m_skydomeModel;  // モデル
+	// シーン
+	Scene* m_pScene;  
 
-	DirectX::SimpleMath::Vector3 m_position;  // 座標
+	// モデル
+	DirectX::Model* m_model;
 
-	SphereCollider m_collider;  // コライダー
+	// スカイドーム
+	DirectX::Model* m_skydomeModel; 
 
+	// 座標
+	DirectX::SimpleMath::Vector3 m_position;  
+
+	// コライダー
+	SphereCollider m_collider; 
+
+	// 回転
 	float m_rotate;
 
 

@@ -23,29 +23,39 @@ class Ball;
 // クラスの定義
 class Standing : public IState
 {
+// 定数
 private:
 
 
 // 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
 
+	// プレイヤー
 	Player* m_player;
 
-	DirectX::Model* m_model;  // モデル
+	// モデル
+	DirectX::Model* m_model;  
 
-	DirectX::ModelBone::TransformArray m_drawBones;  // アニメーションボーン配列
-	
-	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  // アニメーション
+	// アニメーションボーン配列
+	DirectX::ModelBone::TransformArray m_drawBones; 
+	// アニメーション
+	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  
 
-	DirectX::SimpleMath::Matrix m_rightHandMatrix; // 右手のマトリックス
-	DirectX::SimpleMath::Matrix m_leftHandMatrix;  // 左手のマトリックス
+	// 右手のマトリックス
+	DirectX::SimpleMath::Matrix m_rightHandMatrix; 
+	// 左手のマトリックス
+	DirectX::SimpleMath::Matrix m_leftHandMatrix;  
 
-	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
+	// ベーシックエフェクト
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  
 
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  // プリミティブバッチ
+	// プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  
 
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
+	// 入力レイアウトへのポインタ
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout; 
 
 
 // 関数

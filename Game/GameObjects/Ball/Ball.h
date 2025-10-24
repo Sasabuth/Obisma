@@ -44,46 +44,62 @@ public:
 
 // 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
+
+	// シーン
 	GameplayScene* m_pScene;
 
-	std::unique_ptr<DirectX::Model> m_model;  // モデル
+	// モデル
+	std::unique_ptr<DirectX::Model> m_model;  
 
+	// 現在のステート
 	IState* m_currentState;
 
-	// 「止まる」状態
-	std::unique_ptr<Stopping> m_stopping;
-	// 「動く」状態
-	std::unique_ptr<Moving> m_moving;
-	// 「とっている」状態
-	std::unique_ptr<Catching> m_catching;
+	// ステート
+	std::unique_ptr<Stopping> m_stopping;  // 「止まる」
+	std::unique_ptr<Moving> m_moving;      // 「動く」
+	std::unique_ptr<Catching> m_catching;  // 「とっている」
 
+	// 座標
 	DirectX::SimpleMath::Vector3 m_position;
+	// 速度
 	DirectX::SimpleMath::Vector3 m_velocity;
-
+	// 回転
 	DirectX::SimpleMath::Quaternion m_rotate;
+	// 重力
 	DirectX::SimpleMath::Vector3 m_gravity;
-
+	// コライダー
 	SphereCollider m_collider;
 
+	// 当たった座標
 	DirectX::SimpleMath::Vector3 m_hitPos;
 
-	int m_ballColorNum;  // ボールの色の番号
+	// ボールの色の番号
+	int m_ballColorNum; 
 
-	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
+	// ベーシックエフェクト
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  
 
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>> m_primitiveBatch;  // プリミティブバッチ
+	// プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>> m_primitiveBatch;  
 
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
+	// 入力レイアウトへのポインタ
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout; 
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  // 影のテクスチャ
+	// 影のテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  
 
 	// SE
 	std::unique_ptr<DirectX::SoundEffectInstance> m_se;
+
+	// 音が鳴ったか
 	bool m_isSound;
 
+	// 音の間隔
 	float m_soundSpan;
 
+	// 無敵時間
 	float m_invincibleTime;
 
 

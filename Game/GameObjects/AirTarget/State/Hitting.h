@@ -44,14 +44,14 @@ private:
 
 // 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
 
+	// 空中の的
 	AirTarget* m_airTarget;
 
-	// ランダムなデバイス シードを使用してメルセンヌ ツイスター エンジンを作成します
+	// ランダムデバイス 
 	std::random_device rd;
-
-
 
 
 // 関数

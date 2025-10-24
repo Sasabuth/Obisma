@@ -75,8 +75,9 @@ void GameplayScene::Initialize()
 	// ゲーム時間の初期化
 	m_gameTimer = MAX_TIME;
 
-	m_frameSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame2.png"));
-	m_timerSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont2.png"));
+	// テクスチャの初期化
+	m_frameTexture.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame2.png"));
+	m_timerTexture.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont2.png"));
 
 	// リスナーの設定
 	Resources::GetInstance()->SetListener(m_player->GetPosition(),
@@ -190,8 +191,8 @@ void GameplayScene::Render()
 	// スコアマネージャーの描画
 	m_scoreManager->Render();
 
-	m_frameSprite.Draw(DirectX::SimpleMath::Vector2(640, 52), DirectX::SimpleMath::Vector2(415, 239), 0.28f);
-	m_timerSprite.DigitsDraw(571, 25, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_gameTimer, 1.0f);
+	m_frameTexture.Draw(DirectX::SimpleMath::Vector2(640, 52), DirectX::SimpleMath::Vector2(415, 239), 0.28f);
+	m_timerTexture.DigitsDraw(571, 25, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_gameTimer, 1.0f);
 	
 	// デバック用
 	// カメラの上向きベクトルの描画

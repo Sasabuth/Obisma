@@ -17,12 +17,17 @@ class Button
 {
 // 変数
 private:
-	Sprite m_sprite;  // スプライト
-	BoxCollider2D m_collider; // コライダー
+	// テクスチャ
+	Sprite m_texture;  
+	// コライダー
+	BoxCollider2D m_collider; 
 
-	std::function<void()> m_clickFunc;  // クリックしたときの関数
+	// クリックしたときの関数
+	std::function<void()> m_clickFunc;  
 
-	std::unique_ptr<DirectX::SoundEffectInstance> m_se;  // SE
+	// SE
+	std::unique_ptr<DirectX::SoundEffectInstance> m_se;  
+
 
 // 関数
 public:
@@ -41,11 +46,11 @@ public:
 
 // 設定/取得
 public:
-	const Sprite& GetSprite() { return m_sprite; }
+	// コライダーの取得
 	const BoxCollider2D& GetCollider() { return m_collider; }
 
 	// テクスチャの設定
-	void SetTexture(Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture) { m_sprite.SetTexture(texture); }  // 設定
+	void SetTexture(Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture) { m_texture.SetTexture(texture); }  // 設定
 
 	// 座標の設定
 	void SetPosition(DirectX::SimpleMath::Vector2 pos) { m_collider.SetPosition(pos); }

@@ -14,6 +14,8 @@ class Player;
 // クラスの定義
 class Camera
 {
+// 変数
+private:
 	// カメラの距離
 	static constexpr float DEFAULT_CAMERA_DISTANCE = 5.0f;
 
@@ -45,6 +47,7 @@ class Camera
 
 	// スクリーンサイズ
 	int m_screenW, m_screenH;
+
 
 private:
 	// モーション

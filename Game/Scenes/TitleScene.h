@@ -40,10 +40,13 @@ private:
 	};
 
 private:
+	// ユーザーリソース
 	UserResources* m_pUserResources;
 
+	// タイトルテクスチャ
 	Sprite m_titleTexture;
 
+	// ボタンの配列
 	Button m_button[3];
 
 	// カメラ
@@ -58,6 +61,7 @@ private:
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
 
+	// コライダー
 	BoxCollider2D m_collider;
 
 

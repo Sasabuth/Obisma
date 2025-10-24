@@ -31,16 +31,22 @@ private:
 
 // 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
 
+	// スコア
 	float m_score;
+
+	// インデックス
 	int m_index;
 
+	// 座標
 	DirectX::SimpleMath::Vector2 m_position;
 
-	Sprite m_scoreSprite;
-	Sprite m_frameSprite;
-	Sprite m_faceSprite;
+	// テクスチャ
+	Sprite m_scoreTexture;
+	Sprite m_frameTexture;
+	Sprite m_faceTexture;
 
 
 // 関数

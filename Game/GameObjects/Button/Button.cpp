@@ -40,7 +40,7 @@ void Button::Draw(DirectX::XMVECTOR color)
 	// コライダー描画
 	/*m_collider.Draw(DirectX::Colors::Yellow);*/
 
-	m_sprite.Draw(m_collider.GetPosition(), m_collider.GetSize(), m_collider.GetScale(), color);
+	m_texture.Draw(m_collider.GetPosition(), m_collider.GetSize(), m_collider.GetScale(), color);
 }
 
 

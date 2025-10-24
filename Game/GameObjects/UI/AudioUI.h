@@ -33,18 +33,24 @@ private:
 
 // 変数
 private:
-	UserResources* m_userResources;  // ユーザーリソース
+	// ユーザーリソース
+	UserResources* m_userResources;  
 
+	// オーディオUI
 	Sprite m_audioUI;
 
+	// コライダー
 	BoxCollider2D m_uiCollider;
 	BoxCollider2D m_barCollider[BAR_COUNT];
 
+	// 当たったか
 	bool m_isHit[BAR_COUNT];
 
+	// 開いたか
 	bool m_isOpen;
 
-	std::unique_ptr<DirectX::SoundEffectInstance> m_se;  // SE
+	// SE
+	std::unique_ptr<DirectX::SoundEffectInstance> m_se;
 
 
 // 関数

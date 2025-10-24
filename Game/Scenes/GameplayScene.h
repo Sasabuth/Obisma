@@ -36,6 +36,7 @@ private:
 
 // 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
 
 	// フィールド
@@ -65,9 +66,9 @@ private:
 	// ゲーム時間
 	float m_gameTimer;
 
-	// スプライト
-	Sprite m_frameSprite;
-	Sprite m_timerSprite;
+	// テクスチャ
+	Sprite m_frameTexture;
+	Sprite m_timerTexture;
 
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
@@ -103,12 +104,13 @@ public:
 	void OnDeviceLost() override;
 
 
+// 設定/取得
 public:
 	Field& GetField() const { return *m_field; }
 	Player* GetPlayer() const { return m_player.get(); }
 	AirTarget* GetAirTarget() const { return m_airTarget.get(); }
 
-
+// 内部処理
 private:
 	void IsHitEntityToField(IEntity* pIEntity, Field* pField);
 

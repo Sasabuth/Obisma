@@ -49,9 +49,9 @@ void Score::Initialize(int index)
 
 	m_index = index;
 
-	m_scoreSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont" + std::to_wstring(index) + L".png"));
-	m_frameSprite.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame" + std::to_wstring(index) + L".png"));
-	m_faceSprite.SetTexture(Resources::GetInstance()->GetTexture(L"Face" + std::to_wstring(index) + L".png"));
+	m_scoreTexture.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont" + std::to_wstring(index) + L".png"));
+	m_frameTexture.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame" + std::to_wstring(index) + L".png"));
+	m_faceTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Face" + std::to_wstring(index) + L".png"));
 }
 
 
@@ -61,9 +61,9 @@ void Score::Initialize(int index)
 /// </summary>
 void Score::Render()
 {
-	m_frameSprite.Draw(m_position, DirectX::SimpleMath::Vector2(0, 0), 0.3f);
-	m_faceSprite.Draw(m_position, DirectX::SimpleMath::Vector2(0, 0), 0.1f);
-	m_scoreSprite.DigitsDraw(m_position.x + 80, m_position.y + 10, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_score, 1.0f);
+	m_frameTexture.Draw(m_position, DirectX::SimpleMath::Vector2(0, 0), 0.3f);
+	m_faceTexture.Draw(m_position, DirectX::SimpleMath::Vector2(0, 0), 0.1f);
+	m_scoreTexture.DigitsDraw(m_position.x + 80, m_position.y + 10, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_score, 1.0f);
 
 	auto debagFont = m_userResources->GetDebugFont();
 	//debagFont->Render(L"score", m_score);

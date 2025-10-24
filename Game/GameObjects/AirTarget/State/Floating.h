@@ -27,10 +27,13 @@ private:
 
 // 変数
 private:
+	// ユーザーリソース
 	UserResources* m_userResources;
 
+	// 空中の的
 	AirTarget* m_airTarget;
 
+	// 回転
 	float m_rotate;
 
 

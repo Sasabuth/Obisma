@@ -47,46 +47,65 @@ public:
 
 // 変数
 private:
-	UserResources* m_userResources;  // ユーザーリソース
+	// ユーザーリソース
+	UserResources* m_userResources;  
 
-	GameplayScene* m_pScene;  // シーン
+	// シーン
+	GameplayScene* m_pScene;  
 
+	// ボールマネージャー
 	BallManager* m_ballManager;
 
-	IState* m_currentState;  // 現在のステート
+	// 現在のステート
+	IState* m_currentState;  
 
-	
-	std::unique_ptr<Standing> m_standing;        // 「立つ」状態
-	std::unique_ptr<Running> m_running;          // 「走る」状態
-	std::unique_ptr<ThrowingR> m_throwingR;      // 「右で投げる」状態
-	std::unique_ptr<ThrowingL> m_throwingL;      // 「左で投げる」状態
-	std::unique_ptr<PlayerCatching> m_catching;  // 「キャッチ」状態
-	std::unique_ptr<Dizzying> m_dizzying;        //「くらくら」状態
+	// ステート
+	std::unique_ptr<Standing> m_standing;        //「立つ」
+	std::unique_ptr<Running> m_running;          //「走る」
+	std::unique_ptr<ThrowingR> m_throwingR;      //「右で投げる」
+	std::unique_ptr<ThrowingL> m_throwingL;      //「左で投げる」
+	std::unique_ptr<PlayerCatching> m_catching;  //「キャッチ」
+	std::unique_ptr<Dizzying> m_dizzying;        //「くらくら」
 
-	DirectX::SimpleMath::Vector3 m_position;   // 座標
-	DirectX::SimpleMath::Vector3 m_velocity;   // 速度
-	DirectX::SimpleMath::Quaternion m_rotate;  // 回転
-	DirectX::SimpleMath::Vector3 m_gravity;    // 重力
-	DirectX::SimpleMath::Matrix m_worldMatrix; // ワールド座標
-
+	// 座標
+	DirectX::SimpleMath::Vector3 m_position; 
+	// 速度
+	DirectX::SimpleMath::Vector3 m_velocity;
+	// 回転
+	DirectX::SimpleMath::Quaternion m_rotate;  
+	// 重力
+	DirectX::SimpleMath::Vector3 m_gravity;   
+	// ワールド座標
+	DirectX::SimpleMath::Matrix m_worldMatrix; 
+	// コライダー
 	SphereCollider m_collider;
 
-	std::unique_ptr<Score> m_score;        // スコア
+	// スコア
+	std::unique_ptr<Score> m_score;       
 
-	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  // ベーシックエフェクト
+	// ベーシックエフェクト
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  
 
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>> m_primitiveBatch;  // プリミティブバッチ
+	// プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>> m_primitiveBatch;  
 
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  // 入力レイアウトへのポインタ
+	// 入力レイアウトへのポインタ
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;  
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  // 影のテクスチャ
-	Sprite m_lockOnTexture;  // ロックオンのテクスチャ
+	// 影のテクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowTexture;  
+	// ロックオンのテクスチャ
+	Sprite m_lockOnTexture; 
 
-	DirectX::SimpleMath::Ray m_mouseRay;  // マウスのレイ
-	DirectX::SimpleMath::Vector3 m_hitPos;  // 当たった点
+	// マウスのレイ
+	DirectX::SimpleMath::Ray m_mouseRay;  
+	// 当たった点
+	DirectX::SimpleMath::Vector3 m_hitPos;  
 
-	std::map<int, Ball*> m_isBall;  // ボールを持っているか
+	// ボールを持っているか
+	std::map<int, Ball*> m_isBall;  
 
+	// 無敵時間
 	float m_invincibleTime;
 
 	// SE
