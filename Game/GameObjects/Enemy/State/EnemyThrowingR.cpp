@@ -131,7 +131,7 @@ void EnemyThrowingR::Update(float elapsedTime)
 		m_enemy->SetRotation(m_enemy->GetRotation() * q);
 
 		// 右手に持たせる
-		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
+		Ball* ball = m_enemy->GetCatchBall(Enemy::RIGHT);
 		m_enemy->SetBallPosition(ball, m_rightHandMatrix);
 
 		// 時間になったら投げる
@@ -149,8 +149,8 @@ void EnemyThrowingR::Update(float elapsedTime)
 			{
 				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(12));
 			}
-			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation() * rotate) * Player::BALL_SPEED);
-			m_enemy->SetCatchBall(Player::RIGHT, nullptr);
+			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation() * rotate) * Enemy::BALL_SPEED);
+			m_enemy->SetCatchBall(Enemy::RIGHT, nullptr);
 			m_isThowing = true;
 		}
 	}
@@ -167,7 +167,7 @@ void EnemyThrowingR::Update(float elapsedTime)
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
 	{
 		// 左手に持たせる
-		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
+		Ball* ball = m_enemy->GetCatchBall(Enemy::LEFT);
 		if (ball) m_enemy->SetBallPosition(ball, m_leftHandMatrix);
 
 		// アニメーションを更新する
@@ -191,9 +191,6 @@ void EnemyThrowingR::Update(float elapsedTime)
 /// </summary>
 void EnemyThrowingR::Render()
 {
-	// デバックフォントの描画
-	auto* debugFont = m_userResources->GetDebugFont();
-
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -201,7 +198,7 @@ void EnemyThrowingR::Render()
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Player::PLAYER_SIZE));
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Enemy::ENEMY_SIZE));
 	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
 
 	m_enemy->SetWorld(scale * rotate * pos);
@@ -226,7 +223,7 @@ void EnemyThrowingR::Render()
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
+	m_enemy->DrawShadow(context, states, Enemy::SHADOW_SIZE, m_drawPos);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -258,6 +255,8 @@ void EnemyThrowingR::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
+
+	/*auto* debugFont = m_userResources->GetDebugFont();*/
 
 	/*debugFont->Render(L"EnemyThrowingR");*/
 }

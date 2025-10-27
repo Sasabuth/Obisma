@@ -189,9 +189,6 @@ void EnemyThrowingL::Update(float elapsedTime)
 /// </summary>
 void EnemyThrowingL::Render()
 {
-	// デバックフォントの描画
-	auto* debugFont = m_userResources->GetDebugFont();
-
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -256,6 +253,8 @@ void EnemyThrowingL::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
+
+	/*auto* debugFont = m_userResources->GetDebugFont();*/
 
 	/*debugFont->Render(L"EnemyThrowingL");*/
 }

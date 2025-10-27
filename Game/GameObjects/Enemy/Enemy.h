@@ -34,7 +34,6 @@ class Enemy : public IEntity
 public:
 	static constexpr float SHADOW_SIZE = 0.4f; // 影の大きさ
 	static constexpr float BALL_SPEED = 3.0f;  // ボールの速度
-	static constexpr float BALL_POS = 3.2f;  // ボールの座標
 	static constexpr float ENEMY_SIZE = 0.003f;
 	static constexpr float COLLIDER_SIZE = 0.5f;
 

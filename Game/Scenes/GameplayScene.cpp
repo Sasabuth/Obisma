@@ -12,6 +12,10 @@
 #include "Game/Commons/Factory.h"
 #include "Game/Commons/Resources.h"
 
+#include <fstream>
+#include <iostream>
+#include <json.hpp>
+
 
 
 /// <summary>
@@ -19,6 +23,7 @@
 /// </summary>
 GameplayScene::GameplayScene()
 	: m_userResources(nullptr)
+	, m_resources(nullptr)
 	, m_gameTimer(0)
 {
 }
@@ -42,6 +47,9 @@ void GameplayScene::Initialize()
 	// ユーザーリソースの取得
 	m_userResources = UserResources::GetUserResource();
 
+	// リソースの取得
+	m_resources = Resources::GetInstance();
+
 	// デバックフォントの初期化(シーンのみ)
 	auto* debugFont = m_userResources->GetDebugFont();
 	debugFont->Initialize();
@@ -56,16 +64,31 @@ void GameplayScene::Initialize()
 	m_ballManager = Factory::CreateBallManager(this);
 
 	// プレイヤーの初期化
-	m_player = Factory::CreatePlayer(this, m_ballManager.get(), DirectX::SimpleMath::Vector3{ 0.1f,3.0f,0.1f });
+	m_player = Factory::CreatePlayer(this, m_ballManager.get(), DirectX::SimpleMath::Vector3{ 
+		m_resources->GetJson(L"Player.json")["Position"]["x"],
+		m_resources->GetJson(L"Player.json")["Position"]["y"],
+		m_resources->GetJson(L"Player.json")["Position"]["z"]
+		}
+	);
 
 	// 敵の初期化
-	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), DirectX::SimpleMath::Vector3{ 0.1f,-3.0f,0.1f });
+	m_enemy = Factory::CreateEnemy(this, m_ballManager.get(), DirectX::SimpleMath::Vector3{ 
+		m_resources->GetJson(L"Enemy.json")["Position"]["x"],
+		m_resources->GetJson(L"Enemy.json")["Position"]["y"],
+		m_resources->GetJson(L"Enemy.json")["Position"]["z"]
+		}
+	);
 
 	// カメラの上向きベクトルの初期化
 	m_cameraUp = Factory::CreateCameraUp(m_player.get(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
 
 	// 空中の的の初期化
-	m_airTarget = Factory::CreateAirTarget(this, DirectX::SimpleMath::Vector3{ -2.0f,2.0f,3.0f });
+	m_airTarget = Factory::CreateAirTarget(this, DirectX::SimpleMath::Vector3{ 
+		m_resources->GetJson(L"AirTarget.json")["Position"]["x"],
+		m_resources->GetJson(L"AirTarget.json")["Position"]["y"],
+		m_resources->GetJson(L"AirTarget.json")["Position"]["z"]
+		}
+	);
 
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
@@ -76,17 +99,17 @@ void GameplayScene::Initialize()
 	m_gameTimer = MAX_TIME;
 
 	// テクスチャの初期化
-	m_frameTexture.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame2.png"));
-	m_timerTexture.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont2.png"));
+	m_frameTexture.SetTexture(m_resources->GetTexture(L"ScoreFrame2.png"));
+	m_timerTexture.SetTexture(m_resources->GetTexture(L"ScoreFont2.png"));
 
 	// リスナーの設定
-	Resources::GetInstance()->SetListener(m_player->GetPosition(),
+	m_resources->SetListener(m_player->GetPosition(),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
 	);
 
 	// BGM
-	m_bgm = Resources::GetInstance()->GetBGMSound(L"GameBgm.wav", m_player->GetPosition(), true);
+	m_bgm = m_resources->GetBGMSound(L"GameBgm.wav", m_player->GetPosition(), true);
 
 	// プレイ人数を初期化
 	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
@@ -159,7 +182,7 @@ void GameplayScene::Update(float elapsedTime)
 	}
 
 	// BGMの音量の設定
-	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
+	m_bgm->SetVolume(m_resources->GetBGMVolume());
 }
 
 
@@ -193,7 +216,7 @@ void GameplayScene::Render()
 
 	m_frameTexture.Draw(DirectX::SimpleMath::Vector2(640, 52), DirectX::SimpleMath::Vector2(415, 239), 0.28f);
 	m_timerTexture.DigitsDraw(571, 25, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_gameTimer, 1.0f);
-	
+
 	// デバック用
 	// カメラの上向きベクトルの描画
 	/*m_cameraUp->Render();*/
@@ -316,7 +339,7 @@ void GameplayScene::SetListener()
 	q = m_player->GetRotation() * q;
 
 	// リスナーの設定
-	Resources::GetInstance()->SetListener(m_player->GetPosition(),
+	m_resources->SetListener(m_player->GetPosition(),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, q),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
 	);

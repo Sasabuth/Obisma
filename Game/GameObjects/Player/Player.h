@@ -33,9 +33,7 @@ class Ball;
 class Player : public IEntity
 {
 public:
-	static constexpr float PLAYER_SIZE = 0.003f;
 	static constexpr float BALL_SPEED = 3.0f;
-	static constexpr float SHADOW_SIZE = 0.4f;
 
 	enum HAND
 	{

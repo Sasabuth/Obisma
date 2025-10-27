@@ -153,9 +153,6 @@ void PlayerCatching::Update(float elapsedTime)
 /// </summary>
 void PlayerCatching::Render()
 {
-	// デバックフォントの描画
-	auto* debugFont = m_userResources->GetDebugFont();
-
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -163,7 +160,7 @@ void PlayerCatching::Render()
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Player::PLAYER_SIZE));
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Player.json")["PlayerSize"]));
 	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
 
 	m_player->SetWorld(scale * rotate * pos);
@@ -188,7 +185,7 @@ void PlayerCatching::Render()
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
+	m_player->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
 
 	// デバック用
 	// 軸の描画
@@ -217,6 +214,8 @@ void PlayerCatching::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
+
+	// auto* debugFont = m_userResources->GetDebugFont();
 
 	//debugFont->Render(L"PlayerCatching");
 	//debugFont->Render(L"CatchPos", DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()));

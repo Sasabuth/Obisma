@@ -91,7 +91,8 @@ void Stopping::Render()
 	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
 
 	// デバック用
-	auto* debugFont = m_userResources->GetDebugFont();
+	/*auto* debugFont = m_userResources->GetDebugFont();*/
+
 	/*debugFont->Render(L"Stopping");*/
 
 }

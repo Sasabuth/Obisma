@@ -52,7 +52,7 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	m_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 
-	m_collider.Initialize(context, m_position, 0.5f);
+	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Player.json")["ColliderSize"]);
 
 	// 「立つ」状態の生成
 	m_standing = std::make_unique<Standing>(this);
@@ -146,7 +146,7 @@ void Player::Render()
 	}
 
 	// デバック用
-	auto* debugFont = m_userResources->GetDebugFont();
+	/*auto* debugFont = m_userResources->GetDebugFont();*/
 	/*debugFont->Render(L"InvincibleTime", m_invincibleTime);*/
 
 	/*auto states = m_userResources->GetCommonStates();

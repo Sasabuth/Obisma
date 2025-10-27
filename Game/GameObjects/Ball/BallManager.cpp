@@ -42,9 +42,13 @@ void BallManager::Initialize()
 {
 	m_userResources = UserResources::GetUserResource();
 
-	for (int i = 0; i < BALL_COUNT; i++)
+	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["Count"]; i++)
 	{
-		std::unique_ptr<Ball> ball = Factory::CreateBall(m_pScene, BALL_POSITIONS[i]);
+		std::unique_ptr<Ball> ball = Factory::CreateBall(m_pScene, DirectX::SimpleMath::Vector3(
+			Resources::GetInstance()->GetJson(L"Ball.json")[std::to_string(i)]["Position"]["x"],
+			Resources::GetInstance()->GetJson(L"Ball.json")[std::to_string(i)]["Position"]["y"],
+			Resources::GetInstance()->GetJson(L"Ball.json")[std::to_string(i)]["Position"]["z"])
+		);
 		Add(ball);
 	}
 }

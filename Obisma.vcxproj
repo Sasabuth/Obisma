@@ -224,6 +224,7 @@
     <ClInclude Include="Game\Scenes\GameplayScene.h" />
     <ClInclude Include="Game\Scenes\ResultScene.h" />
     <ClInclude Include="Game\Scenes\TitleScene.h" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="MemoryLeakDetector.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StepTimer.h" />
@@ -291,6 +292,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resources\Jsons\AirTarget.json" />
+    <None Include="Resources\Jsons\Ball.json" />
+    <None Include="Resources\Jsons\Enemy.json" />
+    <None Include="Resources\Jsons\Player.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

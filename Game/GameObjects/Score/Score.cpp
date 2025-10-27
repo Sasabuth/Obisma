@@ -65,7 +65,7 @@ void Score::Render()
 	m_faceTexture.Draw(m_position, DirectX::SimpleMath::Vector2(0, 0), 0.1f);
 	m_scoreTexture.DigitsDraw(m_position.x + 80, m_position.y + 10, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_score, 1.0f);
 
-	auto debagFont = m_userResources->GetDebugFont();
+	//auto debagFont = m_userResources->GetDebugFont();
 	//debagFont->Render(L"score", m_score);
 	
 }

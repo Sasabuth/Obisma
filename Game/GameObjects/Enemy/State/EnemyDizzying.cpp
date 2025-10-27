@@ -89,14 +89,14 @@ void EnemyDizzying::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void EnemyDizzying::Update(float elapsedTime)
 {
-	if (m_enemy->GetCatchBall(Player::RIGHT))
+	if (m_enemy->GetCatchBall(Enemy::RIGHT))
 	{
-		Ball* ball = m_enemy->GetCatchBall(Player::RIGHT);
+		Ball* ball = m_enemy->GetCatchBall(Enemy::RIGHT);
 		m_enemy->SetBallPosition(ball, m_rightHandMatrix);
 	}
-	if (m_enemy->GetCatchBall(Player::LEFT))
+	if (m_enemy->GetCatchBall(Enemy::LEFT))
 	{
-		Ball* ball = m_enemy->GetCatchBall(Player::LEFT);
+		Ball* ball = m_enemy->GetCatchBall(Enemy::LEFT);
 		m_enemy->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
@@ -137,9 +137,6 @@ void EnemyDizzying::Update(float elapsedTime)
 /// </summary>
 void EnemyDizzying::Render()
 {
-	// デバックフォントの描画
-	auto* debugFont = m_userResources->GetDebugFont();
-
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -147,7 +144,7 @@ void EnemyDizzying::Render()
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Player::PLAYER_SIZE));
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Enemy::ENEMY_SIZE));
 	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
 
 	m_enemy->SetWorld(scale * rotate * pos);
@@ -172,7 +169,7 @@ void EnemyDizzying::Render()
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_enemy->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
+	m_enemy->DrawShadow(context, states, Enemy::SHADOW_SIZE, m_drawPos);
 
 	// デバック用
 	// 軸の描画
@@ -201,6 +198,8 @@ void EnemyDizzying::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
+
+	/*auto* debugFont = m_userResources->GetDebugFont();*/
 
 	/*debugFont->Render(L"EnemyDizzying");
 	debugFont->Render(L"CatchPos", DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()));

@@ -10,6 +10,9 @@
 #include "pch.h"
 #include "Resources.h"
 
+#include <fstream>
+#include <iostream>
+
 
 
 // シングルトンの初期化
@@ -229,6 +232,31 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetTexture(const std
 	}
 
 	return m_textures[filename];
+}
+
+
+
+/// <summary>
+/// Jsonの取得
+/// </summary>
+/// <param name="filename">ファイル名</param>
+/// <returns>Json</returns>
+nlohmann::json Resources::GetJson(const std::wstring& filename)
+{
+	// 未登録の場合
+	if (m_jsons.count(filename) == 0)
+	{
+		// Jsonファイルの読み込み
+		std::wstring fullPath = DEFAULT_JSON_DIRECTORY + std::wstring(filename);
+		std::ifstream file(fullPath);
+		nlohmann::json json;
+		file >> json;
+
+		// Jsonのハンドルを登録
+		m_jsons.emplace(filename, std::move(json));
+	}
+
+	return m_jsons[filename];
 }
 
 

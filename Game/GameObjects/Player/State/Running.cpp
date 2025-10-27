@@ -127,7 +127,7 @@ void Running::Update(float elapsedTime)
 	// キーによる移動
 	if (kb.W)
 	{
-		m_player->SetVelocity(m_player->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()) * PLAYER_SPEED);
+		m_player->SetVelocity(m_player->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()) * Resources::GetInstance()->GetJson(L"Player.json")["Speed"]);
 	}
 	else
 	{
@@ -162,9 +162,6 @@ void Running::Update(float elapsedTime)
 /// </summary>
 void Running::Render()
 {
-	// デバックフォントの描画
-	auto* debugFont = m_userResources->GetDebugFont();
-
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -172,7 +169,7 @@ void Running::Render()
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Player::PLAYER_SIZE));
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Player.json")["PlayerSize"]));
 	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
 
 	m_player->SetWorld(scale * rotate * pos);
@@ -197,7 +194,7 @@ void Running::Render()
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_player->DrawShadow(context, states, Player::SHADOW_SIZE, m_drawPos);
+	m_player->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -227,6 +224,8 @@ void Running::Render()
 	m_primitiveBatch->End();
 
 	// デバック
+	// auto* debugFont = m_userResources->GetDebugFont();
+
 	/*m_player->GetCollider().Draw(states, *view, *proj);*/
 	/*debugFont->Render(L"Running");*/
 }

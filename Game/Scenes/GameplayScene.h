@@ -39,6 +39,9 @@ private:
 	// ユーザーリソース
 	UserResources* m_userResources;
 
+	// リソース
+	Resources* m_resources;
+
 	// フィールド
 	std::unique_ptr<Field> m_field;
 

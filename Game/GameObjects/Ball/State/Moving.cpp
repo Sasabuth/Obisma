@@ -78,9 +78,6 @@ void Moving::Update(float elapsedTime)
 /// </summary>
 void Moving::Render()
 {
-	// デバックフォントの描画
-	auto* debugFont = m_userResources->GetDebugFont();
-
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -104,6 +101,8 @@ void Moving::Render()
 
 
 	// デバック
+	/*auto* debugFont = m_userResources->GetDebugFont();*/
+
 	/*debugFont->Render(L"Moving");
 	debugFont->Render(L"Speed",m_ball->GetVelocity().Length());*/
 	//debugFont->Render(L"Length", m_ball->GetVelocity());

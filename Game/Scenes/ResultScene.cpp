@@ -129,18 +129,6 @@ void ResultScene::Update(float elapsedTime)
 /// </summary>
 void ResultScene::Render()
 {
-	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
-	//debugFont->Render(L"ResultScene");
-
-	//if (GetSceneManager()->GetWinner() == 0)
-	//{
-	//	debugFont->Render(L"PLAYER1_WIN");
-	//}
-	//if (GetSceneManager()->GetWinner() == 1)
-	//{
-	//	debugFont->Render(L"PLAYER2_WIN");
-	//}
-
 	m_spaceTexture.Draw(m_position, DirectX::SimpleMath::Vector2(0, 1024), 1.26f, DirectX::Colors::DarkGray);
 	m_spaceTexture.Draw(m_position2, DirectX::SimpleMath::Vector2(0, 1024), 1.26f, DirectX::Colors::DarkGray);
 
@@ -152,6 +140,7 @@ void ResultScene::Render()
 
 	m_backTexture.Draw(DirectX::SimpleMath::Vector2(340, 550 + sin(m_speed)), DirectX::SimpleMath::Vector2::Zero, 0.25f);
 	
+	//auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
 }
 
 

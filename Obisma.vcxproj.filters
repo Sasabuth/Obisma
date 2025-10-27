@@ -62,6 +62,12 @@
     <Filter Include="Game\GameObjects\UI">
       <UniqueIdentifier>{c4bcd554-8b54-46d5-86fa-d2f7df97534b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{0457a82e-a27f-48ff-8f0e-abff6efd7667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Jsons">
+      <UniqueIdentifier>{26ddaf98-b7e3-4725-bf3d-5c76087be48e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -205,6 +211,9 @@
     </ClInclude>
     <ClInclude Include="Game\GameObjects\UI\AudioUI.h">
       <Filter>Game\GameObjects\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="json.hpp">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -355,5 +364,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resources\Jsons\Enemy.json">
+      <Filter>Resources\Jsons</Filter>
+    </None>
+    <None Include="Resources\Jsons\Player.json">
+      <Filter>Resources\Jsons</Filter>
+    </None>
+    <None Include="Resources\Jsons\AirTarget.json">
+      <Filter>Resources\Jsons</Filter>
+    </None>
+    <None Include="Resources\Jsons\Ball.json">
+      <Filter>Resources\Jsons</Filter>
+    </None>
   </ItemGroup>
 </Project>

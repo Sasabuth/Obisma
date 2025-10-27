@@ -73,8 +73,7 @@ void Floating::Update(float elapsedTime)
 /// </summary>
 void Floating::Render()
 {
-	// デバックフォントの描画
-	auto* debugFont = m_userResources->GetDebugFont();
+
 
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_userResources->GetCommonStates();
@@ -100,6 +99,8 @@ void Floating::Render()
 	m_airTarget->DrawShadow(context, states, AirTarget::SHADOW_SIZE);
 
 	// デバック
+	/*auto* debugFont = m_userResources->GetDebugFont();*/
+
 	//debugFont->Render(L"Floating");
 	/*debugFont->Render(L"Position", m_airTarget->GetPosition().x * m_airTarget->GetPosition().y * m_airTarget->GetPosition().z);*/
 

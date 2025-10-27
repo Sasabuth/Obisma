@@ -24,7 +24,7 @@ class Running : public IState
 {
 // ’è”
 private:
-	static constexpr float PLAYER_SPEED = 2.0f;
+
 
 // •Ï”
 private:

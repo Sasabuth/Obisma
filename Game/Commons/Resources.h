@@ -10,6 +10,7 @@
 #include "Model.h"
 #include "Game/Commons/UserResources.h"
 #include <unordered_map>
+#include <json.hpp>
 
 
 // Resourcesクラスを定義する
@@ -20,6 +21,7 @@ private:
 	static constexpr const wchar_t* DEFAULT_MODEL_DIRECTORY = L"Resources/Models/";
 	static constexpr const wchar_t* DEFAULT_TEXTURE_DIRECTORY = L"Resources/Textures/";
 	static constexpr const wchar_t* DEFAULT_SOUND_DIRECTORY = L"Resources/Sounds/";
+	static constexpr const wchar_t* DEFAULT_JSON_DIRECTORY = L"Resources/Jsons/";
 
 
 // エイリアス宣言
@@ -27,6 +29,7 @@ private:
 	using ResourceSound = std::unordered_map<std::wstring, std::unique_ptr<DirectX::SoundEffect>>;
 	using ResourceModel = std::unordered_map<std::wstring, std::unique_ptr<DirectX::Model>>;
 	using ResourceTexture = std::unordered_map<std::wstring, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>;
+	using ResourceJson = std::unordered_map<std::wstring, nlohmann::json>;
 
 
 public:
@@ -61,6 +64,9 @@ public:
 
 	// 画像データの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTexture(const std::wstring& filename);
+
+	// Jsonの取得
+	nlohmann::json GetJson(const std::wstring& filename);
 
 	// 音量の設定
 	void SetBGMVolume(float volume) { m_bgmVolume = volume; }
@@ -122,6 +128,9 @@ private:
 
 	// 画像データ群
 	ResourceTexture m_textures;  
+
+	// Jsonデータ群
+	ResourceJson m_jsons;
 
 	// 音量
 	float m_bgmVolume;

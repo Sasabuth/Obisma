@@ -1,0 +1,13 @@
+{
+	"Position": {
+		"x": 0.1,
+		"y": -3.0,
+		"z": 0.1
+	},
+
+	"EnemySize": 0.003,
+
+	"ShadowSize": 0.4,
+
+	"ColliderSize": 0.5
+}
