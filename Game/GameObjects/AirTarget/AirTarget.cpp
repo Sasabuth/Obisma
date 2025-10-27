@@ -48,7 +48,7 @@ void AirTarget::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	m_position = position;
 
-	m_collider.Initialize(context, m_position, BALL_SIZE);
+	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"AirTarget.json")["ColliderSize"]);
 
 	// ボールのモデルをロードする
 	m_model = Resources::GetInstance()->GetSterModel();

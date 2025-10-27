@@ -148,7 +148,7 @@ void EnemyRunning::Render()
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Enemy::ENEMY_SIZE));
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySize"]));
 	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
 
 	m_enemy->SetWorld(scale * rotate * pos);
@@ -173,7 +173,7 @@ void EnemyRunning::Render()
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_enemy->DrawShadow(context, states, Enemy::SHADOW_SIZE, m_drawPos);
+	m_enemy->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Enemy.json")["ShadowSize"], m_drawPos);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -302,7 +302,7 @@ void EnemyRunning::RunToBall()
 	m_enemy->SetRotation(m_enemy->GetRotation() * q);
 
 	// 速度の設定
-	m_enemy->SetVelocity(m_enemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * ENEMY_SPEED);
+	m_enemy->SetVelocity(m_enemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySpeed"]);
 }
 
 
@@ -357,7 +357,9 @@ void EnemyRunning::RunToEntity()
 		m_enemy->SetRotation(m_enemy->GetRotation() * q);
 
 		// 速度の設定
-		m_enemy->SetVelocity(m_enemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * ENEMY_SPEED);
+		m_enemy->SetVelocity(m_enemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation())
+			* Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySpeed"]
+		);
 	}
 }
 

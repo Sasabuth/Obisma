@@ -26,7 +26,7 @@ class EnemyRunning : public IState
 {
 // ’è”
 private:
-	static constexpr float ENEMY_SPEED = 2.2f;
+
 
 // •Ï”
 private:

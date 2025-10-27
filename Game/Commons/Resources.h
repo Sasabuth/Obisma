@@ -82,6 +82,7 @@ public:
 
 	// ƒŠƒZƒbƒg
 	void Reset();
+	void JsonReset() { m_jsons.clear(); }
 
 
 private:

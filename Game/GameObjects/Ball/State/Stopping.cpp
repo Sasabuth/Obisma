@@ -78,7 +78,7 @@ void Stopping::Render()
 	DirectX::SimpleMath::Matrix world;
 
 	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_ball->GetPosition());
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Ball::BALL_SIZE));
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Ball.json")["BallSize"]));
 
 	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_ball->GetRotation()); // ※回転順に合わせて調整
 
@@ -88,7 +88,7 @@ void Stopping::Render()
 	m_ball->GetModel()->Draw(context, *states, world, *view, *proj);
 
 	// 影の描画
-	m_ball->DrawShadow(context, states, Ball::SHADOW_SIZE);
+	m_ball->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Ball.json")["ShadowSize"]);
 
 	// デバック用
 	/*auto* debugFont = m_userResources->GetDebugFont();*/

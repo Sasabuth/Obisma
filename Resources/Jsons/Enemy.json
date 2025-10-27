@@ -5,9 +5,13 @@
 		"z": 0.1
 	},
 
+	"EnemySpeed": 2.2,
+
 	"EnemySize": 0.003,
 
 	"ShadowSize": 0.4,
 
-	"ColliderSize": 0.5
+	"ColliderSize": 0.5,
+
+	"BallSpeed": 3.0
 }

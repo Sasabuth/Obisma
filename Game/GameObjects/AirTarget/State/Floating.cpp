@@ -59,7 +59,7 @@ void Floating::Update(float elapsedTime)
 
 	auto mouse = DirectX::Mouse::Get().GetState();
 
-	m_rotate += 10.0f * elapsedTime;
+	m_rotate += Resources::GetInstance()->GetJson(L"AirTarget.json")["RotateSpeed"] * elapsedTime;
 
 	// プレイヤーの設定
 	m_airTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
@@ -84,7 +84,7 @@ void Floating::Render()
 	DirectX::SimpleMath::Matrix world;
 
 	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_airTarget->GetPosition());
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(AirTarget::BALL_SIZE));
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"AirTarget.json")["ColliderSize"]));
 
 	DirectX::SimpleMath::Matrix rotate =
 		DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate)) *
@@ -96,7 +96,7 @@ void Floating::Render()
 	m_airTarget->GetModel()->Draw(context, *states, world, *view, *proj);
 
 	// 影の描画
-	m_airTarget->DrawShadow(context, states, AirTarget::SHADOW_SIZE);
+	m_airTarget->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"AirTarget.json")["ShadowSize"]);
 
 	// デバック
 	/*auto* debugFont = m_userResources->GetDebugFont();*/

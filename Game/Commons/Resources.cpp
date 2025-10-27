@@ -322,4 +322,7 @@ void Resources::Reset()
 
 	// テクスチャの削除
 	m_textures.clear();
+
+	// Jsonの削除
+	m_jsons.clear();
 }

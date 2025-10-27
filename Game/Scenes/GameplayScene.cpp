@@ -9,6 +9,7 @@
 #include "GameplayScene.h"
 
 #include "Game/Scenes/ResultScene.h"
+#include "Game/Scenes/TitleScene.h"
 #include "Game/Commons/Factory.h"
 #include "Game/Commons/Resources.h"
 
@@ -168,6 +169,7 @@ void GameplayScene::Update(float elapsedTime)
 	m_gameTimer -= elapsedTime;
 
 	// ƒV[ƒ“•ÏX
+	auto kb = m_userResources->GetKeyboardStateTracker();
 	if (m_gameTimer <= 0.0f)
 	{
 		m_gameTimer = MAX_TIME;
@@ -179,6 +181,12 @@ void GameplayScene::Update(float elapsedTime)
 		}
 
 		ChangeScene<ResultScene>();
+	}
+
+	if (kb->pressed.R)
+	{
+		Resources::GetInstance()->JsonReset();
+		ChangeScene<TitleScene>();
 	}
 
 	// BGM‚Ì‰¹—Ê‚Ìİ’è

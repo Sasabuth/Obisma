@@ -54,11 +54,15 @@ void Hitting::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	std::uniform_int_distribution<int> dist(0, RAND_POS_COUNT - 1);
+	std::uniform_int_distribution<int> dist(0, Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPosCount"] - 1);
 
 	// プレイヤーの設定
 	m_airTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
-	m_airTarget->SetPosition(DirectX::SimpleMath::Vector3(RAND_POS[dist(rd)], RAND_POS[dist(rd)], RAND_POS[dist(rd)]));
+	m_airTarget->SetPosition(DirectX::SimpleMath::Vector3(
+		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(rd))],
+		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(rd))],
+		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(rd))])
+	);
 
 	m_airTarget->GetCollider().SetPosition(m_airTarget->GetPosition());
 

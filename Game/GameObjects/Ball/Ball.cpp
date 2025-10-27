@@ -52,7 +52,7 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	m_position = position;
 
-	m_collider.Initialize(context, m_position, BALL_SIZE);
+	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Ball.json")["BallSize"]);
 
 	// ボールのモデルをロードする
 	auto effectFactory = m_userResources->GetEffectFactory();
@@ -315,7 +315,12 @@ void Ball::SetBallColorNum(int ballColorNum)
 		[&](DirectX::IEffect* pEffect)
 		{
 			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
-			pBasicEffect->SetColorAndAlpha(BALLCOLOR[m_ballColorNum]);
+			pBasicEffect->SetColorAndAlpha(DirectX::SimpleMath::Vector4(
+				Resources::GetInstance()->GetJson(L"Ball.json")["BallColor"][std::to_string(m_ballColorNum)]["x"],
+				Resources::GetInstance()->GetJson(L"Ball.json")["BallColor"][std::to_string(m_ballColorNum)]["y"],
+				Resources::GetInstance()->GetJson(L"Ball.json")["BallColor"][std::to_string(m_ballColorNum)]["z"],
+				Resources::GetInstance()->GetJson(L"Ball.json")["BallColor"][std::to_string(m_ballColorNum)]["w"]
+			));
 		}
 	);
 }

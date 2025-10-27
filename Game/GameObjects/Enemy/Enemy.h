@@ -31,12 +31,8 @@ class Ball;
 // クラスの定義
 class Enemy : public IEntity
 {
+// 定数
 public:
-	static constexpr float SHADOW_SIZE = 0.4f; // 影の大きさ
-	static constexpr float BALL_SPEED = 3.0f;  // ボールの速度
-	static constexpr float ENEMY_SIZE = 0.003f;
-	static constexpr float COLLIDER_SIZE = 0.5f;
-
 	// 手
 	enum HAND
 	{

@@ -5,12 +5,13 @@
 		"z": 0.1
 	},
 
-	"Speed": 2.0,
+	"PlayerSpeed": 1.9,
 
 	"PlayerSize": 0.003,
 
 	"ShadowSize": 0.4,
 
-	"ColliderSize": 0.5
+	"ColliderSize": 0.5,
 
+	"BallSpeed" : 3.0
 }

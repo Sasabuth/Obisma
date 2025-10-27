@@ -101,6 +101,7 @@ void ResultScene::Update(float elapsedTime)
 
 	m_position.x -= 100.0f * elapsedTime;
 	m_position2.x -= 100.0f * elapsedTime;
+
 	if (m_position.x < -1280)
 	{
 		m_position.x = 1280;

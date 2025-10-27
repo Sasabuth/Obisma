@@ -152,7 +152,11 @@ void ThrowingR::Update(float elapsedTime)
 			{
 				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(12));
 			}
-			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * Player::BALL_SPEED);
+
+			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * 
+				Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"]
+			);
+
 			m_player->SetCatchBall(Player::RIGHT, nullptr);
 			m_isThowing = true;
 		}

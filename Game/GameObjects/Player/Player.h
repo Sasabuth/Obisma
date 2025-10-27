@@ -32,9 +32,9 @@ class Ball;
 // ƒNƒ‰ƒX‚Ì’è‹`
 class Player : public IEntity
 {
+// ’è”
 public:
-	static constexpr float BALL_SPEED = 3.0f;
-
+	// è
 	enum HAND
 	{
 		NONE=0,

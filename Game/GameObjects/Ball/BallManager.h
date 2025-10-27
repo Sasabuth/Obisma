@@ -24,7 +24,6 @@ class Camera;
 class BallManager
 {
 public:
-	static constexpr int BALL_COUNT = 4;  // ƒ{[ƒ‹‚Ì”
 
 
 // •Ï”

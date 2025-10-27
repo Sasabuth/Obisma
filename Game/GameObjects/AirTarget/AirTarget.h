@@ -23,9 +23,9 @@ class Camera;
 // ƒNƒ‰ƒX‚Ì’è‹`
 class AirTarget : public IEntity
 {
+// ’è”
 public:
-	static constexpr float BALL_SIZE = 0.4f;
-	static constexpr float SHADOW_SIZE = 0.4f;
+
 
 // •Ï”
 private:

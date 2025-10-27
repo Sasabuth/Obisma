@@ -23,10 +23,9 @@ class Camera;
 // クラスの定義
 class Ball : public IEntity
 {
+// 定数
 public:
-	static constexpr float BALL_SIZE = 0.15f;
-	static constexpr float SHADOW_SIZE = 0.2f;
-
+	// ボールカラー
 	enum BallColor
 	{
 		PLAYER = 0,
@@ -35,12 +34,6 @@ public:
 		MAXCOLOR
 	};
 
-	static constexpr DirectX::SimpleMath::Vector4  BALLCOLOR[MAXCOLOR] =
-	{
-		{ 1,1,0,1 },  // プレイヤー
-		{ 1,0,0,1 },  // 敵
-		{ 1,1,1,1 },  // ノーマル
-	};
 
 // 変数
 private:

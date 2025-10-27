@@ -25,21 +25,6 @@ class Hitting : public IState
 {
 // ’è”
 private:
-	static constexpr int RAND_POS_COUNT = 10;
-
-	static constexpr float RAND_POS[RAND_POS_COUNT] =
-	{
-		-4.0f,
-		-3.5f,
-		-3.0f,
-		-2.5f,
-		-2.0f,
-		 2.0f,
-		 2.5f,
-		 3.0f,
-		 3.5f,
-		 4.0f,
-	};
 	
 
 // •Ï”

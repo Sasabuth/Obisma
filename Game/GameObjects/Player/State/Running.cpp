@@ -127,7 +127,9 @@ void Running::Update(float elapsedTime)
 	// キーによる移動
 	if (kb.W)
 	{
-		m_player->SetVelocity(m_player->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()) * Resources::GetInstance()->GetJson(L"Player.json")["Speed"]);
+		m_player->SetVelocity(m_player->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()) * 
+			Resources::GetInstance()->GetJson(L"Player.json")["PlayerSpeed"]
+		);
 	}
 	else
 	{
