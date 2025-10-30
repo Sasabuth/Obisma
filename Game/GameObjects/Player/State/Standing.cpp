@@ -303,7 +303,7 @@ void Standing::UpdateRotateToMouse()
 	DirectX::SimpleMath::Vector3 hitPos1;
 	DirectX::SimpleMath::Vector3 hitPos2;
 
-	// どちらが先に当たったか
+	// 両方当たっていた場合どちらが先に当たったか調べる
 	if (m_player->CalcRaySphere(m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), hitPos1) &&
 		m_player->CalcRaySphere(m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), hitPos2))
 	{
@@ -315,7 +315,7 @@ void Standing::UpdateRotateToMouse()
 
 		if (a.Length() < b.Length())
 		{
-			m_player->SetHitPos(hitPos1);
+			m_player->SetHitPos(m_player->GetScene()->GetAirTarget()->GetPosition());
 		}
 		else
 		{
@@ -327,7 +327,7 @@ void Standing::UpdateRotateToMouse()
 	}
 	else
 	{
-		// マウス方向に回転
+		// マウスのレイに当たっている方向に回転
 		if (m_player->CalcRaySphere(m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
 		{
 			m_player->RotateToMouse();
@@ -336,6 +336,7 @@ void Standing::UpdateRotateToMouse()
 		{
 			m_player->RotateToMouse();
 		}
+		// 当たっていない
 		else
 		{
 			m_player->SetHitPos(DirectX::SimpleMath::Vector3::Zero);

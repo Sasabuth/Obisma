@@ -65,13 +65,15 @@ public:
 	// 画像データの取得
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTexture(const std::wstring& filename);
 
-	// Jsonの取得
-	nlohmann::json GetJson(const std::wstring& filename);
+	// Json
+	void SetJson(const std::wstring& filename, nlohmann::json json);  // 設定
+	nlohmann::json GetJson(const std::wstring& filename);             // 取得 
 
 	// 音量の設定
 	void SetBGMVolume(float volume) { m_bgmVolume = volume; }
 	float GetBGMVolume() const { return m_bgmVolume; }
 	void SetSEVolume(float volume) { m_seVolume = volume; }
+	float GetSEVolume() const { return m_seVolume; }
 
 	// リスナーの設定
 	void SetListener(const DirectX::SimpleMath::Vector3& pos, const DirectX::SimpleMath::Vector3& forward, const DirectX::SimpleMath::Vector3& up);

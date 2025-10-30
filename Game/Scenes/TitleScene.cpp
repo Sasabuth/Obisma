@@ -9,8 +9,8 @@
 #include "TitleScene.h"
 
 #include "Game/Scenes/GameplayScene.h"
-#include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
+#include "Game/Commons/Resources.h"
 
 
 /// <summary>
@@ -52,21 +52,27 @@ void TitleScene::Initialize()
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
 
-	// オーディオUI
+	// オーディオUIの初期化
 	m_audioUI.Initialize();
 
+	// メニューUIの初期化
+	m_menuUI.Initialize(this);
+
+	// BGMの初期化
 	m_bgm = Resources::GetInstance()->GetBGMSound(L"TitleBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
 
 	// コライダーの設定
 	m_collider.SetSize(DirectX::SimpleMath::Vector2(20.0f));
 
-	// ボタンの設定
+	// ボタンの設定(シーン変更)
 	m_button[0].SetTexture(Resources::GetInstance()->GetTexture(L"Start.png"));
-	m_button[0].SetFunc([this]() { ChangeScene<GameplayScene>(); });
+	m_button[0].SetFunc([this]() { m_menuUI.Click(); });
 
+	// ボタンの設定(UIを開く)
 	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Audio.png"));
 	m_button[1].SetFunc([this]() { m_audioUI.Click(); });
 
+	// ボタンの設定(終了)
 	m_button[2].SetTexture(Resources::GetInstance()->GetTexture(L"End.png"));
 	m_button[2].SetFunc([this]() { PostQuitMessage(0); });
 
@@ -97,25 +103,22 @@ void TitleScene::Update(float elapsedTime)
 
 	m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
 
+	// キーボードの取得
+	auto mouseTk = m_pUserResources->GetMouseStateTracker();
+
 	// オーディオUIの更新
 	if (m_audioUI.IsOpen())
 	{
 		m_audioUI.Update(m_collider);
 	}
+	// メニューUIの更新
+	else if (m_menuUI.IsOpen())
+	{
+		m_menuUI.Update(m_collider);
+	}
+	// タイトルの更新
 	else
 	{
-		// カメラの更新
-		m_camera->Update();
-
-		// フィールドの更新
-		m_field->Update(elapsedTime);
-		static float rotate = 0.0f;
-		rotate += 30.0f * elapsedTime;
-		m_field->SetRotate(rotate);
-
-		// キーボードの取得
-		auto mouseTk = m_pUserResources->GetMouseStateTracker();
-
 		// ボタンの上で左クリックをするとクリック処理をする
 		for (int i = 0; i < MENU_COUNT; i++)
 		{
@@ -129,6 +132,15 @@ void TitleScene::Update(float elapsedTime)
 		}
 	}
 
+	// カメラの更新
+	m_camera->Update();
+
+	// フィールドの更新
+	m_field->Update(elapsedTime);
+	static float rotate = 0.0f;
+	rotate += 30.0f * elapsedTime;
+	m_field->SetRotate(rotate);
+
 	// BGMの音量の設定
 	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
 }
@@ -140,21 +152,24 @@ void TitleScene::Update(float elapsedTime)
 /// </summary>
 void TitleScene::Render()
 {
-	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
-	debugFont->Render(L"TitleScene");
-
 	// フィールドの描画
 	m_field->Render();
-
-	// タイトルの描画
-	m_titleTexture.Draw(DirectX::SimpleMath::Vector2(400, 240), DirectX::SimpleMath::Vector2(1024, 641), 0.7f);
 	
+	// オーディオUIの描画
 	if (m_audioUI.IsOpen())
 	{
-		m_audioUI.Draw();
+		m_audioUI.Draw(m_collider);
 	}
+	// メニューUIの描画
+	else if (m_menuUI.IsOpen())
+	{
+		m_menuUI.Draw(m_collider);
+	}
+	// タイトルの描画
 	else
 	{
+		m_titleTexture.Draw(DirectX::SimpleMath::Vector2(400, 240), DirectX::SimpleMath::Vector2(1024, 641), 0.7f);
+
 		for (int i = 0; i < MENU_COUNT; i++)
 		{
 			if (IsHit(m_collider, m_button[i].GetCollider()))
@@ -167,6 +182,10 @@ void TitleScene::Render()
 			}
 		}
 	}
+
+	// デバックフォント
+	/*auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
+	debugFont->Render(L"TitleScene");*/
 
 
 	// デバック用

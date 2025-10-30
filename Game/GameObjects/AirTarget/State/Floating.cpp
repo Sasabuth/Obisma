@@ -73,8 +73,6 @@ void Floating::Update(float elapsedTime)
 /// </summary>
 void Floating::Render()
 {
-
-
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -99,10 +97,10 @@ void Floating::Render()
 	m_airTarget->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"AirTarget.json")["ShadowSize"]);
 
 	// デバック
-	/*auto* debugFont = m_userResources->GetDebugFont();*/
+	auto* debugFont = m_userResources->GetDebugFont();
 
-	//debugFont->Render(L"Floating");
-	/*debugFont->Render(L"Position", m_airTarget->GetPosition().x * m_airTarget->GetPosition().y * m_airTarget->GetPosition().z);*/
+	debugFont->Render(L"Floating");
+	debugFont->Render(L"Position", m_airTarget->GetPosition().x * m_airTarget->GetPosition().y * m_airTarget->GetPosition().z);
 
 }
 

@@ -13,10 +13,6 @@
 #include "Game/Commons/Factory.h"
 #include "Game/Commons/Resources.h"
 
-#include <fstream>
-#include <iostream>
-#include <json.hpp>
-
 
 
 /// <summary>
@@ -141,7 +137,7 @@ void GameplayScene::Update(float elapsedTime)
 	m_player->Update(elapsedTime);
 
 	// 敵の更新
-	m_enemy->Update(elapsedTime);
+	/*m_enemy->Update(elapsedTime);*/
 
 	// ボールマネージャの更新
 	m_ballManager->Update(elapsedTime);
@@ -165,28 +161,32 @@ void GameplayScene::Update(float elapsedTime)
 		}
 	}
 
-	// ゲーム時間の初期化
+	// ゲーム時間の更新
 	m_gameTimer -= elapsedTime;
 
-	// シーン変更
-	auto kb = m_userResources->GetKeyboardStateTracker();
+	// 0になったら終了
 	if (m_gameTimer <= 0.0f)
 	{
+		// ゲーム時間を戻す
 		m_gameTimer = MAX_TIME;
 
+		// ランキングの更新
 		m_scoreManager->SortRank();
 		for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 		{
 			GetSceneManager()->SetRank(i, m_scoreManager->GetRank(i));
 		}
 
+		// シーンの変更
 		ChangeScene<ResultScene>();
 	}
 
+	// シーン変更(デバック)
+	auto kb = m_userResources->GetKeyboardStateTracker();
 	if (kb->pressed.R)
 	{
 		Resources::GetInstance()->JsonReset();
-		ChangeScene<TitleScene>();
+		/*ChangeScene<TitleScene>();*/
 	}
 
 	// BGMの音量の設定

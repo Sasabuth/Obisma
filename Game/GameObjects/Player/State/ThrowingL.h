@@ -24,7 +24,7 @@ class ThrowingL : public IState
 {
 // ’è”
 private:
-
+	static constexpr float ANIM_TIME = 0.58f;
 
 // •Ï”
 private:

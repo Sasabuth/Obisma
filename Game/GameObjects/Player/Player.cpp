@@ -146,8 +146,7 @@ void Player::Render()
 	}
 
 	// デバック用
-	/*auto* debugFont = m_userResources->GetDebugFont();*/
-	/*debugFont->Render(L"InvincibleTime", m_invincibleTime);*/
+	auto* debugFont = m_userResources->GetDebugFont();
 
 	/*auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -510,9 +509,31 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 	// スクリーン座標に変換
 	float screenX = (clipPos.x * 0.5f + 0.5f) * 1280;
 	float screenY = (1.0f - (clipPos.y * 0.5f + 0.5f)) * 720;
-
 	DirectX::SimpleMath::Vector2 screenPos(screenX, screenY);
-	m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
+
+	// 距離の計算
+	DirectX::SimpleMath::Vector3 dir = m_position - pos;
+
+	// 成分の合計距離の計算
+	float airTargtPos = m_pScene->GetAirTarget()->GetPosition().x * m_pScene->GetAirTarget()->GetPosition().y * m_pScene->GetAirTarget()->GetPosition().z;
+
+	// ボールが当たる距離に応じてロックオンの色を変える
+	if (dir.Length() <= (float)Resources::GetInstance()->GetJson(L"Player.json")["LockOn"] - (std::fabs(airTargtPos) - MIN_AIRPOS) * 0.177f)
+	{
+		m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOnR.png"));
+		m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
+	}
+	else if (dir.Length() <= 1.0f + (float)Resources::GetInstance()->GetJson(L"Player.json")["LockOn"] - (std::fabs(airTargtPos) - MIN_AIRPOS) * 0.177f)
+	{
+		m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOnY.png"));
+		m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
+	}
+	else
+	{
+		m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOnG.png"));
+		m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
+	}
+	
 }
 
 

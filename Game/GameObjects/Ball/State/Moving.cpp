@@ -53,11 +53,11 @@ void Moving::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void Moving::Update(float elapsedTime)
 {
+	// 音が鳴っていたら連続して鳴らさないようにする
 	if (m_ball->GetIsSound())
 	{
 		m_ball->NoSound();
 	}
-	
 
 	// ボールの設定
 	m_ball->SetVelocity(m_ball->GetVelocity() + m_ball->GetGravity() * elapsedTime);

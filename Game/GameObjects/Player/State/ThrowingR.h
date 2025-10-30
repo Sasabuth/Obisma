@@ -24,7 +24,7 @@ class ThrowingR : public IState
 {
 // 定数
 private:
-
+	static constexpr float ANIM_TIME = 0.58f;
 
 // 変数
 private:
@@ -45,7 +45,11 @@ private:
 	// 右手のマトリックス
 	DirectX::SimpleMath::Matrix m_rightHandMatrix;  
 	// 左手のマトリックス
-	DirectX::SimpleMath::Matrix m_leftHandMatrix; 
+	DirectX::SimpleMath::Matrix m_leftHandMatrix;
+
+
+	DirectX::SimpleMath::Quaternion debug;
+	float m_angle;
 
 	// 時間
 	float m_time; 

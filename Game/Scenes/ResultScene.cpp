@@ -59,15 +59,17 @@ void ResultScene::Initialize()
 		winSprite->SetTexture(nullptr);
 		m_winTextures.push_back(std::move(winSprite));
 	}
-
 	m_spaceTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Space.png"));
 	m_backTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Back.png"));
 
+	// 座標の初期化
 	m_position = DirectX::SimpleMath::Vector2(0, 360);
 	m_position2 = DirectX::SimpleMath::Vector2(1280, 360);
 
+	// 速度の初期化
 	m_speed = 0.0f;
 
+	// BGMの初期化
 	m_bgm = Resources::GetInstance()->GetBGMSound(L"ResultBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
 }
 
@@ -84,8 +86,10 @@ void ResultScene::Update(float elapsedTime)
 	// キーボードの取得
 	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
+	// テクスチャの更新
 	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 	{
+		// 勝った人から順にテクスチャを入れる
 		if (!m_faceTextures[i]->GetTexture())
 		{
 			std::wstring filename = L"Face" + std::to_wstring(GetSceneManager()->GetRank(i)) + L".png";
@@ -99,9 +103,11 @@ void ResultScene::Update(float elapsedTime)
 		}
 	}
 
+	// 座標の更新
 	m_position.x -= 100.0f * elapsedTime;
 	m_position2.x -= 100.0f * elapsedTime;
 
+	// 座標の上限
 	if (m_position.x < -1280)
 	{
 		m_position.x = 1280;
@@ -111,6 +117,7 @@ void ResultScene::Update(float elapsedTime)
 		m_position2.x = 1280;
 	}
 
+	// 速度の更新
 	m_speed += 6.0f * elapsedTime;
 
 	// シーンの変更
@@ -130,6 +137,7 @@ void ResultScene::Update(float elapsedTime)
 /// </summary>
 void ResultScene::Render()
 {
+	// テクスチャの描画
 	m_spaceTexture.Draw(m_position, DirectX::SimpleMath::Vector2(0, 1024), 1.26f, DirectX::Colors::DarkGray);
 	m_spaceTexture.Draw(m_position2, DirectX::SimpleMath::Vector2(0, 1024), 1.26f, DirectX::Colors::DarkGray);
 

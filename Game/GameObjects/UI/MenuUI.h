@@ -1,5 +1,5 @@
 /// <summary>
-/// AudioUIに関するヘッダファイル
+/// MenuUIに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
 /// <date></date>
@@ -15,40 +15,50 @@
 
 
 // クラスの定義
-class AudioUI
+class Scene;
+
+
+// クラスの定義
+class MenuUI
 {
 // 定数
 private:
-	static constexpr int BAR_COUNT = 2;
+	static constexpr int MENU_COUNT = 3;
 
-	static constexpr DirectX::SimpleMath::Vector2 BAR_POSITIONS[BAR_COUNT] =
+	static constexpr DirectX::SimpleMath::Vector2 MENU_POSITIONS[MENU_COUNT] =
 	{
-		DirectX::SimpleMath::Vector2(600.0f, 340.0f),
-		DirectX::SimpleMath::Vector2(600.0f, 462.0f),
+		DirectX::SimpleMath::Vector2(250.0f, 360.0f),
+		DirectX::SimpleMath::Vector2(600.0f, 360.0f),
+		DirectX::SimpleMath::Vector2(100.0f, 70.0f),
 	};
 
-	static constexpr DirectX::SimpleMath::Vector2 BAR_SIZE = DirectX::SimpleMath::Vector2(25.0f, 40.0f);
+	static constexpr DirectX::SimpleMath::Vector2 MENU_SIZE = DirectX::SimpleMath::Vector2(475.0f, 260.0f);
 
-	static constexpr float BAR_MINPOS = 542.0f;
-	static constexpr float BAR_MAXPOS = 900.0f;
+	static constexpr float MENU_SCALES[MENU_COUNT] =
+	{
+	    0.5f,
+	    0.5f,
+	    0.3f,
+	};
+
+	static constexpr DirectX::SimpleMath::Vector4 MENU_COLORS[MENU_COUNT] =
+	{
+		DirectX::SimpleMath::Vector4(1,0,0,1),
+		DirectX::SimpleMath::Vector4(1,0,0,1),
+		DirectX::SimpleMath::Vector4(0.63, 0.86, 1.0,1)
+	};
+
 
 // 変数
 private:
 	// ユーザーリソース
 	UserResources* m_userResources;  
 
-	// オーディオUI
-	Sprite m_audioUI;
-
-	// コライダー
-	BoxCollider2D m_uiCollider;
-	BoxCollider2D m_barCollider[BAR_COUNT];
+	// シーン
+	Scene* m_scene;
 
 	// ボタン
-	Button m_button;
-
-	// 当たったか
-	bool m_isHit[BAR_COUNT];
+	Button m_button[MENU_COUNT];
 
 	// 開いたか
 	bool m_isOpen;
@@ -60,13 +70,13 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	AudioUI();
+	MenuUI();
 
 	// デストラクタ
-	~AudioUI();
+	~MenuUI();
 
 	// 初期化
-	void Initialize();
+	void Initialize(Scene* scene);
 
 	// 更新
 	void Update(const BoxCollider2D& collider);

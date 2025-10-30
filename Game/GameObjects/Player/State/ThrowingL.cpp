@@ -139,7 +139,7 @@ void ThrowingL::Update(float elapsedTime)
 
 
 		// 時間になったら投げる
-		if (m_animation->GetAnimTime() > 0.58f)
+		if (m_animation->GetAnimTime() > ANIM_TIME)
 		{
 			ball->ChangeState(ball->GetMoving());
 			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_player->GetRotation());
@@ -147,11 +147,11 @@ void ThrowingL::Update(float elapsedTime)
 			DirectX::SimpleMath::Quaternion rotate;
 			if (angleDeg < 35.0f)
 			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(30));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"]));
 			}
 			else
 			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(12));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(Resources::GetInstance()->GetJson(L"Player.json")["AngleHigh"]));
 			}
 
 			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * 

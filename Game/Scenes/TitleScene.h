@@ -17,6 +17,7 @@
 #include "Game/Commons/Collision.h"
 #include "Game/GameObjects/Button/Button.h"
 #include "Game/GameObjects/UI/AudioUI.h"
+#include "Game/GameObjects/UI/MenuUI.h"
 
 
 // クラスの定義
@@ -57,6 +58,9 @@ private:
 
 	// オーディオUI
 	AudioUI m_audioUI;
+
+	// メニューUI
+	MenuUI m_menuUI;
 
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;

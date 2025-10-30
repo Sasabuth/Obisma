@@ -42,6 +42,8 @@ public:
 		LEFT,
 	};
 
+	static constexpr int MIN_AIRPOS = 12.0f;
+
 
 // •Ï”
 private:

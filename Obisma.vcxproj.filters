@@ -17,9 +17,6 @@
     <Filter Include="Game\GameObjects">
       <UniqueIdentifier>{1261f787-e945-4151-8755-6d564ccf1392}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Scenes">
-      <UniqueIdentifier>{b58fe231-7076-4598-9317-abc51fe6ec3f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\GameObjects\Camera">
       <UniqueIdentifier>{43495a2c-39c7-4ac4-9e2a-c24aa29fe44f}</UniqueIdentifier>
     </Filter>
@@ -67,6 +64,9 @@
     </Filter>
     <Filter Include="Resources\Jsons">
       <UniqueIdentifier>{26ddaf98-b7e3-4725-bf3d-5c76087be48e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Scenes">
+      <UniqueIdentifier>{b58fe231-7076-4598-9317-abc51fe6ec3f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -215,6 +215,9 @@
     <ClInclude Include="json.hpp">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\UI\MenuUI.h">
+      <Filter>Game\GameObjects\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -348,6 +351,9 @@
     <ClCompile Include="Game\GameObjects\UI\AudioUI.cpp">
       <Filter>Game\GameObjects\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Game\GameObjects\UI\MenuUI.cpp">
+      <Filter>Game\GameObjects\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -374,6 +380,9 @@
       <Filter>Resources\Jsons</Filter>
     </None>
     <None Include="Resources\Jsons\Ball.json">
+      <Filter>Resources\Jsons</Filter>
+    </None>
+    <None Include="Resources\Jsons\AudioUI.json">
       <Filter>Resources\Jsons</Filter>
     </None>
   </ItemGroup>

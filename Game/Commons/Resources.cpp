@@ -237,6 +237,27 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetTexture(const std
 
 
 /// <summary>
+/// Jsonの設定
+/// </summary>
+/// <param name="filename">ファイル名</param>
+/// <param name="json">Json</param>
+void Resources::SetJson(const std::wstring& filename, nlohmann::json json)
+{
+	// Jsonファイルの読み込み
+	std::wstring fullPath = DEFAULT_JSON_DIRECTORY + std::wstring(filename);
+	std::ofstream file(fullPath);
+
+	// Jsonを保存
+	file << std::setw(4) << json << std::endl << std::endl;
+	file.close();
+
+	// 変更内容を保存
+	m_jsons[filename] = json;
+}
+
+
+
+/// <summary>
 /// Jsonの取得
 /// </summary>
 /// <param name="filename">ファイル名</param>

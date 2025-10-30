@@ -13,5 +13,11 @@
 
 	"ColliderSize": 0.5,
 
-	"BallSpeed" : 3.0
+	"BallSpeed": 3.0,
+
+	"LockOn": 3.8,
+
+	"AngleLow": 30,
+
+	"AngleHigh" : 20
 }

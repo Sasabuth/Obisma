@@ -133,24 +133,27 @@ void ThrowingR::Update(float elapsedTime)
 
 		m_player->SetRotation(m_player->GetRotation() * q);
 
+		debug = m_player->GetRotation();
+
 		// 右手に持たせる
 		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
 		m_player->SetBallPosition(ball, m_rightHandMatrix);
 
 		// 時間になったら投げる
-		if (m_animation->GetAnimTime() > 0.58f)
+		if (m_animation->GetAnimTime() > ANIM_TIME)
 		{
 			ball->ChangeState(ball->GetMoving());
 			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_player->GetRotation());
 			float angleDeg = DirectX::XMConvertToDegrees(angle);
+			m_angle = angleDeg;
 			DirectX::SimpleMath::Quaternion rotate;
 			if (angleDeg < 35.0f)
 			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(30));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"]));
 			}
 			else
 			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(12));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(Resources::GetInstance()->GetJson(L"Player.json")["AngleHigh"]));
 			}
 
 			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * 
@@ -253,20 +256,23 @@ void ThrowingR::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	//DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
-	/*DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());*/
-	//DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), debug);
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), debug);
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), debug);
 
 	m_primitiveBatch->Begin();
-	/*DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);*/
-	//DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();
 
 	// デバックフォントの描画
-	//auto* debugFont = m_userResources->GetDebugFont();
+	auto* debugFont = m_userResources->GetDebugFont();
 
-	//debugFont->Render(L"ThrowingR");
+	debugFont->Render(L"angle", m_angle);
+	debugFont->Render(L"angle", m_angle);
+	debugFont->Render(L"angle", m_angle);
+	debugFont->Render(L"angle", m_angle);
 }
 
 
