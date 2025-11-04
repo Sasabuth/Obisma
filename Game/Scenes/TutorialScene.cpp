@@ -6,7 +6,7 @@
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "GameplayScene.h"
+#include "TutorialScene.h"
 
 #include "Game/Scenes/ResultScene.h"
 #include "Game/Scenes/TitleScene.h"
@@ -18,7 +18,7 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-GameplayScene::GameplayScene()
+TutorialScene::TutorialScene()
 	: m_pUserResources(nullptr)
 	, m_pResources(nullptr)
 	, m_gameTimer(0)
@@ -30,7 +30,7 @@ GameplayScene::GameplayScene()
 /// <summary>
 /// デストラクタ
 /// </summary>
-GameplayScene::~GameplayScene()
+TutorialScene::~TutorialScene()
 {
 }
 
@@ -39,7 +39,7 @@ GameplayScene::~GameplayScene()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void GameplayScene::Initialize()
+void TutorialScene::Initialize()
 {
 	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
@@ -118,7 +118,7 @@ void GameplayScene::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime"></param> 経過時間
-void GameplayScene::Update(float elapsedTime)
+void TutorialScene::Update(float elapsedTime)
 {
 	// リスナーの設定
 	SetListener();
@@ -200,11 +200,11 @@ void GameplayScene::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void GameplayScene::Render()
+void TutorialScene::Render()
 {
 	// デバックフォントの描画
 	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
-	debugFont->Render(L"GameplayScene");
+	debugFont->Render(L"TutorialScene");
 
 	// フィールドの描画
 	m_field->Render();
@@ -240,7 +240,7 @@ void GameplayScene::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void GameplayScene::Finalize()
+void TutorialScene::Finalize()
 {
 	// フィールドの終了
 	m_field->Finalize();
@@ -266,7 +266,7 @@ void GameplayScene::Finalize()
 /// <summary>
 /// デバイスに依存するリソースを作成する関数
 /// </summary>
-void GameplayScene::CreateDeviceDependentResources()
+void TutorialScene::CreateDeviceDependentResources()
 {
 }
 
@@ -275,7 +275,7 @@ void GameplayScene::CreateDeviceDependentResources()
 /// <summary>
 /// ウインドウサイズに依存するリソースを作成する関数
 /// </summary>
-void GameplayScene::CreateWindowSizeDependentResources()
+void TutorialScene::CreateWindowSizeDependentResources()
 {
 }
 
@@ -284,7 +284,7 @@ void GameplayScene::CreateWindowSizeDependentResources()
 /// <summary>
 /// デバイスロストした時に呼び出される関数
 /// </summary>
-void GameplayScene::OnDeviceLost()
+void TutorialScene::OnDeviceLost()
 {
 }
 
@@ -295,7 +295,7 @@ void GameplayScene::OnDeviceLost()
 /// </summary> 
 /// <param name="pIEntity">実体</param>
 /// <param name="pField">フィールド</param>
-void GameplayScene::IsHitEntityToField(IEntity* pIEntity, Field* pField)
+void TutorialScene::IsHitEntityToField(IEntity* pIEntity, Field* pField)
 {
 	// 重力の設定
 	pIEntity->SetGravity(pField->CorrectUp(pIEntity));
@@ -312,7 +312,7 @@ void GameplayScene::IsHitEntityToField(IEntity* pIEntity, Field* pField)
 /// <summary>
 /// リスナーの設定
 /// </summary>
-void GameplayScene::SetListener()
+void TutorialScene::SetListener()
 {
 	// 方向
 	DirectX::SimpleMath::Vector3 dir = m_player->GetPosition() - m_cameraUp->GetPosition();

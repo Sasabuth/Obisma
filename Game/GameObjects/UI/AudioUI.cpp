@@ -18,7 +18,7 @@
 /// コンストラクタ
 /// </summary>
 AudioUI::AudioUI()
-	: m_userResources(nullptr)
+	: m_pUserResources(nullptr)
 	, m_isHit{}
 	, m_isOpen(false)
 {
@@ -40,7 +40,7 @@ AudioUI::~AudioUI()
 void AudioUI::Initialize()
 {
 	// ユーザーリソースの取得
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
 	// テクスチャの設定
 	m_audioUI.SetTexture(Resources::GetInstance()->GetTexture(L"AudioUI.png"));
@@ -84,7 +84,7 @@ void AudioUI::Initialize()
 void AudioUI::Update(const BoxCollider2D& collider)
 {
 	// マウストラッカーの取得
-	auto mouseTK = m_userResources->GetMouseStateTracker();
+	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
 	for (int i = 0; i < BAR_COUNT; i++)
 	{

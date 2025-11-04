@@ -59,7 +59,7 @@ public:
 
 	// カメラの更新
 	void Update();
-	void Update(Player* player, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field);
+	void Update(Player* pPlayer, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field);
 
 	// デバック用
 	void DebugMode();

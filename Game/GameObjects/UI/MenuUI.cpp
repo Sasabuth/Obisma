@@ -20,8 +20,8 @@
 /// コンストラクタ
 /// </summary>
 MenuUI::MenuUI()
-	: m_userResources(nullptr)
-	, m_scene(nullptr)
+	: m_pUserResources(nullptr)
+	, m_pScene(nullptr)
 	, m_isOpen(false)
 {
 }
@@ -40,17 +40,17 @@ MenuUI::~MenuUI()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void MenuUI::Initialize(Scene* scene)
+void MenuUI::Initialize(Scene* pScene)
 {
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
-	m_scene = scene;
+	m_pScene = pScene;
 
 	m_button[0].SetTexture(Resources::GetInstance()->GetTexture(L"RealPerformance.png"));
-	m_button[0].SetFunc([this]() { m_scene->ChangeScene<GameplayScene>(); });
+	m_button[0].SetFunc([this]() { m_pScene->ChangeScene<GameplayScene>(); });
 
 	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Practice.png"));
-	/*m_button[1].SetFunc([this]() { m_scene->ChangeScene<GameplayScene>(); });*/
+	/*m_button[1].SetFunc([this]() { m_pScene->ChangeScene<GameplayScene>(); });*/
 
 	m_button[2].SetTexture(Resources::GetInstance()->GetTexture(L"BackButton.png"));
 	m_button[2].SetFunc([this]() { m_isOpen = false; });
@@ -75,9 +75,9 @@ void MenuUI::Initialize(Scene* scene)
 void MenuUI::Update(const BoxCollider2D& collider)
 {
 	// マウストラッカーの取得
-	auto mouseTK = m_userResources->GetMouseStateTracker();
+	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
-	// コライダーが当たってないときに左クリックしたら閉じる
+	// コライダーに当たっていたらクリック関数を呼ぶ
 	for (int i = 0; i < MENU_COUNT; i++)
 	{
 		if (IsHit(collider, m_button[i].GetCollider()) && mouseTK->leftButton == mouseTK->PRESSED)

@@ -20,10 +20,11 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Player::Player(GameplayScene* pScene, BallManager* ballManager)
-	: m_pScene(pScene)
-	, m_userResources(nullptr)
-	, m_ballManager(ballManager)
+Player::Player(Field* pField, AirTarget* pAirTarget, BallManager* pBallManager)
+	: m_pField(pField)
+	, m_pAirTarget(pAirTarget)
+	, m_pUserResources(nullptr)
+	, m_pBallManager(pBallManager)
 	, m_currentState{}
 	, m_invincibleTime(0.0f)
 {
@@ -44,9 +45,9 @@ Player::~Player()
 /// </summary>
 void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 {
-	m_userResources = UserResources::GetUserResource();
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	m_pUserResources = UserResources::GetUserResource();
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_position = position;
 
@@ -125,28 +126,28 @@ void Player::Render()
 	DirectX::SimpleMath::Vector3 hitPos2;
 
 	// マウスの方向に回転
-	if (CalcRaySphere(GetScene()->GetAirTarget()->GetPosition(), GetScene()->GetAirTarget()->GetCollider().GetRadius(), hitPos1) &&
-		CalcRaySphere(GetScene()->GetField().GetCollider().GetPosition(), GetScene()->GetField().GetCollider().GetRadius(), hitPos2))
+	if (CalcRaySphere(m_pAirTarget->GetPosition(), m_pAirTarget->GetCollider().GetRadius(), hitPos1) &&
+		CalcRaySphere(m_pField->GetCollider().GetPosition(), m_pField->GetCollider().GetRadius(), hitPos2))
 	{
 		hitPos1 = m_mouseRay.position - hitPos1;
 		hitPos2 = m_mouseRay.position - hitPos2;
 
 		if (hitPos1.Length() < hitPos2.Length())
 		{
-			DrawLockOn(m_pScene->GetAirTarget()->GetPosition());
+			DrawLockOn(m_pAirTarget->GetPosition());
 		}
 	}
 	else
 	{
 		// ロックオンの描画
-		if (CalcRaySphere(m_pScene->GetAirTarget()->GetPosition(), m_pScene->GetAirTarget()->GetCollider().GetRadius(), m_hitPos))
+		if (CalcRaySphere(m_pAirTarget->GetPosition(), m_pAirTarget->GetCollider().GetRadius(), m_hitPos))
 		{
-			DrawLockOn(m_pScene->GetAirTarget()->GetPosition());
+			DrawLockOn(m_pAirTarget->GetPosition());
 		}
 	}
 
 	// デバック用
-	auto* debugFont = m_userResources->GetDebugFont();
+	/*auto* debugFont = m_userResources->GetDebugFont();*/
 
 	/*auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -428,8 +429,8 @@ void Player::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context
 /// <param name="radius">半径</param>
 void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos)
 {
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// エフェクトの設定＆適用
 	m_basicEffect->SetWorld(DirectX::SimpleMath::Matrix::Identity);
@@ -470,7 +471,7 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 	DirectX::SimpleMath::Ray ray{ m_position, m_gravity };
 
 	// レイが当たった座標に影を出す
-	if (CalcRaySphere(ray.position, ray.direction, m_pScene->GetField().GetCollider().GetPosition(), m_pScene->GetField().GetCollider().GetRadius(), hitPos))
+	if (CalcRaySphere(ray.position, ray.direction, m_pField->GetCollider().GetPosition(), m_pField->GetCollider().GetRadius(), hitPos))
 	{
 		for (int i = 0; i < 4; ++i)
 		{
@@ -493,8 +494,8 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 /// <param name="pos">座標</param>
 void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 {	
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// ビュー射影行列
 	DirectX::SimpleMath::Matrix viewProj = *view * *proj;
@@ -514,22 +515,22 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 	// 距離の計算
 	DirectX::SimpleMath::Vector3 dir = m_position - pos;
 
-	// 成分の合計距離の計算
-	float airTargtPos = m_pScene->GetAirTarget()->GetPosition().x * m_pScene->GetAirTarget()->GetPosition().y * m_pScene->GetAirTarget()->GetPosition().z;
-
 	// ボールが当たる距離に応じてロックオンの色を変える
-	if (dir.Length() <= (float)Resources::GetInstance()->GetJson(L"Player.json")["LockOn"] - (std::fabs(airTargtPos) - MIN_AIRPOS) * 0.177f)
+	if (IsInHitRange())
 	{
+		// 赤を描画(当たる)
 		m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOnR.png"));
 		m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
 	}
-	else if (dir.Length() <= 1.0f + (float)Resources::GetInstance()->GetJson(L"Player.json")["LockOn"] - (std::fabs(airTargtPos) - MIN_AIRPOS) * 0.177f)
+	else if (IsInHitRange(1.0f))
 	{
+		// 黄を描画(当たらない)
 		m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOnY.png"));
 		m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
 	}
 	else
 	{
+		// 緑を描画(絶対当たらない)
 		m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOnG.png"));
 		m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
 	}
@@ -543,9 +544,9 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 /// </summary>
 void Player::ScoreDown()
 {
-	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+	for (int i = 0; i < m_pBallManager->GetObjectCount(); i++)
 	{
-		Ball* ball = m_ballManager->GetBall(i);
+		Ball* ball = m_pBallManager->GetBall(i);
 
 		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::PLAYER)
 		{
@@ -558,6 +559,29 @@ void Player::ScoreDown()
 			}
 		}
 	}
+}
+
+
+
+/// <summary>
+/// 当たる距離か
+/// </summary>
+/// <returns>当たる距離か</returns>
+bool Player::IsInHitRange(float offset)
+{
+	// 距離の計算
+	DirectX::SimpleMath::Vector3 dir = m_position - m_pAirTarget->GetPosition();
+
+	// 成分の合計距離の計算
+	float airTargtPos = m_pAirTarget->GetPosition().x * m_pAirTarget->GetPosition().y * m_pAirTarget->GetPosition().z;
+
+	// 距離が当たる距離に入っているか
+	if (dir.Length() <= offset + (float)Resources::GetInstance()->GetJson(L"Player.json")["LockOn"] - (std::fabs(airTargtPos) - MIN_AIRPOS) * LOCKON_HEIGHT_RATE)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 

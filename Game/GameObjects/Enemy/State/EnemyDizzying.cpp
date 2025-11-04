@@ -18,9 +18,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-EnemyDizzying::EnemyDizzying(Enemy* enemy)
-	: m_enemy(enemy)
-	, m_userResources(nullptr)
+EnemyDizzying::EnemyDizzying(Enemy* pEnemy)
+	: m_pEnemy(pEnemy)
+	, m_pUserResources(nullptr)
 	, m_model{}
 	, m_time(0)
 {
@@ -57,10 +57,10 @@ EnemyDizzying::~EnemyDizzying()
 /// </summary>
 void EnemyDizzying::Initialize()
 {
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	// アニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
@@ -89,21 +89,21 @@ void EnemyDizzying::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void EnemyDizzying::Update(float elapsedTime)
 {
-	if (m_enemy->GetCatchBall(Enemy::RIGHT))
+	if (m_pEnemy->GetCatchBall(Enemy::RIGHT))
 	{
-		Ball* ball = m_enemy->GetCatchBall(Enemy::RIGHT);
-		m_enemy->SetBallPosition(ball, m_rightHandMatrix);
+		Ball* ball = m_pEnemy->GetCatchBall(Enemy::RIGHT);
+		m_pEnemy->SetBallPosition(ball, m_rightHandMatrix);
 	}
-	if (m_enemy->GetCatchBall(Enemy::LEFT))
+	if (m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
-		Ball* ball = m_enemy->GetCatchBall(Enemy::LEFT);
-		m_enemy->SetBallPosition(ball, m_leftHandMatrix);
+		Ball* ball = m_pEnemy->GetCatchBall(Enemy::LEFT);
+		m_pEnemy->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
 	// プレイヤーの設定
-	m_enemy->SetVelocity(m_enemy->GetGravity());
-	m_enemy->SetPosition(m_enemy->GetPosition() + m_enemy->GetVelocity() * elapsedTime);
-	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
+	m_pEnemy->SetVelocity(m_pEnemy->GetGravity());
+	m_pEnemy->SetPosition(m_pEnemy->GetPosition() + m_pEnemy->GetVelocity() * elapsedTime);
+	m_pEnemy->GetCollider().SetPosition(m_pEnemy->GetPosition());
 
 	// アニメーションを更新し終了したらステート変更
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
@@ -119,9 +119,9 @@ void EnemyDizzying::Update(float elapsedTime)
 	m_time += elapsedTime;
 	if (m_time > DIZZY_TIME)
 	{
-		m_enemy->SetTarget(nullptr);
-		m_enemy->ChangeState(m_enemy->GetStanding());
-		m_enemy->SetInvincibleTime(INTERVAL);
+		m_pEnemy->SetTarget(nullptr);
+		m_pEnemy->ChangeState(m_pEnemy->GetStanding());
+		m_pEnemy->SetInvincibleTime(INTERVAL);
 		m_time = 0.0f;
 	}
 
@@ -137,20 +137,20 @@ void EnemyDizzying::Update(float elapsedTime)
 /// </summary>
 void EnemyDizzying::Render()
 {
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// ワールド座標
-	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_pEnemy->GetPosition());
 	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySize"]));
-	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pEnemy->GetRotation());
 
-	m_enemy->SetWorld(scale * rotate * pos);
+	m_pEnemy->SetWorld(scale * rotate * pos);
 
 	// アニメーションモデルを描画
-	if (m_enemy->GetInvincibleTime() >= 0.0f && sinf(m_enemy->GetInvincibleTime() * 10) <= 0.0f)
+	if (m_pEnemy->GetInvincibleTime() >= 0.0f && sinf(m_pEnemy->GetInvincibleTime() * 10) <= 0.0f)
 	{
 		return;
 	}
@@ -162,14 +162,14 @@ void EnemyDizzying::Render()
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_enemy->GetWorld(),
+		m_pEnemy->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_enemy->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Enemy.json")["ShadowSize"], m_drawPos);
+	m_pEnemy->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Enemy.json")["ShadowSize"], m_drawPos);
 
 	// デバック用
 	// 軸の描画
@@ -189,20 +189,20 @@ void EnemyDizzying::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
-	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation());
-	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pEnemy->GetRotation());
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pEnemy->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_pEnemy->GetRotation());
 
 	/*m_primitiveBatch->Begin();
-	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
-	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
-	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
+	DX::DrawRay(m_primitiveBatch.get(), m_pEnemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	DX::DrawRay(m_primitiveBatch.get(), m_pEnemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	DX::DrawRay(m_primitiveBatch.get(), m_pEnemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
-	/*auto* debugFont = m_userResources->GetDebugFont();*/
+	/*auto* debugFont = m_pUserResources->GetDebugFont();*/
 
 	/*debugFont->Render(L"EnemyDizzying");
-	debugFont->Render(L"CatchPos", DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()));
+	debugFont->Render(L"CatchPos", DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation()));
 
 	m_collider.Draw(states, *view, *proj);*/
 }

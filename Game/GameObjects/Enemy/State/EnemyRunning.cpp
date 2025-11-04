@@ -19,9 +19,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-EnemyRunning::EnemyRunning(Enemy* enemy)
-	: m_enemy(enemy)
-	, m_userResources(nullptr)
+EnemyRunning::EnemyRunning(Enemy* pEnemy)
+	: m_pEnemy(pEnemy)
+	, m_pUserResources(nullptr)
 	, m_model{}
 {
 	// モデルの作成
@@ -57,10 +57,10 @@ EnemyRunning::~EnemyRunning()
 /// </summary>
 void EnemyRunning::Initialize()
 {
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
@@ -87,16 +87,16 @@ void EnemyRunning::Initialize()
 void EnemyRunning::Update(float elapsedTime)
 {
 	// 速度の設定
-	m_enemy->SetVelocity(m_enemy->GetGravity());
+	m_pEnemy->SetVelocity(m_pEnemy->GetGravity());
 
 	// ボールの方向に走る
-	if (!m_enemy->GetCatchBall(Enemy::RIGHT) && !m_enemy->GetCatchBall(Enemy::LEFT))
+	if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) && !m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
 		RunToBall();
 	}
 	else
 	{
-		if(!m_enemy->GetTarget())  m_enemy->SetTarget(NearEntity());
+		if (!m_pEnemy->GetTarget())  m_pEnemy->SetTarget(NearEntity());
 
 		RunToEntity();
 	}
@@ -111,24 +111,24 @@ void EnemyRunning::Update(float elapsedTime)
 	AnimationUpdate(elapsedTime);
 
 	// スコアを下げる
-	m_enemy->ScoreDown();
+	m_pEnemy->ScoreDown();
 
 	// 敵の設定
-	m_enemy->SetPosition(m_enemy->GetPosition() + m_enemy->GetVelocity() * elapsedTime);
-	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
+	m_pEnemy->SetPosition(m_pEnemy->GetPosition() + m_pEnemy->GetVelocity() * elapsedTime);
+	m_pEnemy->GetCollider().SetPosition(m_pEnemy->GetPosition());
 
-	DirectX::SimpleMath::Vector3 catchPos = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) / 2.5;
+	DirectX::SimpleMath::Vector3 catchPos = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation()) / 2.5;
 
-	m_enemy->GetCatchCollider().SetPosition(m_enemy->GetPosition() + catchPos);
+	m_pEnemy->GetCatchCollider().SetPosition(m_pEnemy->GetPosition() + catchPos);
 
-	for (int i = 0; i < m_enemy->GetBallManager()->GetObjectCount(); i++)
+	for (int i = 0; i < m_pEnemy->GetBallManager()->GetObjectCount(); i++)
 	{
-		Ball* ball = m_enemy->GetBallManager()->GetBall(i);
-		if (IsHit(m_enemy->GetCatchCollider(), ball->GetCollider()))
+		Ball* ball = m_pEnemy->GetBallManager()->GetBall(i);
+		if (IsHit(m_pEnemy->GetCatchCollider(), ball->GetCollider()))
 		{
 			if (ball->GetBallColorNum() != Ball::ENEMY && ball->GetCurrentState() == ball->GetMoving())
 			{
-				m_enemy->ChangeState(m_enemy->GetCatching());
+				m_pEnemy->ChangeState(m_pEnemy->GetCatching());
 			}
 		}
 	}
@@ -141,20 +141,20 @@ void EnemyRunning::Update(float elapsedTime)
 /// </summary>
 void EnemyRunning::Render()
 {
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// ワールド座標
-	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_pEnemy->GetPosition());
 	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySize"]));
-	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pEnemy->GetRotation());
 
-	m_enemy->SetWorld(scale * rotate * pos);
+	m_pEnemy->SetWorld(scale * rotate * pos);
 
 	// アニメーションモデルを描画
-	if (m_enemy->GetInvincibleTime() >= 0.0f && sinf(m_enemy->GetInvincibleTime() * 10) <= 0.0f)
+	if (m_pEnemy->GetInvincibleTime() >= 0.0f && sinf(m_pEnemy->GetInvincibleTime() * 10) <= 0.0f)
 	{
 		return;
 	}
@@ -166,14 +166,14 @@ void EnemyRunning::Render()
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_enemy->GetWorld(),
+		m_pEnemy->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_enemy->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Enemy.json")["ShadowSize"], m_drawPos);
+	m_pEnemy->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Enemy.json")["ShadowSize"], m_drawPos);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -192,22 +192,22 @@ void EnemyRunning::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
-	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation());
-	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pEnemy->GetRotation());
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pEnemy->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_pEnemy->GetRotation());
 
 	/*m_primitiveBatch->Begin();
-	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
-	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
-	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
+	DX::DrawRay(m_primitiveBatch.get(), m_pEnemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	DX::DrawRay(m_primitiveBatch.get(), m_pEnemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	DX::DrawRay(m_primitiveBatch.get(), m_pEnemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
-	/*auto* debugFont = m_userResources->GetDebugFont();*/
+	/*auto* debugFont = m_pUserResources->GetDebugFont();*/
 
 	// デバック
-	/*m_enemy->GetCollider().Draw(states, *view, *proj);*/
+	/*m_pEnemy->GetCollider().Draw(states, *view, *proj);*/
 	/*debugFont->Render(L"EnemyRunning");
-	m_enemy->GetCatchCollider().Draw(states, *view, *proj);*/
+	m_pEnemy->GetCatchCollider().Draw(states, *view, *proj);*/
 }
 
 
@@ -257,16 +257,16 @@ void EnemyRunning::AnimationUpdate(float elapsedTime)
 /// </summary>
 void EnemyRunning::RunToBall()
 {
-	Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
+	Ball* ball = m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
 
 	if (ball->GetCurrentState() != ball->GetStopping())
 	{
-		m_enemy->ChangeState(m_enemy->GetStanding());
+		m_pEnemy->ChangeState(m_pEnemy->GetStanding());
 	}
 
 
 	// 方向
-	DirectX::SimpleMath::Vector3 dir = m_enemy->GetPosition() - ball->GetPosition();
+	DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - ball->GetPosition();
 	dir.Normalize();
 
 	// 方向ベクトルの反転
@@ -274,7 +274,7 @@ void EnemyRunning::RunToBall()
 	targetUp = -dir;
 
 	// 現在の姿勢制御
-	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation());
 
 	// 回転軸の計算
 	DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
@@ -299,10 +299,10 @@ void EnemyRunning::RunToBall()
 	}
 
 	// 回転の設定
-	m_enemy->SetRotation(m_enemy->GetRotation() * q);
+	m_pEnemy->SetRotation(m_pEnemy->GetRotation() * q);
 
 	// 速度の設定
-	m_enemy->SetVelocity(m_enemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation()) * Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySpeed"]);
+	m_pEnemy->SetVelocity(m_pEnemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation()) * Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySpeed"]);
 }
 
 
@@ -312,16 +312,16 @@ void EnemyRunning::RunToBall()
 /// </summary>
 void EnemyRunning::RunToEntity()
 {
-	if (dynamic_cast<Ball*>(m_enemy->GetTarget()))
+	if (dynamic_cast<Ball*>(m_pEnemy->GetTarget()))
 	{
 		RunToBall();
 	}
 	else
 	{
-		m_enemy->SetTarget(NearEntity());
+		m_pEnemy->SetTarget(NearEntity());
 
 		// 方向
-		DirectX::SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
+		DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
 		dir.Normalize();
 
 		// 方向ベクトルの反転
@@ -329,7 +329,7 @@ void EnemyRunning::RunToEntity()
 		targetUp = -dir;
 
 		// 現在の姿勢制御
-		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
+		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation());
 
 		// 回転軸の計算
 		DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
@@ -354,10 +354,10 @@ void EnemyRunning::RunToEntity()
 		}
 
 		// 回転の設定
-		m_enemy->SetRotation(m_enemy->GetRotation() * q);
+		m_pEnemy->SetRotation(m_pEnemy->GetRotation() * q);
 
 		// 速度の設定
-		m_enemy->SetVelocity(m_enemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation())
+		m_pEnemy->SetVelocity(m_pEnemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation())
 			* Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySpeed"]
 		);
 	}
@@ -371,32 +371,32 @@ void EnemyRunning::RunToEntity()
 /// <param name="mouseTK">マウストラッカー</param>
 void EnemyRunning::ThrowBall()
 {
-	if (m_enemy->GetCatchBall(Enemy::RIGHT))
+	if (m_pEnemy->GetCatchBall(Enemy::RIGHT))
 	{
-		Ball* ball = m_enemy->GetCatchBall(Enemy::RIGHT);
-		m_enemy->SetBallPosition(ball, m_rightHandMatrix);
+		Ball* ball = m_pEnemy->GetCatchBall(Enemy::RIGHT);
+		m_pEnemy->SetBallPosition(ball, m_rightHandMatrix);
 
-		if (!dynamic_cast<Ball*>(m_enemy->GetTarget()))
+		if (!dynamic_cast<Ball*>(m_pEnemy->GetTarget()))
 		{
-			DirectX::SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
+			DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
 			if (dir.Length() <= 2.0f)
 			{
-				m_enemy->ChangeState(m_enemy->GetThrowingR());
+				m_pEnemy->ChangeState(m_pEnemy->GetThrowingR());
 				return;
 			}
 		}
 	}
-	if (m_enemy->GetCatchBall(Enemy::LEFT))
+	if (m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
-		Ball* ball = m_enemy->GetCatchBall(Enemy::LEFT);
-		m_enemy->SetBallPosition(ball, m_leftHandMatrix);
+		Ball* ball = m_pEnemy->GetCatchBall(Enemy::LEFT);
+		m_pEnemy->SetBallPosition(ball, m_leftHandMatrix);
 
-		if (!dynamic_cast<Ball*>(m_enemy->GetTarget()))
+		if (!dynamic_cast<Ball*>(m_pEnemy->GetTarget()))
 		{
-			DirectX::SimpleMath::Vector3 dir = m_enemy->GetPosition() - m_enemy->GetTarget()->GetPosition();
+			DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
 			if (dir.Length() <= 2.0f)
 			{
-				m_enemy->ChangeState(m_enemy->GetThrowingL());
+				m_pEnemy->ChangeState(m_pEnemy->GetThrowingL());
 			}
 		}
 	}
@@ -411,11 +411,11 @@ void EnemyRunning::ThrowBall()
 /// <returns>実体</returns>
 IEntity* EnemyRunning::NearEntity()
 {
-	Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
-	Player* player = m_enemy->GetScene()->GetPlayer();
+	Ball* ball = m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
+	Player* player = m_pEnemy->GetPlayer();
 
-	DirectX::SimpleMath::Vector3 dir1 = m_enemy->GetPosition() - ball->GetPosition();
-	DirectX::SimpleMath::Vector3 dir2 = m_enemy->GetPosition() - player->GetPosition();
+	DirectX::SimpleMath::Vector3 dir1 = m_pEnemy->GetPosition() - ball->GetPosition();
+	DirectX::SimpleMath::Vector3 dir2 = m_pEnemy->GetPosition() - player->GetPosition();
 
 	IEntity* entity;
 	DirectX::SimpleMath::Vector3 nearDir;
@@ -439,8 +439,8 @@ IEntity* EnemyRunning::NearEntity()
 		}
 	}
 
-	AirTarget* airTarget = m_enemy->GetScene()->GetAirTarget();
-	dir2 = m_enemy->GetPosition() - airTarget->GetPosition();
+	AirTarget* airTarget = m_pEnemy->GetAirTarget();
+	dir2 = m_pEnemy->GetPosition() - airTarget->GetPosition();
 
 	// 短いほうの距離を調べる
 	if (dir1.Length() > dir2.Length())
@@ -458,11 +458,11 @@ IEntity* EnemyRunning::NearEntity()
 /// </summary>
 void EnemyRunning::CatchHandBall()
 {
-	Ball* ball = m_enemy->GetBallManager()->GetBall(m_enemy->GetBallIndex());
-	if (IsHit(m_enemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
+	Ball* ball = m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
+	if (IsHit(m_pEnemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 	{
 		// 両手に持っていたら終了
-		if (m_enemy->GetCatchBall(Enemy::RIGHT) && m_enemy->GetCatchBall(Enemy::LEFT))
+		if (m_pEnemy->GetCatchBall(Enemy::RIGHT) && m_pEnemy->GetCatchBall(Enemy::LEFT))
 		{
 			return;
 		}
@@ -473,17 +473,17 @@ void EnemyRunning::CatchHandBall()
 		// 色を変更する
 		ball->SetBallColorNum(Ball::BallColor::ENEMY);
 
-		if (!m_enemy->GetCatchBall(Enemy::RIGHT))
+		if (!m_pEnemy->GetCatchBall(Enemy::RIGHT))
 		{
-			m_enemy->SetCatchBall(Enemy::RIGHT, ball);
-			m_enemy->SetTarget(nullptr);
-			m_enemy->ChangeState(m_enemy->GetStanding());
+			m_pEnemy->SetCatchBall(Enemy::RIGHT, ball);
+			m_pEnemy->SetTarget(nullptr);
+			m_pEnemy->ChangeState(m_pEnemy->GetStanding());
 		}
 		else
 		{
-			m_enemy->SetCatchBall(Enemy::LEFT, ball);
-			m_enemy->SetTarget(nullptr);
-			m_enemy->ChangeState(m_enemy->GetStanding());
+			m_pEnemy->SetCatchBall(Enemy::LEFT, ball);
+			m_pEnemy->SetTarget(nullptr);
+			m_pEnemy->ChangeState(m_pEnemy->GetStanding());
 		}
 
 	}

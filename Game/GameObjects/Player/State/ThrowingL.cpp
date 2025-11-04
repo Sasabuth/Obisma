@@ -18,9 +18,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-ThrowingL::ThrowingL(Player* player)
-	: m_player(player)
-	, m_userResources(nullptr)
+ThrowingL::ThrowingL(Player* pPlayer)
+	: m_pPlayer(pPlayer)
+	, m_pUserResources(nullptr)
 	, m_model{}
 	, m_time{}
 	, m_isThowing(false)
@@ -58,10 +58,10 @@ ThrowingL::~ThrowingL()
 /// </summary>
 void ThrowingL::Initialize()
 {
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
@@ -93,13 +93,13 @@ void ThrowingL::Update(float elapsedTime)
 	UNREFERENCED_PARAMETER(elapsedTime);
 
 	auto kb = DirectX::Keyboard::Get().GetState();
-	auto mouseTK = m_userResources->GetMouseStateTracker();
+	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
 		// 方向
-		DirectX::SimpleMath::Vector3 dir = m_player->GetPosition() - m_player->GetHitPos();
+		DirectX::SimpleMath::Vector3 dir = m_pPlayer->GetPosition() - m_pPlayer->GetHitPos();
 		dir.Normalize();
 
 		// 方向ベクトルの反転
@@ -107,7 +107,7 @@ void ThrowingL::Update(float elapsedTime)
 		targetUp = -dir;
 
 		// 現在の姿勢制御
-		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation());
+		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation());
 
 		// 回転軸の計算
 		DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
@@ -131,45 +131,66 @@ void ThrowingL::Update(float elapsedTime)
 			q = DirectX::SimpleMath::Quaternion::Identity;
 		}
 
-		m_player->SetRotation(m_player->GetRotation() * q);
+		m_pPlayer->SetRotation(m_pPlayer->GetRotation() * q);
 
 		// 右手に持たせる
-		Ball* ball = m_player->GetCatchBall(Player::LEFT);
-		m_player->SetBallPosition(ball, m_leftHandMatrix);
+		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
+		m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
 
 
 		// 時間になったら投げる
 		if (m_animation->GetAnimTime() > ANIM_TIME)
 		{
+			// ボールのステートを変更
 			ball->ChangeState(ball->GetMoving());
-			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_player->GetRotation());
+
+			// プレイヤーの向いている方向の取得
+			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_pPlayer->GetRotation());
+
 			float angleDeg = DirectX::XMConvertToDegrees(angle);
+
+			// 投げる角度の取得
 			DirectX::SimpleMath::Quaternion rotate;
+			// 角度に応じて投げる角度を調整
 			if (angleDeg < 35.0f)
 			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"]));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+					Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"])
+				);
 			}
 			else
 			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(Resources::GetInstance()->GetJson(L"Player.json")["AngleHigh"]));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+					Resources::GetInstance()->GetJson(L"Player.json")["AngleHigh"])
+				);
 			}
 
-			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation() * rotate) * 
-				Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"]);
+			// ボールの速度の取得
+			float speed = Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"];
 
-			m_player->SetCatchBall(Player::LEFT, nullptr);
+			// 当たる範囲外ならボールの速度を遅くする
+			if (!m_pPlayer->IsInHitRange())
+			{
+				speed *= (float)Resources::GetInstance()->GetJson(L"Player.json")["Decay"];
+			}
+
+			// ボールの速度の設定
+			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation() * rotate) * speed);
+
+			// 左手から投げたことにする
+			m_pPlayer->SetCatchBall(Player::LEFT, nullptr);
 			m_isThowing = true;
 		}
 	}
 
 	// スコアを下げる
-	m_player->ScoreDown();
+	m_pPlayer->ScoreDown();
 
 
 	// プレイヤーの設定
-	m_player->SetVelocity(m_player->GetGravity());
-	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
-	m_player->GetCollider().SetPosition(m_player->GetPosition());
+	m_pPlayer->SetVelocity(m_pPlayer->GetGravity());
+	m_pPlayer->SetPosition(m_pPlayer->GetPosition() + m_pPlayer->GetVelocity() * elapsedTime);
+	m_pPlayer->GetCollider().SetPosition(m_pPlayer->GetPosition());
 
 	// アニメーションを更新し終了したらステート変更
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
@@ -179,12 +200,14 @@ void ThrowingL::Update(float elapsedTime)
 	}
 	else
 	{
-		if (kb.W) m_player->ChangeState(m_player->GetRunning());
-		else if (mouseTK->rightButton == mouseTK->PRESSED)
-		{
-			m_player->ChangeState(m_player->GetCatching());
-		}
-		else m_player->ChangeState(m_player->GetStanding());
+		// Wキーが押されたら移動ステートに変更
+		if (kb.W) m_pPlayer->ChangeState(m_pPlayer->GetRunning());
+
+		// 右クリックで捕るステートに変更
+		else if (mouseTK->rightButton == mouseTK->PRESSED) m_pPlayer->ChangeState(m_pPlayer->GetCatching());
+
+		// 何もしてないなら立ち状態にする
+		else m_pPlayer->ChangeState(m_pPlayer->GetStanding());
 	}
 
 	// アニメーションの更新
@@ -199,20 +222,20 @@ void ThrowingL::Update(float elapsedTime)
 /// </summary>
 void ThrowingL::Render()
 {
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// ワールド座標
-	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_pPlayer->GetPosition());
 	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Player.json")["PlayerSize"]));
-	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pPlayer->GetRotation());
 
-	m_player->SetWorld(scale * rotate * pos);
+	m_pPlayer->SetWorld(scale * rotate * pos);
 
 	// アニメーションモデルを描画
-	if (m_player->GetInvincibleTime() >= 0.0f && sinf(m_player->GetInvincibleTime() * 10) <= 0.0f)
+	if (m_pPlayer->GetInvincibleTime() >= 0.0f && sinf(m_pPlayer->GetInvincibleTime() * 10) <= 0.0f)
 	{
 		return;
 	}
@@ -224,14 +247,14 @@ void ThrowingL::Render()
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_player->GetWorld(),
+		m_pPlayer->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_player->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
+	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -250,22 +273,22 @@ void ThrowingL::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pPlayer->GetRotation());
 
-	DirectX::SimpleMath::Vector3 dir = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 dir = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_pPlayer->GetRotation());
 	DirectX::SimpleMath::Quaternion rot = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(15));
-	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation() * rot);
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pPlayer->GetRotation() * rot);
 
-	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_pPlayer->GetRotation());
 
 	/*m_primitiveBatch->Begin();
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
-	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
+	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
 	// デバックフォントの描画
-	// auto* debugFont = m_userResources->GetDebugFont();
+	// auto* debugFont = m_pUserResources->GetDebugFont();
 
 	/*debugFont->Render(L"ThrowingL");*/
 }

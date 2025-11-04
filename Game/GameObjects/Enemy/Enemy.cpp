@@ -7,7 +7,6 @@
 #include "pch.h"
 #include "Enemy.h"
 
-#include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects//Camera/Camera.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Ball/Ball.h"
@@ -20,10 +19,12 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Enemy::Enemy(GameplayScene* pScene, BallManager* ballManager)
-	: m_pScene(pScene)
-	, m_userResources(nullptr)
-	, m_ballManager(ballManager)
+Enemy::Enemy(Player* pPlayer, Field* pField, AirTarget* pAirTarget, BallManager* pBallManager)
+	: m_pPlayer(pPlayer)
+	, m_pField(pField)
+	, m_pAirTarget(pAirTarget)
+	, m_pUserResources(nullptr)
+	, m_ballManager(pBallManager)
 	, m_currentState{}
 	, m_ballIndex(0)
 	, m_invincibleTime(0.0f)
@@ -46,9 +47,9 @@ Enemy::~Enemy()
 /// </summary>
 void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 {
-	m_userResources = UserResources::GetUserResource();
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	m_pUserResources = UserResources::GetUserResource();
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_position = position;
 
@@ -123,9 +124,9 @@ void Enemy::Render()
 {
 	m_currentState->Render();
 
-	//auto states = m_userResources->GetCommonStates();
-	//auto view = m_userResources->GetView();
-	//auto proj = m_userResources->GetProject();
+	//auto states = m_pUserResources->GetCommonStates();
+	//auto view = m_pUserResources->GetView();
+	//auto proj = m_pUserResources->GetProject();
 
 	//m_collider.Draw(states, *view, *proj);
 }
@@ -200,12 +201,12 @@ bool Enemy::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMa
 
 	// レイが存在するか
 	if (A == 0.0f)
-		return false; 
+		return false;
 
 	// 衝突しているか
 	float s = B * B - A * C;
 	if (s < 0.0f)
-		return false; 
+		return false;
 
 	s = sqrtf(s);
 	float a1 = (B - s) / A;
@@ -213,8 +214,8 @@ bool Enemy::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMa
 
 	// マイナス方向に当たっていないか
 	if (a1 < 0.0f || a2 < 0.0f)
-		return false; 
-	
+		return false;
+
 	// 当たった座標を入れる
 	hitPos.x = rayPos.x + a1 * rayDir.x;
 	hitPos.y = rayPos.y + a1 * rayDir.y;
@@ -284,8 +285,8 @@ void Enemy::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 /// <param name="radius">半径</param>
 void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos)
 {
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// エフェクトの設定＆適用
 	m_basicEffect->SetWorld(DirectX::SimpleMath::Matrix::Identity);
@@ -326,7 +327,7 @@ void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* stat
 	DirectX::SimpleMath::Ray ray{ m_position, m_gravity };
 
 	// レイが当たった座標に影を出す
-	if (CalcRaySphere(ray.position, ray.direction, m_pScene->GetField().GetCollider().GetPosition(), m_pScene->GetField().GetCollider().GetRadius(), hitPos))
+	if (CalcRaySphere(ray.position, ray.direction, m_pField->GetCollider().GetPosition(), m_pField->GetCollider().GetRadius(), hitPos))
 	{
 		for (int i = 0; i < 4; ++i)
 		{

@@ -16,7 +16,7 @@
 #include "Game/GameObjects/Ball/State/Catching.h"
 
 // クラスの定義
-class GameplayScene;
+class Field;
 class Camera;
 
 
@@ -38,10 +38,10 @@ public:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;
+	UserResources* m_pUserResources;
 
-	// シーン
-	GameplayScene* m_pScene;
+	// フィールド
+	Field* m_pField;
 
 	// モデル
 	std::unique_ptr<DirectX::Model> m_model;  
@@ -99,7 +99,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Ball(GameplayScene* pScene);
+	Ball(Field* pField);
 
 	// デストラクタ
 	~Ball() override;
@@ -157,13 +157,11 @@ public:
 	void SetInvincibleTime(float time) { m_invincibleTime = time; }
 	float GetInvincibleTime() const { return m_invincibleTime; }
 
+	// 音が鳴っているか
 	bool GetIsSound() const { return m_isSound; }
 
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
-
-	// シーン
-	GameplayScene* GetScene() const { return m_pScene; }
 
 	// シーン
 	IState* GetCurrentState() const { return m_currentState; }
@@ -182,6 +180,8 @@ public:
 // 内部処理
 private:
 	// レイと球体の交差
-	void CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, float radius, DirectX::SimpleMath::Vector3& hitPos);
+	void CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, 
+		float radius, DirectX::SimpleMath::Vector3& hitPos
+	);
 };
 

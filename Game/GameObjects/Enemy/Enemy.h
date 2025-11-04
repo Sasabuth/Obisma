@@ -22,8 +22,9 @@
 
 
 // クラスの定義
-class GameplayScene;
-class Camera;
+class Player;
+class Field;
+class AirTarget;
 class BallManager;
 class Ball;
 
@@ -45,10 +46,16 @@ public:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources; 
+	UserResources* m_pUserResources;
 
-	// シーン
-	GameplayScene* m_pScene; 
+	// プレイヤー
+	Player* m_pPlayer; 
+
+	// フィールド
+	Field* m_pField;
+
+	// 空中の的
+	AirTarget* m_pAirTarget;
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix m_worldMatrix;
@@ -114,7 +121,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Enemy(GameplayScene* pScene, BallManager* ballManager);
+	Enemy(Player* pPlayer, Field* pField, AirTarget* pAirTarget, BallManager* pBallManager);
 
 	// デストラクタ
 	~Enemy() override;
@@ -191,10 +198,13 @@ public:
 	// キャッチ用コライダー
 	SphereCollider& GetCatchCollider() { return m_catchCollider; }
 
-	// シーン
-	GameplayScene* GetScene() const { return m_pScene; }
+	// プレイヤーの取得
+	Player* GetPlayer() const { return m_pPlayer; }
 
-	// シーン
+	// 空中の的の取得
+	AirTarget* GetAirTarget() const { return m_pAirTarget; }
+
+	// ボールマネージャーの取得
 	BallManager* GetBallManager() const { return m_ballManager; }
 
 	// ボール

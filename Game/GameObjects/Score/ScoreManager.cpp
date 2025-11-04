@@ -20,7 +20,6 @@
 /// コンストラクタ
 /// </summary>
 ScoreManager::ScoreManager()
-	: m_userResources(nullptr)
 {
 }
 
@@ -40,8 +39,6 @@ ScoreManager::~ScoreManager()
 /// </summary>
 void ScoreManager::Initialize()
 {
-	// ユーザーリソースの取得
-	m_userResources = UserResources::GetUserResource();
 }
 
 

@@ -35,43 +35,44 @@ private:
 public:
 	// プレイヤーを生成する
 	static std::unique_ptr<Player> CreatePlayer(
-		GameplayScene* pScene,
-		BallManager* ballManager,
+		Field* pField,
+		AirTarget* pAirTarget,
+		BallManager* pBallManager,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
 	// 敵を生成する
 	static std::unique_ptr<Enemy> CreateEnemy(
-		GameplayScene* pScene,
-		BallManager* ballManager,
+		Player* pPlayer,
+		Field* pField,
+		AirTarget* pAirTarget,
+		BallManager* pBallManager,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
 	// カメラの上向きベクトルを生成する
 	static std::unique_ptr<CameraUp> CreateCameraUp(
-		Player* player,
+		Player* pPlayer,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
 	// フィールド生成する
-	static std::unique_ptr<Field> CreateField(
-		Scene* pScene
-	);
+	static std::unique_ptr<Field> CreateField();
 
 	// ボールを生成する
 	static std::unique_ptr<Ball> CreateBall(
-		GameplayScene* pScene, 
+		Field* pField,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
 	// ボールマネージャーを生成する
 	static std::unique_ptr<BallManager> CreateBallManager(
-		GameplayScene* pScene
+		Field* pField
 	);
 
 	// 空中の的を生成する
 	static std::unique_ptr<AirTarget> CreateAirTarget(
-		GameplayScene* pScene,
+		Field* pField,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 

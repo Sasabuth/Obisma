@@ -18,9 +18,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Standing::Standing(Player* player)
-	: m_player(player)
-	, m_userResources(nullptr)
+Standing::Standing(Player* pPlayer)
+	: m_pPlayer(pPlayer)
+	, m_pUserResources(nullptr)
 	, m_model{}
 {
 	// モデルの作成
@@ -56,10 +56,10 @@ Standing::~Standing()
 /// </summary>
 void Standing::Initialize()
 {
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
@@ -88,21 +88,21 @@ void Standing::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	auto kbTracker = m_userResources->GetKeyboardStateTracker();
+	auto kbTracker = m_pUserResources->GetKeyboardStateTracker();
 	auto mouse = DirectX::Mouse::Get().GetState();
-	auto mouseTK = m_userResources->GetMouseStateTracker();
+	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
 	// プロジェクション行列
-	auto proj = m_userResources->GetProject();
-	auto view = m_userResources->GetView();
+	auto proj = m_pUserResources->GetProject();
+	auto view = m_pUserResources->GetView();
 
 
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
 
 	// レイの設定
-	auto const r = m_userResources->GetDeviceResources()->GetOutputSize();
-	m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
+	auto const r = m_pUserResources->GetDeviceResources()->GetOutputSize();
+	m_pPlayer->SetMouseRay(m_pPlayer->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
 
 	// マウス方向の回転の更新
 	UpdateRotateToMouse();
@@ -110,21 +110,21 @@ void Standing::Update(float elapsedTime)
 	// ステートの変更
 	if (kbTracker->pressed.W)
 	{
-		m_player->ChangeState(m_player->GetRunning());
+		m_pPlayer->ChangeState(m_pPlayer->GetRunning());
 	}
 
 	// ボールをキャッチする
 	CatchHandBall();
 
-	if (m_player->GetCatchBall(Player::RIGHT))
+	if (m_pPlayer->GetCatchBall(Player::RIGHT))
 	{
-		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
-		m_player->SetBallPosition(ball, m_rightHandMatrix);
+		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
+		m_pPlayer->SetBallPosition(ball, m_rightHandMatrix);
 	}
-	if (m_player->GetCatchBall(Player::LEFT))
+	if (m_pPlayer->GetCatchBall(Player::LEFT))
 	{
-		Ball* ball = m_player->GetCatchBall(Player::LEFT);
-		m_player->SetBallPosition(ball, m_leftHandMatrix);
+		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
+		m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
 	// ボールを投げる
@@ -136,16 +136,16 @@ void Standing::Update(float elapsedTime)
 	// 右クリックでキャッチ
 	if (mouseTK->rightButton == mouseTK->PRESSED)
 	{
-		m_player->ChangeState(m_player->GetCatching());
+		m_pPlayer->ChangeState(m_pPlayer->GetCatching());
 	}
 
 	// スコアを下げる
-	m_player->ScoreDown();
+	m_pPlayer->ScoreDown();
 
 	// プレイヤーの設定
-	m_player->SetVelocity(m_player->GetGravity());
-	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
-	m_player->GetCollider().SetPosition(m_player->GetPosition());
+	m_pPlayer->SetVelocity(m_pPlayer->GetGravity());
+	m_pPlayer->SetPosition(m_pPlayer->GetPosition() + m_pPlayer->GetVelocity() * elapsedTime);
+	m_pPlayer->GetCollider().SetPosition(m_pPlayer->GetPosition());
 }
 
 
@@ -155,25 +155,25 @@ void Standing::Update(float elapsedTime)
 /// </summary>
 void Standing::Render()
 {
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
-	/*if (m_player->CalcRaySphere(m_player->GetMouseRay().position, m_player->GetMouseRay().direction, m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
+	/*if (m_pPlayer->CalcRaySphere(m_pPlayer->GetMouseRay().position, m_pPlayer->GetMouseRay().direction, m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetHitPos()))
 	{
-		m_player->DrawLockOn(m_player->GetScene()->GetAirTarget()->GetPosition());
+		m_pPlayer->DrawLockOn(m_pPlayer->GetAirTarget()->GetPosition());
 	}*/
 
 	// ワールド座標
-	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_pPlayer->GetPosition());
 	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Player.json")["PlayerSize"]));
-	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pPlayer->GetRotation());
 
-	m_player->SetWorld(scale * rotate * pos);
+	m_pPlayer->SetWorld(scale * rotate * pos);
 
 	// 無敵時間中なら点滅描画
-	if (m_player->GetInvincibleTime() >= 0.0f && sinf(m_player->GetInvincibleTime() * 10) <= 0.0f)
+	if (m_pPlayer->GetInvincibleTime() >= 0.0f && sinf(m_pPlayer->GetInvincibleTime() * 10) <= 0.0f)
 	{
 		return;
 	}
@@ -186,14 +186,14 @@ void Standing::Render()
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_player->GetWorld(),
+		m_pPlayer->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_player->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
+	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
 
 	// デバック
 	/*m_model->Draw(context, *states, world, *view, *proj);*/
@@ -215,17 +215,17 @@ void Standing::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
-	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
-	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pPlayer->GetRotation());
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pPlayer->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_pPlayer->GetRotation());
 
 	//m_primitiveBatch->Begin();
-	//DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);
-	//DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), horizontal, false, DirectX::Colors::Red);
-	//DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), vertical, false, DirectX::Colors::Green);
+	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), vertical, false, DirectX::Colors::Green);
 	//m_primitiveBatch->End();
-	
-	// auto* debugFont = m_userResources->GetDebugFont();
+
+	// auto* debugFont = m_pUserResources->GetDebugFont();
 
 	/*debugFont->Render(L"Standing");*/
 }
@@ -276,19 +276,19 @@ void Standing::AnimationUpdate(float elapsedTime)
 /// </summary>
 void Standing::ThrowBall()
 {
-	if (m_player->GetCatchBall(Player::RIGHT))
+	if (m_pPlayer->GetCatchBall(Player::RIGHT))
 	{
-		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
-		m_player->SetBallPosition(ball, m_rightHandMatrix);
-		m_player->ChangeState(m_player->GetThrowingR());
+		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
+		m_pPlayer->SetBallPosition(ball, m_rightHandMatrix);
+		m_pPlayer->ChangeState(m_pPlayer->GetThrowingR());
 		return;
-		
+
 	}
-	if (m_player->GetCatchBall(Player::LEFT))
+	if (m_pPlayer->GetCatchBall(Player::LEFT))
 	{
-		Ball* ball = m_player->GetCatchBall(Player::LEFT);
-		m_player->SetBallPosition(ball, m_leftHandMatrix);
-		m_player->ChangeState(m_player->GetThrowingL());
+		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
+		m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
+		m_pPlayer->ChangeState(m_pPlayer->GetThrowingL());
 	}
 }
 
@@ -304,42 +304,42 @@ void Standing::UpdateRotateToMouse()
 	DirectX::SimpleMath::Vector3 hitPos2;
 
 	// 両方当たっていた場合どちらが先に当たったか調べる
-	if (m_player->CalcRaySphere(m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), hitPos1) &&
-		m_player->CalcRaySphere(m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), hitPos2))
+	if (m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), hitPos1) &&
+		m_pPlayer->CalcRaySphere(m_pPlayer->GetField()->GetCollider().GetPosition(), m_pPlayer->GetField()->GetCollider().GetRadius(), hitPos2))
 	{
 		DirectX::SimpleMath::Vector3 a;
 		DirectX::SimpleMath::Vector3 b;
 
-		a = m_player->GetMouseRay().position - hitPos1;
-		b = m_player->GetMouseRay().position - hitPos2;
+		a = m_pPlayer->GetMouseRay().position - hitPos1;
+		b = m_pPlayer->GetMouseRay().position - hitPos2;
 
 		if (a.Length() < b.Length())
 		{
-			m_player->SetHitPos(m_player->GetScene()->GetAirTarget()->GetPosition());
+			m_pPlayer->SetHitPos(m_pPlayer->GetAirTarget()->GetPosition());
 		}
 		else
 		{
-			m_player->SetHitPos(hitPos2);
+			m_pPlayer->SetHitPos(hitPos2);
 		}
 
 		// マウス方向に回転
-		m_player->RotateToMouse();
+		m_pPlayer->RotateToMouse();
 	}
 	else
 	{
 		// マウスのレイに当たっている方向に回転
-		if (m_player->CalcRaySphere(m_player->GetScene()->GetAirTarget()->GetPosition(), m_player->GetScene()->GetAirTarget()->GetCollider().GetRadius(), m_player->GetHitPos()))
+		if (m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetHitPos()))
 		{
-			m_player->RotateToMouse();
+			m_pPlayer->RotateToMouse();
 		}
-		else if (m_player->CalcRaySphere(m_player->GetScene()->GetField().GetCollider().GetPosition(), m_player->GetScene()->GetField().GetCollider().GetRadius(), m_player->GetHitPos()))
+		else if (m_pPlayer->CalcRaySphere(m_pPlayer->GetField()->GetCollider().GetPosition(), m_pPlayer->GetField()->GetCollider().GetRadius(), m_pPlayer->GetHitPos()))
 		{
-			m_player->RotateToMouse();
+			m_pPlayer->RotateToMouse();
 		}
 		// 当たっていない
 		else
 		{
-			m_player->SetHitPos(DirectX::SimpleMath::Vector3::Zero);
+			m_pPlayer->SetHitPos(DirectX::SimpleMath::Vector3::Zero);
 		}
 	}
 }
@@ -351,16 +351,16 @@ void Standing::UpdateRotateToMouse()
 /// </summary>
 void Standing::CatchHandBall()
 {
-	for (int i = 0; i < m_player->GetBallManager()->GetObjectCount(); i++)
+	for (int i = 0; i < m_pPlayer->GetBallManager()->GetObjectCount(); i++)
 	{
 		// 両手に持っていたら終了
-		if (m_player->GetCatchBall(Player::RIGHT) && m_player->GetCatchBall(Player::LEFT))
+		if (m_pPlayer->GetCatchBall(Player::RIGHT) && m_pPlayer->GetCatchBall(Player::LEFT))
 		{
 			return;
 		}
 
-		Ball* ball = m_player->GetBallManager()->GetBall(i);
-		if (IsHit(m_player->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
+		Ball* ball = m_pPlayer->GetBallManager()->GetBall(i);
+		if (IsHit(m_pPlayer->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 		{
 			// ボールの状態の変更
 			ball->ChangeState(ball->GetCatching());
@@ -368,13 +368,13 @@ void Standing::CatchHandBall()
 			// 色を変更する
 			ball->SetBallColorNum(Ball::BallColor::PLAYER);
 
-			if (!m_player->GetCatchBall(Player::RIGHT))
+			if (!m_pPlayer->GetCatchBall(Player::RIGHT))
 			{
-				m_player->SetCatchBall(Player::RIGHT, ball);
+				m_pPlayer->SetCatchBall(Player::RIGHT, ball);
 			}
 			else
 			{
-				m_player->SetCatchBall(Player::LEFT, ball);
+				m_pPlayer->SetCatchBall(Player::LEFT, ball);
 			}
 		}
 	}

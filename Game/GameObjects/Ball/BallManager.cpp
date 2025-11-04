@@ -7,7 +7,6 @@
 #include "pch.h"
 #include "BallManager.h"
 
-#include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects//Camera/Camera.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "DebugDraw.h"
@@ -19,9 +18,8 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-BallManager::BallManager(GameplayScene* pScene)
-	: m_pScene(pScene)
-	, m_userResources(nullptr)
+BallManager::BallManager(Field* pField)
+	: m_pField(pField)
 {
 }
 
@@ -40,11 +38,9 @@ BallManager::~BallManager()
 /// </summary>
 void BallManager::Initialize()
 {
-	m_userResources = UserResources::GetUserResource();
-
 	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["Count"]; i++)
 	{
-		std::unique_ptr<Ball> ball = Factory::CreateBall(m_pScene, DirectX::SimpleMath::Vector3(
+		std::unique_ptr<Ball> ball = Factory::CreateBall(m_pField, DirectX::SimpleMath::Vector3(
 			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(i)]["x"],
 			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(i)]["y"],
 			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(i)]["z"])

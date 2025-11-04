@@ -30,10 +30,10 @@ private:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;
+	UserResources* m_pUserResources;
 
 	// プレイヤー
-	Player* m_player;
+	Player* m_pPlayer;
 
 	// モデル
 	DirectX::Model* m_model;  
@@ -67,7 +67,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	PlayerCatching(Player* player);
+	PlayerCatching(Player* pPlayer);
 
 	// デストラクタ
 	~PlayerCatching() override;

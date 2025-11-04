@@ -23,9 +23,9 @@
 
 
 // クラスの定義
-class GameplayScene : public Scene
+class TutorialScene : public Scene
 {
-// 定数
+	// 定数
 private:
 	static constexpr float MAX_TIME = 100.0f;
 	static constexpr int PLAYER_COUNT = 2;
@@ -34,7 +34,7 @@ private:
 	static constexpr float NUMBER_HEIGHT = 50.0f;
 
 
-// 変数
+	// 変数
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;
@@ -77,13 +77,13 @@ private:
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
 
 
-// 関数
+	// 関数
 public:
 	// コンストラクタ
-	GameplayScene();
+	TutorialScene();
 
 	// デストラクタ
-	~GameplayScene() override;;
+	~TutorialScene() override;;
 
 	// 初期化
 	void Initialize() override;

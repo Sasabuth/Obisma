@@ -29,10 +29,10 @@ private:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;
+	UserResources* m_pUserResources;
 
 	// プレイヤー
-	Player* m_player;
+	Player* m_pPlayer;
 
 	// モデル
 	DirectX::Model* m_model; 
@@ -47,6 +47,7 @@ private:
 
 	// 時間
 	float m_time;  
+
 	// 投げたか
 	bool m_isThowing;  
 
@@ -63,7 +64,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	ThrowingL(Player* player);
+	ThrowingL(Player* pPlayer);
 
 	// デストラクタ
 	~ThrowingL() override;

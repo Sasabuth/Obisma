@@ -19,9 +19,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-CameraUp::CameraUp(Player* player)
-	: m_userResources(nullptr)
-	, m_player(player)
+CameraUp::CameraUp(Player* pPlayer)
+	: m_pUserResources(nullptr)
+	, m_pPlayer(pPlayer)
 {
 }
 
@@ -40,23 +40,23 @@ CameraUp::~CameraUp()
 /// </summary>
 void CameraUp::Initialize(DirectX::SimpleMath::Vector3 position)
 {
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_position = position;
 
 	m_collider.Initialize(context, m_position, 0.5f);
 
 	// ベーシックエフェクトの作成
-    m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
-    m_basicEffect->SetVertexColorEnabled(true);
-    
-    // プリミティブバッチの作成
-    m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
-    
-    // 入力レイアウトの作成
+	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
+	m_basicEffect->SetVertexColorEnabled(true);
+
+	// プリミティブバッチの作成
+	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
+
+	// 入力レイアウトの作成
 	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 }
 
@@ -72,7 +72,7 @@ void CameraUp::Update(float elapsedTime)
 	m_velocity = m_gravity;
 
 	// 重力の方向
-	DirectX::SimpleMath::Vector3 dir = m_position - m_player->GetPosition();
+	DirectX::SimpleMath::Vector3 dir = m_position - m_pPlayer->GetPosition();
 	dir.Normalize();
 
 	// 方向ベクトルの反転
@@ -106,7 +106,7 @@ void CameraUp::Update(float elapsedTime)
 
 	m_rotate *= q;
 
-	DirectX::SimpleMath::Vector3 dis = m_position - m_player->GetPosition();
+	DirectX::SimpleMath::Vector3 dis = m_position - m_pPlayer->GetPosition();
 
 	if (dis.Length() >= 4.0f)
 	{
@@ -130,10 +130,10 @@ void CameraUp::Update(float elapsedTime)
 /// </summary>
 void CameraUp::Render()
 {
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -163,7 +163,7 @@ void CameraUp::Render()
 	m_primitiveBatch->End();
 
 	//// デバックフォントの描画
-	//auto* debugFont = m_userResources->GetDebugFont();
+	//auto* debugFont = m_pUserResources->GetDebugFont();
 
 	//// デバック用
 	m_collider.Draw(states, *view, *proj);

@@ -7,7 +7,6 @@
 #include "pch.h"
 #include "Ball.h"
 
-#include "Game/Scenes/GameplayScene.h"
 #include "Game/GameObjects//Camera/Camera.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "DebugDraw.h"
@@ -18,16 +17,16 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Ball::Ball(GameplayScene* pScene)
-	: m_pScene(pScene)
+Ball::Ball(Field* pField)
+	: m_pField(pField)
 	, m_currentState{}
 	, m_ballColorNum(0)
-	, m_userResources(nullptr)
+	, m_pUserResources(nullptr)
 	, m_hitPos{}
 	, m_soundSpan(0.0f)
 	, m_isSound(true)
 	, m_invincibleTime(0.0f)
-	
+
 {
 }
 
@@ -46,16 +45,16 @@ Ball::~Ball()
 /// </summary>
 void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 {
-	m_userResources = UserResources::GetUserResource();
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	m_pUserResources = UserResources::GetUserResource();
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_position = position;
 
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Ball.json")["BallSize"]);
 
 	// ボールのモデルをロードする
-	auto effectFactory = m_userResources->GetEffectFactory();
+	auto effectFactory = m_pUserResources->GetEffectFactory();
 	effectFactory->SetSharing(false);
 	effectFactory->SetDirectory(L"Resources/Models");
 	m_model = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/Ball.sdkmesh", *effectFactory);
@@ -91,7 +90,7 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_soundSpan = 0.0f;
 
 	m_invincibleTime = 0.0f;
-	
+
 	m_isSound = true;
 
 	// 影の初期化
@@ -126,12 +125,12 @@ void Ball::Render()
 	m_currentState->Render();
 
 	// デバック
-	//auto states = m_userResources->GetCommonStates();
-	//auto view = m_userResources->GetView();
-	//auto proj = m_userResources->GetProject();
+	//auto states = m_pUserResources->GetCommonStates();
+	//auto view = m_pUserResources->GetView();
+	//auto proj = m_pUserResources->GetProject();
 	//m_collider.Draw(states, *view, *proj);
 
-	//auto debagFont = m_userResources->GetDebugFont();
+	//auto debagFont = m_pUserResources->GetDebugFont();
 	//debagFont->Render(L"SoundSpan", m_soundSpan);
 }
 
@@ -246,8 +245,8 @@ void Ball::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 /// <param name="radius">半径</param>
 void Ball::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius)
 {
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// エフェクトの設定＆適用
 	m_basicEffect->SetWorld(DirectX::SimpleMath::Matrix::Identity);
@@ -285,7 +284,7 @@ void Ball::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* state
 	DirectX::SimpleMath::Ray ray(m_position, m_gravity);
 
 	// レイの当たったところの座標を設定
-	CalcRaySphere(ray.position, ray.direction, m_pScene->GetField().GetCollider().GetPosition(), m_pScene->GetField().GetCollider().GetRadius(), m_hitPos);
+	CalcRaySphere(ray.position, ray.direction, m_pField->GetCollider().GetPosition(), m_pField->GetCollider().GetRadius(), m_hitPos);
 	for (int i = 0; i < 4; ++i)
 	{
 		DirectX::SimpleMath::Vector3 rotatedOffset = DirectX::SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);

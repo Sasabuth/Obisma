@@ -30,10 +30,10 @@ private:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;
+	UserResources* m_pUserResources;
 
 	// 敵
-	Enemy* m_enemy;
+	Enemy* m_pEnemy;
 
 	// モデル
 	DirectX::Model* m_model;  
@@ -61,7 +61,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	EnemyStanding(Enemy* enemy);
+	EnemyStanding(Enemy* pEnemy);
 
 	// デストラクタ
 	~EnemyStanding() override;

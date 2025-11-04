@@ -49,15 +49,15 @@ void Camera::Update()
 /// <summary>
 /// 更新
 /// </summary>
-/// <param name="player">プレイヤー</param>
+/// <param name="pPlayer">プレイヤー</param>
 /// <param name="upPos">上向きベクトル</param>
 /// <param name="field">フィールド</param>
-void Camera::Update(Player* player, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field)
+void Camera::Update(Player* pPlayer, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field)
 {
 	// プレイヤー位置
-	DirectX::SimpleMath::Vector3 playerPos = player->GetPosition();
+	DirectX::SimpleMath::Vector3 playerPos = pPlayer->GetPosition();
 
-	DirectX::SimpleMath::Vector3 eye = player->GetPosition() * 3;
+	DirectX::SimpleMath::Vector3 eye = pPlayer->GetPosition() * 3;
 
 	// 世界Y軸
 	DirectX::SimpleMath::Vector3 up = upPos + field;
@@ -66,7 +66,7 @@ void Camera::Update(Player* player, DirectX::SimpleMath::Vector3 upPos, DirectX:
 	// ビュー行列更新
 	m_eye = eye;
 	m_target = playerPos;
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, player->GetPosition(), up);
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, pPlayer->GetPosition(), up);
 	UserResources::GetUserResource()->SetView(&m_view);
 }
 

@@ -16,8 +16,7 @@
 
 
 // クラスの定義
-class GameplayScene;
-class Camera;
+class Field;
 
 
 // クラスの定義
@@ -28,11 +27,8 @@ public:
 
 // 変数
 private:
-	// ユーザーリソース
-	UserResources* m_userResources;
-
-	// シーン
-	GameplayScene* m_pScene;
+	// フィールド
+	Field* m_pField;
 
 	// ボールの配列
 	std::vector<std::unique_ptr<Ball>> m_balls;
@@ -41,7 +37,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	BallManager(GameplayScene* pScene);
+	BallManager(Field* pField);
 
 	// デストラクタ
 	~BallManager();

@@ -28,10 +28,10 @@ private:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;
+	UserResources* m_pUserResources;
 
 	// 空中の的
-	AirTarget* m_airTarget;
+	AirTarget* m_pAirTarget;
 
 	// 回転
 	float m_rotate;
@@ -40,7 +40,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Floating(AirTarget* airTarget);
+	Floating(AirTarget* pAirTarget);
 
 	// デストラクタ
 	~Floating() override;

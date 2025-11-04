@@ -16,7 +16,7 @@
 
 
 // クラスの定義
-class GameplayScene;
+class Field;
 class Camera;
 
 
@@ -30,10 +30,10 @@ public:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;
+	UserResources* m_pUserResources;
 
-	// シーン
-	GameplayScene* m_pScene;
+	// フィールド
+	Field* m_pField;
 
 	// モデル
 	DirectX::Model* m_model;  
@@ -78,7 +78,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	AirTarget(GameplayScene* pScene);
+	AirTarget(Field* pField);
 
 	// デストラクタ
 	~AirTarget() override;
@@ -128,9 +128,6 @@ public:
 
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
-
-	// シーン
-	GameplayScene* GetScene() const { return m_pScene; }
 
 	// シーン
 	IState* GetCurrentState() const { return m_currentState; }

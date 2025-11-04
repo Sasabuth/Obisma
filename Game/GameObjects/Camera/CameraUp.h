@@ -25,10 +25,10 @@ public:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;
+	UserResources* m_pUserResources;
 
 	// プレイヤー
-	Player* m_player;
+	Player* m_pPlayer;
 
 	// 座標
 	DirectX::SimpleMath::Vector3 m_position;
@@ -54,7 +54,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	CameraUp(Player* player);
+	CameraUp(Player* pPlayer);
 
 	// デストラクタ
 	~CameraUp() override;

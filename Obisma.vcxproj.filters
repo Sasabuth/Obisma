@@ -218,6 +218,9 @@
     <ClInclude Include="Game\GameObjects\UI\MenuUI.h">
       <Filter>Game\GameObjects\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Scenes\TutorialScene.h">
+      <Filter>Game\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -353,6 +356,9 @@
     </ClCompile>
     <ClCompile Include="Game\GameObjects\UI\MenuUI.cpp">
       <Filter>Game\GameObjects\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Scenes\TutorialScene.cpp">
+      <Filter>Game\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

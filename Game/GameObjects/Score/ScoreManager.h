@@ -23,9 +23,6 @@ private:
 
 // 変数
 private:
-	// ユーザーリソース
-	UserResources* m_userResources;
-
 	// スコアの箱
 	std::vector<Score*> m_scores;
 

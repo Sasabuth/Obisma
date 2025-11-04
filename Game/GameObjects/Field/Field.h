@@ -27,10 +27,7 @@ private:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResource;
-
-	// シーン
-	Scene* m_pScene;  
+	UserResources* m_pUserResources;
 
 	// モデル
 	DirectX::Model* m_model;
@@ -51,7 +48,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Field(Scene* pScene);
+	Field();
 
 	// デストラクタ
 	~Field();

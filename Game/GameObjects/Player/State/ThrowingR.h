@@ -29,10 +29,10 @@ private:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;
+	UserResources* m_pUserResources;
 
 	// プレイヤー
-	Player* m_player;
+	Player* m_pPlayer;
 
 	// モデル
 	DirectX::Model* m_model;  
@@ -46,10 +46,6 @@ private:
 	DirectX::SimpleMath::Matrix m_rightHandMatrix;  
 	// 左手のマトリックス
 	DirectX::SimpleMath::Matrix m_leftHandMatrix;
-
-
-	DirectX::SimpleMath::Quaternion debug;
-	float m_angle;
 
 	// 時間
 	float m_time; 
@@ -69,7 +65,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	ThrowingR(Player* player);
+	ThrowingR(Player* pPlayer);
 
 	// デストラクタ
 	~ThrowingR() override;

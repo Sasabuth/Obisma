@@ -225,6 +225,7 @@
     <ClInclude Include="Game\Scenes\GameplayScene.h" />
     <ClInclude Include="Game\Scenes\ResultScene.h" />
     <ClInclude Include="Game\Scenes\TitleScene.h" />
+    <ClInclude Include="Game\Scenes\TutorialScene.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="MemoryLeakDetector.h" />
     <ClInclude Include="pch.h" />
@@ -275,6 +276,7 @@
     <ClCompile Include="Game\Scenes\GameplayScene.cpp" />
     <ClCompile Include="Game\Scenes\ResultScene.cpp" />
     <ClCompile Include="Game\Scenes\TitleScene.cpp" />
+    <ClCompile Include="Game\Scenes\TutorialScene.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -19,7 +19,7 @@
 /// コンストラクタ
 /// </summary>
 Score::Score()
-	: m_userResources(nullptr)
+	: m_pUserResources(nullptr)
 	, m_score(0)
 	, m_index(0)
 {
@@ -41,7 +41,7 @@ Score::~Score()
 void Score::Initialize(int index)
 {
 	// ユーザーリソースの取得
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
 	m_score = 0;
 
@@ -65,7 +65,7 @@ void Score::Render()
 	m_faceTexture.Draw(m_position, DirectX::SimpleMath::Vector2(0, 0), 0.1f);
 	m_scoreTexture.DigitsDraw(m_position.x + 80, m_position.y + 10, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_score, 1.0f);
 
-	//auto debagFont = m_userResources->GetDebugFont();
+	//auto debagFont = m_pUserResources->GetDebugFont();
 	//debagFont->Render(L"score", m_score);
 	
 }

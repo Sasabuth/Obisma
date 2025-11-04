@@ -23,8 +23,8 @@
 
 
 // クラスの定義
-class GameplayScene;
-class Camera;
+class AirTarget;
+class Field;
 class BallManager;
 class Ball;
 
@@ -42,19 +42,24 @@ public:
 		LEFT,
 	};
 
-	static constexpr int MIN_AIRPOS = 12.0f;
+	static constexpr float MIN_AIRPOS = 12.0f;
+
+	static constexpr float LOCKON_HEIGHT_RATE = 0.177f;
 
 
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;  
+	UserResources* m_pUserResources;  
 
-	// シーン
-	GameplayScene* m_pScene;  
+	// フィールド
+	Field* m_pField;  
+
+	// 空中の的
+	AirTarget* m_pAirTarget;
 
 	// ボールマネージャー
-	BallManager* m_ballManager;
+	BallManager* m_pBallManager;
 
 	// 現在のステート
 	IState* m_currentState;  
@@ -115,7 +120,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Player(GameplayScene* pScene, BallManager* ballManager);
+	Player(Field* pField, AirTarget* pAirTarget, BallManager* pBallManager);
 
 	// デストラクタ
 	~Player() override;
@@ -179,6 +184,9 @@ public:
 	// スコアを下げる
 	void ScoreDown();
 
+	// 当たる距離か
+	bool IsInHitRange(float offset = 0.0f);
+
 
 // 設定/取得
 public:
@@ -213,11 +221,14 @@ public:
 	void SetHitPos(DirectX::SimpleMath::Vector3 hitPos) { m_hitPos = hitPos; }
 	DirectX::SimpleMath::Vector3& GetHitPos() { return m_hitPos; }
 
-	// シーン
-	GameplayScene* GetScene() const { return m_pScene; }
+	// フィールドの取得
+	Field* GetField() const { return m_pField; }
+
+	// 空中の的の取得
+	AirTarget* GetAirTarget() const { return m_pAirTarget; }
 
 	// ボールマネージャー
-	BallManager* GetBallManager() const { return m_ballManager; }
+	BallManager* GetBallManager() const { return m_pBallManager; }
 
 	// ボール
 	void SetCatchBall(int key, Ball* ball);  // 設定

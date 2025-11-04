@@ -18,9 +18,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Dizzying::Dizzying(Player* player)
-	: m_player(player)
-	, m_userResources(nullptr)
+Dizzying::Dizzying(Player* pPlayer)
+	: m_pPlayer(pPlayer)
+	, m_pUserResources(nullptr)
 	, m_model{}
 	, m_time(0)
 {
@@ -57,10 +57,10 @@ Dizzying::~Dizzying()
 /// </summary>
 void Dizzying::Initialize()
 {
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	// アニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
@@ -91,21 +91,21 @@ void Dizzying::Update(float elapsedTime)
 {
 	auto kb = DirectX::Keyboard::Get().GetState();
 
-	if (m_player->GetCatchBall(Player::RIGHT))
+	if (m_pPlayer->GetCatchBall(Player::RIGHT))
 	{
-		Ball* ball = m_player->GetCatchBall(Player::RIGHT);
-		m_player->SetBallPosition(ball, m_rightHandMatrix);
+		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
+		m_pPlayer->SetBallPosition(ball, m_rightHandMatrix);
 	}
-	if (m_player->GetCatchBall(Player::LEFT))
+	if (m_pPlayer->GetCatchBall(Player::LEFT))
 	{
-		Ball* ball = m_player->GetCatchBall(Player::LEFT);
-		m_player->SetBallPosition(ball, m_leftHandMatrix);
+		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
+		m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
 	// プレイヤーの設定
-	m_player->SetVelocity(m_player->GetGravity());
-	m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
-	m_player->GetCollider().SetPosition(m_player->GetPosition());
+	m_pPlayer->SetVelocity(m_pPlayer->GetGravity());
+	m_pPlayer->SetPosition(m_pPlayer->GetPosition() + m_pPlayer->GetVelocity() * elapsedTime);
+	m_pPlayer->GetCollider().SetPosition(m_pPlayer->GetPosition());
 
 	// アニメーションを更新し終了したらステート変更
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
@@ -121,10 +121,10 @@ void Dizzying::Update(float elapsedTime)
 	m_time += elapsedTime;
 	if (m_time > DIZZY_TIME)
 	{
-		if (kb.W) m_player->ChangeState(m_player->GetRunning());
-		else m_player->ChangeState(m_player->GetStanding());
+		if (kb.W) m_pPlayer->ChangeState(m_pPlayer->GetRunning());
+		else m_pPlayer->ChangeState(m_pPlayer->GetStanding());
 		m_time = 0.0f;
-		m_player->SetInvincibleTime(INTERVAL);
+		m_pPlayer->SetInvincibleTime(INTERVAL);
 	}
 
 	// アニメーションの更新
@@ -139,20 +139,20 @@ void Dizzying::Update(float elapsedTime)
 /// </summary>
 void Dizzying::Render()
 {
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// ワールド座標
-	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_player->GetPosition());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_pPlayer->GetPosition());
 	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Player.json")["PlayerSize"]));
-	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_player->GetRotation());
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pPlayer->GetRotation());
 
-	m_player->SetWorld(scale * rotate * pos);
+	m_pPlayer->SetWorld(scale * rotate * pos);
 
 	// アニメーションモデルを描画
-	if (m_player->GetInvincibleTime() >= 0.0f && sinf(m_player->GetInvincibleTime() * 10) <= 0.0f)
+	if (m_pPlayer->GetInvincibleTime() >= 0.0f && sinf(m_pPlayer->GetInvincibleTime() * 10) <= 0.0f)
 	{
 		return;
 	}
@@ -164,14 +164,14 @@ void Dizzying::Render()
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_player->GetWorld(),
+		m_pPlayer->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_player->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
+	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
 
 	// デバック用
 	// 軸の描画
@@ -191,9 +191,9 @@ void Dizzying::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_player->GetRotation());
-	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_player->GetRotation());
-	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pPlayer->GetRotation());
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pPlayer->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_pPlayer->GetRotation());
 
 	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_player->GetPosition(), forward, false, DirectX::Colors::Yellow);

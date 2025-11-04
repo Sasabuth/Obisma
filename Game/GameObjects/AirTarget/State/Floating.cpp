@@ -19,9 +19,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Floating::Floating(AirTarget* airTarget)
-	: m_airTarget(airTarget)
-	, m_userResources(nullptr)
+Floating::Floating(AirTarget* pAirTarget)
+	: m_pAirTarget(pAirTarget)
+	, m_pUserResources(nullptr)
 	, m_rotate(0)
 {
 }
@@ -42,7 +42,7 @@ Floating::~Floating()
 void Floating::Initialize()
 {
 	// ユーザーリソースの取得
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
 	m_rotate = 0.0f;
 }
@@ -62,8 +62,8 @@ void Floating::Update(float elapsedTime)
 	m_rotate += Resources::GetInstance()->GetJson(L"AirTarget.json")["RotateSpeed"] * elapsedTime;
 
 	// プレイヤーの設定
-	m_airTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
-	m_airTarget->GetCollider().SetPosition(m_airTarget->GetPosition());
+	m_pAirTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
+	m_pAirTarget->GetCollider().SetPosition(m_pAirTarget->GetPosition());
 }
 
 
@@ -73,34 +73,34 @@ void Floating::Update(float elapsedTime)
 /// </summary>
 void Floating::Render()
 {
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix world;
 
-	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_airTarget->GetPosition());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_pAirTarget->GetPosition());
 	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"AirTarget.json")["ColliderSize"]));
 
 	DirectX::SimpleMath::Matrix rotate =
 		DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate)) *
-		DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_airTarget->GetRotation());
+		DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pAirTarget->GetRotation());
 
 	world = scale * rotate * pos;
 
 	// モデルの描画
-	m_airTarget->GetModel()->Draw(context, *states, world, *view, *proj);
+	m_pAirTarget->GetModel()->Draw(context, *states, world, *view, *proj);
 
 	// 影の描画
-	m_airTarget->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"AirTarget.json")["ShadowSize"]);
+	m_pAirTarget->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"AirTarget.json")["ShadowSize"]);
 
 	// デバック
-	auto* debugFont = m_userResources->GetDebugFont();
+	/*auto* debugFont = m_pUserResources->GetDebugFont();
 
 	debugFont->Render(L"Floating");
-	debugFont->Render(L"Position", m_airTarget->GetPosition().x * m_airTarget->GetPosition().y * m_airTarget->GetPosition().z);
+	debugFont->Render(L"Position", m_pAirTarget->GetPosition().x * m_pAirTarget->GetPosition().y * m_pAirTarget->GetPosition().z);*/
 
 }
 

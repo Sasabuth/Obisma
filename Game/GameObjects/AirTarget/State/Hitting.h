@@ -29,11 +29,8 @@ private:
 
 // 変数
 private:
-	// ユーザーリソース
-	UserResources* m_userResources;
-
 	// 空中の的
-	AirTarget* m_airTarget;
+	AirTarget* m_pAirTarget;
 
 	// ランダムデバイス 
 	std::random_device rd;
@@ -42,7 +39,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Hitting(AirTarget* airTarget);
+	Hitting(AirTarget* pAirTarget);
 
 	// デストラクタ
 	~Hitting() override;

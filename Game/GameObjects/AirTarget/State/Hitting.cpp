@@ -19,9 +19,8 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Hitting::Hitting(AirTarget* airTarget)
-	: m_airTarget(airTarget)
-	, m_userResources(nullptr)
+Hitting::Hitting(AirTarget* pAirTarget)
+	: m_pAirTarget(pAirTarget)
 {
 }
 
@@ -40,8 +39,6 @@ Hitting::~Hitting()
 /// </summary>
 void Hitting::Initialize()
 {
-	// ユーザーリソースの取得
-	m_userResources = UserResources::GetUserResource();
 }
 
 
@@ -56,22 +53,28 @@ void Hitting::Update(float elapsedTime)
 
 	std::uniform_int_distribution<int> dist(0, Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPosCount"] - 1);
 
-	// プレイヤーの設定
-	m_airTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
-	m_airTarget->SetPosition(DirectX::SimpleMath::Vector3(
+	// 空中の的の設定
+	m_pAirTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
+	m_pAirTarget->SetPosition(DirectX::SimpleMath::Vector3(
 		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(rd))],
 		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(rd))],
 		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(rd))])
 	);
+	m_pAirTarget->GetCollider().SetPosition(m_pAirTarget->GetPosition());
 
-	m_airTarget->GetCollider().SetPosition(m_airTarget->GetPosition());
+	// 座標成分の合計の計算
+	float pos = m_pAirTarget->GetPosition().x * m_pAirTarget->GetPosition().y * m_pAirTarget->GetPosition().z;
 
-	float pos = m_airTarget->GetPosition().x * m_airTarget->GetPosition().y * m_airTarget->GetPosition().z;
-	if (pos < 22.0f && pos > 12.0f || pos < -12.0f && pos > -22.0f)
+	// 20.0fか16.0fの範囲外なら
+	if ((std::fabs(pos) <= 19.9f || std::fabs(pos) >= 20.1f) &&
+		(std::fabs(pos) <= 15.9f || std::fabs(pos) >= 16.1f))
 	{
-		m_airTarget->ChangeState(m_airTarget->GetFloating());
+		// 高さが当たる距離だったらステート変更
+		if (std::fabs(pos) < 22.0f && std::fabs(pos) > 12.0f)
+		{
+			m_pAirTarget->ChangeState(m_pAirTarget->GetFloating());
+		}
 	}
-	
 }
 
 
@@ -81,33 +84,6 @@ void Hitting::Update(float elapsedTime)
 /// </summary>
 void Hitting::Render()
 {
-	//auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	//auto states = m_userResources->GetCommonStates();
-	//auto view = m_userResources->GetView();
-	//auto proj = m_userResources->GetProject();
-
-	//// ワールド座標
-	//SimpleMath::Matrix world;
-
-	//SimpleMath::Matrix pos = SimpleMath::Matrix::CreateTranslation(m_airTarget->GetPosition());
-	//SimpleMath::Matrix scale = SimpleMath::Matrix::CreateScale(SimpleMath::Vector3(AirTarget::BALL_SIZE));
-
-	//SimpleMath::Matrix rotate = SimpleMath::Matrix::CreateFromQuaternion(m_airTarget->GetRotation()); // ※回転順に合わせて調整
-
-	//world = scale * rotate * pos;
-
-	//// モデルの描画
-	//m_airTarget->GetModel()->Draw(context, *states, world, *view, *proj);
-
-	//// 影の描画
-	//m_airTarget->DrawShadow(context, states, AirTarget::SHADOW_SIZE);
-
-	// デバック
-	// デバックフォントの描画
-	/*auto* debugFont = m_userResources->GetDebugFont();*/
-	//debugFont->Render(L"Hitting");
-	//debugFont->Render(L"Position", m_airTarget->GetPosition());
-
 }
 
 

@@ -27,8 +27,8 @@ private:
 
 	static constexpr DirectX::SimpleMath::Vector2 MENU_POSITIONS[MENU_COUNT] =
 	{
-		DirectX::SimpleMath::Vector2(250.0f, 360.0f),
-		DirectX::SimpleMath::Vector2(600.0f, 360.0f),
+		DirectX::SimpleMath::Vector2(425.0f, 260.0f),
+		DirectX::SimpleMath::Vector2(425.0f, 460.0f),
 		DirectX::SimpleMath::Vector2(100.0f, 70.0f),
 	};
 
@@ -52,10 +52,10 @@ private:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;  
+	UserResources* m_pUserResources;  
 
 	// シーン
-	Scene* m_scene;
+	Scene* m_pScene;
 
 	// ボタン
 	Button m_button[MENU_COUNT];
@@ -76,7 +76,7 @@ public:
 	~MenuUI();
 
 	// 初期化
-	void Initialize(Scene* scene);
+	void Initialize(Scene* pScene);
 
 	// 更新
 	void Update(const BoxCollider2D& collider);

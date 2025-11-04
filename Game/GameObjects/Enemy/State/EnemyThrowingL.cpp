@@ -18,9 +18,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-EnemyThrowingL::EnemyThrowingL(Enemy* enemy)
-	: m_enemy(enemy)
-	, m_userResources(nullptr)
+EnemyThrowingL::EnemyThrowingL(Enemy* pEnemy)
+	: m_pEnemy(pEnemy)
+	, m_pUserResources(nullptr)
 	, m_model{}
 	, m_time{}
 	, m_isThowing(false)
@@ -58,10 +58,10 @@ EnemyThrowingL::~EnemyThrowingL()
 /// </summary>
 void EnemyThrowingL::Initialize()
 {
-	m_userResources = UserResources::GetUserResource();
+	m_pUserResources = UserResources::GetUserResource();
 
-	auto device = m_userResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
@@ -93,10 +93,10 @@ void EnemyThrowingL::Update(float elapsedTime)
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
-		auto* entity = m_enemy->GetTarget();
+		auto* entity = m_pEnemy->GetTarget();
 
 		// 方向
-		DirectX::SimpleMath::Vector3 dir = m_enemy->GetPosition() - entity->GetPosition();
+		DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - entity->GetPosition();
 		dir.Normalize();
 
 		// 方向ベクトルの反転
@@ -104,7 +104,7 @@ void EnemyThrowingL::Update(float elapsedTime)
 		targetUp = -dir;
 
 		// 現在の姿勢制御
-		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation());
+		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation());
 
 		// 回転軸の計算
 		DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
@@ -128,46 +128,59 @@ void EnemyThrowingL::Update(float elapsedTime)
 			q = DirectX::SimpleMath::Quaternion::Identity;
 		}
 
-		m_enemy->SetRotation(m_enemy->GetRotation() * q);
+		m_pEnemy->SetRotation(m_pEnemy->GetRotation() * q);
 
-		// 右手に持たせる
-		Ball* ball = m_enemy->GetCatchBall(Enemy::LEFT);
-		m_enemy->SetBallPosition(ball, m_leftHandMatrix);
+		// 左手に持たせる
+		Ball* ball = m_pEnemy->GetCatchBall(Enemy::LEFT);
+		m_pEnemy->SetBallPosition(ball, m_leftHandMatrix);
 
 
 		// 時間になったら投げる
 		if (m_animation->GetAnimTime() > 0.58f)
 		{
+			// ボールのステートを変更
 			ball->ChangeState(ball->GetMoving());
-			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
+
+			// プレイヤーの向いている方向の取得
+			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_pEnemy->GetRotation());
+
 			float angleDeg = DirectX::XMConvertToDegrees(angle);
+
+			// 投げる角度の取得
 			DirectX::SimpleMath::Quaternion rotate;
+			// 角度に応じて投げる角度を調整
 			if (angleDeg < 35.0f)
 			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(25));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+					Resources::GetInstance()->GetJson(L"Enemy.json")["AngleLow"])
+				);
 			}
 			else
 			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(12));
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+					Resources::GetInstance()->GetJson(L"Enemy.json")["AngleHigh"])
+				);
 			}
 
-			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_enemy->GetRotation() * rotate) * 
+			// ボールの速度の取得
+			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation() * rotate) *
 				Resources::GetInstance()->GetJson(L"Enemy.json")["BallSpeed"]
 			);
 
-			m_enemy->SetCatchBall(Enemy::LEFT, nullptr);
+			// 左手から投げたことにする
+			m_pEnemy->SetCatchBall(Enemy::LEFT, nullptr);
 			m_isThowing = true;
 		}
 	}
 
 	// スコアを下げる
-	m_enemy->ScoreDown();
+	m_pEnemy->ScoreDown();
 
 
-	// プレイヤーの設定
-	m_enemy->SetVelocity(m_enemy->GetGravity());
-	m_enemy->SetPosition(m_enemy->GetPosition() + m_enemy->GetVelocity() * elapsedTime);
-	m_enemy->GetCollider().SetPosition(m_enemy->GetPosition());
+	// 敵ーの設定
+	m_pEnemy->SetVelocity(m_pEnemy->GetGravity());
+	m_pEnemy->SetPosition(m_pEnemy->GetPosition() + m_pEnemy->GetVelocity() * elapsedTime);
+	m_pEnemy->GetCollider().SetPosition(m_pEnemy->GetPosition());
 
 	// アニメーションを更新し終了したらステート変更
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
@@ -177,8 +190,8 @@ void EnemyThrowingL::Update(float elapsedTime)
 	}
 	else
 	{
-		m_enemy->SetTarget(nullptr);
-		m_enemy->ChangeState(m_enemy->GetStanding());
+		m_pEnemy->SetTarget(nullptr);
+		m_pEnemy->ChangeState(m_pEnemy->GetStanding());
 	}
 
 	// アニメーションの更新
@@ -193,20 +206,20 @@ void EnemyThrowingL::Update(float elapsedTime)
 /// </summary>
 void EnemyThrowingL::Render()
 {
-	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 	// ワールド座標
-	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_enemy->GetPosition());
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_pEnemy->GetPosition());
 	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySize"]));
-	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_enemy->GetRotation());
+	DirectX::SimpleMath::Matrix rotate = DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pEnemy->GetRotation());
 
-	m_enemy->SetWorld(scale * rotate * pos);
+	m_pEnemy->SetWorld(scale * rotate * pos);
 
 	// アニメーションモデルを描画
-	if (m_enemy->GetInvincibleTime() >= 0.0f && sinf(m_enemy->GetInvincibleTime() * 10) <= 0.0f)
+	if (m_pEnemy->GetInvincibleTime() >= 0.0f && sinf(m_pEnemy->GetInvincibleTime() * 10) <= 0.0f)
 	{
 		return;
 	}
@@ -218,14 +231,14 @@ void EnemyThrowingL::Render()
 		context,
 		*states, nbones,
 		m_drawBones.get(),
-		m_enemy->GetWorld(),
+		m_pEnemy->GetWorld(),
 		*view,
 		*proj
 	);
 
 	// 影の描画
 	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_enemy->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Enemy.json")["ShadowSize"], m_drawPos);
+	m_pEnemy->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Enemy.json")["ShadowSize"], m_drawPos);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -244,21 +257,21 @@ void EnemyThrowingL::Render()
 	// インプットレイアウトの設定
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pEnemy->GetRotation());
 
-	DirectX::SimpleMath::Vector3 dir = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 dir = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_pEnemy->GetRotation());
 	DirectX::SimpleMath::Quaternion rot = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(15));
-	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_enemy->GetRotation() * rot);
+	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pEnemy->GetRotation() * rot);
 
-	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_enemy->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_pEnemy->GetRotation());
 
 	/*m_primitiveBatch->Begin();
-	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
-	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
-	DX::DrawRay(m_primitiveBatch.get(), m_enemy->GetPosition(), vertical, false, DirectX::Colors::Green);
+	DX::DrawRay(m_primitiveBatch.get(), m_pEnemy->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	DX::DrawRay(m_primitiveBatch.get(), m_pEnemy->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	DX::DrawRay(m_primitiveBatch.get(), m_pEnemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
-	/*auto* debugFont = m_userResources->GetDebugFont();*/
+	/*auto* debugFont = m_pUserResources->GetDebugFont();*/
 
 	/*debugFont->Render(L"EnemyThrowingL");*/
 }

@@ -35,7 +35,7 @@ private:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;  
+	UserResources* m_pUserResources;
 
 	// オーディオUI
 	Sprite m_audioUI;

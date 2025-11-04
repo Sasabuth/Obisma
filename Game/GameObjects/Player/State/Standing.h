@@ -30,16 +30,17 @@ private:
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;
+	UserResources* m_pUserResources;
 
 	// プレイヤー
-	Player* m_player;
+	Player* m_pPlayer;
 
 	// モデル
 	DirectX::Model* m_model;  
 
 	// アニメーションボーン配列
 	DirectX::ModelBone::TransformArray m_drawBones; 
+
 	// アニメーション
 	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  
 
@@ -61,7 +62,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Standing(Player* player);
+	Standing(Player* pPlayer);
 
 	// デストラクタ
 	~Standing() override;

@@ -16,9 +16,8 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Field::Field(Scene* pScene)
-	: m_pScene(pScene)
-	, m_userResource(nullptr)
+Field::Field()
+	: m_pUserResources(nullptr)
 	, m_position{}
 	, m_model{}
 	, m_skydomeModel{}
@@ -42,8 +41,8 @@ Field::~Field()
 void Field::Initialize()
 {
 	// ユーザーリソースの取得
-	m_userResource = UserResources::GetUserResource();
-	auto context = m_userResource->GetDeviceResources()->GetD3DDeviceContext();
+	m_pUserResources = UserResources::GetUserResource();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	// モデルの設定
 	m_model = Resources::GetInstance()->GetFieldModel();
@@ -97,10 +96,10 @@ void Field::Render()
 	// デバックフォントの描画
 	/*auto* debugFont = m_pUserResource->GetDebugFont();*/
 
-	auto context = m_userResource->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_userResource->GetCommonStates();
-	auto view = m_userResource->GetView();
-	auto proj = m_userResource->GetProject();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 
 
 
