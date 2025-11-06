@@ -14,6 +14,7 @@
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/SceneManager.h"
 #include "Game/Scenes/GameplayScene.h"
+#include "Game/Scenes/TutorialScene.h"
 
 
 /// <summary>
@@ -50,7 +51,7 @@ void MenuUI::Initialize(Scene* pScene)
 	m_button[0].SetFunc([this]() { m_pScene->ChangeScene<GameplayScene>(); });
 
 	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Practice.png"));
-	/*m_button[1].SetFunc([this]() { m_pScene->ChangeScene<GameplayScene>(); });*/
+	m_button[1].SetFunc([this]() { m_pScene->ChangeScene<TutorialScene>(); });
 
 	m_button[2].SetTexture(Resources::GetInstance()->GetTexture(L"BackButton.png"));
 	m_button[2].SetFunc([this]() { m_isOpen = false; });

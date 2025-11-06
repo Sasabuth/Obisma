@@ -26,18 +26,32 @@ class TitleScene : public Scene
 private:
 	static constexpr int MENU_COUNT = 3;
 
-	static constexpr DirectX::SimpleMath::Vector2 MENU_POSITIONS[MENU_COUNT] =
+	static constexpr Sprite::Format MENU[MENU_COUNT] =
 	{
-		DirectX::SimpleMath::Vector2(350.0f, 500.0f),
-		DirectX::SimpleMath::Vector2(350.0f, 580.0f),
-		DirectX::SimpleMath::Vector2(350.0f, 660.0f),
+		{
+			DirectX::SimpleMath::Vector2(350.0f, 500.0f),
+			DirectX::SimpleMath::Vector2(730.0f, 230.0f),
+			0.2f,
+		},
+		
+		{
+			DirectX::SimpleMath::Vector2(350.0f, 580.0f),
+			DirectX::SimpleMath::Vector2(940.0f, 261.0f),
+			0.2f
+		},
+		
+		{
+			DirectX::SimpleMath::Vector2(350.0f, 660.0f),
+			DirectX::SimpleMath::Vector2(450.0f, 261.0f),
+			0.2f
+		},
 	};
 
-	static constexpr DirectX::SimpleMath::Vector2 MENU_SIZES[MENU_COUNT] =
+	static constexpr Sprite::Format TITLE =
 	{
-		DirectX::SimpleMath::Vector2(730.0f, 230.0f),
-		DirectX::SimpleMath::Vector2(940.0f, 261.0f),
-		DirectX::SimpleMath::Vector2(450.0f, 261.0f),
+		DirectX::SimpleMath::Vector2(400, 240),
+		DirectX::SimpleMath::Vector2(1024, 641),
+		0.7f
 	};
 
 private:

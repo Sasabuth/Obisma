@@ -43,7 +43,7 @@ public:
 	~BallManager();
 
 	// ‰Šú‰»
-	void Initialize();
+	void Initialize(int ballCount);
 
 	// XV
 	void Update(float elapsedTime);

@@ -19,13 +19,20 @@ class Score
 {
 // 定数
 private:
-	static constexpr float NUMBER_WIDTH = 34.5f;
-	static constexpr float NUMBER_HEIGHT = 50.0f;
+	static constexpr float FRAME_SIZE = 0.3f;
+	static constexpr float FACE_SIZE = 0.1f;
 
 	static constexpr DirectX::SimpleMath::Vector2 POSITIONS[] =
 	{
 		DirectX::SimpleMath::Vector2{ 30.0f,30.0f},
 		DirectX::SimpleMath::Vector2{ 1040.0f,30.0f},
+	};
+
+	static constexpr Sprite::Format FREAM =
+	{
+		DirectX::SimpleMath::Vector2(80.0f, 10.0f),   // 座標
+		DirectX::SimpleMath::Vector2(34.5f, 50.0f),   // サイズ
+		1.0f                                          // 拡大率
 	};
 
 

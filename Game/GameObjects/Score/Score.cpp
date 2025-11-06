@@ -61,9 +61,9 @@ void Score::Initialize(int index)
 /// </summary>
 void Score::Render()
 {
-	m_frameTexture.Draw(m_position, DirectX::SimpleMath::Vector2(0, 0), 0.3f);
-	m_faceTexture.Draw(m_position, DirectX::SimpleMath::Vector2(0, 0), 0.1f);
-	m_scoreTexture.DigitsDraw(m_position.x + 80, m_position.y + 10, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_score, 1.0f);
+	m_frameTexture.Draw(m_position, DirectX::SimpleMath::Vector2::Zero, FRAME_SIZE);
+	m_faceTexture.Draw(m_position, DirectX::SimpleMath::Vector2::Zero, FACE_SIZE);
+	m_scoreTexture.DigitsDraw(m_position.x + FREAM.pos.x, m_position.y + FREAM.pos.y, FREAM.size.x, FREAM.size.y, (int)m_score, FREAM.scale);
 
 	//auto debagFont = m_pUserResources->GetDebugFont();
 	//debagFont->Render(L"score", m_score);

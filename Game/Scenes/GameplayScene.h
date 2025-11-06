@@ -27,11 +27,22 @@ class GameplayScene : public Scene
 {
 // 定数
 private:
-	static constexpr float MAX_TIME = 100.0f;
+	static constexpr float MAX_TIME = 99.0f;
 	static constexpr int PLAYER_COUNT = 2;
 
-	static constexpr float NUMBER_WIDTH = 34.5f;
-	static constexpr float NUMBER_HEIGHT = 50.0f;
+	static constexpr Sprite::Format FREAM =
+	{
+		DirectX::SimpleMath::Vector2(640.0f, 52.0f),   // 座標
+		DirectX::SimpleMath::Vector2(415.0f, 239.0f),  // サイズ
+		0.28f                                          // 拡大率
+	};
+
+	static constexpr Sprite::Format TIMER =
+	{
+		DirectX::SimpleMath::Vector2(571.0f, 25.0f),   // 座標
+		DirectX::SimpleMath::Vector2(34.5f, 50.0f),    // サイズ
+		1.0f                                           // 拡大率
+	};
 
 
 // 変数

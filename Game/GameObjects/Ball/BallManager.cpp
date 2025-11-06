@@ -36,9 +36,9 @@ BallManager::~BallManager()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void BallManager::Initialize()
+void BallManager::Initialize(int ballCount)
 {
-	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["Count"]; i++)
+	for (int i = 0; i < ballCount; i++)
 	{
 		std::unique_ptr<Ball> ball = Factory::CreateBall(m_pField, DirectX::SimpleMath::Vector3(
 			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(i)]["x"],

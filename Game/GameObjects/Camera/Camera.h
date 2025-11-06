@@ -39,6 +39,9 @@ private:
 	// 視点
 	DirectX::SimpleMath::Vector3 m_eye;
 
+	// 上向きベクトル
+	DirectX::SimpleMath::Vector3 m_up;
+
 	// 注視点
 	DirectX::SimpleMath::Vector3 m_target;
 
@@ -65,10 +68,13 @@ public:
 	void DebugMode();
 
 	// カメラのビュー行列の取得
-	DirectX::SimpleMath::Matrix GetCameraMatrix();
+	DirectX::SimpleMath::Matrix GetCameraMatrix() { return m_view; }
 
 	// カメラの座標の取得
-	DirectX::SimpleMath::Vector3 GetEyePosition();
+	DirectX::SimpleMath::Vector3 GetEyePosition() { return m_eye; }
+
+	// 上向きベクトルの取得
+	DirectX::SimpleMath::Vector3 GetUpVector() { return m_up; }
 
 	// 画面サイズの設定
 	void SetWindowSize(int windowWidth, int windowHeight);

@@ -73,14 +73,14 @@ std::unique_ptr<Ball> Factory::CreateBall(Field* pField, const DirectX::SimpleMa
 	return std::move(ball);
 }
 
-std::unique_ptr<BallManager> Factory::CreateBallManager(Field* pField)
+std::unique_ptr<BallManager> Factory::CreateBallManager(Field* pField, int ballCount)
 {
 	// ボールマネージャーの宣言
 	std::unique_ptr<BallManager> ballManager;
 	// ボールマネージャーの生成
 	ballManager = std::make_unique<BallManager>(pField);
 	// ボールマネージャーの初期化
-	ballManager->Initialize();
+	ballManager->Initialize(ballCount);
 	// ボールマネージャーを返す
 	return std::move(ballManager);
 }
@@ -95,6 +95,18 @@ std::unique_ptr<AirTarget> Factory::CreateAirTarget(Field* pField, const DirectX
 	airTarget->Initialize(initialPosition);
 	// 空中の的を返す
 	return std::move(airTarget);
+}
+
+std::unique_ptr<Arrow> Factory::CreateArrow(Player* pPlayer, const DirectX::SimpleMath::Vector3& initialPosition)
+{
+	// 空中の的の宣言
+	std::unique_ptr<Arrow> arrow;
+	// 空中の的の生成
+	arrow = std::make_unique<Arrow>(pPlayer);
+	// 空中の的の初期化
+	arrow->Initialize(initialPosition);
+	// 空中の的を返す
+	return std::move(arrow);
 }
 
 std::unique_ptr<Score> Factory::CreateScore(int index)

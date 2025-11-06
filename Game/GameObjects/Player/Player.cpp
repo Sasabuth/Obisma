@@ -97,7 +97,7 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	InitializeShadow(device, context);
 
 	// ロックオンテクスチャの初期化
-	m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOn.png"));
+	m_lockOnTexture.SetTexture(nullptr);
 }
 
 
@@ -147,7 +147,9 @@ void Player::Render()
 	}
 
 	// デバック用
-	/*auto* debugFont = m_userResources->GetDebugFont();*/
+	/*auto* debugFont = m_pUserResources->GetDebugFont();
+	debugFont->Render(L"pos", 1);
+	debugFont->Render(L"pos", std::any(m_velocity));*/
 
 	/*auto states = m_userResources->GetCommonStates();
 	auto view = m_userResources->GetView();
@@ -508,8 +510,8 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 	clipPos /= clipPos.w;
 
 	// スクリーン座標に変換
-	float screenX = (clipPos.x * 0.5f + 0.5f) * 1280;
-	float screenY = (1.0f - (clipPos.y * 0.5f + 0.5f)) * 720;
+	float screenX = (clipPos.x * 0.5f + 0.5f) * BASE_WIDTH;
+	float screenY = (1.0f - (clipPos.y * 0.5f + 0.5f)) * BASE_HEIGHT;
 	DirectX::SimpleMath::Vector2 screenPos(screenX, screenY);
 
 	// 距離の計算
@@ -520,19 +522,19 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 	{
 		// 赤を描画(当たる)
 		m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOnR.png"));
-		m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
+		m_lockOnTexture.Draw(screenPos, LOCKON.size, LOCKON.scale);
 	}
 	else if (IsInHitRange(1.0f))
 	{
 		// 黄を描画(当たらない)
 		m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOnY.png"));
-		m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
+		m_lockOnTexture.Draw(screenPos, LOCKON.size, LOCKON.scale);
 	}
 	else
 	{
 		// 緑を描画(絶対当たらない)
 		m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOnG.png"));
-		m_lockOnTexture.Draw(screenPos, DirectX::SimpleMath::Vector2(1256, 1244), 0.1f);
+		m_lockOnTexture.Draw(screenPos, LOCKON.size, LOCKON.scale);
 	}
 	
 }

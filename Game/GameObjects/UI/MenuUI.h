@@ -27,8 +27,8 @@ private:
 
 	static constexpr DirectX::SimpleMath::Vector2 MENU_POSITIONS[MENU_COUNT] =
 	{
-		DirectX::SimpleMath::Vector2(425.0f, 260.0f),
-		DirectX::SimpleMath::Vector2(425.0f, 460.0f),
+		DirectX::SimpleMath::Vector2(250.0f, 360.0f),
+		DirectX::SimpleMath::Vector2(600.0f, 360.0f),
 		DirectX::SimpleMath::Vector2(100.0f, 70.0f),
 	};
 

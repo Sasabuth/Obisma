@@ -60,13 +60,13 @@ void Camera::Update(Player* pPlayer, DirectX::SimpleMath::Vector3 upPos, DirectX
 	DirectX::SimpleMath::Vector3 eye = pPlayer->GetPosition() * 3;
 
 	// 世界Y軸
-	DirectX::SimpleMath::Vector3 up = upPos + field;
-	up.Normalize();
-
-	// ビュー行列更新
+	m_up = upPos + field;
+	m_up.Normalize();
 	m_eye = eye;
 	m_target = playerPos;
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, pPlayer->GetPosition(), up);
+
+	// ビュー行列更新
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, pPlayer->GetPosition(), m_up);
 	UserResources::GetUserResource()->SetView(&m_view);
 }
 
@@ -127,6 +127,7 @@ void Camera::DebugMode()
 
 	m_eye = eye;
 	m_target = target;
+	m_up = up;
 
 	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, target, up);
 	UserResources::GetUserResource()->SetView(&m_view);
@@ -155,28 +156,6 @@ void Camera::Motion(int x, int y)
 		m_xTmp = m_xAngle + xAngle;
 		m_yTmp = m_yAngle + yAngle;
 	}
-}
-
-
-
-/// <summary>
-/// カメラのビュー行列の取得
-/// </summary>
-/// <returns>ビュー行列</returns>
-DirectX::SimpleMath::Matrix Camera::GetCameraMatrix()
-{
-	return m_view;
-}
-
-
-
-/// <summary>
-/// カメラの座標の取得
-/// </summary>
-/// <returns>視点の位置</returns>
-DirectX::SimpleMath::Vector3 Camera::GetEyePosition()
-{
-	return m_eye;
 }
 
 

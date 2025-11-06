@@ -15,6 +15,16 @@
 // クラスの定義
 class Sprite
 {
+// 構造体
+public:
+	struct Format
+	{
+		DirectX::SimpleMath::Vector2 pos;
+		DirectX::SimpleMath::Vector2 size;
+		float scale;
+	};
+
+
 // 定数
 private:
 	static constexpr float BASE_WIDTH = 1280.0f;

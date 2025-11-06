@@ -56,42 +56,6 @@ void DebugFont::Initialize()
 	m_count = 0;
 }
 
-//// 描画する文字列を登録する関数
-//void DebugFont::AddString(const wchar_t * string, DirectX::SimpleMath::Vector2 pos, FXMVECTOR color, float scale)
-//{
-//	String str;
-//
-//	str.string = std::wstring(string);
-//	str.pos = pos;
-//	str.color = color;
-//	str.scale = scale;
-//
-//	m_strings.push_back(str);
-//}
-//
-//// 描画関数
-//void DebugFont::Render(DirectX::CommonStates* states)
-//{
-//	m_spriteBatch->Begin(SpriteSortMode_Deferred, nullptr, nullptr, states->DepthNone(), states->CullCounterClockwise());
-//	
-//	for (size_t i = 0; i < m_strings.size(); i++)
-//	{
-//		m_spriteFont->DrawString(
-//			m_spriteBatch.get(),
-//			m_strings[i].string.c_str(),
-//			m_strings[i].pos,
-//			m_strings[i].color,
-//			0.0f,
-//			SimpleMath::Vector2(0.0f, 0.0f),
-//			m_strings[i].scale);
-//	}
-//
-//	m_spriteBatch->End();
-//
-//	// 登録されている文字列をクリア
-//	m_strings.clear();
-//}
-
 
 
 /// <summary>
@@ -144,63 +108,13 @@ void DebugFont::Render(const wchar_t* string, DirectX::FXMVECTOR color, float sc
 
 
 /// <summary>
-/// 
-/// </summary>
-/// <param name="string">文字</param>
-/// <param name="pos">座標</param>
-/// <param name="color">色</param>
-/// <param name="scale">サイズ</param>
-void DebugFont::Render(const wchar_t* string, DirectX::SimpleMath::Vector3 pos, DirectX::FXMVECTOR color, float scale)
-{
-	if (wcscmp(m_fString, L"-1") == 0 || wcscmp(m_fString, string) == 0)
-	{
-		m_fString = string;
-		m_count = 0;
-	}
-	else
-	{
-		m_count += 1;
-	}
-
-	String str;
-
-	str.string = std::wstring(string) + L"={" + std::to_wstring(pos.x) + L"," + std::to_wstring(pos.y) + L"," + std::to_wstring(pos.z) + L"}";
-	str.pos = DirectX::SimpleMath::Vector2(0.0f, m_count * 25.0f);
-	str.color = color;
-	str.scale = scale;
-
-	m_strings.push_back(str);
-
-	m_spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, nullptr, nullptr, m_states->DepthNone(), m_states->CullCounterClockwise());
-
-	for (size_t i = 0; i < m_strings.size(); i++)
-	{
-		m_spriteFont->DrawString(
-			m_spriteBatch.get(),
-			m_strings[i].string.c_str(),
-			m_strings[i].pos,
-			m_strings[i].color,
-			0.0f,
-			DirectX::SimpleMath::Vector2(0.0f, 0.0f),
-			m_strings[i].scale);
-	}
-
-	m_spriteBatch->End();
-
-	// 登録されている文字列をクリア
-	m_strings.clear();
-}
-
-
-
-/// <summary>
 /// 描画
 /// </summary>
 /// <param name="string">文字列</param>
-/// <param name="rotate">クオータニオン</param>
+/// <param name="value">値</param>
 /// <param name="color">色</param>
 /// <param name="scale">拡大率</param>
-void DebugFont::Render(const wchar_t* string, DirectX::SimpleMath::Quaternion rotate, DirectX::FXMVECTOR color, float scale)
+void DebugFont::Render(const wchar_t* string, std::any value, DirectX::FXMVECTOR color, float scale)
 {
 	if (wcscmp(m_fString, L"-1") == 0 || wcscmp(m_fString, string) == 0)
 	{
@@ -214,7 +128,33 @@ void DebugFont::Render(const wchar_t* string, DirectX::SimpleMath::Quaternion ro
 
 	String str;
 
-	str.string = std::wstring(string) + L"={" + std::to_wstring(rotate.x) + L"," + std::to_wstring(rotate.y) + L"," + std::to_wstring(rotate.z) + L"," + std::to_wstring(rotate.w) + L"}";
+	if (value.type() == typeid(int)) 
+	{
+		int num = std::any_cast<int>(value);
+		str.string = std::wstring(string) + L"=" + std::to_wstring(num);
+	}
+	else if (value.type() == typeid(float)) 
+	{
+		float num = std::any_cast<float>(value);
+		str.string = std::wstring(string) + L"=" + std::to_wstring(num);
+	}
+	else if (value.type() == typeid(DirectX::SimpleMath::Vector2)) 
+	{
+		DirectX::SimpleMath::Vector2 pos = std::any_cast<DirectX::SimpleMath::Vector2>(value);
+		str.string = std::wstring(string) + L"={" + std::to_wstring(pos.x) + L"," + std::to_wstring(pos.y) + L"}";
+	}
+	else if (value.type() == typeid(DirectX::SimpleMath::Vector3))
+	{
+		DirectX::SimpleMath::Vector3 pos = std::any_cast<DirectX::SimpleMath::Vector3>(value);
+		str.string = std::wstring(string) + L"={" + std::to_wstring(pos.x) + L"," + std::to_wstring(pos.y) + L"," + std::to_wstring(pos.z) + L"}";
+	}
+	else if (value.type() == typeid(DirectX::SimpleMath::Quaternion))
+	{
+		DirectX::SimpleMath::Quaternion rotate = std::any_cast<DirectX::SimpleMath::Quaternion>(value);
+		str.string = std::wstring(string) + L"={" + std::to_wstring(rotate.x) + L"," + std::to_wstring(rotate.y) + L"," + std::to_wstring(rotate.z) + L"," 
+			+ std::to_wstring(rotate.w) + L"}";
+	}
+
 	str.pos = DirectX::SimpleMath::Vector2(0.0f, m_count * 25.0f);
 	str.color = color;
 	str.scale = scale;

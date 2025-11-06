@@ -17,6 +17,7 @@
 #include <wchar.h>
 
 
+
 // クラスの定義
 class DebugFont
 {
@@ -70,61 +71,9 @@ public:
 	// 初期化
 	void Initialize();
 
-	// 描画する文字列を登録する関数
-	//void AddString(
-	//	const wchar_t* string,
-	//	DirectX::SimpleMath::Vector2 pos,
-	//	DirectX::FXMVECTOR color = DirectX::Colors::White,
-	//	float scale = 1.0f);
-
-	//// 描画関数
-	//void Render(DirectX::CommonStates* states);
-
 	// 描画処理
 	void Render(const wchar_t* string, DirectX::FXMVECTOR color = DirectX::Colors::White, float scale = 1.0f);
-	void Render(const wchar_t* string, DirectX::SimpleMath::Vector3 pos, DirectX::FXMVECTOR color = DirectX::Colors::White, float scale = 1.0f);
-	void Render(const wchar_t* string, DirectX::SimpleMath::Quaternion rotate, DirectX::FXMVECTOR color = DirectX::Colors::White, float scale = 1.0f);
-
-	template<typename T>
-	void Render(const wchar_t* string, T num, DirectX::FXMVECTOR color = DirectX::Colors::White, float scale = 1.0f)
-	{
-		// カウントを増やす
-		m_count += 1;
-
-		if (wcscmp(m_fString, L"-1") == 0 || wcscmp(m_fString, string) == 0)
-		{
-			m_fString = string;
-			m_count = 0;
-		}
-
-		String str;
-
-		str.string = std::wstring(string) + L"=" + std::to_wstring(num);
-		str.pos = DirectX::SimpleMath::Vector2(0.0f, m_count * 25.0f);
-		str.color = color;
-		str.scale = scale;
-
-		m_strings.push_back(str);
-
-		m_spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, nullptr, nullptr, m_states->DepthNone(), m_states->CullCounterClockwise());
-
-		for (size_t i = 0; i < m_strings.size(); i++)
-		{
-			m_spriteFont->DrawString(
-				m_spriteBatch.get(),
-				m_strings[i].string.c_str(),
-				m_strings[i].pos,
-				m_strings[i].color,
-				0.0f,
-				DirectX::SimpleMath::Vector2(0.0f, 0.0f),
-				m_strings[i].scale);
-		}
-
-		m_spriteBatch->End();
-
-		// 登録されている文字列をクリア
-		m_strings.clear();
-	}
+	void Render(const wchar_t* string, std::any value, DirectX::FXMVECTOR color = DirectX::Colors::White, float scale = 1.0f);
 
 	// フォントの高さを取得する関数
 	float GetFontHeight() {	return m_fontHeight; }

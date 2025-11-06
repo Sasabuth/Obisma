@@ -68,6 +68,9 @@
     <Filter Include="Game\Scenes">
       <UniqueIdentifier>{b58fe231-7076-4598-9317-abc51fe6ec3f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\GameObjects\Tutorial">
+      <UniqueIdentifier>{1b660bba-3f68-43b1-b494-d41098b8c345}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -221,6 +224,9 @@
     <ClInclude Include="Game\Scenes\TutorialScene.h">
       <Filter>Game\Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\Tutorial\Arrow.h">
+      <Filter>Game\GameObjects\Tutorial</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -359,6 +365,9 @@
     </ClCompile>
     <ClCompile Include="Game\Scenes\TutorialScene.cpp">
       <Filter>Game\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Tutorial\Arrow.cpp">
+      <Filter>Game\GameObjects\Tutorial</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

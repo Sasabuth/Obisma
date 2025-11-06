@@ -42,9 +42,19 @@ public:
 		LEFT,
 	};
 
+	static constexpr float BASE_WIDTH = 1280.0f;
+	static constexpr float BASE_HEIGHT = 720.0f;
+
 	static constexpr float MIN_AIRPOS = 12.0f;
 
 	static constexpr float LOCKON_HEIGHT_RATE = 0.177f;
+
+	static constexpr Sprite::Format LOCKON =
+	{
+		DirectX::SimpleMath::Vector2(-1.0f, -1.0f),      // 使わない
+		DirectX::SimpleMath::Vector2(1256.0f, 1244.0f),  // サイズ
+		0.1f                                             // 拡大率
+	};
 
 
 // 変数

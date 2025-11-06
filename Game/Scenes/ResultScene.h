@@ -17,6 +17,38 @@
 // クラスの定義
 class ResultScene : public Scene
 {
+// 定数
+private:
+	static constexpr Sprite::Format SPACE =
+	{
+		DirectX::SimpleMath::Vector2(-1.0f, -1.0f),   // 使わない
+		DirectX::SimpleMath::Vector2(0.0f, 1024.0f),  // サイズ
+		1.26f                                         // 拡大率
+	};
+	
+	static constexpr Sprite::Format FACE =
+	{
+		DirectX::SimpleMath::Vector2(1280.0f, 300.0f),  // 座標
+		DirectX::SimpleMath::Vector2(860.0f, 660.0f),	// サイズ
+		0.3f                                            // 拡大率
+	};
+	
+	static constexpr Sprite::Format WIN =
+	{
+		DirectX::SimpleMath::Vector2(1280.0f, 170.0f),	// 座標
+		DirectX::SimpleMath::Vector2(504, 371),			// サイズ
+		0.25f                                           // 拡大率
+	};
+	
+	static constexpr Sprite::Format BACK =
+	{
+		DirectX::SimpleMath::Vector2(340.0f, 550.0f), // 座標
+		DirectX::SimpleMath::Vector2(0.0f, 0.0f),	  // サイズ
+		0.25f                                         // 拡大率
+	};
+
+
+// 変数
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;

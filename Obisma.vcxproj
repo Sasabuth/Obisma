@@ -116,6 +116,9 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -166,6 +169,9 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <GuardEHContMetadata>true</GuardEHContMetadata>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -220,6 +226,7 @@
     <ClInclude Include="Game\GameObjects\Player\State\ThrowingR.h" />
     <ClInclude Include="Game\GameObjects\Score\Score.h" />
     <ClInclude Include="Game\GameObjects\Score\ScoreManager.h" />
+    <ClInclude Include="Game\GameObjects\Tutorial\Arrow.h" />
     <ClInclude Include="Game\GameObjects\UI\AudioUI.h" />
     <ClInclude Include="Game\GameObjects\UI\MenuUI.h" />
     <ClInclude Include="Game\Scenes\GameplayScene.h" />
@@ -271,6 +278,7 @@
     <ClCompile Include="Game\GameObjects\Player\State\ThrowingR.cpp" />
     <ClCompile Include="Game\GameObjects\Score\Score.cpp" />
     <ClCompile Include="Game\GameObjects\Score\ScoreManager.cpp" />
+    <ClCompile Include="Game\GameObjects\Tutorial\Arrow.cpp" />
     <ClCompile Include="Game\GameObjects\UI\AudioUI.cpp" />
     <ClCompile Include="Game\GameObjects\UI\MenuUI.cpp" />
     <ClCompile Include="Game\Scenes\GameplayScene.cpp" />

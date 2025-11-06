@@ -21,7 +21,11 @@
 TutorialScene::TutorialScene()
 	: m_pUserResources(nullptr)
 	, m_pResources(nullptr)
-	, m_gameTimer(0)
+	, m_interval(0)
+	, m_count(0)
+	, m_tutorialIndex(MOUSE_MOVE)
+	, m_explainIndex(EXPLAINORDER::SCORE_UP)
+	, m_isCheck(false)
 {
 }
 
@@ -58,13 +62,22 @@ void TutorialScene::Initialize()
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
 
 	// ボールマネージャーの初期化
-	m_ballManager = Factory::CreateBallManager(m_field.get());
+	m_ballManager = Factory::CreateBallManager(m_field.get(), Resources::GetInstance()->GetJson(L"Ball.json")["TutorialCount"]);
+	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+	{
+		m_ballManager->GetBall(i)->SetPosition(DirectX::SimpleMath::Vector3{
+		m_pResources->GetJson(L"Ball.json")["TutorialPos"]["x"],
+		m_pResources->GetJson(L"Ball.json")["TutorialPos"]["y"],
+		m_pResources->GetJson(L"Ball.json")["TutorialPos"]["z"]
+			}
+		);
+	}
 
 	// 空中の的の初期化
 	m_airTarget = Factory::CreateAirTarget(m_field.get(), DirectX::SimpleMath::Vector3{
-		m_pResources->GetJson(L"AirTarget.json")["Position"]["x"],
-		m_pResources->GetJson(L"AirTarget.json")["Position"]["y"],
-		m_pResources->GetJson(L"AirTarget.json")["Position"]["z"]
+		m_pResources->GetJson(L"AirTarget.json")["TutorialPos"]["x"],
+		m_pResources->GetJson(L"AirTarget.json")["TutorialPos"]["y"],
+		m_pResources->GetJson(L"AirTarget.json")["TutorialPos"]["z"]
 		}
 	);
 
@@ -87,23 +100,43 @@ void TutorialScene::Initialize()
 	// カメラの上向きベクトルの初期化
 	m_cameraUp = Factory::CreateCameraUp(m_player.get(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
 
+	// 矢印の生成
+	m_arrow = Factory::CreateArrow(m_player.get(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
+
+
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
 	m_scoreManager->Add(m_player->GetScore());
 	m_scoreManager->Add(m_enemy->GetScore());
 
 	// ゲーム時間の初期化
-	m_gameTimer = MAX_TIME;
+	m_interval = 0.0f;
 
 	// テクスチャの初期化
 	m_frameTexture.SetTexture(m_pResources->GetTexture(L"ScoreFrame2.png"));
 	m_timerTexture.SetTexture(m_pResources->GetTexture(L"ScoreFont2.png"));
+	
+	m_checkMarkTexture.SetTexture(m_pResources->GetTexture(L"CheckMark.png"));
 
 	// リスナーの設定
 	m_pResources->SetListener(m_player->GetPosition(),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
 	);
+
+	// カウントの初期化
+	m_count = -1;
+
+	// チュートリアル番号の初期化
+	m_tutorialIndex = ORDER::MOUSE_MOVE;
+	m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
+
+	// 説明番号の初期化
+	m_explainIndex = EXPLAINORDER::SCORE_UP;
+	m_explainTexture.SetTexture(nullptr);
+
+	// チェックできない
+	m_isCheck = false;
 
 	// BGM
 	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", m_player->GetPosition(), true);
@@ -133,16 +166,21 @@ void TutorialScene::Update(float elapsedTime)
 	// フィールドの更新
 	m_field->Update(elapsedTime);
 
+	// チュートリアルの更新
+	Tutorial(elapsedTime);
+
 	// プレイヤーの更新
-	m_player->Update(elapsedTime);
+	if (m_tutorialIndex != ORDER::MOUSE_MOVE && m_tutorialIndex != ORDER::MOUSE_TO_STER || m_count == -1)
+	{
+		m_player->Update(elapsedTime);
+		m_count = 0;
+	}
 
-	// 敵の更新
-	m_enemy->Update(elapsedTime);
-
-	// ボールマネージャの更新
 	m_ballManager->Update(elapsedTime);
 
-	// 空中の的の更新
+	// 矢印の更新
+	m_arrow->Update(elapsedTime);
+
 	m_airTarget->Update(elapsedTime);
 
 	// 実体とフィールドの当たり判定
@@ -150,6 +188,7 @@ void TutorialScene::Update(float elapsedTime)
 	IsHitEntityToField(m_enemy.get(), m_field.get());
 	IsHitEntityToField(m_cameraUp.get(), m_field.get());
 	IsHitEntityToField(m_airTarget.get(), m_field.get());
+	IsHitEntityToField(m_arrow.get(), m_field.get());
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
 	{
 		IsHitEntityToField(m_ballManager->GetBall(i), m_field.get());
@@ -161,35 +200,22 @@ void TutorialScene::Update(float elapsedTime)
 		}
 	}
 
-	// ゲーム時間の更新
-	m_gameTimer -= elapsedTime;
+	//// 0になったら終了
+	//if (m_gameTimer <= 0.0f)
+	//{
+	//	// ゲーム時間を戻す
+	//	m_gameTimer = MAX_TIME;
 
-	// 0になったら終了
-	if (m_gameTimer <= 0.0f)
-	{
-		// ゲーム時間を戻す
-		m_gameTimer = MAX_TIME;
+	//	// ランキングの更新
+	//	m_scoreManager->SortRank();
+	//	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
+	//	{
+	//		GetSceneManager()->SetRank(i, m_scoreManager->GetRank(i));
+	//	}
 
-		// ランキングの更新
-		m_scoreManager->SortRank();
-		for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
-		{
-			GetSceneManager()->SetRank(i, m_scoreManager->GetRank(i));
-		}
-
-		// シーンの変更
-		ChangeScene<ResultScene>();
-	}
-
-	// シーン変更(デバック)
-	auto kb = m_pUserResources->GetKeyboardStateTracker();
-	if (kb->pressed.R)
-	{
-		Resources::GetInstance()->JsonReset();
-		/*ChangeScene<TitleScene>();*/
-
-		m_player->SetCatchBall(Player::HAND::RIGHT, m_ballManager->GetBall(0));
-	}
+	//	// シーンの変更
+	//	ChangeScene<TitleScene>();
+	//}
 
 	// BGMの音量の設定
 	m_bgm->SetVolume(m_pResources->GetBGMVolume());
@@ -209,30 +235,72 @@ void TutorialScene::Render()
 	// フィールドの描画
 	m_field->Render();
 
+	// 矢印の描画
+	if (m_arrow->GetIsDraw())
+	{
+		m_arrow->Render();
+	}
+
 	// 空中の的の描画
-	m_airTarget->Render();
+	if (m_airTarget->GetPosition().y <= 10.0f)
+	{
+		m_airTarget->Render();
+	}
 
 	// プレイヤーの描画
 	m_player->Render();
+	// ロックオンの描画
+	if (m_tutorialIndex == ORDER::MOUSE_TO_STER)
+	{
+		if (m_player->CalcRaySphere(m_airTarget->GetPosition(), m_airTarget->GetCollider().GetRadius(), m_player->GetHitPos()))
+		{
+			m_player->DrawLockOn(m_airTarget->GetPosition());
+		}
+	}
 
 	// 敵の描画
 	m_enemy->Render();
 
 	// ボールマネージャーの描画
-	m_ballManager->Render();
+	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+	{
+		if (m_ballManager->GetBall(i)->GetPosition().y <= 10.0f)
+		{
+			m_ballManager->GetBall(i)->Render();
+		}
+	}
 
 	// スコアマネージャーの描画
 	m_scoreManager->Render();
 
 	// タイマーの描画
-	m_frameTexture.Draw(DirectX::SimpleMath::Vector2(640, 52), DirectX::SimpleMath::Vector2(415, 239), 0.28f);
-	m_timerTexture.DigitsDraw(571, 25, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_gameTimer, 1.0f);
+	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
+	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, MAX_TIME, TIMER.scale);
+
+	if (!m_explainTexture.GetTexture())
+	{
+		if (m_tutorialIndex >= ORDER::MOUSE_MOVE && m_tutorialIndex < ORDER::MAX_ORDERCOUNT)
+		{
+			m_tutorialTexture.Draw(TUTORIAL[m_tutorialIndex].pos, TUTORIAL[m_tutorialIndex].size, TUTORIAL[m_tutorialIndex].scale);
+		}
+	}
+	else
+	{
+		m_explainTexture.Draw(EXPLAIN[m_explainIndex].pos, EXPLAIN[m_explainIndex].size, EXPLAIN[m_explainIndex].scale);
+	}
+	
+
+	if (m_isCheck)
+	{
+		m_checkMarkTexture.Draw(CHECKMARK.pos, CHECKMARK.size, CHECKMARK.scale);
+	}
+	
 
 	// デバック用
 	// カメラの上向きベクトルの描画
 	/*m_cameraUp->Render();*/
 
-	/*debugFont->Render(L"Timer",m_gameTimer);*/
+	debugFont->Render(L"Count", m_count);
 }
 
 
@@ -259,6 +327,9 @@ void TutorialScene::Finalize()
 
 	// 空中の的の終了
 	m_airTarget->Finalize();
+
+	// 矢印の終了
+	m_arrow->Finalize();
 }
 
 
@@ -286,6 +357,225 @@ void TutorialScene::CreateWindowSizeDependentResources()
 /// </summary>
 void TutorialScene::OnDeviceLost()
 {
+}
+
+
+
+/// <summary>
+/// チュートリアル
+/// </summary>
+void TutorialScene::Tutorial(float elapsedTime)
+{
+	// チュートリアル番号で分ける
+	switch (m_tutorialIndex)
+	{
+	// マウスを動かす
+	case TutorialScene::MOUSE_MOVE:
+	{
+		// マウスの取得
+		auto mouse = DirectX::Mouse::Get().GetState();
+		// 最初のマウス座標を保存
+		static DirectX::SimpleMath::Vector2 pos = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y);
+
+		// 行列の取得
+		auto proj = m_pUserResources->GetProject();
+		auto view = m_pUserResources->GetView();
+
+		// レイの設定
+		auto const r = m_pUserResources->GetDeviceResources()->GetOutputSize();
+		m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
+
+		// フィールドとマウスレイが当たっていたらプレイヤーを回転
+		if (m_player->CalcRaySphere(m_field->GetCollider().GetPosition(), m_field->GetCollider().GetRadius(), m_player->GetHitPos()))
+		{
+			m_player->RotateToMouse();
+		}
+
+		// プレイヤーの設定
+		m_player->SetVelocity(m_player->GetGravity());
+		m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
+		m_player->GetCollider().SetPosition(m_player->GetPosition());
+
+		// マウスの移動距離の計算
+		DirectX::SimpleMath::Vector2 dir = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y) - pos;
+
+		// 長さが上限になったら座標を更新してカウントを増やす
+		if (dir.Length() >= MAX_LENGTH)
+		{
+			m_count += 1;
+			pos = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y);
+		}
+
+		// カウントが上限に行ったらチェックマークをつける
+		if (m_count >= MAX_COUNT)
+		{
+			m_interval += elapsedTime;
+			m_isCheck = true;
+		}
+
+		// インターバルの時間が上限に行ったら次のチュートリアルに進む
+		if (m_interval >= INTERVAL)
+		{
+			m_isCheck = false;
+			m_arrow->SetIsDraw(true);
+			m_tutorialIndex = PLAYER_MOVE;
+			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
+			m_count = 0;
+			m_interval = 0.0f;
+		}
+	}
+	break;
+
+	// プレイヤーの移動
+	case TutorialScene::PLAYER_MOVE:
+	{
+		// プレイヤーが矢印についたらチェックマークをつける
+		if (IsHit(m_player->GetCollider(), m_arrow->GetCollider()))
+		{
+			m_isCheck = true;
+		}
+
+		// チェックマークがついたら矢印を消す
+		if (m_isCheck)
+		{
+			m_arrow->SetIsDraw(false);
+			m_interval += elapsedTime;
+		}
+
+		// インターバルの時間が上限に行ったら次のチュートリアルに進む
+		if (m_interval >= INTERVAL)
+		{
+			m_isCheck = false;
+			m_tutorialIndex = BALL_PICKUP;
+			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
+			m_interval = 0.0f;
+
+			m_ballManager->GetBall(0)->SetPosition(DirectX::SimpleMath::Vector3{
+				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["x"],
+				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["y"],
+				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["z"]
+				}
+			);
+		}
+	}
+	break;
+
+	// ボールを拾う
+	case TutorialScene::BALL_PICKUP:
+	{
+		// 左手にボールを持ったらチェックマークをつける
+		if (m_player->GetCatchBall(Player::HAND::RIGHT) && !m_player->GetCatchBall(Player::HAND::LEFT))
+		{
+			m_ballManager->GetBall(1)->SetPosition(DirectX::SimpleMath::Vector3{
+					m_pResources->GetJson(L"Ball.json")["Position"]["1"]["x"],
+					m_pResources->GetJson(L"Ball.json")["Position"]["1"]["y"],
+					m_pResources->GetJson(L"Ball.json")["Position"]["1"]["z"]
+				}
+			);
+		}
+
+		// 左手にボールを持ったらチェックマークをつける
+		if (m_player->GetCatchBall(Player::HAND::LEFT))
+		{
+			static DirectX::SimpleMath::Vector3 pos = m_player->GetCatchBall(Player::HAND::LEFT)->GetPosition();
+			m_isCheck = true;
+			m_player->SetPosition(pos);
+		}
+
+		// チェックマークがついたらインターバルの更新
+		if (m_isCheck)
+		{
+			m_interval += elapsedTime;
+		}
+
+		// インターバルの時間が上限に行ったら次のチュートリアルに進む
+		if (m_interval >= INTERVAL)
+		{
+			m_isCheck = false;
+			m_tutorialIndex = MOUSE_TO_STER;
+			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
+			m_interval = 0.0f;
+		}
+	}
+	break;
+
+	// マウスを星に近づける
+	case TutorialScene::MOUSE_TO_STER:
+	{
+		// 空中の的の座標の設定
+		m_airTarget->SetPosition(DirectX::SimpleMath::Vector3{
+			m_pResources->GetJson(L"AirTarget.json")["TutorialPos2"]["x"],
+			m_pResources->GetJson(L"AirTarget.json")["TutorialPos2"]["y"],
+			m_pResources->GetJson(L"AirTarget.json")["TutorialPos2"]["z"]
+			}
+		);
+
+		// マウスの取得
+		auto mouse = DirectX::Mouse::Get().GetState();
+		// 行列の取得
+		auto proj = m_pUserResources->GetProject();
+		auto view = m_pUserResources->GetView();
+
+		// レイの設定
+		auto const r = m_pUserResources->GetDeviceResources()->GetOutputSize();
+		m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
+
+		// マウスレイが空中の的に当たったらチェックマークをつける
+		if (m_player->CalcRaySphere(m_airTarget->GetPosition(), m_airTarget->GetCollider().GetRadius(), m_player->GetHitPos()))
+		{
+			m_isCheck = true;
+		}
+
+		// チェックマークがついたらインターバルの更新
+		if (m_isCheck)
+		{
+			m_interval += elapsedTime;
+		}
+
+		// インターバルの時間が上限に行ったら次のチュートリアルに進む
+		if (m_interval >= INTERVAL)
+		{
+			m_isCheck = false;
+			m_tutorialIndex = BALL_THROW;
+			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
+			m_interval = 0.0f;
+		}
+	}
+	break;
+
+	// ボールを投げる
+	case TutorialScene::BALL_THROW:
+	{
+		// いずれかのボールが空中の的に当たったらチェックマークをつける
+		for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+		{
+			if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
+			{
+				m_isCheck = true;
+			}
+		}
+		
+		// チェックマークがついたら説明のテクスチャをつける
+		if (m_isCheck)
+		{
+			m_interval += elapsedTime;
+			m_explainIndex = EXPLAINORDER::SCORE_UP;
+			m_explainTexture.SetTexture(m_pResources->GetTexture(L"Explain" + std::to_wstring(m_explainIndex) + L".png"));
+		}
+
+		// インターバルの時間が上限に行ったら次のチュートリアルに進む
+		if (m_interval >= EXPLAIN_INTERVAL)
+		{
+			m_isCheck = false;
+			m_tutorialIndex = BALL_THROW;
+			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
+			m_interval = 0.0f;
+			m_explainTexture.SetTexture(nullptr);
+		}
+	}
+	break;
+	}
+	
 }
 
 

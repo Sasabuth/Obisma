@@ -16,6 +16,7 @@
 #include "Game/GameObjects/AirTarget/AirTarget.h"
 #include "Game/GameObjects/Score/Score.h"
 #include "Game/GameObjects/Score/ScoreManager.h"
+#include "Game/GameObjects/Tutorial/Arrow.h"
 
 
 // クラスの定義
@@ -67,12 +68,19 @@ public:
 
 	// ボールマネージャーを生成する
 	static std::unique_ptr<BallManager> CreateBallManager(
-		Field* pField
+		Field* pField,
+		int ballCount
 	);
 
 	// 空中の的を生成する
 	static std::unique_ptr<AirTarget> CreateAirTarget(
 		Field* pField,
+		const DirectX::SimpleMath::Vector3& initialPosition
+	);
+
+	// 矢印を生成する
+	static std::unique_ptr<Arrow> CreateArrow(
+		Player* pPlayer,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 

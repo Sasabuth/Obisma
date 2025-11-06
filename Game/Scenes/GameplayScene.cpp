@@ -58,7 +58,7 @@ void GameplayScene::Initialize()
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
 
 	// ボールマネージャーの初期化
-	m_ballManager = Factory::CreateBallManager(m_field.get());
+	m_ballManager = Factory::CreateBallManager(m_field.get(), Resources::GetInstance()->GetJson(L"Ball.json")["Count"]);
 
 	// 空中の的の初期化
 	m_airTarget = Factory::CreateAirTarget(m_field.get(), DirectX::SimpleMath::Vector3{
@@ -225,8 +225,8 @@ void GameplayScene::Render()
 	m_scoreManager->Render();
 
 	// タイマーの描画
-	m_frameTexture.Draw(DirectX::SimpleMath::Vector2(640, 52), DirectX::SimpleMath::Vector2(415, 239), 0.28f);
-	m_timerTexture.DigitsDraw(571, 25, NUMBER_WIDTH, NUMBER_HEIGHT, (int)m_gameTimer, 1.0f);
+	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
+	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, (int)m_gameTimer, TIMER.scale);
 
 	// デバック用
 	// カメラの上向きベクトルの描画

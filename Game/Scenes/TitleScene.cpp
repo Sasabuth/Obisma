@@ -78,9 +78,9 @@ void TitleScene::Initialize()
 
 	for (int i = 0; i < MENU_COUNT; i++)
 	{
-		m_button[i].SetPosition(MENU_POSITIONS[i]);
-		m_button[i].SetSize(MENU_SIZES[i]);
-		m_button[i].SetScale(0.2f);
+		m_button[i].SetPosition(MENU[i].pos);
+		m_button[i].SetSize(MENU[i].size);
+		m_button[i].SetScale(MENU[i].scale);
 	}
 }
 
@@ -168,8 +168,9 @@ void TitleScene::Render()
 	// タイトルの描画
 	else
 	{
-		m_titleTexture.Draw(DirectX::SimpleMath::Vector2(400, 240), DirectX::SimpleMath::Vector2(1024, 641), 0.7f);
+		m_titleTexture.Draw(TITLE.pos, TITLE.size, TITLE.scale);
 
+		// ボタンに触れていたら赤色にする
 		for (int i = 0; i < MENU_COUNT; i++)
 		{
 			if (IsHit(m_collider, m_button[i].GetCollider()))

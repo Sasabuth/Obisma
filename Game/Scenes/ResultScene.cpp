@@ -138,16 +138,16 @@ void ResultScene::Update(float elapsedTime)
 void ResultScene::Render()
 {
 	// テクスチャの描画
-	m_spaceTexture.Draw(m_position, DirectX::SimpleMath::Vector2(0, 1024), 1.26f, DirectX::Colors::DarkGray);
-	m_spaceTexture.Draw(m_position2, DirectX::SimpleMath::Vector2(0, 1024), 1.26f, DirectX::Colors::DarkGray);
+	m_spaceTexture.Draw(m_position, SPACE.size, SPACE.scale, DirectX::Colors::DarkGray);
+	m_spaceTexture.Draw(m_position2, SPACE.size, SPACE.scale, DirectX::Colors::DarkGray);
 
 	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 	{
-		m_faceTextures[i]->Draw(DirectX::SimpleMath::Vector2(1280.0f / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), 300.0f), DirectX::SimpleMath::Vector2(860, 660), 0.3f);
-		m_winTextures[i]->Draw(DirectX::SimpleMath::Vector2(1280.0f / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), 170.0f), DirectX::SimpleMath::Vector2(504, 371), 0.25f);
+		m_faceTextures[i]->Draw(DirectX::SimpleMath::Vector2(FACE.pos.x / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), FACE.pos.y), FACE.size, FACE.scale);
+		m_winTextures[i]->Draw(DirectX::SimpleMath::Vector2(WIN.pos.x/ (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), WIN.pos.y), WIN.size, WIN.scale);
 	}
 
-	m_backTexture.Draw(DirectX::SimpleMath::Vector2(340, 550 + sin(m_speed)), DirectX::SimpleMath::Vector2::Zero, 0.25f);
+	m_backTexture.Draw(DirectX::SimpleMath::Vector2(BACK.pos.x, BACK.pos.y + sin(m_speed)), BACK.size, BACK.scale);
 	
 	//auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
 }
