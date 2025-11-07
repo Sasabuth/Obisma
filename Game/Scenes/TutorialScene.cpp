@@ -176,11 +176,25 @@ void TutorialScene::Update(float elapsedTime)
 		m_count = 0;
 	}
 
+	// 敵の更新
+	if (m_tutorialIndex == ORDER::BALL_CATCH)
+	{
+		m_enemy->Update(elapsedTime);
+
+		// ボールが止まっていたら敵の手にボールを持たせる
+		if (m_ballManager->GetBall(0)->GetCurrentState() == m_ballManager->GetBall(0)->GetStopping())
+		{
+			m_ballManager->GetBall(0)->SetPosition(m_enemy->GetPosition());
+		}
+	}
+
+	// ボールマネージャーの更新
 	m_ballManager->Update(elapsedTime);
 
 	// 矢印の更新
 	m_arrow->Update(elapsedTime);
 
+	// 空中の的の更新
 	m_airTarget->Update(elapsedTime);
 
 	// 実体とフィールドの当たり判定
@@ -249,7 +263,8 @@ void TutorialScene::Render()
 
 	// プレイヤーの描画
 	m_player->Render();
-	// ロックオンの描画
+
+	// マウスを動かすチュートリアルだったらロックオンの描画
 	if (m_tutorialIndex == ORDER::MOUSE_TO_STER)
 	{
 		if (m_player->CalcRaySphere(m_airTarget->GetPosition(), m_airTarget->GetCollider().GetRadius(), m_player->GetHitPos()))
@@ -277,6 +292,7 @@ void TutorialScene::Render()
 	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
 	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, MAX_TIME, TIMER.scale);
 
+	// 説明のテクスチャがなかったらチュートリアルを描画
 	if (!m_explainTexture.GetTexture())
 	{
 		if (m_tutorialIndex >= ORDER::MOUSE_MOVE && m_tutorialIndex < ORDER::MAX_ORDERCOUNT)
@@ -284,12 +300,13 @@ void TutorialScene::Render()
 			m_tutorialTexture.Draw(TUTORIAL[m_tutorialIndex].pos, TUTORIAL[m_tutorialIndex].size, TUTORIAL[m_tutorialIndex].scale);
 		}
 	}
+	// 説明の描画
 	else
 	{
 		m_explainTexture.Draw(EXPLAIN[m_explainIndex].pos, EXPLAIN[m_explainIndex].size, EXPLAIN[m_explainIndex].scale);
 	}
 	
-
+	// チェックが付いたら描画
 	if (m_isCheck)
 	{
 		m_checkMarkTexture.Draw(CHECKMARK.pos, CHECKMARK.size, CHECKMARK.scale);
@@ -300,7 +317,7 @@ void TutorialScene::Render()
 	// カメラの上向きベクトルの描画
 	/*m_cameraUp->Render();*/
 
-	debugFont->Render(L"Count", m_count);
+	//debugFont->Render(L"Count", m_count);
 }
 
 
@@ -567,10 +584,90 @@ void TutorialScene::Tutorial(float elapsedTime)
 		if (m_interval >= EXPLAIN_INTERVAL)
 		{
 			m_isCheck = false;
-			m_tutorialIndex = BALL_THROW;
+			m_tutorialIndex = BALL_CATCH;
 			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
 			m_interval = 0.0f;
 			m_explainTexture.SetTexture(nullptr);
+
+			// プレイヤーはボールを持たないようにする
+			m_player->SetCatchBall(Player::HAND::LEFT, nullptr);
+			m_player->SetCatchBall(Player::HAND::RIGHT, nullptr);
+
+			// ボールを触れないように高い所に置く
+			for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+			{
+				m_ballManager->GetBall(i)->SetPosition(DirectX::SimpleMath::Vector3{
+                        m_pResources->GetJson(L"Ball.json")["TutorialPos"]["x"],
+                        m_pResources->GetJson(L"Ball.json")["TutorialPos"]["y"],
+                        m_pResources->GetJson(L"Ball.json")["TutorialPos"]["z"]
+					}
+				);
+			}
+
+			// ボールを止める状態にして敵に持たせる
+			m_ballManager->GetBall(0)->ChangeState(m_ballManager->GetBall(0)->GetStopping());
+			m_ballManager->GetBall(0)->SetPosition(m_enemy->GetPosition());
+
+			// 描画されないように空中の的を高い所に置く
+			m_airTarget->SetPosition(DirectX::SimpleMath::Vector3{
+				   m_pResources->GetJson(L"AirTarget.json")["TutorialPos"]["x"],
+		           m_pResources->GetJson(L"AirTarget.json")["TutorialPos"]["y"],
+		           m_pResources->GetJson(L"AirTarget.json")["TutorialPos"]["z"]
+				}
+			);
+		}
+	}
+	break;
+
+	// ボールを投げる
+	case TutorialScene::BALL_CATCH:
+	{
+		// 当たったかの判定
+		static bool isHit = false;
+
+		// プレイヤーがボールをキャッチしたらチェックマークをつける
+		if (m_player->GetCatchBall(Player::HAND::RIGHT))
+		{
+			m_isCheck = true;
+		}
+		else
+		{
+			// 敵のボールに当たったら当たった判定をつける
+			if (m_isCheck && IsHit(m_ballManager->GetBall(0)->GetCollider(), m_player->GetCollider()) && m_ballManager->GetBall(0)->GetCurrentState() == m_ballManager->GetBall(0)->GetMoving())
+			{
+				isHit = true;
+			}
+		}
+
+		// チェックマークか当たった判定がついたら説明のテクスチャをつける
+		if (m_isCheck || isHit)
+		{
+			m_interval += elapsedTime;
+			m_explainIndex = EXPLAINORDER::SCORE_DOWN;
+			m_explainTexture.SetTexture(m_pResources->GetTexture(L"Explain" + std::to_wstring(m_explainIndex) + L".png"));
+		}
+
+		// インターバルの時間が上限に行ったら次のチュートリアルに進む
+		if (m_interval >= EXPLAIN_INTERVAL)
+		{
+			// もし当たった判定が付いたら説明を消して戻す
+			if (isHit)
+			{
+				isHit = false;
+				m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
+				m_interval = 0.0f;
+				m_explainTexture.SetTexture(nullptr);
+				return;
+			}
+
+			m_isCheck = false;
+			m_tutorialIndex = BALL_CATCH;
+			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
+			m_interval = 0.0f;
+			m_explainTexture.SetTexture(nullptr);
+
+			// タイトルシーンに戻す
+			ChangeScene<TitleScene>();
 		}
 	}
 	break;

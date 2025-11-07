@@ -36,6 +36,7 @@ private:
 		BALL_PICKUP,
 		MOUSE_TO_STER,
 		BALL_THROW,
+		BALL_CATCH,
 		MAX_ORDERCOUNT
 	};
 
@@ -104,6 +105,13 @@ private:
 		{
 		   DirectX::SimpleMath::Vector2(210.0f, 150.0f),   // 座標
 		   DirectX::SimpleMath::Vector2(1635.0f, 305.0f),  // サイズ
+		   0.22f                                      	   // 拡大率
+		},
+
+		// ボールをキャッチする
+		{
+		   DirectX::SimpleMath::Vector2(200.0f, 150.0f),   // 座標
+		   DirectX::SimpleMath::Vector2(1516.0f, 304.0f),  // サイズ
 		   0.22f                                      	   // 拡大率
 		},
 		
