@@ -27,6 +27,7 @@ class AirTarget;
 class Field;
 class BallManager;
 class Ball;
+class Enemy;
 
 
 // ƒNƒ‰ƒX‚Ì’è‹`

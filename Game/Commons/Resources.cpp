@@ -85,7 +85,6 @@ void Resources::LoadResource()
 		{
 			// BasicEffect‚ÉƒLƒƒƒXƒg‚·‚é
 			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
-
 			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 1));
 		}
 	);

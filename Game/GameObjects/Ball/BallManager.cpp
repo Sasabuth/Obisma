@@ -33,6 +33,7 @@ BallManager::~BallManager()
 }
 
 
+
 /// <summary>
 /// 初期化処理
 /// </summary>
