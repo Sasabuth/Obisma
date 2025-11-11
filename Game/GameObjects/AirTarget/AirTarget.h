@@ -13,9 +13,11 @@
 #include "Game/Commons/UserResources.h"
 #include "Game/GameObjects/AirTarget/State/Floating.h"
 #include "Game/GameObjects/AirTarget/State/Hitting.h"
+#include "Game/GameObjects/Particle/Particle.h"
 
 
 // クラスの定義
+class Field;
 class Field;
 class Camera;
 
@@ -34,6 +36,9 @@ private:
 
 	// フィールド
 	Field* m_pField;
+
+	// カメラ
+	Camera* m_pCamera;
 
 	// モデル
 	DirectX::Model* m_model;  
@@ -55,6 +60,9 @@ private:
 	DirectX::SimpleMath::Vector3 m_gravity;
 	// コライダー
 	SphereCollider m_collider;
+
+	// パーティクル
+	std::unique_ptr<Particle> m_particle;
 
 	// 当たった座標
 	DirectX::SimpleMath::Vector3 m_hitPos;
@@ -78,7 +86,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	AirTarget(Field* pField);
+	AirTarget(Field* pField, Camera* pCamera);
 
 	// デストラクタ
 	~AirTarget() override;
@@ -134,6 +142,12 @@ public:
 
 	// モデルの取得
 	DirectX::Model* GetModel() const { return m_model; }
+
+	// パーティクルの取得
+	Particle* GetParticle() { return m_particle.get(); }
+
+	// カメラの取得
+	Camera* GetCamera() { return m_pCamera; }
 
 
 // ステートの取得

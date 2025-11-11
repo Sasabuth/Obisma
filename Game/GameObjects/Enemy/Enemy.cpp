@@ -56,7 +56,7 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Enemy.json")["ColliderSize"]);
-	m_catchCollider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Enemy.json")["ColliderSize"] - 0.1f);
+	m_catchCollider.Initialize(context, m_position, (float)Resources::GetInstance()->GetJson(L"Enemy.json")["ColliderSize"] - 0.1f);
 
 	m_ballIndex = 0;
 

@@ -74,7 +74,7 @@ void TutorialScene::Initialize()
 	}
 
 	// ‹ó’†‚Ì“I‚Ì‰Šú‰»
-	m_airTarget = Factory::CreateAirTarget(m_field.get(), DirectX::SimpleMath::Vector3{
+	m_airTarget = Factory::CreateAirTarget(m_field.get(), m_camera.get(), DirectX::SimpleMath::Vector3{
 		m_pResources->GetJson(L"AirTarget.json")["TutorialPos"]["x"],
 		m_pResources->GetJson(L"AirTarget.json")["TutorialPos"]["y"],
 		m_pResources->GetJson(L"AirTarget.json")["TutorialPos"]["z"]

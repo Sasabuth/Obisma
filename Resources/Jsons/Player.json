@@ -19,7 +19,9 @@
 
 	"AngleLow": 30,
 
-	"AngleHigh": 20,
+	"AngleMiddle": 20,
+
+	"AngleHigh": 10,
 
 	"Decay" : 0.92
 }

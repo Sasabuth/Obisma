@@ -61,7 +61,7 @@ void GameplayScene::Initialize()
 	m_ballManager = Factory::CreateBallManager(m_field.get(), Resources::GetInstance()->GetJson(L"Ball.json")["Count"]);
 
 	// ‹ó’†‚Ì“I‚Ì‰Šú‰»
-	m_airTarget = Factory::CreateAirTarget(m_field.get(), DirectX::SimpleMath::Vector3{
+	m_airTarget = Factory::CreateAirTarget(m_field.get(), m_camera.get(), DirectX::SimpleMath::Vector3{
 		m_pResources->GetJson(L"AirTarget.json")["Position"]["x"],
 		m_pResources->GetJson(L"AirTarget.json")["Position"]["y"],
 		m_pResources->GetJson(L"AirTarget.json")["Position"]["z"]

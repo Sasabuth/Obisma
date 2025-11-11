@@ -206,8 +206,8 @@ void EnemyRunning::Render()
 
 	// デバック
 	/*m_pEnemy->GetCollider().Draw(states, *view, *proj);*/
-	/*debugFont->Render(L"EnemyRunning");
-	m_pEnemy->GetCatchCollider().Draw(states, *view, *proj);*/
+	/*debugFont->Render(L"EnemyRunning");*/
+	m_pEnemy->GetCatchCollider().Draw(states, *view, *proj);
 }
 
 

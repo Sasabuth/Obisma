@@ -17,8 +17,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-AirTarget::AirTarget(Field* pField)
+AirTarget::AirTarget(Field* pField, Camera* pCamera)
 	: m_pField(pField)
+	, m_pCamera(pCamera)
 	, m_currentState{}
 	, m_pUserResources(nullptr)
 	, m_model(nullptr)
@@ -66,6 +67,11 @@ void AirTarget::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	// 影の初期化
 	InitializeShadow(device, context);
+
+	//  パーティクル用オブジェクトの作成
+	m_particle = std::make_unique<Particle>();
+	//  初期化
+	m_particle->Create(device, context);
 }
 
 
@@ -78,6 +84,14 @@ void AirTarget::Update(float elapsedTime)
 {
 	m_currentState->Update(elapsedTime);
 
+	// パーティクルの更新
+	m_particle->Update(elapsedTime);
+	m_particle->CreateBillboard(m_position, m_pCamera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
+
+
+	m_particle->HandleFieldCollision(*m_pField);
+	
+
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
 }
 
@@ -88,13 +102,20 @@ void AirTarget::Update(float elapsedTime)
 /// </summary>
 void AirTarget::Render()
 {
-	m_currentState->Render();
-
-	// デバック
-	/*auto states = m_pUserResources->GetCommonStates();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	auto states = m_pUserResources->GetCommonStates();
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
-	m_collider.Draw(states, *view, *proj);*/
+
+	m_currentState->Render();
+
+	// パーティクルの描画
+	m_particle->Render(context, *view, *proj);
+
+	// デバック
+	/*m_collider.Draw(states, *view, *proj);*/
+
+	/*m_particle->ColliderDraw(states, *view, *proj);*/
 }
 
 

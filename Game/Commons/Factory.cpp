@@ -85,12 +85,12 @@ std::unique_ptr<BallManager> Factory::CreateBallManager(Field* pField, int ballC
 	return std::move(ballManager);
 }
 
-std::unique_ptr<AirTarget> Factory::CreateAirTarget(Field* pField, const DirectX::SimpleMath::Vector3& initialPosition)
+std::unique_ptr<AirTarget> Factory::CreateAirTarget(Field* pField, Camera* pCamera, const DirectX::SimpleMath::Vector3& initialPosition)
 {
 	// 空中の的の宣言
 	std::unique_ptr<AirTarget> airTarget;
 	// 空中の的の生成
-	airTarget = std::make_unique<AirTarget>(pField);
+	airTarget = std::make_unique<AirTarget>(pField, pCamera);
 	// 空中の的の初期化
 	airTarget->Initialize(initialPosition);
 	// 空中の的を返す

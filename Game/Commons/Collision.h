@@ -142,10 +142,7 @@ private:
 
 // 関数
 public:
-	// コンストラクタ
 	SphereCollider();
-
-	// デストラクタ
 	~SphereCollider();
 
 	// 初期化処理

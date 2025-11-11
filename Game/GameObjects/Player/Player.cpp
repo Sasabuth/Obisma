@@ -151,9 +151,9 @@ void Player::Render()
 	debugFont->Render(L"pos", 1);
 	debugFont->Render(L"pos", std::any(m_velocity));*/
 
-	/*auto states = m_userResources->GetCommonStates();
-	auto view = m_userResources->GetView();
-	auto proj = m_userResources->GetProject();
+	/*auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
 	m_collider.Draw(states, *view, *proj);*/
 }
 

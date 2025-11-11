@@ -9,7 +9,6 @@
 
 // ヘッダファイルの読み込み
 #include "Game/Commons/Interface/IState.h"
-#include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
 #include <random>
 
@@ -25,7 +24,8 @@ class Hitting : public IState
 {
 // 定数
 private:
-	
+	static constexpr int PARTICLE_COUNT = 10;
+	static constexpr float PARTICLE_LIFE = 3.0f;
 
 // 変数
 private:
@@ -33,7 +33,10 @@ private:
 	AirTarget* m_pAirTarget;
 
 	// ランダムデバイス 
-	std::random_device rd;
+	std::random_device m_rd;
+
+	// エフェクトを出したか
+	bool m_isEffect;
 
 
 // 関数

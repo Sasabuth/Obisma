@@ -21,6 +21,7 @@
 /// </summary>
 Hitting::Hitting(AirTarget* pAirTarget)
 	: m_pAirTarget(pAirTarget)
+	, m_isEffect(false)
 {
 }
 
@@ -39,6 +40,7 @@ Hitting::~Hitting()
 /// </summary>
 void Hitting::Initialize()
 {
+	m_isEffect = false;
 }
 
 
@@ -51,15 +53,35 @@ void Hitting::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	std::uniform_int_distribution<int> dist(0, Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPosCount"] - 1);
+	// コンテキストの取得
+	auto context = UserResources::GetUserResource()->GetDeviceResources()->GetD3DDeviceContext();
 
-	// 空中の的の設定
+	// エフェクトがなかったら
+	if (!m_isEffect)
+	{
+		// 指定数パーティクルを生成
+		for (int i = 0; i < PARTICLE_COUNT; i++)
+		{
+			m_pAirTarget->GetParticle()->SetEffectPosition(context, PARTICLE_LIFE, m_pAirTarget->GetPosition(), m_pAirTarget->GetGravity());
+		}
+
+		// エフェクトを出した
+		m_isEffect = true;
+	}
+
+	// ランダムで座標の取得
+	std::uniform_int_distribution<int> dist(0, Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPosCount"] - 1);
+	std::mt19937 mt(m_rd());
+
+	// ランダムで空中の的の座標の設定
 	m_pAirTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
 	m_pAirTarget->SetPosition(DirectX::SimpleMath::Vector3(
-		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(rd))],
-		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(rd))],
-		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(rd))])
+		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(mt))],
+		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(mt))],
+		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(mt))])
 	);
+
+	// コライダーの設定
 	m_pAirTarget->GetCollider().SetPosition(m_pAirTarget->GetPosition());
 
 	// 座標成分の合計の計算
@@ -75,6 +97,8 @@ void Hitting::Update(float elapsedTime)
 			m_pAirTarget->ChangeState(m_pAirTarget->GetFloating());
 		}
 	}
+
+
 }
 
 

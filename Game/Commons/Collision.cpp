@@ -294,7 +294,7 @@ void SphereCollider::Initialize(ID3D11DeviceContext* pContext, DirectX::SimpleMa
  */
 void SphereCollider::Draw(DirectX::CommonStates* states, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj)
 {
-	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateTranslation(m_position);
+	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_radius * 2) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position);
 
 	m_sphere->Draw(
 		world,

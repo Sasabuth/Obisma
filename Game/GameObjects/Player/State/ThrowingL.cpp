@@ -158,6 +158,12 @@ void ThrowingL::Update(float elapsedTime)
 					Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"])
 				);
 			}
+			else if (angleDeg < 75.0f)
+			{
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+					Resources::GetInstance()->GetJson(L"Player.json")["AngleMiddle"])
+				);
+			}
 			else
 			{
 				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(

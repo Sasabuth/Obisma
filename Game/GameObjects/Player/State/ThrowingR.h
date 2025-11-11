@@ -52,6 +52,8 @@ private:
 	// 投げたか
 	bool m_isThowing;  
 
+	float angleD;
+
 	// ベーシックエフェクト
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  
 

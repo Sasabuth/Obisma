@@ -75,6 +75,7 @@ public:
 	// ‹ó’†‚Ì“I‚ğ¶¬‚·‚é
 	static std::unique_ptr<AirTarget> CreateAirTarget(
 		Field* pField,
+		Camera* pCamera,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 

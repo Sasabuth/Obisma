@@ -147,6 +147,7 @@ void ThrowingR::Update(float elapsedTime)
 			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_pPlayer->GetRotation());
 
 			float angleDeg = DirectX::XMConvertToDegrees(angle);
+			angleD = angleDeg;
 
 			// 投げる角度の取得
 			DirectX::SimpleMath::Quaternion rotate;
@@ -155,6 +156,12 @@ void ThrowingR::Update(float elapsedTime)
 			{
 				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
 					Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"])
+				);
+			}
+			else if (angleDeg < 75.0f)
+			{
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+					Resources::GetInstance()->GetJson(L"Player.json")["AngleMiddle"])
 				);
 			}
 			else
@@ -286,7 +293,13 @@ void ThrowingR::Render()
 	//m_primitiveBatch->End();
 
 	// デバックフォントの描画
-	//auto* debugFont = m_pUserResources->GetDebugFont();
+	auto* debugFont = m_pUserResources->GetDebugFont();
+	debugFont->Render(L"angleD", std::any(angleD));
+	debugFont->Render(L"angleD", std::any(angleD));
+	debugFont->Render(L"angleD", std::any(angleD));
+	debugFont->Render(L"angleD", std::any(angleD));
+	debugFont->Render(L"angleD", std::any(angleD));
+	debugFont->Render(L"angleD", std::any(angleD));
 }
 
 

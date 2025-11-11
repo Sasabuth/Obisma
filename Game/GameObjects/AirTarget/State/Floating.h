@@ -9,7 +9,6 @@
 
 // ヘッダファイルの読み込み
 #include "Game/Commons/Interface/IState.h"
-#include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
 
 
