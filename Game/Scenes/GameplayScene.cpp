@@ -172,6 +172,7 @@ void GameplayScene::Update(float elapsedTime)
 
 		// ランキングの更新
 		m_scoreManager->SortRank();
+		GetSceneManager()->SetIsDraw(m_scoreManager->GetIsDraw());
 		for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 		{
 			GetSceneManager()->SetRank(i, m_scoreManager->GetRank(i));

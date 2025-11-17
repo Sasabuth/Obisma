@@ -8,9 +8,6 @@
 #include "pch.h"
 #include "Moving.h"
 
-#include "Game/Scenes/GameplayScene.h"
-#include "Game/GameObjects//Camera/Camera.h"
-#include "Game/GameObjects/Field/Field.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/GameObjects/Ball/Ball.h"

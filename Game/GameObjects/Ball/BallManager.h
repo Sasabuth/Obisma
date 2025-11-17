@@ -16,10 +16,6 @@
 
 
 // クラスの定義
-class Field;
-
-
-// クラスの定義
 class BallManager
 {
 public:

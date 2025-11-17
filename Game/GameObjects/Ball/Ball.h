@@ -17,7 +17,6 @@
 
 // クラスの定義
 class Field;
-class Camera;
 
 
 // クラスの定義

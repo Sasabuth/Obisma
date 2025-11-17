@@ -17,7 +17,6 @@
 // ƒNƒ‰ƒX‚Ì’è‹`
 class IEntity;
 class Enemy;
-class Ball;
 
 
 

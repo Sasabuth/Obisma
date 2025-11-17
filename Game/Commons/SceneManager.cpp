@@ -66,7 +66,6 @@ void SceneManager::OnDeviceLost()
 }
 
 // ƒV[ƒ“‚ÌíœŠÖ”
-
 void SceneManager::DeleteScene()
 {
 	if (m_scene)

@@ -80,6 +80,8 @@ private:
 	// プレイ人数
 	int m_playerCount;
 
+	bool m_isDraw;
+
 	// 勝者
 	std::vector<int> m_rank;
 
@@ -93,6 +95,7 @@ public:
 		: m_scene(nullptr)
 		, m_nextScene(nullptr)
 		, m_playerCount(0)
+		, m_isDraw(false)
 	{
 	};
 
@@ -122,13 +125,16 @@ public:
 	template <class T>
 	void SetNextScene();
 
-	// 勝者
+	// プレイヤー数
 	void SetPlayerCount(int playerCount) { m_playerCount = playerCount; }  // 設定
 	int GetPlayerCount() const { return m_playerCount; }                   // 取得
 
 	// 順位
 	void SetRank(int index,int charactorNum) { m_rank.resize(m_playerCount); m_rank[index] = charactorNum; }  // 設定
-	int GetRank(int index) const { return m_rank[index]; }         // 取得
+	int GetRank(int index) const { return m_rank[index]; }                                                    // 取得
+
+	void SetIsDraw(bool isDraw) { m_isDraw = isDraw; }
+	bool GetIsDraw() const { return m_isDraw; }
 
 };
 

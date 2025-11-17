@@ -7,9 +7,6 @@
 #include "pch.h"
 #include "Enemy.h"
 
-#include "Game/GameObjects//Camera/Camera.h"
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"

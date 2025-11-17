@@ -20,6 +20,7 @@
 /// コンストラクタ
 /// </summary>
 ScoreManager::ScoreManager()
+	: m_isDraw(true)
 {
 }
 
@@ -39,6 +40,7 @@ ScoreManager::~ScoreManager()
 /// </summary>
 void ScoreManager::Initialize()
 {
+	m_isDraw = true;
 }
 
 
@@ -63,4 +65,26 @@ void ScoreManager::Render()
 	{
 		m_scores[i]->Render();
 	}
+}
+
+
+
+/// <summary>
+/// 高い順に並べる
+/// </summary>
+void ScoreManager::SortRank()
+{
+	// スコアをソートする
+	std::sort(m_scores.begin(), m_scores.end(), [this](const Score* a, const Score* b) 
+		{ 
+			// 同じスコアじゃなかったら引き分けにしない
+			if (a->GetScore() != b->GetScore())
+			{
+				m_isDraw = false;
+			}
+
+			// 大きいほうを入れる
+			return a->GetScore() > b->GetScore();
+		}
+	);
 }

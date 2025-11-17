@@ -20,8 +20,6 @@
 
 
 // ƒNƒ‰ƒX‚Ì’è‹`
-class GameplayScene;
-class Scene;
 class Camera;
 
 

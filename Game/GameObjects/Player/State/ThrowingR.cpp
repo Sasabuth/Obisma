@@ -7,8 +7,7 @@
 #include "pch.h"
 #include "ThrowingR.h"
 
-#include "Game/Scenes/GameplayScene.h"
-#include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Ball/Ball.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
@@ -293,13 +292,13 @@ void ThrowingR::Render()
 	//m_primitiveBatch->End();
 
 	// デバックフォントの描画
-	auto* debugFont = m_pUserResources->GetDebugFont();
+	/*auto* debugFont = m_pUserResources->GetDebugFont();
 	debugFont->Render(L"angleD", std::any(angleD));
 	debugFont->Render(L"angleD", std::any(angleD));
 	debugFont->Render(L"angleD", std::any(angleD));
 	debugFont->Render(L"angleD", std::any(angleD));
 	debugFont->Render(L"angleD", std::any(angleD));
-	debugFont->Render(L"angleD", std::any(angleD));
+	debugFont->Render(L"angleD", std::any(angleD));*/
 }
 
 

@@ -7,9 +7,8 @@
 #include "pch.h"
 #include "PlayerCatching.h"
 
-#include "Game/Scenes/GameplayScene.h"
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Ball/Ball.h"
+#include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Ball/BallManager.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 

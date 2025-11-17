@@ -7,13 +7,10 @@
 #include "pch.h"
 #include "Arrow.h"
 
-#include "Game/Scenes/GameplayScene.h"
-#include "Game/GameObjects//Camera/Camera.h"
-#include "Game/GameObjects/Field/Field.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Camera/Camera.h"
+#include "Game/GameObjects/Field/Field.h"
 
 
 

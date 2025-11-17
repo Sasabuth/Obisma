@@ -12,7 +12,6 @@
 #include "Game/Commons/UserResources.h"
 
 
-
 // ƒNƒ‰ƒX‚Ì’è‹`
 class AirTarget;
 

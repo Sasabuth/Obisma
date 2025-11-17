@@ -39,6 +39,13 @@ private:
 		DirectX::SimpleMath::Vector2(504, 371),			// サイズ
 		0.25f                                           // 拡大率
 	};
+
+	static constexpr Sprite::Format DRAW =
+	{
+		DirectX::SimpleMath::Vector2(640.0f, 140.0f),	// 座標
+		DirectX::SimpleMath::Vector2(1207, 372),		// サイズ
+		0.35f                                           // 拡大率
+	};
 	
 	static constexpr Sprite::Format BACK =
 	{

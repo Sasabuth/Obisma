@@ -27,7 +27,7 @@ class GameplayScene : public Scene
 {
 // íËêî
 private:
-	static constexpr float MAX_TIME = 99.0f;
+	static constexpr float MAX_TIME = 100.0f;
 	static constexpr int PLAYER_COUNT = 2;
 
 	static constexpr Sprite::Format FREAM =

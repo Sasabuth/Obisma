@@ -8,11 +8,10 @@
 #include "pch.h"
 #include "Floating.h"
 
-#include "Game/Scenes/GameplayScene.h"
-#include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/AirTarget/AirTarget.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
-#include "Game/GameObjects/AirTarget/AirTarget.h"
+
 
 
 

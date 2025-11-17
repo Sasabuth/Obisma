@@ -86,6 +86,12 @@ void ResultScene::Update(float elapsedTime)
 	// キーボードの取得
 	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
+	if (GetSceneManager()->GetIsDraw())
+	{
+		std::wstring filename = L"Draw.png";
+		m_winTextures[0]->SetTexture(Resources::GetInstance()->GetTexture(filename.c_str()));
+	}
+
 	// テクスチャの更新
 	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 	{
@@ -95,11 +101,13 @@ void ResultScene::Update(float elapsedTime)
 			std::wstring filename = L"Face" + std::to_wstring(GetSceneManager()->GetRank(i)) + L".png";
 			m_faceTextures[i]->SetTexture(Resources::GetInstance()->GetTexture(filename.c_str()));
 		}
-
-		if (!m_winTextures[i]->GetTexture())
+		if(!GetSceneManager()->GetIsDraw())
 		{
-			std::wstring filename = L"Result" + std::to_wstring(i) + L".png";
-			m_winTextures[i]->SetTexture(Resources::GetInstance()->GetTexture(filename.c_str()));
+			if (!m_winTextures[i]->GetTexture())
+			{
+				std::wstring filename = L"Result" + std::to_wstring(i) + L".png";
+				m_winTextures[i]->SetTexture(Resources::GetInstance()->GetTexture(filename.c_str()));
+			}
 		}
 	}
 
@@ -141,10 +149,20 @@ void ResultScene::Render()
 	m_spaceTexture.Draw(m_position, SPACE.size, SPACE.scale, DirectX::Colors::DarkGray);
 	m_spaceTexture.Draw(m_position2, SPACE.size, SPACE.scale, DirectX::Colors::DarkGray);
 
+
 	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 	{
 		m_faceTextures[i]->Draw(DirectX::SimpleMath::Vector2(FACE.pos.x / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), FACE.pos.y), FACE.size, FACE.scale);
-		m_winTextures[i]->Draw(DirectX::SimpleMath::Vector2(WIN.pos.x/ (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), WIN.pos.y), WIN.size, WIN.scale);
+
+		if (!GetSceneManager()->GetIsDraw())
+		{
+			m_winTextures[i]->Draw(DirectX::SimpleMath::Vector2(WIN.pos.x / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), WIN.pos.y), WIN.size, WIN.scale);
+		}
+	}
+
+	if (GetSceneManager()->GetIsDraw())
+	{
+		m_winTextures[0]->Draw(DirectX::SimpleMath::Vector2(DRAW.pos.x, DRAW.pos.y), DRAW.size, DRAW.scale);
 	}
 
 	m_backTexture.Draw(DirectX::SimpleMath::Vector2(BACK.pos.x, BACK.pos.y + sin(m_speed)), BACK.size, BACK.scale);

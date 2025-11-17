@@ -11,8 +11,6 @@
 #include "Game/Commons/UserResources.h"
 
 // ƒNƒ‰ƒX‚Ì’è‹`
-class Scene;
-class Camera;
 class IEntity;
 
 

@@ -26,6 +26,9 @@ private:
 	// スコアの箱
 	std::vector<Score*> m_scores;
 
+	// 引き分けたか
+	bool m_isDraw;
+
 
 // 関数
 public:
@@ -48,14 +51,20 @@ public:
 	void Add(Score* score) { m_scores.push_back(score); }
 
 	// 高い順に並べる
-	void SortRank() { std::sort(m_scores.begin(), m_scores.end(), [](const Score* a, const Score* b) { return a->GetScore() > b->GetScore(); }); }
+	void SortRank();
 
 
 // 設定/取得
 public:
+	// スコアの数を取得
 	int GetObjectCount() const { return (int)m_scores.size(); }
+	// スコアのポインタを取得
 	Score* GetScore(int index) const { return m_scores[index]; }
 
+	// ランキングの取得
 	int GetRank(int index) const { return m_scores[index]->GetIndex(); };
+
+	// 引き分けか
+	bool GetIsDraw() const { return m_isDraw; }
 };
 

@@ -6,8 +6,7 @@
 // ヘッダファイルの読み込み
 #include "pch.h"
 #include "Field.h"
-#include "Game/Scenes/GameplayScene.h"
-#include "Game/GameObjects//Camera/Camera.h"
+
 #include "Game/Commons/Interface/IEntity.h"
 #include "Game/Commons/Resources.h"
 

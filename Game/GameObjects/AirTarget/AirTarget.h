@@ -18,7 +18,6 @@
 
 // ƒNƒ‰ƒX‚Ì’è‹`
 class Field;
-class Field;
 class Camera;
 
 

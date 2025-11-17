@@ -15,8 +15,6 @@
 
 // クラスの定義
 class Enemy;
-class Ball;
-
 
 
 // クラスの定義

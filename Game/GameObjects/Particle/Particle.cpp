@@ -172,13 +172,19 @@ void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, float life, Dire
 		DirectX::SimpleMath::Vector3((float)rand(mt), (float)rand(mt), (float)rand(mt)),				//	速度
 		gravity,																                        //	加速度
 		DirectX::SimpleMath::Vector3(LINE_SCALE), DirectX::SimpleMath::Vector3(0.1f),					//	初期スケール、最終スケール
-		DirectX::SimpleMath::Color(1.0f, 1.0, 0.0f, 0.5f), DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 0.f)//	初期カラー、最終カラー
+		DirectX::SimpleMath::Color(1.0f, 1.0, 0.0f, 0.7f), DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 0.f)//	初期カラー、最終カラー
 	);
 
 	//	リストに追加
 	m_particleUtility.push_back(std::move(pU));
 }
 
+
+
+/// <summary>
+/// フィールドとの当たり判定
+/// </summary>
+/// <param name="field"></param>
 void Particle::HandleFieldCollision(Field& field)
 {
 	// パーティクルのイテレータの取得
