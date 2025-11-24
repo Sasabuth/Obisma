@@ -113,3 +113,8 @@ void Moving::Render()
 void Moving::Finalize()
 {
 }
+
+void Moving::EventHandle(Event e)
+{
+	UNREFERENCED_PARAMETER(e);
+}

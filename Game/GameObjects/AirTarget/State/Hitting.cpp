@@ -117,3 +117,8 @@ void Hitting::Render()
 void Hitting::Finalize()
 {
 }
+
+void Hitting::EventHandle(Event e)
+{
+	UNREFERENCED_PARAMETER(e);
+}

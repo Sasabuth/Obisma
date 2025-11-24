@@ -9,6 +9,7 @@
 
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Ball/Ball.h"
+#include "Game/GameObjects/AirTarget/AirTarget.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -89,11 +90,6 @@ void ThrowingR::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void ThrowingR::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
-	auto kb = DirectX::Keyboard::Get().GetState();
-	auto mouseTK = m_pUserResources->GetMouseStateTracker();
-
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
@@ -173,8 +169,8 @@ void ThrowingR::Update(float elapsedTime)
 			// ボールの速度の取得
 			float speed = Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"];
 
-			// 当たる範囲外ならボールの速度を遅くする
-			if (!m_pPlayer->IsInHitRange())
+			// ロックオンしているかつ当たる範囲外ならボールの速度を遅くする
+			if (!m_pPlayer->IsInHitRange() && m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetHitPos()))
 			{
 				speed *= (float)Resources::GetInstance()->GetJson(L"Player.json")["Decay"];
 			}
@@ -205,17 +201,6 @@ void ThrowingR::Update(float elapsedTime)
 
 		// アニメーションを更新する
 		m_animation->Update(elapsedTime);
-	}
-	else
-	{
-		// 移動ステートに変更
-		if (kb.W) m_pPlayer->ChangeState(m_pPlayer->GetRunning());
-
-		// 右クリックで捕るステートに変更
-		else if (mouseTK->rightButton == mouseTK->PRESSED) m_pPlayer->ChangeState(m_pPlayer->GetCatching());
-
-		// 何もしてないなら立ち状態にする
-		else m_pPlayer->ChangeState(m_pPlayer->GetStanding());
 	}
 
 	// アニメーションの更新
@@ -308,6 +293,40 @@ void ThrowingR::Render()
 /// </summary>
 void ThrowingR::Finalize()
 {
+}
+
+
+
+/// <summary>
+/// 特定のイベントの処理
+/// </summary>
+/// <param name="e">イベント</param>
+void ThrowingR::EventHandle(Event e)
+{
+	// アニメーション時間が終了時間を越していたらイベントの処理
+	if (m_animation->GetAnimTime() > m_animation->GetEndTime())
+	{
+		switch (e)
+		{
+		// 立ち
+		case IState::Event::STAND:
+			// ステートの変更
+			m_pPlayer->ChangeState(m_pPlayer->GetStanding());
+			break;
+
+		// 走る
+		case IState::Event::RUN:
+			// ステートの変更
+			m_pPlayer->ChangeState(m_pPlayer->GetRunning());
+			break;
+
+		// 捕る
+		case IState::Event::CATCH:
+			// ステートの変更
+			m_pPlayer->ChangeState(m_pPlayer->GetCatching());
+			break;
+		}
+	}
 }
 
 

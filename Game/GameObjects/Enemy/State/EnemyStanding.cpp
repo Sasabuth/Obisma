@@ -244,6 +244,11 @@ void EnemyStanding::Finalize()
 {
 }
 
+void EnemyStanding::EventHandle(Event e)
+{
+	UNREFERENCED_PARAMETER(e);
+}
+
 
 
 /// <summary>

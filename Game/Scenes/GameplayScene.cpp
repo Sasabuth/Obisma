@@ -134,7 +134,9 @@ void GameplayScene::Update(float elapsedTime)
 	m_field->Update(elapsedTime);
 
 	// プレイヤーの更新
+	SetPlayerInputState();
 	m_player->Update(elapsedTime);
+	
 
 	// 敵の更新
 	m_enemy->Update(elapsedTime);
@@ -183,8 +185,8 @@ void GameplayScene::Update(float elapsedTime)
 	}
 
 	// シーン変更(デバック)
-	auto kb = m_pUserResources->GetKeyboardStateTracker();
-	if (kb->pressed.R)
+	auto kbTracker = m_pUserResources->GetKeyboardStateTracker();
+	if (kbTracker->pressed.R)
 	{
 		Resources::GetInstance()->JsonReset();
 		/*ChangeScene<TitleScene>();*/
@@ -355,4 +357,44 @@ void GameplayScene::SetListener()
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, q),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
 	);
+}
+
+
+
+/// <summary>
+/// 入力ステートの設定
+/// </summary>
+void GameplayScene::SetPlayerInputState()
+{
+	auto kb = DirectX::Keyboard::Get().GetState();
+	auto mouseTK = m_pUserResources->GetMouseStateTracker();
+
+	// イベントのキー
+	std::vector<IState::Event> e;
+
+	// Wキーで走る
+	if (kb.W)
+	{
+		e.push_back(IState::Event::RUN);
+	}
+	// 右クリックでキャッチ
+	if (mouseTK->rightButton == mouseTK->PRESSED)
+	{
+		e.push_back(IState::Event::CATCH);
+	}
+	// 左クリックで投げる
+	if (mouseTK->leftButton == mouseTK->PRESSED)
+	{
+		e.push_back(IState::Event::THROW);
+	}
+	
+
+	// 何もなかったら立ち状態にする
+	if (e.size() == 0)
+	{
+		e.push_back(IState::Event::STAND);
+	}
+
+	// イベントを渡す
+	m_player->OnEvents(e);
 }

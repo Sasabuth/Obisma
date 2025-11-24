@@ -111,3 +111,8 @@ void Floating::Render()
 void Floating::Finalize()
 {
 }
+
+void Floating::EventHandle(Event e)
+{
+	UNREFERENCED_PARAMETER(e);
+}

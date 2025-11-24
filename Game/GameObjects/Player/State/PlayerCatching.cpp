@@ -88,10 +88,6 @@ void PlayerCatching::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void PlayerCatching::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
-	auto kb = DirectX::Keyboard::Get().GetState();
-
 	if (m_pPlayer->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
@@ -134,11 +130,11 @@ void PlayerCatching::Update(float elapsedTime)
 		// アニメーションを更新する
 		m_animation->Update(elapsedTime);
 	}
-	else
+	/*else
 	{
-		if (kb.W) m_pPlayer->ChangeState(m_pPlayer->GetRunning());
+		if (m_pPlayer->GetInputState() == Player::RUN) m_pPlayer->ChangeState(m_pPlayer->GetRunning());
 		else m_pPlayer->ChangeState(m_pPlayer->GetStanding());
-	}
+	}*/
 
 	// アニメーションの更新
 	AnimationUpdate();
@@ -229,6 +225,34 @@ void PlayerCatching::Render()
 /// </summary>
 void PlayerCatching::Finalize()
 {
+}
+
+
+
+/// <summary>
+/// 特定のイベントの処理
+/// </summary>
+/// <param name="e">イベント</param>
+void PlayerCatching::EventHandle(Event e)
+{
+	// 現在のアニメーション時間が終了時間を越していたらイベントの処理
+	if (m_animation->GetAnimTime() > m_animation->GetEndTime())
+	{
+		switch (e)
+		{
+		// 立つ
+		case IState::Event::STAND:
+			// ステート変更
+			m_pPlayer->ChangeState(m_pPlayer->GetStanding());
+			break;
+
+		// 走る
+		case IState::Event::RUN:
+			// ステート変更
+			m_pPlayer->ChangeState(m_pPlayer->GetRunning());
+			break;
+		}
+	}
 }
 
 

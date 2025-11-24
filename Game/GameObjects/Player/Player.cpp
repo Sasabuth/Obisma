@@ -202,6 +202,20 @@ void Player::ChangeState(IState* newState)
 
 
 /// <summary>
+/// イベントの受け取り
+/// </summary>
+/// <param name="events">イベント</param>
+void Player::OnEvents(const std::vector<IState::Event>& events)
+{
+	for (auto& e : events)
+	{
+		m_currentState->EventHandle(e);
+	}
+}
+
+
+
+/// <summary>
 /// レイの作成
 /// </summary>
 /// <param name="mouseX">X軸のマウス</param>

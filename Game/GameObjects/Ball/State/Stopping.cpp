@@ -103,3 +103,8 @@ void Stopping::Render()
 void Stopping::Finalize()
 {
 }
+
+void Stopping::EventHandle(Event e)
+{
+	UNREFERENCED_PARAMETER(e);
+}

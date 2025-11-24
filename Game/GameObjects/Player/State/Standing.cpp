@@ -87,16 +87,11 @@ void Standing::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void Standing::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
-	auto kbTracker = m_pUserResources->GetKeyboardStateTracker();
 	auto mouse = DirectX::Mouse::Get().GetState();
-	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
 	// プロジェクション行列
 	auto proj = m_pUserResources->GetProject();
 	auto view = m_pUserResources->GetView();
-
 
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
@@ -108,15 +103,10 @@ void Standing::Update(float elapsedTime)
 	// マウス方向の回転の更新
 	UpdateRotateToMouse();
 
-	// ステートの変更
-	if (kbTracker->pressed.W)
-	{
-		m_pPlayer->ChangeState(m_pPlayer->GetRunning());
-	}
-
 	// ボールをキャッチする
 	CatchHandBall();
 
+	// ボールを手に持たせる
 	if (m_pPlayer->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
@@ -126,18 +116,6 @@ void Standing::Update(float elapsedTime)
 	{
 		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
 		m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
-	}
-
-	// ボールを投げる
-	if (mouseTK->leftButton == mouseTK->PRESSED)
-	{
-		ThrowBall();
-	}
-
-	// 右クリックでキャッチ
-	if (mouseTK->rightButton == mouseTK->PRESSED)
-	{
-		m_pPlayer->ChangeState(m_pPlayer->GetCatching());
 	}
 
 	// スコアを下げる
@@ -226,9 +204,9 @@ void Standing::Render()
 	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), vertical, false, DirectX::Colors::Green);
 	//m_primitiveBatch->End();
 
-	// auto* debugFont = m_pUserResources->GetDebugFont();
+	/*auto* debugFont = m_pUserResources->GetDebugFont();
 
-	/*debugFont->Render(L"Standing");*/
+	debugFont->Render(L"Standing");*/
 }
 
 
@@ -238,6 +216,36 @@ void Standing::Render()
 /// </summary>
 void Standing::Finalize()
 {
+}
+
+
+
+/// <summary>
+/// 特定のイベントの処理
+/// </summary>
+/// <param name="e">イベント</param>
+void Standing::EventHandle(Event e)
+{
+	switch (e)
+	{
+	// 走る
+	case IState::Event::RUN:
+		// ステート変更
+		m_pPlayer->ChangeState(m_pPlayer->GetRunning());
+		break;
+
+	// 投げる
+	case IState::Event::THROW:
+		// ボールを投げる
+		ThrowBall();
+		break;
+
+	// 捕る
+	case IState::Event::CATCH:
+		// ステート変更
+		m_pPlayer->ChangeState(m_pPlayer->GetCatching());
+		break;
+	}
 }
 
 

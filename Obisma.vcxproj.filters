@@ -242,6 +242,9 @@
     <ClInclude Include="Game\GameObjects\Particle\ParticleUtility.h">
       <Filter>Game\GameObjects\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Commons\Interface\IEvent.h">
+      <Filter>Game\Commons\Interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />

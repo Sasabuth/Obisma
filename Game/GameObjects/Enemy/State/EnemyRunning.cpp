@@ -220,6 +220,11 @@ void EnemyRunning::Finalize()
 {
 }
 
+void EnemyRunning::EventHandle(Event e)
+{
+	UNREFERENCED_PARAMETER(e);
+}
+
 
 
 /// <summary>

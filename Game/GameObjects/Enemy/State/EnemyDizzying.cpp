@@ -216,6 +216,11 @@ void EnemyDizzying::Finalize()
 {
 }
 
+void EnemyDizzying::EventHandle(Event e)
+{
+	UNREFERENCED_PARAMETER(e);
+}
+
 
 
 /// <summary>

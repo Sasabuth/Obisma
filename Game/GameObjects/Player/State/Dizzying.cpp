@@ -87,8 +87,6 @@ void Dizzying::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void Dizzying::Update(float elapsedTime)
 {
-	auto kb = DirectX::Keyboard::Get().GetState();
-
 	if (m_pPlayer->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
@@ -116,14 +114,8 @@ void Dizzying::Update(float elapsedTime)
 		m_animation->SetStartTime(0.19f);
 	}
 
+	// 時間の更新
 	m_time += elapsedTime;
-	if (m_time > DIZZY_TIME)
-	{
-		if (kb.W) m_pPlayer->ChangeState(m_pPlayer->GetRunning());
-		else m_pPlayer->ChangeState(m_pPlayer->GetStanding());
-		m_time = 0.0f;
-		m_pPlayer->SetInvincibleTime(INTERVAL);
-	}
 
 	// アニメーションの更新
 	AnimationUpdate();
@@ -214,6 +206,39 @@ void Dizzying::Render()
 /// </summary>
 void Dizzying::Finalize()
 {
+}
+
+
+
+/// <summary>
+/// 特定のイベントの処理
+/// </summary>
+/// <param name="e">イベント</param>
+void Dizzying::EventHandle(Event e)
+{
+	// 時間がくらくら時間を越していたらイベントの処理
+	if (m_time > DIZZY_TIME)
+	{
+		switch (e)
+		{	
+		// 立ち
+		case IState::Event::STAND:
+			// ステートの変更
+			m_pPlayer->ChangeState(m_pPlayer->GetStanding());
+			break;
+
+		// 走る
+		case IState::Event::RUN:
+			// ステートの変更
+			m_pPlayer->ChangeState(m_pPlayer->GetRunning());
+			break;
+		}
+
+		// 時間の設定
+		m_time = 0.0f;
+		// インターバルの設定
+		m_pPlayer->SetInvincibleTime(INTERVAL);
+	}
 }
 
 

@@ -130,5 +130,8 @@ private:
 	// リスナーの設定
 	void SetListener();
 
+	// 入力ステートの設定
+	void SetPlayerInputState();
+
 };
 

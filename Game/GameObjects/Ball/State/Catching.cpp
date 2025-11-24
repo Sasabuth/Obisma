@@ -107,3 +107,8 @@ void Catching::Render()
 void Catching::Finalize()
 {
 }
+
+void Catching::EventHandle(Event e)
+{
+	UNREFERENCED_PARAMETER(e);
+}

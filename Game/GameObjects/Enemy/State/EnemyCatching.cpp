@@ -229,6 +229,11 @@ void EnemyCatching::Finalize()
 {
 }
 
+void EnemyCatching::EventHandle(Event e)
+{
+	UNREFERENCED_PARAMETER(e);
+}
+
 
 
 /// <summary>

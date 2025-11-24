@@ -287,6 +287,11 @@ void EnemyThrowingR::Finalize()
 {
 }
 
+void EnemyThrowingR::EventHandle(Event e)
+{
+	UNREFERENCED_PARAMETER(e);
+}
+
 
 
 /// <summary>

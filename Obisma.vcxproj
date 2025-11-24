@@ -193,6 +193,7 @@
     <ClInclude Include="Game\Commons\DebugFont.h" />
     <ClInclude Include="Game\Commons\Factory.h" />
     <ClInclude Include="Game\Commons\Interface\IEntity.h" />
+    <ClInclude Include="Game\Commons\Interface\IEvent.h" />
     <ClInclude Include="Game\Commons\Interface\IState.h" />
     <ClInclude Include="Game\Commons\Resources.h" />
     <ClInclude Include="Game\Commons\SceneManager.h" />

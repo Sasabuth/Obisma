@@ -169,12 +169,9 @@ void TutorialScene::Update(float elapsedTime)
 	// チュートリアルの更新
 	Tutorial(elapsedTime);
 
-	// プレイヤーの更新
-	if (m_tutorialIndex != ORDER::MOUSE_MOVE && m_tutorialIndex != ORDER::MOUSE_TO_STER || m_count == -1)
-	{
-		m_player->Update(elapsedTime);
-		m_count = 0;
-	}
+	
+	SetPlayerInputState();
+	m_player->Update(elapsedTime);
 
 	// 敵の更新
 	if (m_tutorialIndex == ORDER::BALL_CATCH)
@@ -592,6 +589,7 @@ void TutorialScene::Tutorial(float elapsedTime)
 			// プレイヤーはボールを持たないようにする
 			m_player->SetCatchBall(Player::HAND::LEFT, nullptr);
 			m_player->SetCatchBall(Player::HAND::RIGHT, nullptr);
+			m_player->ChangeState(m_player->GetStanding());
 
 			// ボールを触れないように高い所に置く
 			for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
@@ -741,4 +739,43 @@ void TutorialScene::SetListener()
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, q),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
 	);
+}
+
+void TutorialScene::SetPlayerInputState()
+{
+	auto kb = DirectX::Keyboard::Get().GetState();
+	auto mouseTK = m_pUserResources->GetMouseStateTracker();
+
+	// イベントのキー
+	std::vector<IState::Event> e;
+
+	// Wキーで走る
+	if (kb.W)
+	{
+		// プレイヤーの更新
+		if (m_tutorialIndex != ORDER::MOUSE_MOVE && m_tutorialIndex != ORDER::MOUSE_TO_STER)
+		{
+			e.push_back(IState::Event::RUN);
+		}
+	}
+	// 右クリックでキャッチ
+	if (mouseTK->rightButton == mouseTK->PRESSED && m_tutorialIndex == ORDER::BALL_CATCH)
+	{
+		e.push_back(IState::Event::CATCH);
+	}
+	// 左クリックで投げる
+	if (mouseTK->leftButton == mouseTK->PRESSED && m_tutorialIndex == TutorialScene::BALL_THROW)
+	{
+		e.push_back(IState::Event::THROW);
+	}
+
+
+	// 何もなかったら立ち状態にする
+	if (e.size() == 0)
+	{
+		e.push_back(IState::Event::STAND);
+	}
+
+	// イベントを渡す
+	m_player->OnEvents(e);
 }

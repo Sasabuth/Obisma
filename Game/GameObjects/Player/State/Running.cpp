@@ -86,17 +86,11 @@ void Running::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void Running::Update(float elapsedTime)
 {
-	auto kb = DirectX::Keyboard::Get().GetState();
 	auto mouse = DirectX::Mouse::Get().GetState();
-	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
 	// プロジェクション行列
 	auto proj = m_pUserResources->GetProject();
 	auto view = m_pUserResources->GetView();
-
-	// 速度の設定
-	m_pPlayer->SetVelocity(m_pPlayer->GetGravity());
-
 
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
@@ -105,12 +99,10 @@ void Running::Update(float elapsedTime)
 	auto const r = m_pUserResources->GetDeviceResources()->GetOutputSize();
 	m_pPlayer->SetMouseRay(m_pPlayer->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
 
-	// マウス方向の回転の更新
-	UpdateRotateToMouse();
-
 	// ボールをキャッチ
 	CatchHandBall();
 
+	// ボールを手に持たせる
 	if (m_pPlayer->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
@@ -120,33 +112,6 @@ void Running::Update(float elapsedTime)
 	{
 		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
 		m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
-	}
-
-
-
-	// キーによる移動
-	if (kb.W)
-	{
-		m_pPlayer->SetVelocity(m_pPlayer->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation()) *
-			Resources::GetInstance()->GetJson(L"Player.json")["PlayerSpeed"]
-		);
-	}
-	else
-	{
-		m_pPlayer->ChangeState(m_pPlayer->GetStanding());
-	}
-
-
-	// 左クリックで投げる
-	if (mouseTK->leftButton == mouseTK->PRESSED)
-	{
-		ThrowBall();
-	}
-
-	// 右クリックでキャッチ
-	if (mouseTK->rightButton == mouseTK->PRESSED)
-	{
-		m_pPlayer->ChangeState(m_pPlayer->GetCatching());
 	}
 
 	// スコアを下げる
@@ -226,9 +191,9 @@ void Running::Render()
 	m_primitiveBatch->End();
 
 	// デバック
-	// auto* debugFont = m_pUserResources->GetDebugFont();
-
 	/*m_pPlayer->GetCollider().Draw(states, *view, *proj);*/
+
+	//auto* debugFont = m_pUserResources->GetDebugFont();
 	/*debugFont->Render(L"Running");*/
 }
 
@@ -239,6 +204,50 @@ void Running::Render()
 /// </summary>
 void Running::Finalize()
 {
+}
+
+
+
+/// <summary>
+/// 特定のイベントの処理
+/// </summary>
+/// <param name="e">イベント</param>
+void Running::EventHandle(Event e)
+{
+	switch (e)
+	{
+	// 立つ
+	case IState::Event::STAND:
+		// ステート変更
+		m_pPlayer->ChangeState(m_pPlayer->GetStanding());
+		break;
+
+	// 走る
+	case IState::Event::RUN:
+		// 速度の設定
+		m_pPlayer->SetVelocity(m_pPlayer->GetGravity());
+
+		// マウス方向の回転の更新
+		UpdateRotateToMouse();
+
+		// 向いている方向に走る
+		m_pPlayer->SetVelocity(m_pPlayer->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation()) *
+			Resources::GetInstance()->GetJson(L"Player.json")["PlayerSpeed"]
+		);
+		break;
+
+	// 投げる
+	case IState::Event::THROW:
+		// ボールを投げる
+		ThrowBall();
+		break;
+
+	// 捕る
+	case IState::Event::CATCH:
+		// ステート変更
+		m_pPlayer->ChangeState(m_pPlayer->GetCatching());
+		break;
+	}
 }
 
 

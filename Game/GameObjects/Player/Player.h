@@ -154,6 +154,8 @@ public:
 	// ステートの変更
 	void ChangeState(IState* newState);
 
+	void OnEvents(const std::vector<IState::Event>& events);
+
 	DirectX::SimpleMath::Ray CreatePickingRay(
 		int mouseX, int mouseY,
 		int screenWidth, int screenHeight,
