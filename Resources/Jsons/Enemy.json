@@ -17,5 +17,7 @@
 
 	"AngleLow": 30,
 
-	"AngleHigh": 20
+	"AngleHigh": 20,
+
+	"HandOffsetScale" : 0.95
 }

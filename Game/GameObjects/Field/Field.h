@@ -20,6 +20,7 @@ class Field
 // ’è”
 private:
 	static constexpr float MODEL_SCALE = 3.0f;
+	static constexpr float SKYDOME_SCALE = 800.0f;
 
 
 // •Ï”

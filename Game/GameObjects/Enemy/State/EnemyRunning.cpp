@@ -162,6 +162,10 @@ void EnemyRunning::Render()
 
 	// ボーン数を取得
 	size_t nbones = m_model->bones.size();
+	// アニメションにモデルを適用する
+	m_animation->Apply(*m_model, nbones, m_drawBones.get());
+	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
+	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
 
 	m_model->DrawSkinned(
 		context,
@@ -233,6 +237,11 @@ void EnemyRunning::EventHandle(Event e)
 /// <param name="elapsedTime">経過時間</param>
 void EnemyRunning::AnimationUpdate(float elapsedTime)
 {
+	// ボーン数を取得する
+	size_t nbones = m_model->bones.size();
+	// アニメションにモデルを適用する
+	m_animation->Apply(*m_model, nbones, m_drawBones.get());
+
 	// アニメーション時間がアニメーション終了時間より小さい場合はアニメーションを繰り返す
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
 	{
@@ -245,15 +254,8 @@ void EnemyRunning::AnimationUpdate(float elapsedTime)
 		m_animation->SetStartTime(0.0);
 	}
 
-	// アニメションにモデルを適用する
-	m_animation->Apply(*m_model, m_model->bones.size(), m_drawBones.get());
-	// ボーン数を取得する
-	size_t nbones = m_model->bones.size();
-	// ボーンマトリクスを設定する
 	m_rightHandMatrix = m_drawBones[15];
 	m_leftHandMatrix = m_drawBones[20];
-	// スキン変形用行列を適用する(これを実行しないとアニメーションが崩れる)
-	m_animation->ApplySkinMatrix(*m_model, nbones, m_drawBones.get());
 }
 
 

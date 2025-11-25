@@ -23,5 +23,7 @@
 
 	"AngleHigh": 10,
 
-	"Decay" : 0.92
+	"Decay": 0.92,
+
+	"HandOffsetScale": 0.95
 }

@@ -109,7 +109,7 @@ void Field::Render()
 	m_model->Draw(context, *states, world, *view, *proj);
 
 	// スカイドームの描画
-	DirectX::SimpleMath::Matrix sWorld = DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate / 4)) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position) * DirectX::SimpleMath::Matrix::CreateScale(MODEL_SCALE * 300);
+	DirectX::SimpleMath::Matrix sWorld = DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate / 4)) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position) * DirectX::SimpleMath::Matrix::CreateScale(SKYDOME_SCALE);
 	m_skydomeModel->Draw(context, *states, sWorld, *view, *proj);
 
 	//// 反転

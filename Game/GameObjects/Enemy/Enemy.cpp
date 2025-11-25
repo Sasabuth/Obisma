@@ -233,9 +233,10 @@ void Enemy::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
 	// ボーンに設定した境界球のワールド計算を行う
 	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
 	// バウンディングスフィアの中心点を設定する
-	DirectX::SimpleMath::Vector3 dir = DirectX::SimpleMath::Vector3(sphereMatrix._41, sphereMatrix._42, sphereMatrix._43);
-	dir.Normalize();
-	ball->SetPosition(DirectX::SimpleMath::Vector3(dir.x * 3.2f, dir.y * 3.2f, dir.z * 3.2f));
+	float handOffsetScale = (float)Resources::GetInstance()->GetJson(L"Enemy.json")["HandOffsetScale"];
+	ball->SetPosition(DirectX::SimpleMath::Vector3(sphereMatrix._41 * handOffsetScale, sphereMatrix._42 * handOffsetScale, sphereMatrix._43 * handOffsetScale));
+
+	// ボールが当たった時に一緒に透過させるために無敵時間を設定する
 	ball->SetInvincibleTime(m_invincibleTime);
 }
 
