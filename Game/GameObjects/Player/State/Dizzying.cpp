@@ -164,8 +164,7 @@ void Dizzying::Render()
 	);
 
 	// 影の描画
-	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
+	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"]);
 
 	// デバック用
 	// 軸の描画

@@ -10,6 +10,7 @@
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/AirTarget/AirTarget.h"
+#include "Game/GameObjects/Camera/Camera.h"
 #include "Game/GameObjects/Ball/BallManager.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
@@ -164,8 +165,7 @@ void Running::Render()
 	);
 
 	// 影の描画
-	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
+	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"]);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -186,12 +186,13 @@ void Running::Render()
 
 	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pPlayer->GetRotation());
 	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pPlayer->GetRotation());
-	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_pPlayer->GetRotation());
+	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 5.0f, 0.0f), m_pPlayer->GetRotation());
 
 	m_primitiveBatch->Begin();
 	/*DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), forward, false, DirectX::Colors::Blue);
 	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), vertical, false, DirectX::Colors::Green);*/
+	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), -vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();
 
 	// デバック
@@ -319,9 +320,26 @@ void Running::UpdateRotateToMouse()
 	DirectX::SimpleMath::Vector3 hitPos1;
 	DirectX::SimpleMath::Vector3 hitPos2;
 
-	// どちらが先に当たったか
+	auto worldMat = DirectX::SimpleMath::Matrix::CreateScale(m_pPlayer->GetField()->GetStageCollider().GetScale()) * DirectX::SimpleMath::Matrix::CreateTranslation(m_pPlayer->GetField()->GetCollider().GetPosition());
+	// 両方当たっていた場合どちらが先に当たったか調べる
+	hitPos2 = DirectX::SimpleMath::Vector3(10000);
+	for (size_t i = 0; i + 2 < m_pPlayer->GetField()->GetStageCollider().GetIndicesCount(); i += 3)
+	{
+		DirectX::SimpleMath::Vector3 pos;
+		if (IsHit(m_pPlayer->GetMouseRay().position, m_pPlayer->GetMouseRay().direction, worldMat, m_pPlayer->GetField()->GetStageCollider(), (int)i, pos))
+		{
+			DirectX::SimpleMath::Vector3 d0 = m_pPlayer->GetAirTarget()->GetCamera()->GetEyePosition() - hitPos2;
+			DirectX::SimpleMath::Vector3 d1 = m_pPlayer->GetAirTarget()->GetCamera()->GetEyePosition() - pos;
+
+			if (d0.Length() > d1.Length())
+			{
+				hitPos2 = pos;
+			}
+		}
+	}
+
 	if (m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), hitPos1) &&
-		m_pPlayer->CalcRaySphere(m_pPlayer->GetField()->GetCollider().GetPosition(), m_pPlayer->GetField()->GetCollider().GetRadius(), hitPos2))
+		hitPos2 != DirectX::SimpleMath::Vector3(10000))
 	{
 		DirectX::SimpleMath::Vector3 a;
 		DirectX::SimpleMath::Vector3 b;
@@ -331,11 +349,11 @@ void Running::UpdateRotateToMouse()
 
 		if (a.Length() < b.Length())
 		{
-			m_pPlayer->SetHitPos(hitPos1);
+			m_pPlayer->SetMouseRayHitPos(m_pPlayer->GetAirTarget()->GetPosition());
 		}
 		else
 		{
-			m_pPlayer->SetHitPos(hitPos2);
+			m_pPlayer->SetMouseRayHitPos(hitPos2);
 		}
 
 		// マウス方向に回転
@@ -343,18 +361,20 @@ void Running::UpdateRotateToMouse()
 	}
 	else
 	{
-		// マウス方向に回転
-		if (m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetHitPos()))
+		// マウスのレイに当たっている方向に回転
+		if (m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetMouseRayHitPos()))
 		{
 			m_pPlayer->RotateToMouse();
 		}
-		else if (m_pPlayer->CalcRaySphere(m_pPlayer->GetField()->GetCollider().GetPosition(), m_pPlayer->GetField()->GetCollider().GetRadius(), m_pPlayer->GetHitPos()))
+		else if (hitPos2 != DirectX::SimpleMath::Vector3(10000))
 		{
+			m_pPlayer->SetMouseRayHitPos(hitPos2);
 			m_pPlayer->RotateToMouse();
 		}
+		// 当たっていない
 		else
 		{
-			m_pPlayer->SetHitPos(DirectX::SimpleMath::Vector3::Zero);
+			m_pPlayer->SetMouseRayHitPos(DirectX::SimpleMath::Vector3::Zero);
 		}
 	}
 }

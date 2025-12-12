@@ -94,7 +94,7 @@ void ThrowingL::Update(float elapsedTime)
 	if (!m_isThowing)
 	{
 		// 方向
-		DirectX::SimpleMath::Vector3 dir = m_pPlayer->GetPosition() - m_pPlayer->GetHitPos();
+		DirectX::SimpleMath::Vector3 dir = m_pPlayer->GetPosition() - m_pPlayer->GetMouseRayHitPos();
 		dir.Normalize();
 
 		// 方向ベクトルの反転
@@ -170,7 +170,7 @@ void ThrowingL::Update(float elapsedTime)
 			float speed = Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"];
 
 			// ロックオンしているかつ当たる範囲外ならボールの速度を遅くする
-			if (!m_pPlayer->IsInHitRange() && m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetHitPos()))
+			if (!m_pPlayer->IsInHitRange() && m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetMouseRayHitPos()))
 			{
 				speed *= (float)Resources::GetInstance()->GetJson(L"Player.json")["Decay"];
 			}
@@ -247,8 +247,7 @@ void ThrowingL::Render()
 	);
 
 	// 影の描画
-	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
+	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"]);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);

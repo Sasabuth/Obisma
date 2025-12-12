@@ -48,10 +48,15 @@ public:
 
 	// 重力
 	virtual void SetGravity(DirectX::SimpleMath::Vector3 gravity) = 0;  // 設定
-	virtual DirectX::SimpleMath::Vector3 GetGravity() const = 0;          // 取得
+	virtual DirectX::SimpleMath::Vector3 GetGravity() const = 0;        // 取得
+
+	// 影の当たった座標
+	virtual void SetShadowHitPos(DirectX::SimpleMath::Vector3 hitPos) = 0;  // 設定
+	virtual DirectX::SimpleMath::Vector3 GetShadowHitPos() const = 0;       // 取得
 
 	// 重なりの補填
 	virtual void CorrectOverlap(Field& field) = 0;
+	virtual void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) = 0;
 
 public:
 	// コライダーの取得

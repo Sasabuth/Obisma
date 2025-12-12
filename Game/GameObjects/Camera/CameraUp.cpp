@@ -202,3 +202,22 @@ void CameraUp::CorrectOverlap(Field& field)
 	delta.Normalize();
 	m_position += delta * pushLength;
 }
+
+void CameraUp::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
+{
+	// 差分を求める
+	DirectX::SimpleMath::Vector3 delta = m_position - pos;
+
+	// 長さを求める
+	float distance = delta.Length();
+	float r = m_collider.GetRadius();
+
+	// 差分を求める
+	float pushLength = r - distance;
+
+	// 正規化
+	delta.Normalize();
+
+	// 押し出しする
+	m_position += delta * pushLength;
+}

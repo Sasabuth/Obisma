@@ -144,6 +144,7 @@ void EnemyThrowingR::Update(float elapsedTime)
 			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_pEnemy->GetRotation());
 
 			float angleDeg = DirectX::XMConvertToDegrees(angle);
+			m_debugAngle = DirectX::XMConvertToDegrees(angle);
 
 			// 投げる角度の取得
 			DirectX::SimpleMath::Quaternion rotate;
@@ -243,8 +244,7 @@ void EnemyThrowingR::Render()
 	);
 
 	// 影の描画
-	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_pEnemy->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Enemy.json")["ShadowSize"], m_drawPos);
+	m_pEnemy->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Enemy.json")["ShadowSize"]);
 
 	// 軸の描画
 	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
@@ -277,9 +277,10 @@ void EnemyThrowingR::Render()
 	DX::DrawRay(m_primitiveBatch.get(), m_pEnemy->GetPosition(), vertical, false, DirectX::Colors::Green);
 	m_primitiveBatch->End();*/
 
-	/*auto* debugFont = m_pUserResources->GetDebugFont();*/
+	auto* debugFont = m_pUserResources->GetDebugFont();
 
 	/*debugFont->Render(L"EnemyThrowingR");*/
+	debugFont->Render(L"debugAngle", m_debugAngle);
 }
 
 

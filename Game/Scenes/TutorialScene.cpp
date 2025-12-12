@@ -169,7 +169,6 @@ void TutorialScene::Update(float elapsedTime)
 	// チュートリアルの更新
 	Tutorial(elapsedTime);
 
-	
 	SetPlayerInputState();
 	m_player->Update(elapsedTime);
 
@@ -264,7 +263,7 @@ void TutorialScene::Render()
 	// マウスを動かすチュートリアルだったらロックオンの描画
 	if (m_tutorialIndex == ORDER::MOUSE_TO_STER)
 	{
-		if (m_player->CalcRaySphere(m_airTarget->GetPosition(), m_airTarget->GetCollider().GetRadius(), m_player->GetHitPos()))
+		if (m_player->CalcRaySphere(m_airTarget->GetPosition(), m_airTarget->GetCollider().GetRadius(), m_player->GetMouseRayHitPos()))
 		{
 			m_player->DrawLockOn(m_airTarget->GetPosition());
 		}
@@ -400,7 +399,7 @@ void TutorialScene::Tutorial(float elapsedTime)
 		m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
 
 		// フィールドとマウスレイが当たっていたらプレイヤーを回転
-		if (m_player->CalcRaySphere(m_field->GetCollider().GetPosition(), m_field->GetCollider().GetRadius(), m_player->GetHitPos()))
+		if (m_player->CalcRaySphere(m_field->GetCollider().GetPosition(), m_field->GetCollider().GetRadius(), m_player->GetMouseRayHitPos()))
 		{
 			m_player->RotateToMouse();
 		}
@@ -477,8 +476,10 @@ void TutorialScene::Tutorial(float elapsedTime)
 	// ボールを拾う
 	case TutorialScene::BALL_PICKUP:
 	{
+		static bool isRightBall = false;;
+
 		// 左手にボールを持ったらチェックマークをつける
-		if (m_player->GetCatchBall(Player::HAND::RIGHT) && !m_player->GetCatchBall(Player::HAND::LEFT))
+		if (m_player->GetCatchBall(Player::HAND::RIGHT) && !m_player->GetCatchBall(Player::HAND::LEFT) && !isRightBall)
 		{
 			m_ballManager->GetBall(1)->SetPosition(DirectX::SimpleMath::Vector3{
 					m_pResources->GetJson(L"Ball.json")["Position"]["1"]["x"],
@@ -486,6 +487,8 @@ void TutorialScene::Tutorial(float elapsedTime)
 					m_pResources->GetJson(L"Ball.json")["Position"]["1"]["z"]
 				}
 			);
+
+			isRightBall = true;
 		}
 
 		// 左手にボールを持ったらチェックマークをつける
@@ -535,7 +538,7 @@ void TutorialScene::Tutorial(float elapsedTime)
 		m_player->SetMouseRay(m_player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
 
 		// マウスレイが空中の的に当たったらチェックマークをつける
-		if (m_player->CalcRaySphere(m_airTarget->GetPosition(), m_airTarget->GetCollider().GetRadius(), m_player->GetHitPos()))
+		if (m_player->CalcRaySphere(m_airTarget->GetPosition(), m_airTarget->GetCollider().GetRadius(), m_player->GetMouseRayHitPos()))
 		{
 			m_isCheck = true;
 		}
@@ -600,6 +603,8 @@ void TutorialScene::Tutorial(float elapsedTime)
                         m_pResources->GetJson(L"Ball.json")["TutorialPos"]["z"]
 					}
 				);
+
+				m_ballManager->GetBall(i)->GetCollider().SetPosition(m_ballManager->GetBall(i)->GetPosition());
 			}
 
 			// ボールを止める状態にして敵に持たせる

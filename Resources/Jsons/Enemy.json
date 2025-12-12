@@ -1,7 +1,7 @@
 {
 	"Position": {
 		"x": 0.1,
-		"y": -3.0,
+		"y": -4.0,
 		"z": 0.1
 	},
 
@@ -15,9 +15,9 @@
 
 	"BallSpeed": 3.0,
 
-	"AngleLow": 30,
+	"AngleLow": 15,
 
 	"AngleHigh": 20,
 
-	"HandOffsetScale" : 0.95
+	"HandOffsetScale": 1.015
 }

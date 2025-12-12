@@ -39,6 +39,7 @@ private:
 
 	// コライダー
 	SphereCollider m_collider; 
+	ModelCollider m_stageCollider; 
 
 	// 回転
 	float m_rotate;
@@ -66,12 +67,16 @@ public:
 
 	// 上方向の補正
 	DirectX::SimpleMath::Vector3 CorrectUp(IEntity* iEntity);
+	DirectX::SimpleMath::Vector3 CorrectUp(IEntity* iEntity, DirectX::SimpleMath::Vector3 pos);
 
 
 // 設定/取得
 public:
 	// コライダーの取得
 	SphereCollider& GetCollider();
+
+	// コライダーの取得
+	ModelCollider& GetStageCollider() { return m_stageCollider; }
 
 	// 回転の設定
 	void SetRotate(float rotate) { m_rotate = rotate; }

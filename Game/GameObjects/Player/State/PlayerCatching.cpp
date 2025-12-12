@@ -130,11 +130,6 @@ void PlayerCatching::Update(float elapsedTime)
 		// アニメーションを更新する
 		m_animation->Update(elapsedTime);
 	}
-	/*else
-	{
-		if (m_pPlayer->GetInputState() == Player::RUN) m_pPlayer->ChangeState(m_pPlayer->GetRunning());
-		else m_pPlayer->ChangeState(m_pPlayer->GetStanding());
-	}*/
 
 	// アニメーションの更新
 	AnimationUpdate();
@@ -183,8 +178,7 @@ void PlayerCatching::Render()
 	);
 
 	// 影の描画
-	DirectX::SimpleMath::Vector3 m_drawPos;
-	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"], m_drawPos);
+	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"]);
 
 	// デバック用
 	// 軸の描画
@@ -219,7 +213,7 @@ void PlayerCatching::Render()
 	//debugFont->Render(L"PlayerCatching");
 	//debugFont->Render(L"CatchPos", DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation()));
 
-	m_collider.Draw(states, *view, *proj);
+	/*m_collider.Draw(states, *view, *proj);*/
 }
 
 

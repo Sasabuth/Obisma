@@ -91,10 +91,10 @@ private:
 	DirectX::SimpleMath::Quaternion m_rotate;  
 	// 重力
 	DirectX::SimpleMath::Vector3 m_gravity;   
-	// ワールド座標
-	DirectX::SimpleMath::Matrix m_worldMatrix; 
 	// コライダー
 	SphereCollider m_collider;
+
+	DirectX::SimpleMath::Matrix m_world;
 
 	// スコア
 	std::unique_ptr<Score> m_score;       
@@ -116,7 +116,10 @@ private:
 	// マウスのレイ
 	DirectX::SimpleMath::Ray m_mouseRay;  
 	// 当たった点
-	DirectX::SimpleMath::Vector3 m_hitPos;  
+	DirectX::SimpleMath::Vector3 m_mouseRayHitPos;  
+
+	// 影の当たった点
+	DirectX::SimpleMath::Vector3 m_shadowHitPos;
 
 	// ボールを持っているか
 	std::map<int, Ball*> m_isBall;  
@@ -150,6 +153,7 @@ public:
 
 	// 重なりの補填
 	void CorrectOverlap(Field& field) override;
+	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
 
 	// ステートの変更
 	void ChangeState(IState* newState);
@@ -189,7 +193,7 @@ public:
 	void InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context);
 
 	// 影の描画
-	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos);
+	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius);
 
 	// ロックオンの描画
 	void DrawLockOn(const DirectX::SimpleMath::Vector3& pos);
@@ -219,20 +223,23 @@ public:
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
 	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
 
-	// ワールド
-	void SetWorld(DirectX::SimpleMath::Matrix world)  { m_worldMatrix = world; }       // 設定
-	DirectX::SimpleMath::Matrix GetWorld() const  { return m_worldMatrix; }		       // 取得
+	// 影の当たった座標
+	void SetShadowHitPos(DirectX::SimpleMath::Vector3 hitPos) override { m_shadowHitPos = hitPos; }   // 設定
+	DirectX::SimpleMath::Vector3 GetShadowHitPos() const override { return m_shadowHitPos; }		  // 取得
 
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
+
+	void SetWorld(DirectX::SimpleMath::Matrix world) { m_world = world; }
+	DirectX::SimpleMath::Matrix GetWorld() { return m_world; }
 
 	// マウスのレイ
 	void SetMouseRay(DirectX::SimpleMath::Ray ray) { m_mouseRay = ray; }
 	DirectX::SimpleMath::Ray GetMouseRay() const { return m_mouseRay; }
 
 	// 当たった座標
-	void SetHitPos(DirectX::SimpleMath::Vector3 hitPos) { m_hitPos = hitPos; }
-	DirectX::SimpleMath::Vector3& GetHitPos() { return m_hitPos; }
+	void SetMouseRayHitPos(DirectX::SimpleMath::Vector3 hitPos) { m_mouseRayHitPos = hitPos; }
+	DirectX::SimpleMath::Vector3& GetMouseRayHitPos() { return m_mouseRayHitPos; }
 
 	// フィールドの取得
 	Field* GetField() const { return m_pField; }

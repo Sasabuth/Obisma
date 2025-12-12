@@ -24,7 +24,7 @@ class PlayerCatching : public IState
 {
 // ’è”
 private:
-	static constexpr float COLLIDER_SIZE = 0.3f;
+	static constexpr float COLLIDER_SIZE = 0.35f;
 
 
 // •Ï”

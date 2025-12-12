@@ -22,15 +22,29 @@ class Ball;
 class Moving : public IState
 {
 private:
-	static constexpr float ROTATE_SPEED = 0.5f;
+	// 減速率
+	static constexpr float DECELERATIONRATE = 0.999f;
+
+	// 停止する速度
+	static constexpr float STOP_SPEED = 0.05f;
+	
 
 // 変数
 private:
 	// ユーザーリソース
-	UserResources* m_userResources;
+	UserResources* m_pUserResources;
 
 	// ボール
 	Ball* m_ball;
+
+	// ベーシックエフェクト
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;
+
+	// プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;
+
+	// 入力レイアウトへのポインタ
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 
 
 // 関数

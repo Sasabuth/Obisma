@@ -163,6 +163,23 @@ void Enemy::CorrectOverlap(Field& field)
 	m_position += delta * pushLength;
 }
 
+void Enemy::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
+{
+	// 衝突点とプレイヤーの差分
+	DirectX::SimpleMath::Vector3 delta = m_position - pos;
+
+	// 距離
+	float distance = delta.Length();
+	float r = m_collider.GetRadius();
+
+	// めり込み量
+	float pushLength = r - distance;
+
+	// 押し出し方向
+	delta.Normalize();
+	m_position += delta * pushLength;
+}
+
 
 
 /// <summary>
@@ -281,7 +298,7 @@ void Enemy::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context)
 /// <param name="context">コンテキスト</param>
 /// <param name="states">コモンステート</param>
 /// <param name="radius">半径</param>
-void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos)
+void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius)
 {
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
@@ -321,17 +338,10 @@ void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* stat
 	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, radius);
 	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.01f, radius);
 
-	// レイ
-	DirectX::SimpleMath::Ray ray{ m_position, m_gravity };
-
-	// レイが当たった座標に影を出す
-	if (CalcRaySphere(ray.position, ray.direction, m_pField->GetCollider().GetPosition(), m_pField->GetCollider().GetRadius(), hitPos))
+	for (int i = 0; i < 4; ++i)
 	{
-		for (int i = 0; i < 4; ++i)
-		{
-			DirectX::SimpleMath::Vector3 rotatedOffset = DirectX::SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
-			vertexes[i].position = rotatedOffset + hitPos;
-		}
+		DirectX::SimpleMath::Vector3 rotatedOffset = DirectX::SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
+		vertexes[i].position = rotatedOffset + m_shadowHitPos;
 	}
 
 	// 影の描画

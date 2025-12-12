@@ -23,7 +23,7 @@ AirTarget::AirTarget(Field* pField, Camera* pCamera)
 	, m_currentState{}
 	, m_pUserResources(nullptr)
 	, m_model(nullptr)
-	, m_hitPos{}
+	, m_shadowHitPos{}
 {
 }
 
@@ -153,6 +153,25 @@ void AirTarget::CorrectOverlap(Field& field)
 	m_position += delta * pushLength;
 }
 
+void AirTarget::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
+{
+	// 差分を求める
+	DirectX::SimpleMath::Vector3 delta = m_position - pos;
+
+	// 長さを求める
+	float distance = delta.Length();
+	float r = m_collider.GetRadius();
+
+	// 差分を求める
+	float pushLength = r - distance;
+
+	// 正規化
+	delta.Normalize();
+
+	// 押し出しする
+	m_position += delta * pushLength;
+}
+
 
 
 /// <summary>
@@ -248,15 +267,10 @@ void AirTarget::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* 
 	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, radius);
 	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.01f, radius);
 
-	// レイ
-	DirectX::SimpleMath::Ray ray(m_position, m_gravity);
-
-	// レイの当たったところの座標を設定
-	CalcRaySphere(ray.position, ray.direction, m_pField->GetCollider().GetPosition(), m_pField->GetCollider().GetRadius(), m_hitPos);
 	for (int i = 0; i < 4; ++i)
 	{
 		DirectX::SimpleMath::Vector3 rotatedOffset = DirectX::SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
-		vertexes[i].position = rotatedOffset + m_hitPos;
+		vertexes[i].position = rotatedOffset + m_shadowHitPos;
 	}
 
 	// 影の描画

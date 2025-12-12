@@ -65,7 +65,7 @@ private:
 	SphereCollider m_collider;
 
 	// 当たった座標
-	DirectX::SimpleMath::Vector3 m_hitPos;
+	DirectX::SimpleMath::Vector3 m_shadowHitPos;
 
 	// ボールの色の番号
 	int m_ballColorNum; 
@@ -117,6 +117,7 @@ public:
 
 	// 重なりの補填
 	void CorrectOverlap(Field& field) override;
+	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
 
 	// ステートの変更
 	void ChangeState(IState* newState);
@@ -147,6 +148,10 @@ public:
 	// 速度
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
 	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
+
+	// 影の当たった座標
+	void SetShadowHitPos(DirectX::SimpleMath::Vector3 hitPos) override { m_shadowHitPos = hitPos; }   // 設定
+	DirectX::SimpleMath::Vector3 GetShadowHitPos() const override { return m_shadowHitPos; }		  // 取得
 
 	// ボールの色
 	void SetBallColorNum(int ballColorNum);                  // 設定

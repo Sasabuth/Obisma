@@ -49,8 +49,6 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	m_position = position;
 
-	m_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
-
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Player.json")["ColliderSize"]);
 
 	// 「立つ」状態の生成
@@ -123,7 +121,6 @@ void Player::Render()
 	DirectX::SimpleMath::Vector3 hitPos1;
 	DirectX::SimpleMath::Vector3 hitPos2;
 
-	// マウスの方向に回転
 	if (CalcRaySphere(m_pAirTarget->GetPosition(), m_pAirTarget->GetCollider().GetRadius(), hitPos1) &&
 		CalcRaySphere(m_pField->GetCollider().GetPosition(), m_pField->GetCollider().GetRadius(), hitPos2))
 	{
@@ -133,26 +130,28 @@ void Player::Render()
 		if (hitPos1.Length() < hitPos2.Length())
 		{
 			DrawLockOn(m_pAirTarget->GetPosition());
+			return;
 		}
 	}
 	else
 	{
 		// ロックオンの描画
-		if (CalcRaySphere(m_pAirTarget->GetPosition(), m_pAirTarget->GetCollider().GetRadius(), m_hitPos))
+		if (CalcRaySphere(m_pAirTarget->GetPosition(), m_pAirTarget->GetCollider().GetRadius(), m_mouseRayHitPos))
 		{
 			DrawLockOn(m_pAirTarget->GetPosition());
 		}
 	}
+	
 
 	// デバック用
 	/*auto* debugFont = m_pUserResources->GetDebugFont();
 	debugFont->Render(L"pos", 1);
 	debugFont->Render(L"pos", std::any(m_velocity));*/
 
-	/*auto states = m_pUserResources->GetCommonStates();
-	auto view = m_pUserResources->GetView();
-	auto proj = m_pUserResources->GetProject();
-	m_collider.Draw(states, *view, *proj);*/
+	//auto states = m_pUserResources->GetCommonStates();
+	//auto view = m_pUserResources->GetView();
+	//auto proj = m_pUserResources->GetProject();
+	//m_collider.Draw(states, *view, *proj);
 }
 
 
@@ -185,6 +184,24 @@ void Player::CorrectOverlap(Field& field)
 
 	delta.Normalize();
 	m_position += delta * pushLength;
+}
+
+void Player::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
+{
+	// 衝突点とプレイヤーの差分
+	DirectX::SimpleMath::Vector3 delta = m_position - pos;
+
+	// 距離
+	float distance = delta.Length();
+	float r = m_collider.GetRadius();
+
+	// めり込み量
+	float pushLength = r - distance;
+
+	// 押し出し方向
+	delta.Normalize();             
+	m_position += delta * pushLength;
+	
 }
 
 
@@ -347,7 +364,7 @@ bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleM
 void Player::RotateToMouse()
 {
 	// 方向
-	DirectX::SimpleMath::Vector3 dir = m_position - m_hitPos;
+	DirectX::SimpleMath::Vector3 dir = m_position - m_mouseRayHitPos;
 	dir.Normalize();
 
 	// 方向ベクトルの反転
@@ -392,7 +409,8 @@ void Player::RotateToMouse()
 void Player::SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix)
 {
 	// ボーンに設定した境界球のワールド計算を行う
-	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_worldMatrix;
+	DirectX::SimpleMath::Matrix sphereMatrix = handMatrix * m_world;
+
 	// バウンディングスフィアの中心点を設定する
 	float handOffsetScale = (float)Resources::GetInstance()->GetJson(L"Player.json")["HandOffsetScale"];
 	ball->SetPosition(DirectX::SimpleMath::Vector3(sphereMatrix._41 * handOffsetScale, sphereMatrix._42 * handOffsetScale, sphereMatrix._43 * handOffsetScale));
@@ -442,7 +460,7 @@ void Player::InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context
 /// <param name="context">コンテキスト</param>
 /// <param name="states">コモンステート</param>
 /// <param name="radius">半径</param>
-void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos)
+void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius)
 {
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
@@ -477,22 +495,15 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 
 	uint16_t indexes[] = { 2,3,1,2,1,0 };
 
-	vertexes[0].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, -radius);
-	vertexes[1].position = DirectX::SimpleMath::Vector3(radius, 0.01f, -radius);
-	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, radius);
-	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.01f, radius);
+	vertexes[0].position = DirectX::SimpleMath::Vector3(-radius, 0.03f, -radius);
+	vertexes[1].position = DirectX::SimpleMath::Vector3(radius, 0.03f, -radius);
+	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.03f, radius);
+	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.03f, radius);
 
-	// レイ
-	DirectX::SimpleMath::Ray ray{ m_position, m_gravity };
-
-	// レイが当たった座標に影を出す
-	if (CalcRaySphere(ray.position, ray.direction, m_pField->GetCollider().GetPosition(), m_pField->GetCollider().GetRadius(), hitPos))
+	for (int i = 0; i < 4; ++i)
 	{
-		for (int i = 0; i < 4; ++i)
-		{
-			DirectX::SimpleMath::Vector3 rotatedOffset = DirectX::SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
-			vertexes[i].position = rotatedOffset + hitPos;
-		}
+		DirectX::SimpleMath::Vector3 rotatedOffset = DirectX::SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
+		vertexes[i].position = rotatedOffset + m_shadowHitPos;
 	}
 
 	// 影の描画

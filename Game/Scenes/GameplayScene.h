@@ -25,9 +25,9 @@
 // クラスの定義
 class GameplayScene : public Scene
 {
-// 定数
+	// 定数
 private:
-	static constexpr float MAX_TIME = 100.0f;
+	static constexpr float MAX_TIME = 10000.0f;
 	static constexpr int PLAYER_COUNT = 2;
 
 	static constexpr Sprite::Format FREAM =
@@ -45,7 +45,7 @@ private:
 	};
 
 
-// 変数
+	// 変数
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;
@@ -87,8 +87,11 @@ private:
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
 
+	DirectX::SimpleMath::Vector3 debugPos;
+	DirectX::SimpleMath::Vector3 debugVector;
 
-// 関数
+
+	// 関数
 public:
 	// コンストラクタ
 	GameplayScene();
@@ -118,20 +121,20 @@ public:
 	void OnDeviceLost() override;
 
 
-// 設定/取得
+	// 設定/取得
 public:
 
 
-// 内部処理
+	// 内部処理
 private:
 	// 実体とフィールドの衝突判定
 	void IsHitEntityToField(IEntity* pIEntity, Field* pField);
+	void IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pIEntity, Field* pField);
 
 	// リスナーの設定
 	void SetListener();
 
 	// 入力ステートの設定
 	void SetPlayerInputState();
-
 };
 

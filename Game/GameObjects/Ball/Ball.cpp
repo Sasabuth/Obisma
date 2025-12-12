@@ -21,7 +21,7 @@ Ball::Ball(Field* pField)
 	, m_currentState{}
 	, m_ballColorNum(0)
 	, m_pUserResources(nullptr)
-	, m_hitPos{}
+	, m_shadowHitPos{}
 	, m_soundSpan(0.0f)
 	, m_isSound(true)
 	, m_invincibleTime(0.0f)
@@ -50,7 +50,8 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	m_position = position;
 
-	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Ball.json")["BallSize"]);
+
+	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Ball.json")["ColliderSize"]);
 
 	// ボールのモデルをロードする
 	auto effectFactory = m_pUserResources->GetEffectFactory();
@@ -124,10 +125,10 @@ void Ball::Render()
 	m_currentState->Render();
 
 	// デバック
-	//auto states = m_pUserResources->GetCommonStates();
-	//auto view = m_pUserResources->GetView();
-	//auto proj = m_pUserResources->GetProject();
-	//m_collider.Draw(states, *view, *proj);
+	/*auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
+	m_collider.Draw(states, *view, *proj);*/
 
 	//auto debagFont = m_pUserResources->GetDebugFont();
 	//debagFont->Render(L"SoundSpan", m_soundSpan);
@@ -160,6 +161,43 @@ void Ball::CorrectOverlap(Field& field)
 
 	// 差分を求める
 	float pushLength = minDistance - distance;
+
+	delta.Normalize();
+	m_position += delta * pushLength;
+
+	// 法線ベクトル
+	DirectX::SimpleMath::Vector3 normalVec = m_gravity * -1.0f;
+	normalVec.Normalize();
+
+	// 反射ベクトル
+	DirectX::SimpleMath::Vector3 reflVec = m_velocity - 2.0f * (m_velocity.Dot(normalVec)) * normalVec;
+
+	// 摩擦
+	reflVec *= 0.6f;
+
+	if (!m_isSound && m_soundSpan >= 0.1f)
+	{
+		m_se = Resources::GetInstance()->GetSESound(L"BallBound.wav", m_position, false);
+		m_isSound = true;
+	}
+
+	m_soundSpan = 0.0f;
+
+	// 速度の設定
+	m_velocity = reflVec;
+}
+
+void Ball::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
+{
+	// 差分を求める
+	DirectX::SimpleMath::Vector3 delta = m_position - pos;
+
+	// 長さを求める
+	float distance = delta.Length();
+	float r = m_collider.GetRadius();
+
+	// 差分を求める
+	float pushLength = r - distance;
 
 	// 正規化
 	delta.Normalize();
@@ -279,15 +317,10 @@ void Ball::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* state
 	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, radius);
 	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.01f, radius);
 
-	// レイ
-	DirectX::SimpleMath::Ray ray(m_position, m_gravity);
-
-	// レイの当たったところの座標を設定
-	CalcRaySphere(ray.position, ray.direction, m_pField->GetCollider().GetPosition(), m_pField->GetCollider().GetRadius(), m_hitPos);
 	for (int i = 0; i < 4; ++i)
 	{
 		DirectX::SimpleMath::Vector3 rotatedOffset = DirectX::SimpleMath::Vector3::Transform(vertexes[i].position, m_rotate);
-		vertexes[i].position = rotatedOffset + m_hitPos;
+		vertexes[i].position = rotatedOffset + m_shadowHitPos;
 	}
 
 	// 影の描画

@@ -41,6 +41,9 @@ private:
 	// コライダー
 	SphereCollider m_collider;
 
+	// 影の当たった座標
+	DirectX::SimpleMath::Vector3 m_shadowHitPos;
+
 	// ベーシックエフェクト
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  
 
@@ -73,6 +76,7 @@ public:
 
 	// 重なりの補填
 	void CorrectOverlap(Field& field) override;
+	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
 
 
 // 設定/取得
@@ -92,6 +96,10 @@ public:
 	// 速度
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
 	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
+
+	// 影の当たった座標
+	void SetShadowHitPos(DirectX::SimpleMath::Vector3 hitPos) override { m_shadowHitPos = hitPos; }   // 設定
+	DirectX::SimpleMath::Vector3 GetShadowHitPos() const override { return m_shadowHitPos; }		  // 取得
 
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }

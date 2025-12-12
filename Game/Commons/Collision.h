@@ -229,8 +229,90 @@ private:
 
 };
 
+// クラスの定義
+class ModelCollider
+{
+// 定数
+private:
+
+
+// 変数
+private:
+	// 頂点の配列
+	std::vector<DirectX::VertexPosition> m_vertices;
+
+	// 三角形を作るための番号の配列
+	std::vector<uint32_t> m_indices;
+
+	DirectX::SimpleMath::Vector3 m_position;  // 座標
+	float m_scale;  // 半径
+
+	// エフェクト
+	std::unique_ptr<DirectX::BasicEffect> m_effect;
+
+	// バッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_batch;
+
+
+// 関数
+public:
+	// コンストラクタ
+	ModelCollider();
+
+	// デストラクタ
+	~ModelCollider();
+
+	// 初期化処理
+	void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, DirectX::Model* pModel);
+
+	// 描画処理
+	void Draw(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, DirectX::FXMVECTOR color = DirectX::Colors::White);
+	void DebugDraw(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, int index, DirectX::FXMVECTOR color = DirectX::Colors::White);
+
+
+// 取得/設定
+public:
+	// 座標の設定
+	void SetPosition(DirectX::SimpleMath::Vector3 position) { m_position = position; }
+	void SetPosition(float posX, float posY, float posZ) { m_position = DirectX::SimpleMath::Vector3(posX, posY, posZ); }
+	DirectX::SimpleMath::Vector3 GetPosition() const { return m_position; }
+
+	// 拡大率の設定
+	void SetScale(float scale) { m_scale = scale; }
+
+	// 拡大率の取得
+	float GetScale() const { return m_scale; }
+
+	size_t GetIndicesCount() const { return m_indices.size(); }
+	uint32_t GetIndices(int index) const { return m_indices[index]; }
+
+	DirectX::SimpleMath::Vector3 GetCenterPosition(int index) const;
+
+	DirectX::VertexPosition GetVertices(int index) const { return m_vertices[index]; }
+	
+	DirectX::SimpleMath::Vector3 GetNormalVector(int index) const;
+
+
+// 内部実装
+private:
+
+
+};
+
 
 // 当たり判定
 bool IsHit(const BoxCollider2D& boxA, const BoxCollider2D& boxB);          // 矩形コライダーと矩形コライダーの当たり判定
 bool IsHit(const SphereCollider& sphereA, const SphereCollider& sphereB);  // 球と球
 bool IsHit(const CubeCollider& cubeA, const CubeCollider& cubeB);          // 立方体と立方体
+
+// 球とモデル
+bool IsHit(const SphereCollider& sphere, const ModelCollider& model, int index);    
+
+// レイとモデル
+bool IsHit(
+	const DirectX::SimpleMath::Vector3& rayOrigin,
+	const DirectX::SimpleMath::Vector3& rayDir,
+	const DirectX::SimpleMath::Matrix world, const ModelCollider& model,
+	int index,
+	DirectX::SimpleMath::Vector3& outHitPoint
+);

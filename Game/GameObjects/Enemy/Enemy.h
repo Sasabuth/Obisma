@@ -90,6 +90,9 @@ private:
 	// キャッチコライダー
 	SphereCollider m_catchCollider;
 
+	// 影の当たった座標
+	DirectX::SimpleMath::Vector3 m_shadowHitPos;
+
 	// スコア
 	std::unique_ptr<Score> m_score;  
 
@@ -140,6 +143,7 @@ public:
 
 	// 重なりの補填
 	void CorrectOverlap(Field& field) override;
+	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
 
 	// ステートの変更
 	void ChangeState(IState* newState);
@@ -160,7 +164,7 @@ public:
 	void InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context);
 
 	// 影の描画
-	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius, DirectX::SimpleMath::Vector3& hitPos);
+	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius);
 
 	// スコアを下げる
 	void ScoreDown();
@@ -183,6 +187,10 @@ public:
 	// 速度
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
 	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
+
+	// 影の当たった座標
+	void SetShadowHitPos(DirectX::SimpleMath::Vector3 hitPos) override { m_shadowHitPos = hitPos; }   // 設定
+	DirectX::SimpleMath::Vector3 GetShadowHitPos() const override { return m_shadowHitPos; }		  // 取得
 
 	// ワールド
 	void SetWorld(DirectX::SimpleMath::Matrix world) { m_worldMatrix = world; }       // 設定
