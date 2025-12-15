@@ -149,22 +149,26 @@ void ResultScene::Render()
 	m_spaceTexture.Draw(m_position, SPACE.size, SPACE.scale, DirectX::Colors::DarkGray);
 	m_spaceTexture.Draw(m_position2, SPACE.size, SPACE.scale, DirectX::Colors::DarkGray);
 
-
+	// êlêîï™âÒÇ∑
 	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
 	{
+		// èüÇ¡ÇΩèáÇ©ÇÁäÁÇï`âÊÇ∑ÇÈ
 		m_faceTextures[i]->Draw(DirectX::SimpleMath::Vector2(FACE.pos.x / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), FACE.pos.y), FACE.size, FACE.scale);
 
+		// à¯Ç´ï™ÇØÇ∂Ç·Ç»Ç©Ç¡ÇΩÇÁâΩà Ç©ï`âÊÇ∑ÇÈ
 		if (!GetSceneManager()->GetIsDraw())
 		{
 			m_winTextures[i]->Draw(DirectX::SimpleMath::Vector2(WIN.pos.x / (GetSceneManager()->GetPlayerCount() + 1) * (i + 1), WIN.pos.y), WIN.size, WIN.scale);
 		}
 	}
 
+	// à¯Ç´ï™ÇØÇæÇ¡ÇΩÇÁà¯Ç´ï™ÇØÇï`âÊÇ∑ÇÈ
 	if (GetSceneManager()->GetIsDraw())
 	{
 		m_winTextures[0]->Draw(DirectX::SimpleMath::Vector2(DRAW.pos.x, DRAW.pos.y), DRAW.size, DRAW.scale);
 	}
 
+	// ñﬂÇÈÉeÉNÉXÉ`ÉÉÇÃï`âÊ
 	m_backTexture.Draw(DirectX::SimpleMath::Vector2(BACK.pos.x, BACK.pos.y + sin(m_speed)), BACK.size, BACK.scale);
 	
 	//auto* debugFont = UserResources::GetUserResource()->GetDebugFont();

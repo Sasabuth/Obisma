@@ -68,6 +68,7 @@ void AudioUI::Initialize()
 	m_button.SetSize(DirectX::SimpleMath::Vector2(475.0f, 260.0f));
 	m_button.SetScale(0.3f);
 
+	// 開けているか
 	m_isOpen = false;
 
 	// ボリューム設定
@@ -145,17 +146,21 @@ void AudioUI::Update(const BoxCollider2D& collider)
 /// </summary>
 void AudioUI::Draw(const BoxCollider2D& collider)
 {
+	// オーディオUIの描画
 	m_audioUI.Draw(DirectX::SimpleMath::Vector2(640, 360), DirectX::SimpleMath::Vector2(1743, 850), 0.4f);
 
+	// バーのコライダーの描画
 	for (int i = 0; i < BAR_COUNT; i++)
 	{
 		m_barCollider[i].Draw(DirectX::Colors::Gray);
 	}
 
+	// 当たったら色を変える
 	if (IsHit(collider, m_button.GetCollider()))
 	{
 		m_button.Draw(DirectX::Colors::LightSkyBlue);
 	}
+	// 白にする
 	else
 	{
 		m_button.Draw(DirectX::Colors::White);

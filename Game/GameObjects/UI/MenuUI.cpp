@@ -43,19 +43,28 @@ MenuUI::~MenuUI()
 /// </summary>
 void MenuUI::Initialize(Scene* pScene)
 {
+	// ユーザーリソースの設定
 	m_pUserResources = UserResources::GetUserResource();
 
+	// シーンの設定
 	m_pScene = pScene;
 
+	// ボタンの初期化
 	m_button[0].SetTexture(Resources::GetInstance()->GetTexture(L"RealPerformance.png"));
+	// ゲームプレイシーンに変更
 	m_button[0].SetFunc([this]() { m_pScene->ChangeScene<GameplayScene>(); });
 
+	// ボタンの初期化
 	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Practice.png"));
+	// チュートリアルシーンに変更
 	m_button[1].SetFunc([this]() { m_pScene->ChangeScene<TutorialScene>(); });
 
+	// ボタンの初期化
 	m_button[2].SetTexture(Resources::GetInstance()->GetTexture(L"BackButton.png"));
+	// 閉じる
 	m_button[2].SetFunc([this]() { m_isOpen = false; });
 
+	// メニューの設定
 	for (int i = 0; i < MENU_COUNT; i++)
 	{
 		m_button[i].SetPosition(DirectX::SimpleMath::Vector2(MENU_POSITIONS[i]));
@@ -98,12 +107,15 @@ void MenuUI::Update(const BoxCollider2D& collider)
 /// </summary>
 void MenuUI::Draw(const BoxCollider2D& collider)
 {
+	// メニューの数回す
 	for (int i = 0; i < MENU_COUNT; i++)
 	{
+		// マウスのコライダーと当たったら色を変更
 		if (IsHit(collider, m_button[i].GetCollider()))
 		{
 			m_button[i].Draw(MENU_COLORS[i]);
 		}
+		// 白の文字を出す
 		else
 		{
 			m_button[i].Draw(DirectX::Colors::White);

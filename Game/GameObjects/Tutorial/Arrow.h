@@ -21,6 +21,7 @@ class Arrow : public IEntity
 {
 // ’è”
 public:
+	// –î‚ÌƒTƒCƒY
 	static constexpr float ARROW_SIZE = 0.4f;
 
 

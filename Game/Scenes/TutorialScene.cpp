@@ -56,7 +56,7 @@ void TutorialScene::Initialize()
 	debugFont->Initialize();
 
 	// フィールドの初期化
-	m_field = Factory::CreateField();
+	m_field = Factory::CreateField(0);
 
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
@@ -205,6 +205,7 @@ void TutorialScene::Update(float elapsedTime)
 
 		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
 		{
+			m_player->SetIsLockOn(false);
 			m_airTarget->ChangeState(m_airTarget->GetHitting());
 			m_scoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->ScoreUp();
 		}
@@ -746,6 +747,11 @@ void TutorialScene::SetListener()
 	);
 }
 
+
+
+/// <summary>
+/// 入力ステートの設定
+/// </summary>
 void TutorialScene::SetPlayerInputState()
 {
 	auto kb = DirectX::Keyboard::Get().GetState();

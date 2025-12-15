@@ -25,6 +25,7 @@ Player::Player(Field* pField, AirTarget* pAirTarget, BallManager* pBallManager)
 	, m_pBallManager(pBallManager)
 	, m_currentState{}
 	, m_invincibleTime(0.0f)
+	, m_isLockOn(false)
 {
 }
 
@@ -43,12 +44,15 @@ Player::~Player()
 /// </summary>
 void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 {
+	// ユーザーリソースの設定
 	m_pUserResources = UserResources::GetUserResource();
 	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
+	// 座標の初期化
 	m_position = position;
 
+	// コライダーの初期化
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Player.json")["ColliderSize"]);
 
 	// 「立つ」状態の生成
@@ -94,6 +98,9 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	// ロックオンテクスチャの初期化
 	m_lockOnTexture.SetTexture(nullptr);
+
+	// ロックオンを出さない
+	m_isLockOn = false;
 }
 
 
@@ -104,8 +111,10 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 /// <param name="elapsedTime">経過時間</param> 
 void Player::Update(float elapsedTime)
 {	
+	// 現在のステートの更新
 	m_currentState->Update(elapsedTime);
 
+	// 無敵時間の減少
 	m_invincibleTime -= elapsedTime;
 }
 
@@ -116,32 +125,14 @@ void Player::Update(float elapsedTime)
 /// </summary>
 void Player::Render()
 {
+	// 現在のステートの描画
 	m_currentState->Render();
 
-	DirectX::SimpleMath::Vector3 hitPos1;
-	DirectX::SimpleMath::Vector3 hitPos2;
-
-	if (CalcRaySphere(m_pAirTarget->GetPosition(), m_pAirTarget->GetCollider().GetRadius(), hitPos1) &&
-		CalcRaySphere(m_pField->GetCollider().GetPosition(), m_pField->GetCollider().GetRadius(), hitPos2))
+	// 空中の的にマウスが当たっていたらロックオンを描画
+	if (m_isLockOn)
 	{
-		hitPos1 = m_mouseRay.position - hitPos1;
-		hitPos2 = m_mouseRay.position - hitPos2;
-
-		if (hitPos1.Length() < hitPos2.Length())
-		{
-			DrawLockOn(m_pAirTarget->GetPosition());
-			return;
-		}
+		DrawLockOn(m_pAirTarget->GetPosition());
 	}
-	else
-	{
-		// ロックオンの描画
-		if (CalcRaySphere(m_pAirTarget->GetPosition(), m_pAirTarget->GetCollider().GetRadius(), m_mouseRayHitPos))
-		{
-			DrawLockOn(m_pAirTarget->GetPosition());
-		}
-	}
-	
 
 	// デバック用
 	/*auto* debugFont = m_pUserResources->GetDebugFont();
@@ -161,6 +152,7 @@ void Player::Render()
 /// </summary>
 void Player::Finalize()
 {
+	// 現在のステートの終了
 	m_currentState->Finalize();
 }
 
@@ -186,6 +178,12 @@ void Player::CorrectOverlap(Field& field)
 	m_position += delta * pushLength;
 }
 
+
+
+/// <summary>
+/// 重なりの補填
+/// </summary>
+/// <param name="pos">座標</param>
 void Player::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 {
 	// 衝突点とプレイヤーの差分
@@ -598,11 +596,8 @@ bool Player::IsInHitRange(float offset)
 	// 距離の計算
 	DirectX::SimpleMath::Vector3 dir = m_position - m_pAirTarget->GetPosition();
 
-	// 成分の合計距離の計算
-	float airTargtPos = m_pAirTarget->GetPosition().x * m_pAirTarget->GetPosition().y * m_pAirTarget->GetPosition().z;
-
 	// 距離が当たる距離に入っているか
-	if (dir.Length() <= offset + (float)Resources::GetInstance()->GetJson(L"Player.json")["LockOn"] - (std::fabs(airTargtPos) - MIN_AIRPOS) * LOCKON_HEIGHT_RATE)
+	if (dir.Length() <= offset + (float)Resources::GetInstance()->GetJson(L"Player.json")["Offset"])
 	{
 		return true;
 	}

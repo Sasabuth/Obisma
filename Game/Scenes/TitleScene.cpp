@@ -47,7 +47,7 @@ void TitleScene::Initialize()
 	m_titleTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Title.png"));
 
 	// フィールドの初期化
-	m_field = Factory::CreateField();
+	m_field = Factory::CreateField(1);
 
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);

@@ -54,7 +54,7 @@ public:
 	~Field();
 
 	// ‰Šú‰»
-	void Initialize();
+	void Initialize(int stageIndex);
 
 	// XV
 	void Update(float elapsedTime);
@@ -67,7 +67,7 @@ public:
 
 	// ã•ûŒü‚Ì•â³
 	DirectX::SimpleMath::Vector3 CorrectUp(IEntity* iEntity);
-	DirectX::SimpleMath::Vector3 CorrectUp(IEntity* iEntity, DirectX::SimpleMath::Vector3 pos);
+	DirectX::SimpleMath::Vector3 CorrectUp(IEntity* iEntity, DirectX::SimpleMath::Vector3 vector);
 
 
 // İ’è/æ“¾

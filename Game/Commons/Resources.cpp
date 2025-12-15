@@ -49,9 +49,6 @@ void Resources::LoadResource()
 	auto effectFactory = m_userResource->GetEffectFactory();
 	effectFactory->SetDirectory(L"Resources/Models");
 
-	// フィールドのモデルをロードする
-	m_fieldModel = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/Planet.sdkmesh", *effectFactory);
-
 	// プレーヤーモデルローダーフラグ
 	DirectX::ModelLoaderFlags flags = DirectX::ModelLoader_Clockwise | DirectX::ModelLoader_IncludeBones;
 	// プレーヤーモデルをロードする
@@ -328,7 +325,6 @@ void Resources::Set3DSound(DirectX::SoundEffectInstance* sound, const DirectX::S
 /// </summary>
 void Resources::Reset()
 {
-	m_fieldModel.reset();
 	m_playerModel.reset();
 	m_enemyModel.reset();
 	m_sterModel.reset();

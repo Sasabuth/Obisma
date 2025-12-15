@@ -37,7 +37,7 @@ Field::~Field()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void Field::Initialize()
+void Field::Initialize(int stageIndex)
 {
 	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
@@ -45,7 +45,8 @@ void Field::Initialize()
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	// モデルの設定
-	m_model = Resources::GetInstance()->GetModel(L"Stage1.sdkmesh");
+	std::wstring filename = L"Stage" + std::to_wstring(stageIndex) + L".sdkmesh";
+	m_model = Resources::GetInstance()->GetModel(filename.c_str());
 	m_model->UpdateEffects(
 		// 引数にラムダ式として処理内容を指定する
 		[&](DirectX::IEffect* pEffect)
@@ -105,8 +106,6 @@ void Field::Render()
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
 
-
-
 	// ワールド座標
 	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate)) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position) * DirectX::SimpleMath::Matrix::CreateScale(MODEL_SCALE);
 
@@ -118,7 +117,7 @@ void Field::Render()
 	m_skydomeModel->Draw(context, *states, sWorld, *view, *proj);
 
 	// デバック
-	//m_stageCollider.Draw(context, *view, *proj);
+	/*m_stageCollider.Draw(context, *view, *proj);*/
 }
 
 
@@ -131,6 +130,12 @@ void Field::Finalize()
 }
 
 
+
+/// <summary>
+/// 上方向の補正
+/// </summary>
+/// <param name="iEntity">実体</param>
+/// <returns>重力</returns>
 DirectX::SimpleMath::Vector3 Field::CorrectUp(IEntity* iEntity)
 {
 	// 重力の方向
@@ -174,10 +179,18 @@ DirectX::SimpleMath::Vector3 Field::CorrectUp(IEntity* iEntity)
 	return gravityDir * 3;
 }
 
-DirectX::SimpleMath::Vector3 Field::CorrectUp(IEntity* iEntity, DirectX::SimpleMath::Vector3 pos)
+
+
+/// <summary>
+/// 上方向の補正
+/// </summary>
+/// <param name="iEntity">実体</param>
+/// <param name="vector">方向</param>
+/// <returns>重力</returns>
+DirectX::SimpleMath::Vector3 Field::CorrectUp(IEntity* iEntity, DirectX::SimpleMath::Vector3 vector)
 {
 	// 重力の方向
-	DirectX::SimpleMath::Vector3 gravityDir = -pos;
+	DirectX::SimpleMath::Vector3 gravityDir = -vector;
 	gravityDir.Normalize();
 
 	// 方向ベクトルの反転

@@ -25,6 +25,7 @@ class MenuUI
 private:
 	static constexpr int MENU_COUNT = 3;
 
+	// メニューの座標
 	static constexpr DirectX::SimpleMath::Vector2 MENU_POSITIONS[MENU_COUNT] =
 	{
 		DirectX::SimpleMath::Vector2(250.0f, 360.0f),
@@ -32,8 +33,10 @@ private:
 		DirectX::SimpleMath::Vector2(100.0f, 70.0f),
 	};
 
+	// メニューのサイズ
 	static constexpr DirectX::SimpleMath::Vector2 MENU_SIZE = DirectX::SimpleMath::Vector2(475.0f, 260.0f);
 
+	// 拡大率
 	static constexpr float MENU_SCALES[MENU_COUNT] =
 	{
 	    0.5f,
@@ -41,6 +44,7 @@ private:
 	    0.3f,
 	};
 
+	// メニューの色
 	static constexpr DirectX::SimpleMath::Vector4 MENU_COLORS[MENU_COUNT] =
 	{
 		DirectX::SimpleMath::Vector4(1,0,0,1),

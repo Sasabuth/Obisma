@@ -27,7 +27,7 @@ class GameplayScene : public Scene
 {
 	// 定数
 private:
-	static constexpr float MAX_TIME = 10000.0f;
+	static constexpr float MAX_TIME = 100.0f;
 	static constexpr int PLAYER_COUNT = 2;
 
 	static constexpr Sprite::Format FREAM =
@@ -87,11 +87,10 @@ private:
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
 
-	DirectX::SimpleMath::Vector3 debugPos;
-	DirectX::SimpleMath::Vector3 debugVector;
+	int m_debugIndex;
 
 
-	// 関数
+// 関数
 public:
 	// コンストラクタ
 	GameplayScene();

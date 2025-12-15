@@ -203,6 +203,12 @@ void CameraUp::CorrectOverlap(Field& field)
 	m_position += delta * pushLength;
 }
 
+
+
+/// <summary>
+/// 重なりの補填
+/// </summary>
+/// <param name="field">座標</param>
 void CameraUp::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 {
 	// 差分を求める

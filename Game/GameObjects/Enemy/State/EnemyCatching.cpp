@@ -232,6 +232,12 @@ void EnemyCatching::Finalize()
 {
 }
 
+
+
+/// <summary>
+/// 特定のイベントの処理
+/// </summary>
+/// <param name="e">イベント</param>
 void EnemyCatching::EventHandle(Event e)
 {
 	UNREFERENCED_PARAMETER(e);

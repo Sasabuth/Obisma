@@ -281,11 +281,6 @@ void ThrowingR::Render()
 
 	// デバックフォントの描画
 	/*auto* debugFont = m_pUserResources->GetDebugFont();
-	debugFont->Render(L"angleD", std::any(angleD));
-	debugFont->Render(L"angleD", std::any(angleD));
-	debugFont->Render(L"angleD", std::any(angleD));
-	debugFont->Render(L"angleD", std::any(angleD));
-	debugFont->Render(L"angleD", std::any(angleD));
 	debugFont->Render(L"angleD", std::any(angleD));*/
 }
 

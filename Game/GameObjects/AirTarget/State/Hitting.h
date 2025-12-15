@@ -38,6 +38,9 @@ private:
 	// エフェクトを出したか
 	bool m_isEffect;
 
+	// 座標を設定したか
+	bool m_isSetPosition;
+
 
 // 関数
 public:

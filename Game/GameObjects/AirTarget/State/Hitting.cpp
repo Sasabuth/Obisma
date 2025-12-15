@@ -9,6 +9,7 @@
 #include "Hitting.h"
 
 #include "Game/GameObjects/AirTarget/AirTarget.h"
+#include "Game/GameObjects/Field/Field.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -21,6 +22,7 @@
 Hitting::Hitting(AirTarget* pAirTarget)
 	: m_pAirTarget(pAirTarget)
 	, m_isEffect(false)
+	, m_isSetPosition(false)
 {
 }
 
@@ -40,6 +42,8 @@ Hitting::~Hitting()
 void Hitting::Initialize()
 {
 	m_isEffect = false;
+
+	m_isSetPosition = false;
 }
 
 
@@ -69,35 +73,37 @@ void Hitting::Update(float elapsedTime)
 	}
 
 	// ランダムで座標の取得
-	std::uniform_int_distribution<int> dist(0, Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPosCount"] - 1);
-	std::mt19937 mt(m_rd());
+	if (!m_isSetPosition)
+	{
+		int index = -1;
+		// 三角形のために3で割れる数にする
+		while ((index + 3) % 3 != 0)
+		{
+			std::uniform_int_distribution<int> dist(0, (int)m_pAirTarget->GetField()->GetStageCollider().GetIndicesCount() - 1);
+			std::mt19937 mt(m_rd());
 
-	// ランダムで空中の的の座標の設定
-	m_pAirTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
-	m_pAirTarget->SetPosition(DirectX::SimpleMath::Vector3(
-		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(mt))],
-		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(mt))],
-		Resources::GetInstance()->GetJson(L"AirTarget.json")["RandPos"][std::to_string(dist(mt))])
-	);
+			index = dist(mt);
+		}
 
+		// 三角形の中心を取得
+		DirectX::SimpleMath::Vector3 center = m_pAirTarget->GetField()->GetStageCollider().GetCenterPosition(index);
+
+		// 空中の的の設定
+		m_pAirTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
+		m_pAirTarget->SetPosition(center);
+		m_pAirTarget->SetShadowHitPos(center);
+		m_pAirTarget->SetGravity(m_pAirTarget->GetField()->CorrectUp(m_pAirTarget, m_pAirTarget->GetField()->GetStageCollider().GetNormalVector(index)));
+
+		m_isSetPosition = true;
+	}
+
+	// 元の座標からY軸方向に高くして置く
+	m_pAirTarget->SetPosition(m_pAirTarget->GetPosition() + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_pAirTarget->GetRotation()) * 2);
 	// コライダーの設定
 	m_pAirTarget->GetCollider().SetPosition(m_pAirTarget->GetPosition());
 
-	// 座標成分の合計の計算
-	float pos = m_pAirTarget->GetPosition().x * m_pAirTarget->GetPosition().y * m_pAirTarget->GetPosition().z;
-
-	// 20.0fか16.0fの範囲外なら
-	if ((std::fabs(pos) <= 19.9f || std::fabs(pos) >= 20.1f) &&
-		(std::fabs(pos) <= 15.9f || std::fabs(pos) >= 16.1f))
-	{
-		// 高さが当たる距離だったらステート変更
-		if (std::fabs(pos) < 22.0f && std::fabs(pos) > 12.0f)
-		{
-			m_pAirTarget->ChangeState(m_pAirTarget->GetFloating());
-		}
-	}
-
-
+	// ステート変更
+	m_pAirTarget->ChangeState(m_pAirTarget->GetFloating());
 }
 
 
@@ -118,6 +124,12 @@ void Hitting::Finalize()
 {
 }
 
+
+
+/// <summary>
+/// 特定のイベントの処理
+/// </summary>
+/// <param name="e">イベント</param>
 void Hitting::EventHandle(Event e)
 {
 	UNREFERENCED_PARAMETER(e);

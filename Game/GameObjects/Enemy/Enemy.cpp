@@ -163,6 +163,12 @@ void Enemy::CorrectOverlap(Field& field)
 	m_position += delta * pushLength;
 }
 
+
+
+/// <summary>
+/// 重なりの補填
+/// </summary>
+/// <param name="field">座標</param>
 void Enemy::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 {
 	// 衝突点とプレイヤーの差分
@@ -333,10 +339,10 @@ void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* stat
 
 	uint16_t indexes[] = { 2,3,1,2,1,0 };
 
-	vertexes[0].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, -radius);
-	vertexes[1].position = DirectX::SimpleMath::Vector3(radius, 0.01f, -radius);
-	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.01f, radius);
-	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.01f, radius);
+	vertexes[0].position = DirectX::SimpleMath::Vector3(-radius, 0.03f, -radius);
+	vertexes[1].position = DirectX::SimpleMath::Vector3(radius, 0.03f, -radius);
+	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.03f, radius);
+	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.03f, radius);
 
 	for (int i = 0; i < 4; ++i)
 	{

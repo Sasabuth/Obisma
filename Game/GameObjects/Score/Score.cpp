@@ -43,12 +43,16 @@ void Score::Initialize(int index)
 	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
 
+	// スコアの初期化
 	m_score = 0;
 
+	// 座標の設定
 	m_position = POSITIONS[index];
 
+	// 番号の設定
 	m_index = index;
 
+	// テクスチャの初期化
 	m_scoreTexture.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont" + std::to_wstring(index) + L".png"));
 	m_frameTexture.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame" + std::to_wstring(index) + L".png"));
 	m_faceTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Face" + std::to_wstring(index) + L".png"));
@@ -61,6 +65,7 @@ void Score::Initialize(int index)
 /// </summary>
 void Score::Render()
 {
+	// テクスチャの描画
 	m_frameTexture.Draw(m_position, DirectX::SimpleMath::Vector2::Zero, FRAME_SIZE);
 	m_faceTexture.Draw(m_position, DirectX::SimpleMath::Vector2::Zero, FACE_SIZE);
 	m_scoreTexture.DigitsDraw(m_position.x + FREAM.pos.x, m_position.y + FREAM.pos.y, FREAM.size.x, FREAM.size.y, (int)m_score, FREAM.scale);
@@ -77,10 +82,12 @@ void Score::Render()
 /// </summary>
 void Score::ScoreDown()
 {
+	// 下げるときに1だったら0にする
 	if (m_score == 1)
 	{
 		m_score = 0;
 	}
 
+	// 2を割る
 	m_score = std::ceil(m_score /= 2);
 }

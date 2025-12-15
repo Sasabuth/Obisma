@@ -24,6 +24,7 @@ class ThrowingR : public IState
 {
 // 定数
 private:
+	// アニメーション時間
 	static constexpr float ANIM_TIME = 0.58f;
 
 // 変数

@@ -17,13 +17,15 @@
 
 	"LockOn": 3.8,
 
-	"AngleLow": 30,
+	"AngleLow": 20,
 
 	"AngleMiddle": 20,
 
 	"AngleHigh": 10,
 
 	"Decay": 0.92,
+
+	"Offset": 2.5,
 
 	"HandOffsetScale": 1.015
 }

@@ -100,7 +100,7 @@ void Game::Render()
     // シーンマネージャーの描画
     m_sceneManager->Render();
 
-    //// fpsの描画
+    // fpsの描画
     float fream = m_timer.GetFramesPerSecond();
     m_debugFont->Render(L"fps", std::any(fream));
 

@@ -19,18 +19,23 @@ class AudioUI
 {
 // 定数
 private:
+	// バーの数
 	static constexpr int BAR_COUNT = 2;
 
+	// バーの座標
 	static constexpr DirectX::SimpleMath::Vector2 BAR_POSITIONS[BAR_COUNT] =
 	{
 		DirectX::SimpleMath::Vector2(600.0f, 340.0f),
 		DirectX::SimpleMath::Vector2(600.0f, 462.0f),
 	};
 
+	// バーのサイズ
 	static constexpr DirectX::SimpleMath::Vector2 BAR_SIZE = DirectX::SimpleMath::Vector2(25.0f, 40.0f);
 
+	// バーの座標の上限
 	static constexpr float BAR_MINPOS = 542.0f;
 	static constexpr float BAR_MAXPOS = 900.0f;
+
 
 // 変数
 private:

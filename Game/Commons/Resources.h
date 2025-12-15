@@ -33,8 +33,6 @@ private:
 
 
 public:
-	// フィールドモデルを取得
-	DirectX::Model* GetFieldModel() { return m_fieldModel.get(); }
 	// プレイヤーモデルの取得
 	DirectX::Model* GetPlayerModel() { return m_playerModel.get(); }
 	// 敵モデルの取得
@@ -91,7 +89,6 @@ private:
 	// コンストラクタ
 	Resources() noexcept
 		:
-		m_fieldModel{},
 		m_playerModel{},
 		m_bgmVolume{},
 		m_seVolume{}
@@ -114,8 +111,6 @@ private:
 	std::unique_ptr<DirectX::Model> m_playerModel;
 	// 敵モデル
 	std::unique_ptr<DirectX::Model> m_enemyModel;
-	// フィールドモデル
-	std::unique_ptr<DirectX::Model> m_fieldModel;
 	// 星モデル
 	std::unique_ptr<DirectX::Model> m_sterModel;
 	// スカイドーム

@@ -153,6 +153,9 @@ public:
 	// カメラの取得
 	Camera* GetCamera() { return m_pCamera; }
 
+	// フィールドの取得
+	Field* GetField() { return m_pField; }
+
 
 // ステートの取得
 public:

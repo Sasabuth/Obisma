@@ -317,17 +317,21 @@ void Standing::UpdateRotateToMouse()
 	DirectX::SimpleMath::Vector3 hitPos1;
 	DirectX::SimpleMath::Vector3 hitPos2;
 
-	auto worldMat = DirectX::SimpleMath::Matrix::CreateScale(m_pPlayer->GetField()->GetStageCollider().GetScale()) * DirectX::SimpleMath::Matrix::CreateTranslation(m_pPlayer->GetField()->GetCollider().GetPosition());
 	// 両方当たっていた場合どちらが先に当たったか調べる
 	hitPos2 = DirectX::SimpleMath::Vector3(10000);
+
+	// フィールドの三角形の数分回す
 	for (size_t i = 0; i + 2 < m_pPlayer->GetField()->GetStageCollider().GetIndicesCount(); i += 3)
 	{
+		// マウスレイと三角が当たっているかを調べる
 		DirectX::SimpleMath::Vector3 pos;
-		if (IsHit(m_pPlayer->GetMouseRay().position, m_pPlayer->GetMouseRay().direction, worldMat, m_pPlayer->GetField()->GetStageCollider(), (int)i, pos))
+		if (IsHit(m_pPlayer->GetMouseRay().position, m_pPlayer->GetMouseRay().direction, m_pPlayer->GetField()->GetStageCollider(), (int)i, pos))
 		{
+			// 前と今の当たった座標の長さを調べる
 			DirectX::SimpleMath::Vector3 d0 = m_pPlayer->GetAirTarget()->GetCamera()->GetEyePosition() - hitPos2;
 			DirectX::SimpleMath::Vector3 d1 = m_pPlayer->GetAirTarget()->GetCamera()->GetEyePosition() - pos;
 
+			// 今のほうが短かったら座標を入れる
 			if (d0.Length() > d1.Length())
 			{
 				hitPos2 = pos;
@@ -335,43 +339,58 @@ void Standing::UpdateRotateToMouse()
 		}
 	}
 
+	// 空中の的と三角形に当たっていたら
 	if (m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), hitPos1) &&
 		hitPos2 != DirectX::SimpleMath::Vector3(10000))
 	{
+		// どちらのほうが短いか調べる
 		DirectX::SimpleMath::Vector3 a;
 		DirectX::SimpleMath::Vector3 b;
 
 		a = m_pPlayer->GetMouseRay().position - hitPos1;
 		b = m_pPlayer->GetMouseRay().position - hitPos2;
 
+		// 空中の的のほうが短かったらロックオンを出す
 		if (a.Length() < b.Length())
 		{
 			m_pPlayer->SetMouseRayHitPos(m_pPlayer->GetAirTarget()->GetPosition());
+			m_pPlayer->SetIsLockOn(true);
 		}
+		// 違ったらロックオンを出さない
 		else
 		{
 			m_pPlayer->SetMouseRayHitPos(hitPos2);
+			m_pPlayer->SetIsLockOn(false);
 		}
 
 		// マウス方向に回転
 		m_pPlayer->RotateToMouse();
 	}
+	// 違ったら
 	else
 	{
-		// マウスのレイに当たっている方向に回転
+		// 空中の的に当たっていたらロックオンを出す
 		if (m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetMouseRayHitPos()))
 		{
+			m_pPlayer->SetIsLockOn(true);
+			// マウス方向に回転
 			m_pPlayer->RotateToMouse();
 		}
+		// 三角形に当たっていたらロックオンを出さない
 		else if (hitPos2 != DirectX::SimpleMath::Vector3(10000))
 		{
+			m_pPlayer->SetIsLockOn(false);
+			// マウスレイの当たった座標の設定
 			m_pPlayer->SetMouseRayHitPos(hitPos2);
+			// マウス方向に回転
 			m_pPlayer->RotateToMouse();
+			
 		}
-		// 当たっていない
+		// 当たっていない時は何もしない
 		else
 		{
 			m_pPlayer->SetMouseRayHitPos(DirectX::SimpleMath::Vector3::Zero);
+			m_pPlayer->SetIsLockOn(false);
 		}
 	}
 }

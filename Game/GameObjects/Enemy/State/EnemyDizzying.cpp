@@ -219,6 +219,12 @@ void EnemyDizzying::Finalize()
 {
 }
 
+
+
+/// <summary>
+/// 特定のイベントの処理
+/// </summary>
+/// <param name="e">イベント</param>
 void EnemyDizzying::EventHandle(Event e)
 {
 	UNREFERENCED_PARAMETER(e);

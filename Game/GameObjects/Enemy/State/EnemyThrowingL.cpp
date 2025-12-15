@@ -288,6 +288,12 @@ void EnemyThrowingL::Finalize()
 {
 }
 
+
+
+/// <summary>
+/// 特定のイベントの処理
+/// </summary>
+/// <param name="e">イベント</param>
 void EnemyThrowingL::EventHandle(Event e)
 {
 	UNREFERENCED_PARAMETER(e);

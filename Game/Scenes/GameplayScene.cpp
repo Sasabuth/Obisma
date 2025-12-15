@@ -53,7 +53,7 @@ void GameplayScene::Initialize()
 	debugFont->Initialize();
 
 	// フィールドの初期化
-	m_field = Factory::CreateField();
+	m_field = Factory::CreateField(1);
 
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
@@ -173,7 +173,7 @@ void GameplayScene::Update(float elapsedTime)
 	IsHitEntityToField(ray, m_player.get(), m_field.get());
 	IsHitEntityToField(ray2, m_enemy.get(), m_field.get());
 	IsHitEntityToField(ray4, m_cameraUp.get(), m_field.get());
-	IsHitEntityToField(ray5, m_airTarget.get(), m_field.get());
+	//IsHitEntityToField(ray5, m_airTarget.get(), m_field.get());
 
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
 	{
@@ -181,6 +181,7 @@ void GameplayScene::Update(float elapsedTime)
 
 		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
 		{
+			m_player->SetIsLockOn(false);
 			m_airTarget->ChangeState(m_airTarget->GetHitting());
 			m_scoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->ScoreUp();
 		}
@@ -268,61 +269,15 @@ void GameplayScene::Render()
 	m_ballManager->Render();
 
 	// スコアマネージャーの描画
-	/*m_scoreManager->Render();*/
-
-	/*debugFont->Render(L"Timer",m_gameTimer);*/
+	m_scoreManager->Render();
 
 	// タイマーの描画
 	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
 	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, (int)m_gameTimer, TIMER.scale);
 
-	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto view = m_pUserResources->GetView();
-	auto proj = m_pUserResources->GetProject();
-
-	std::unique_ptr<DirectX::BasicEffect> effect = std::make_unique<DirectX::BasicEffect>(device);
-
-	// バッチの作成
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> batch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
-
-	// ワールド行列
-	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_field->GetStageCollider().GetScale()) * DirectX::SimpleMath::Matrix::CreateTranslation(debugPos);
-
-	// エフェクト準備
-	effect->SetView(*view);
-	effect->SetProjection(*proj);
-	// ---- 描画 ----
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
-	{
-		void const* shaderByteCode;
-		size_t byteCodeLength;
-
-		effect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
-
-		DX::ThrowIfFailed(
-			device->CreateInputLayout(
-				DirectX::VertexPositionColor::InputElements,
-				DirectX::VertexPositionColor::InputElementCount,
-				shaderByteCode, byteCodeLength,
-				inputLayout.GetAddressOf()
-			)
-		);
-	}
-	context->IASetInputLayout(inputLayout.Get());
-	effect->Apply(context);
-
-	// PrimitiveBatch を使って描画
-	batch->Begin();
-
-	DX::DrawRay(batch.get(), debugPos, DirectX::SimpleMath::Vector3::UnitY, false, DirectX::Colors::Red);
-
-	batch->End();
-	
-
 	// デバック用
 	// カメラの上向きベクトルの描画
-	m_cameraUp->Render();
+	/*m_cameraUp->Render();*/
 
 	
 }
@@ -399,51 +354,101 @@ void GameplayScene::IsHitEntityToField(IEntity* pIEntity, Field* pField)
 	}
 }
 
+
+
+/// <summary>
+/// 実体とフィールドが当たっていたら
+/// </summary>
+/// <param name="ray">レイ</param>
+/// <param name="pIEntity">実体</param>
+/// <param name="pField">フィールド</param>
 void GameplayScene::IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pIEntity, Field* pField)
 {
-	auto worldB = DirectX::SimpleMath::Matrix::CreateScale(pField->GetStageCollider().GetScale()) * DirectX::SimpleMath::Matrix::CreateTranslation(pField->GetStageCollider().GetPosition());
-
-
+	// 座標
 	DirectX::SimpleMath::Vector3 pos;
+	// 方向ベクトル
 	DirectX::SimpleMath::Vector3 vector;
-	
+	// 当たったか
 	bool isHit = false;
+
+
+	// 三角形の数分for文で回す
 	for (size_t i = 0; i + 2 < pField->GetStageCollider().GetIndicesCount(); i += 3)
 	{
-		DirectX::SimpleMath::Vector3 pos1;
-		if (IsHit(ray.position, ray.direction, worldB, pField->GetStageCollider(), (int)i, pos1))
+		// ワールド座標
+		DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(pField->GetStageCollider().GetScale()) * 
+			DirectX::SimpleMath::Matrix::CreateTranslation(pField->GetStageCollider().GetPosition());
+
+		// 三角形の点のワールド座標を取得
+		DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i)).position, world);
+		DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i + 1)).position, world);
+		DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i + 2)).position, world);
+
+		// 三角形の中心から遠かったら当たってないことにする
+		DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
+		float length = (ray.position - center).Length();
+		if (length > 5.0f)
 		{
+			continue;
+		}
+
+		// 当たった座標
+		DirectX::SimpleMath::Vector3 pos1;
+		//// レイと三角形が当たっているか
+		if (IsHit(ray.position, ray.direction, pField->GetStageCollider(), (int)i, pos1))
+		{
+			// 前と後に当たった座標の距離を求める
 			DirectX::SimpleMath::Vector3 d0 = pIEntity->GetPosition() - pos;
 			DirectX::SimpleMath::Vector3 d1 = pIEntity->GetPosition() - pos1;
 
+			// 後に当たったほうが近かったら
 			if (d0.Length() > d1.Length() )
 			{
+				// 後の座標を入れる
 				pos = pos1;
+
+				// 三角形の法線ベクトルを入れる
 				vector = DirectX::SimpleMath::Vector3::Lerp(
 					-pIEntity->GetGravity(),
 					pField->GetStageCollider().GetNormalVector((int)i),
 					0.3f
 				);
+
+				m_debugIndex = (int)i;
 			}
 		}
 
+		// 球体コライダーと三角形が当たっているか
 		if (IsHit(pIEntity->GetCollider(), pField->GetStageCollider(), (int)i) && !isHit)
 		{
+			// 当たっている
 			isHit = true;
 		}
 	}
 
+	// 法線ベクトルがあったら
 	if (vector.Length() >= 0.00001f)
 	{
+		// 重力の設定
 		pIEntity->SetGravity(pField->CorrectUp(pIEntity, vector));
+		// 影の座標を当たった座標にする
 		pIEntity->SetShadowHitPos(pos);
 	}
+	else
+	{
+		// 重力の設定
+		pIEntity->SetGravity(pField->CorrectUp(pIEntity));
+	}
 
+	// コライダーが当たっていたら
 	if (isHit)
 	{
+		// 押し出しをする
 		pIEntity->CorrectOverlap(pos);
 	}
 }
+
+
 
 /// <summary>
 /// リスナーの設定

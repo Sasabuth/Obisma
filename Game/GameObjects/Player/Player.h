@@ -43,13 +43,11 @@ public:
 		LEFT,
 	};
 
+	// ベースの画面サイズ
 	static constexpr float BASE_WIDTH = 1280.0f;
 	static constexpr float BASE_HEIGHT = 720.0f;
 
-	static constexpr float MIN_AIRPOS = 12.0f;
-
-	static constexpr float LOCKON_HEIGHT_RATE = 0.177f;
-
+	// ロックオン
 	static constexpr Sprite::Format LOCKON =
 	{
 		DirectX::SimpleMath::Vector2(-1.0f, -1.0f),      // 使わない
@@ -126,6 +124,9 @@ private:
 
 	// 無敵時間
 	float m_invincibleTime;
+
+	// ロックオンを出すか
+	bool m_isLockOn;
 
 	// SE
 	std::unique_ptr<DirectX::SoundEffectInstance> m_se;
@@ -260,6 +261,9 @@ public:
 
 	// スコア
 	Score* GetScore() { return m_score.get(); }
+
+	// ロックオンを出すか
+	void SetIsLockOn(bool isLockOn) { m_isLockOn = isLockOn; }
 
 
 // ステートの取得

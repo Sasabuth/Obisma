@@ -247,6 +247,12 @@ void EnemyStanding::Finalize()
 {
 }
 
+
+
+/// <summary>
+/// 特定のイベントの処理
+/// </summary>
+/// <param name="e">イベント</param>
 void EnemyStanding::EventHandle(Event e)
 {
 	UNREFERENCED_PARAMETER(e);
