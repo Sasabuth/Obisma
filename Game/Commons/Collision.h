@@ -312,6 +312,7 @@ bool IsHit(const SphereCollider& sphere, const ModelCollider& model, int index);
 bool IsHit(
 	const DirectX::SimpleMath::Vector3& rayOrigin,
 	const DirectX::SimpleMath::Vector3& rayDir,
+	const DirectX::SimpleMath::Matrix& world,
 	const ModelCollider& model,
 	int index,
 	DirectX::SimpleMath::Vector3& outHitPoint

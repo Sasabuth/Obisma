@@ -315,7 +315,7 @@ void EnemyRunning::RunToBall()
 	m_pEnemy->SetRotation(m_pEnemy->GetRotation() * q);
 
 	// 速度の設定
-	m_pEnemy->SetVelocity(m_pEnemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation()) * Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySpeed"]);
+	m_pEnemy->SetVelocity(m_pEnemy->GetVelocity() + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation()) * Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySpeed"]);
 }
 
 
@@ -370,7 +370,7 @@ void EnemyRunning::RunToEntity()
 		m_pEnemy->SetRotation(m_pEnemy->GetRotation() * q);
 
 		// 速度の設定
-		m_pEnemy->SetVelocity(m_pEnemy->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation())
+		m_pEnemy->SetVelocity(m_pEnemy->GetVelocity() + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation())
 			* Resources::GetInstance()->GetJson(L"Enemy.json")["EnemySpeed"]
 		);
 	}

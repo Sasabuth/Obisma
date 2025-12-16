@@ -145,3 +145,41 @@ void ParticleUtility::CorrectOverlap(Field& field)
 }
 
 
+
+/// <summary>
+/// 重なりの補填
+/// </summary>
+/// <param name="pos">座標</param>
+void ParticleUtility::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
+{
+	// 差分を求める
+	DirectX::SimpleMath::Vector3 delta = m_position - pos;
+
+	// 長さを求める
+	float distance = delta.Length();
+	float r = m_collider.GetRadius();
+
+	// 差分を求める
+	float pushLength = r - distance;
+
+	// 正規化
+	delta.Normalize();
+
+	// 押し出しする
+	m_position += delta * pushLength;
+
+	// 法線ベクトル
+	DirectX::SimpleMath::Vector3 normalVec = m_accele * -1.0f;
+	normalVec.Normalize();
+
+	// 反射ベクトル
+	DirectX::SimpleMath::Vector3 reflVec = m_velocity - 2.0f * (m_velocity.Dot(normalVec)) * normalVec;
+
+	// 摩擦
+	reflVec *= 0.6f;
+
+	// 速度の設定
+	m_velocity = reflVec;
+}
+
+

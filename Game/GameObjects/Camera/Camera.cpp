@@ -27,13 +27,8 @@ Camera::Camera(int windowWidth, int windowHeight)
 
 
 
-void Camera::Update()
+void Camera::Update(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector3 eye)
 {
-	// プレイヤー位置
-	DirectX::SimpleMath::Vector3 pos = DirectX::SimpleMath::Vector3{ 5,2,0 };
-
-	DirectX::SimpleMath::Vector3 eye = DirectX::SimpleMath::Vector3{ 5,2,-10 };
-
 	// 世界Y軸
 	DirectX::SimpleMath::Vector3 up = DirectX::SimpleMath::Vector3::Up;
 

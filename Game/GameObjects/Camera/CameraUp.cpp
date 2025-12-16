@@ -107,7 +107,7 @@ void CameraUp::Update(float elapsedTime)
 
 	DirectX::SimpleMath::Vector3 dis = m_position - m_pPlayer->GetPosition();
 
-	if (dis.Length() >= 4.0f)
+	if (dis.Length() >= 4.2f)
 	{
 		m_velocity += DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_rotate) * 3;
 	}
@@ -164,7 +164,7 @@ void CameraUp::Render()
 	//// デバックフォントの描画
 	//auto* debugFont = m_pUserResources->GetDebugFont();
 
-	//// デバック用
+	// デバック用
 	m_collider.Draw(states, *view, *proj);
 
 	//debugFont->Render(L"Position", m_position);

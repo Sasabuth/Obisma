@@ -61,7 +61,7 @@ public:
 	Camera(int windowWidth, int windowHeight);
 
 	// カメラの更新
-	void Update();
+	void Update(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector3 eye);
 	void Update(Player* pPlayer, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field);
 
 	// デバック用

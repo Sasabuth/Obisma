@@ -23,7 +23,7 @@ class Moving : public IState
 {
 private:
 	// Œ¸‘¬—¦
-	static constexpr float DECELERATIONRATE = 0.999f;
+	static constexpr float DECELERATIONRATE = 0.998f;
 
 	// ’âŽ~‚·‚é‘¬“x
 	static constexpr float STOP_SPEED = 0.05f;

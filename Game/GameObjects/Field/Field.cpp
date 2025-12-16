@@ -34,10 +34,11 @@ Field::~Field()
 }
 
 
+
 /// <summary>
 /// 初期化処理
 /// </summary>
-void Field::Initialize(int stageIndex)
+void Field::Initialize(int stageIndex, bool isSkyDome)
 {
 	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
@@ -64,7 +65,11 @@ void Field::Initialize(int stageIndex)
 		}
 	);
 
-	m_skydomeModel = Resources::GetInstance()->GetSkydome();
+	if (isSkyDome)
+	{
+		m_skydomeModel = Resources::GetInstance()->GetSkydome();
+	}
+
 
 	// 座標の初期化
 	m_position = DirectX::SimpleMath::Vector3{ 0.0f,0.0f,0.0f };
@@ -89,6 +94,9 @@ void Field::Update(float elapsedTime)
 
 	// コライダーの設定
 	m_collider.SetPosition(m_position);
+
+	// ステージコライダーの設定
+	m_stageCollider.SetPosition(m_position);
 }
 
 
@@ -107,14 +115,18 @@ void Field::Render()
 	auto proj = m_pUserResources->GetProject();
 
 	// ワールド座標
-	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate)) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position) * DirectX::SimpleMath::Matrix::CreateScale(MODEL_SCALE);
+	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(MODEL_SCALE) * DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate)) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position);
 
 	// モデルの描画
 	m_model->Draw(context, *states, world, *view, *proj);
 
 	// スカイドームの描画
-	DirectX::SimpleMath::Matrix sWorld = DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate / 4)) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position) * DirectX::SimpleMath::Matrix::CreateScale(SKYDOME_SCALE);
-	m_skydomeModel->Draw(context, *states, sWorld, *view, *proj);
+	if (m_skydomeModel)
+	{
+		DirectX::SimpleMath::Matrix sWorld = DirectX::SimpleMath::Matrix::CreateScale(SKYDOME_SCALE)* DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate / 4)) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position) ;
+		m_skydomeModel->Draw(context, *states, sWorld, *view, *proj);
+	}
+	
 
 	// デバック
 	/*m_stageCollider.Draw(context, *view, *proj);*/

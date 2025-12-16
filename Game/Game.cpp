@@ -101,7 +101,7 @@ void Game::Render()
     m_sceneManager->Render();
 
     // fps‚Ì•`‰æ
-    float fream = m_timer.GetFramesPerSecond();
+    float fream = (float)m_timer.GetFramesPerSecond();
     m_debugFont->Render(L"fps", std::any(fream));
 
     m_deviceResources->PIXEndEvent();

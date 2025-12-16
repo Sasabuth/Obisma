@@ -53,7 +53,7 @@ void GameplayScene::Initialize()
 	debugFont->Initialize();
 
 	// フィールドの初期化
-	m_field = Factory::CreateField(1);
+	m_field = Factory::CreateField(Resources::GetInstance()->GetJson(L"FieldSelect.json")["FieldIndex"]);
 
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
@@ -65,7 +65,6 @@ void GameplayScene::Initialize()
 	{
 		m_ballManager->GetBall(i)->SetGravity(m_field->CorrectUp(m_ballManager->GetBall(i)));
 	}
-
 
 	// 空中の的の初期化
 	m_airTarget = Factory::CreateAirTarget(m_field.get(), m_camera.get(), DirectX::SimpleMath::Vector3{
@@ -187,26 +186,6 @@ void GameplayScene::Update(float elapsedTime)
 		}
 	}
 
-	// 前の当たり判定
-	/*IsHitEntityToField(m_player.get(), m_field.get());*/
-	/*IsHitEntityToField(m_enemy.get(), m_field.get());*/
-
-	//IsHitEntityToField(m_cameraUp.get(), m_field.get());
-	//IsHitEntityToField(m_airTarget.get(), m_field.get());
-
-	
-
-	//for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
-	//{
-	//	IsHitEntityToField(m_ballManager->GetBall(i), m_field.get());
-
-	//	if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
-	//	{
-	//		m_airTarget->ChangeState(m_airTarget->GetHitting());
-	//		m_scoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->ScoreUp();
-	//	}
-	//}
-
 	// ゲーム時間の更新
 	m_gameTimer -= elapsedTime;
 
@@ -269,7 +248,7 @@ void GameplayScene::Render()
 	m_ballManager->Render();
 
 	// スコアマネージャーの描画
-	m_scoreManager->Render();
+	/*m_scoreManager->Render();*/
 
 	// タイマーの描画
 	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
@@ -278,8 +257,6 @@ void GameplayScene::Render()
 	// デバック用
 	// カメラの上向きベクトルの描画
 	/*m_cameraUp->Render();*/
-
-	
 }
 
 
@@ -371,14 +348,13 @@ void GameplayScene::IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pI
 	// 当たったか
 	bool isHit = false;
 
+	// ワールド座標
+	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(pField->GetStageCollider().GetScale()) *
+		DirectX::SimpleMath::Matrix::CreateTranslation(pField->GetStageCollider().GetPosition());
 
 	// 三角形の数分for文で回す
 	for (size_t i = 0; i + 2 < pField->GetStageCollider().GetIndicesCount(); i += 3)
 	{
-		// ワールド座標
-		DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(pField->GetStageCollider().GetScale()) * 
-			DirectX::SimpleMath::Matrix::CreateTranslation(pField->GetStageCollider().GetPosition());
-
 		// 三角形の点のワールド座標を取得
 		DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i)).position, world);
 		DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i + 1)).position, world);
@@ -394,8 +370,8 @@ void GameplayScene::IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pI
 
 		// 当たった座標
 		DirectX::SimpleMath::Vector3 pos1;
-		//// レイと三角形が当たっているか
-		if (IsHit(ray.position, ray.direction, pField->GetStageCollider(), (int)i, pos1))
+		// レイと三角形が当たっているか
+		if (IsHit(ray.position, ray.direction, world, pField->GetStageCollider(), (int)i, pos1))
 		{
 			// 前と後に当たった座標の距離を求める
 			DirectX::SimpleMath::Vector3 d0 = pIEntity->GetPosition() - pos;
@@ -413,8 +389,6 @@ void GameplayScene::IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pI
 					pField->GetStageCollider().GetNormalVector((int)i),
 					0.3f
 				);
-
-				m_debugIndex = (int)i;
 			}
 		}
 
@@ -525,7 +499,6 @@ void GameplayScene::SetPlayerInputState()
 	{
 		e.push_back(IState::Event::THROW);
 	}
-	
 
 	// 何もなかったら立ち状態にする
 	if (e.size() == 0)

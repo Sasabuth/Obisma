@@ -465,9 +465,9 @@ void TutorialScene::Tutorial(float elapsedTime)
 			m_interval = 0.0f;
 
 			m_ballManager->GetBall(0)->SetPosition(DirectX::SimpleMath::Vector3{
-				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["x"],
-				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["y"],
-				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["z"]
+				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["0"]["x"],
+				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["0"]["y"],
+				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["0"]["z"]
 				}
 			);
 		}
@@ -483,9 +483,9 @@ void TutorialScene::Tutorial(float elapsedTime)
 		if (m_player->GetCatchBall(Player::HAND::RIGHT) && !m_player->GetCatchBall(Player::HAND::LEFT) && !isRightBall)
 		{
 			m_ballManager->GetBall(1)->SetPosition(DirectX::SimpleMath::Vector3{
-					m_pResources->GetJson(L"Ball.json")["Position"]["1"]["x"],
-					m_pResources->GetJson(L"Ball.json")["Position"]["1"]["y"],
-					m_pResources->GetJson(L"Ball.json")["Position"]["1"]["z"]
+					m_pResources->GetJson(L"Ball.json")["Position"]["0"]["1"]["x"],
+					m_pResources->GetJson(L"Ball.json")["Position"]["0"]["1"]["y"],
+					m_pResources->GetJson(L"Ball.json")["Position"]["0"]["1"]["z"]
 				}
 			);
 
@@ -623,7 +623,7 @@ void TutorialScene::Tutorial(float elapsedTime)
 	}
 	break;
 
-	// ボールを投げる
+	// ボールをキャッチ
 	case TutorialScene::BALL_CATCH:
 	{
 		// 当たったかの判定
@@ -637,7 +637,7 @@ void TutorialScene::Tutorial(float elapsedTime)
 		else
 		{
 			// 敵のボールに当たったら当たった判定をつける
-			if (m_isCheck && IsHit(m_ballManager->GetBall(0)->GetCollider(), m_player->GetCollider()) && m_ballManager->GetBall(0)->GetCurrentState() == m_ballManager->GetBall(0)->GetMoving())
+			if (IsHit(m_ballManager->GetBall(0)->GetCollider(), m_player->GetCollider()) && m_ballManager->GetBall(0)->GetCurrentState() == m_ballManager->GetBall(0)->GetMoving())
 			{
 				isHit = true;
 			}
@@ -664,11 +664,11 @@ void TutorialScene::Tutorial(float elapsedTime)
 				return;
 			}
 
-			m_isCheck = false;
+			/*m_isCheck = false;
 			m_tutorialIndex = BALL_CATCH;
 			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
 			m_interval = 0.0f;
-			m_explainTexture.SetTexture(nullptr);
+			m_explainTexture.SetTexture(nullptr);*/
 
 			// タイトルシーンに戻す
 			ChangeScene<TitleScene>();

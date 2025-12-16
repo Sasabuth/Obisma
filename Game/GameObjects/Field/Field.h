@@ -54,7 +54,7 @@ public:
 	~Field();
 
 	// 初期化
-	void Initialize(int stageIndex);
+	void Initialize(int stageIndex, bool isSkyDome);
 
 	// 更新
 	void Update(float elapsedTime);
@@ -72,6 +72,10 @@ public:
 
 // 設定/取得
 public:
+	// 座標
+	void SetPosition(DirectX::SimpleMath::Vector3 pos) { m_position = pos; }  // 設定
+	const DirectX::SimpleMath::Vector3& GetPosition() { return m_position; }  // 取得
+
 	// コライダーの取得
 	SphereCollider& GetCollider();
 

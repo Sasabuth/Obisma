@@ -47,16 +47,34 @@ void TitleScene::Initialize()
 	m_titleTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Title.png"));
 
 	// フィールドの初期化
-	m_field = Factory::CreateField(1);
+	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
+	{
+		if (i == 0)
+		{
+			m_field[i] = Factory::CreateField(i);
+		}
+		else
+		{
+			m_field[i] = Factory::CreateField(i, false);
+		}
+	}
+	
+	m_field[1]->SetPosition(DirectX::SimpleMath::Vector3(-20, 0, 0));
 
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
+	m_position = DirectX::SimpleMath::Vector3(5, 2, 0);
+	m_eyePosition = DirectX::SimpleMath::Vector3(5, 2, -10);
 
 	// オーディオUIの初期化
 	m_audioUI.Initialize();
 
+	// フィールドUIの初期化
+	m_fieldSelectUI.Initialize(this);
+
 	// メニューUIの初期化
-	m_menuUI.Initialize(this);
+	m_menuUI.Initialize(this, &m_fieldSelectUI);
+
 
 	// BGMの初期化
 	m_bgm = Resources::GetInstance()->GetBGMSound(L"TitleBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
@@ -111,10 +129,22 @@ void TitleScene::Update(float elapsedTime)
 	{
 		m_audioUI.Update(m_collider);
 	}
+	// フィールド選択UIの更新
+	else if (m_fieldSelectUI.IsOpen())
+	{
+		m_fieldSelectUI.Update(m_collider);
+
+		m_position = m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition();
+		m_eyePosition = DirectX::SimpleMath::Vector3(m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition().x, m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition().y, -10);
+
+	}
 	// メニューUIの更新
 	else if (m_menuUI.IsOpen())
 	{
 		m_menuUI.Update(m_collider);
+
+		m_position = DirectX::SimpleMath::Vector3(5, 2, 0);
+		m_eyePosition = DirectX::SimpleMath::Vector3(5, 2, -10);
 	}
 	// タイトルの更新
 	else
@@ -133,13 +163,16 @@ void TitleScene::Update(float elapsedTime)
 	}
 
 	// カメラの更新
-	m_camera->Update();
+	m_camera->Update(m_position, m_eyePosition);
 
 	// フィールドの更新
-	m_field->Update(elapsedTime);
-	static float rotate = 0.0f;
-	rotate += 30.0f * elapsedTime;
-	m_field->SetRotate(rotate);
+	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
+	{
+		m_field[i]->Update(elapsedTime);
+		static float rotate = 0.0f;
+		rotate += 30.0f * elapsedTime;
+		m_field[i]->SetRotate(rotate);
+	}
 
 	// BGMの音量の設定
 	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
@@ -153,12 +186,20 @@ void TitleScene::Update(float elapsedTime)
 void TitleScene::Render()
 {
 	// フィールドの描画
-	m_field->Render();
+	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
+	{
+		m_field[i]->Render();
+	}
 	
 	// オーディオUIの描画
 	if (m_audioUI.IsOpen())
 	{
 		m_audioUI.Draw(m_collider);
+	}
+	// フィールド選択UIの更新
+	else if (m_fieldSelectUI.IsOpen())
+	{
+		m_fieldSelectUI.Draw(m_collider);
 	}
 	// メニューUIの描画
 	else if (m_menuUI.IsOpen())
@@ -201,7 +242,15 @@ void TitleScene::Render()
 void TitleScene::Finalize()
 {
 	// フィールドの終了
-	m_field->Finalize();
+	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
+	{
+		m_field[i]->Finalize();
+	}
+
+	// UIの終了
+	m_audioUI.Finalize();
+	m_menuUI.Finalize();
+	m_fieldSelectUI.Finalize();
 }
 
 

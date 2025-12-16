@@ -231,6 +231,7 @@
     <ClInclude Include="Game\GameObjects\Score\ScoreManager.h" />
     <ClInclude Include="Game\GameObjects\Tutorial\Arrow.h" />
     <ClInclude Include="Game\GameObjects\UI\AudioUI.h" />
+    <ClInclude Include="Game\GameObjects\UI\FieldSelectUI.h" />
     <ClInclude Include="Game\GameObjects\UI\MenuUI.h" />
     <ClInclude Include="Game\Scenes\GameplayScene.h" />
     <ClInclude Include="Game\Scenes\ResultScene.h" />
@@ -286,6 +287,7 @@
     <ClCompile Include="Game\GameObjects\Score\ScoreManager.cpp" />
     <ClCompile Include="Game\GameObjects\Tutorial\Arrow.cpp" />
     <ClCompile Include="Game\GameObjects\UI\AudioUI.cpp" />
+    <ClCompile Include="Game\GameObjects\UI\FieldSelectUI.cpp" />
     <ClCompile Include="Game\GameObjects\UI\MenuUI.cpp" />
     <ClCompile Include="Game\Scenes\GameplayScene.cpp" />
     <ClCompile Include="Game\Scenes\ResultScene.cpp" />
@@ -314,6 +316,7 @@
     <None Include="Resources\Jsons\AudioUI.json" />
     <None Include="Resources\Jsons\Ball.json" />
     <None Include="Resources\Jsons\Enemy.json" />
+    <None Include="Resources\Jsons\FieldSelect.json" />
     <None Include="Resources\Jsons\Player.json" />
     <None Include="Shaders\Particle.hlsli" />
   </ItemGroup>

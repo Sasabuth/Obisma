@@ -16,6 +16,7 @@
 
 // クラスの定義
 class Scene;
+class FieldSelectUI;
 
 
 // クラスの定義
@@ -80,7 +81,7 @@ public:
 	~MenuUI();
 
 	// 初期化
-	void Initialize(Scene* pScene);
+	void Initialize(Scene* pScene, FieldSelectUI* fieldSelectUI);
 
 	// 更新
 	void Update(const BoxCollider2D& collider);

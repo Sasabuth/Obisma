@@ -18,6 +18,7 @@
 #include "Game/GameObjects/Button/Button.h"
 #include "Game/GameObjects/UI/AudioUI.h"
 #include "Game/GameObjects/UI/MenuUI.h"
+#include "Game/GameObjects/UI/FieldSelectUI.h"
 
 
 // クラスの定義
@@ -66,15 +67,20 @@ private:
 
 	// カメラ
 	std::unique_ptr<Camera> m_camera;
+	DirectX::SimpleMath::Vector3 m_position;
+	DirectX::SimpleMath::Vector3 m_eyePosition;
 
 	// フィールド
-	std::unique_ptr<Field> m_field;
+	std::unique_ptr<Field> m_field[FieldSelectUI::MAXSTAGE_COUNT];
 
 	// オーディオUI
 	AudioUI m_audioUI;
 
 	// メニューUI
 	MenuUI m_menuUI;
+
+	// フィールド選択UI
+	FieldSelectUI m_fieldSelectUI;
 
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;

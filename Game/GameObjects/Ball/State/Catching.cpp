@@ -126,11 +126,11 @@ void Catching::Render()
 	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_ball->GetRotation());
 	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_ball->GetRotation());
 
-	m_primitiveBatch->Begin();
+	/*m_primitiveBatch->Begin();
 	DX::DrawRay(m_primitiveBatch.get(), m_ball->GetPosition(), forward, false, DirectX::Colors::Yellow);
 	DX::DrawRay(m_primitiveBatch.get(), m_ball->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_ball->GetPosition(), vertical, false, DirectX::Colors::Green);
-	m_primitiveBatch->End();
+	m_primitiveBatch->End();*/
 
 	// デバックフォントの描画
 	//auto* debugFont = m_pUserResources->GetDebugFont();

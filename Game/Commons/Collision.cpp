@@ -757,12 +757,12 @@ bool IsHit(const SphereCollider& sphere, const ModelCollider& model, int index)
 	DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(model.GetVertices(model.GetIndices(index + 2)).position, world);
 
 	// 距離が長いとfalseにする
-	/*DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
+	DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
 
-	if ((sphereCenter - center).Length() >= 1.0f)
+	if ((sphereCenter - center).Length() >= 5.0f)
 	{
 		return false;
-	}*/
+	}
 
 
 	// 法線
@@ -818,23 +818,12 @@ bool IsHit(const SphereCollider& sphere, const ModelCollider& model, int index)
 	return false;
 }
 
-bool IsHit(const DirectX::SimpleMath::Vector3& rayOrigin, const DirectX::SimpleMath::Vector3& rayDir, const ModelCollider& model, int index, DirectX::SimpleMath::Vector3& outHitPoint)
+bool IsHit(const DirectX::SimpleMath::Vector3& rayOrigin, const DirectX::SimpleMath::Vector3& rayDir, const DirectX::SimpleMath::Matrix& world, const ModelCollider& model, int index, DirectX::SimpleMath::Vector3& outHitPoint)
 {
-	// ワールド座標
-	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(model.GetScale()) * DirectX::SimpleMath::Matrix::CreateTranslation(model.GetPosition());
-
 	// 三角形の点のワールド座標を取得
 	DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(model.GetVertices(model.GetIndices(index)).position, world);
 	DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(model.GetVertices(model.GetIndices(index + 1)).position, world);
 	DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(model.GetVertices(model.GetIndices(index + 2)).position, world);
-
-	/*DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
-	float length = (rayOrigin - center).Length();
-
-	if (length >= 5.0f)
-	{
-		return false;
-	}*/
 
 	// 二つの辺を求める
 	DirectX::SimpleMath::Vector3 edge1 = p1 - p0;

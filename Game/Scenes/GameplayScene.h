@@ -25,7 +25,7 @@
 // ƒNƒ‰ƒX‚Ì’è‹`
 class GameplayScene : public Scene
 {
-	// ’è”
+// ’è”
 private:
 	static constexpr float MAX_TIME = 100.0f;
 	static constexpr int PLAYER_COUNT = 2;
@@ -86,8 +86,6 @@ private:
 
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
-
-	int m_debugIndex;
 
 
 // ŠÖ”

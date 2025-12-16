@@ -192,7 +192,7 @@ void Running::Render()
 	/*DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), forward, false, DirectX::Colors::Blue);
 	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), vertical, false, DirectX::Colors::Green);*/
-	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), -vertical, false, DirectX::Colors::Green);
+	/*DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), -vertical, false, DirectX::Colors::Green);*/
 	m_primitiveBatch->End();
 
 	// デバック
@@ -236,7 +236,7 @@ void Running::EventHandle(Event e)
 		UpdateRotateToMouse();
 
 		// 向いている方向に走る
-		m_pPlayer->SetVelocity(m_pPlayer->GetVelocity() - DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation()) *
+		m_pPlayer->SetVelocity(m_pPlayer->GetVelocity() + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation()) *
 			Resources::GetInstance()->GetJson(L"Player.json")["PlayerSpeed"]
 		);
 		break;
@@ -323,12 +323,16 @@ void Running::UpdateRotateToMouse()
 	// 両方当たっていた場合どちらが先に当たったか調べる
 	hitPos2 = DirectX::SimpleMath::Vector3(10000);
 
+	// ワールド座標
+	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_pPlayer->GetField()->GetStageCollider().GetScale()) *
+		DirectX::SimpleMath::Matrix::CreateTranslation(m_pPlayer->GetField()->GetStageCollider().GetPosition());
+
 	// フィールドの三角形の数分回す
 	for (size_t i = 0; i + 2 < m_pPlayer->GetField()->GetStageCollider().GetIndicesCount(); i += 3)
 	{
 		// マウスレイと三角が当たっているかを調べる
 		DirectX::SimpleMath::Vector3 pos;
-		if (IsHit(m_pPlayer->GetMouseRay().position, m_pPlayer->GetMouseRay().direction, m_pPlayer->GetField()->GetStageCollider(), (int)i, pos))
+		if (IsHit(m_pPlayer->GetMouseRay().position, m_pPlayer->GetMouseRay().direction, world, m_pPlayer->GetField()->GetStageCollider(), (int)i, pos))
 		{
 			// 前と今の当たった座標の長さを調べる
 			DirectX::SimpleMath::Vector3 d0 = m_pPlayer->GetAirTarget()->GetCamera()->GetEyePosition() - hitPos2;

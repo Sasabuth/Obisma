@@ -49,14 +49,14 @@ std::unique_ptr<CameraUp> Factory::CreateCameraUp(Player* pPlayer, const DirectX
 	return std::move(cameraUp);
 }
 
-std::unique_ptr<Field> Factory::CreateField(int stageIndex)
+std::unique_ptr<Field> Factory::CreateField(int stageIndex, bool isSkyDome)
 {
 	// フィールドの宣言
 	std::unique_ptr<Field> field;
 	// フィールドの生成
 	field = std::make_unique<Field>();
 	// フィールドの初期化
-	field->Initialize(stageIndex);
+	field->Initialize(stageIndex, isSkyDome);
 	// フィールドを返す
 	return std::move(field);
 }

@@ -71,6 +71,7 @@ public:
 
 	// d‚È‚è‚Ì•â“U
 	void CorrectOverlap(Field& field);
+	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos);
 
 
 // İ’è/æ“¾

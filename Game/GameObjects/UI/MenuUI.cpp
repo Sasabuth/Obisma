@@ -15,6 +15,7 @@
 #include "Game/Commons/SceneManager.h"
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/Scenes/TutorialScene.h"
+#include "Game/GameObjects/UI/FieldSelectUI.h"
 
 
 /// <summary>
@@ -41,7 +42,7 @@ MenuUI::~MenuUI()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void MenuUI::Initialize(Scene* pScene)
+void MenuUI::Initialize(Scene* pScene, FieldSelectUI* fieldSelectUI)
 {
 	// ユーザーリソースの設定
 	m_pUserResources = UserResources::GetUserResource();
@@ -52,7 +53,7 @@ void MenuUI::Initialize(Scene* pScene)
 	// ボタンの初期化
 	m_button[0].SetTexture(Resources::GetInstance()->GetTexture(L"RealPerformance.png"));
 	// ゲームプレイシーンに変更
-	m_button[0].SetFunc([this]() { m_pScene->ChangeScene<GameplayScene>(); });
+	m_button[0].SetFunc([=]() { fieldSelectUI->Click(); });
 
 	// ボタンの初期化
 	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Practice.png"));

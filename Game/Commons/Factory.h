@@ -56,7 +56,7 @@ public:
 	);
 
 	// フィールド生成する
-	static std::unique_ptr<Field> CreateField(int stageIndex);
+	static std::unique_ptr<Field> CreateField(int stageIndex, bool isSkyDome = true);
 
 	// ボールを生成する
 	static std::unique_ptr<Ball> CreateBall(

@@ -93,6 +93,7 @@ public:
 
 	// “–‚½‚è”»’è
 	void HandleFieldCollision(Field& field);
+	void HandleStageCollision(Field& field);
 
 	void ColliderDraw(DirectX::CommonStates* states, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj);
 

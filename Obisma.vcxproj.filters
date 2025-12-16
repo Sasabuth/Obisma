@@ -242,6 +242,9 @@
     <ClInclude Include="Game\GameObjects\Particle\ParticleUtility.h">
       <Filter>Game\GameObjects\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\UI\FieldSelectUI.h">
+      <Filter>Game\GameObjects\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -393,6 +396,9 @@
     <ClCompile Include="Game\GameObjects\Particle\ParticleUtility.cpp">
       <Filter>Game\GameObjects\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="Game\GameObjects\UI\FieldSelectUI.cpp">
+      <Filter>Game\GameObjects\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -426,6 +432,9 @@
     </None>
     <None Include="Shaders\Particle.hlsli">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="Resources\Jsons\FieldSelect.json">
+      <Filter>Resources\Jsons</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
