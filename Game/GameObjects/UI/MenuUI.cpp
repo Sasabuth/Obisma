@@ -58,7 +58,16 @@ void MenuUI::Initialize(Scene* pScene, FieldSelectUI* fieldSelectUI)
 	// ボタンの初期化
 	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Practice.png"));
 	// チュートリアルシーンに変更
-	m_button[1].SetFunc([this]() { m_pScene->ChangeScene<TutorialScene>(); });
+	m_button[1].SetFunc([this]()
+		{
+			auto transitionMask = m_pUserResources->GetTransitionMask();
+			// フェードアウトする
+			if (transitionMask->IsOpen())
+			{
+				transitionMask->Close();
+			}
+		}
+	);
 
 	// ボタンの初期化
 	m_button[2].SetTexture(Resources::GetInstance()->GetTexture(L"BackButton.png"));

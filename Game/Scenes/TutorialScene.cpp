@@ -143,6 +143,10 @@ void TutorialScene::Initialize()
 
 	// プレイ人数を初期化
 	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
+
+	// フェードをオープンする
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	transitionMask->Open();
 }
 
 
@@ -211,22 +215,12 @@ void TutorialScene::Update(float elapsedTime)
 		}
 	}
 
-	//// 0になったら終了
-	//if (m_gameTimer <= 0.0f)
-	//{
-	//	// ゲーム時間を戻す
-	//	m_gameTimer = MAX_TIME;
-
-	//	// ランキングの更新
-	//	m_scoreManager->SortRank();
-	//	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
-	//	{
-	//		GetSceneManager()->SetRank(i, m_scoreManager->GetRank(i));
-	//	}
-
-	//	// シーンの変更
-	//	ChangeScene<TitleScene>();
-	//}
+	// チュートリアルシーンに変更
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	if (transitionMask->IsClose() && transitionMask->IsEnd())
+	{
+		ChangeScene<TitleScene>();
+	}
 
 	// BGMの音量の設定
 	m_bgm->SetVolume(m_pResources->GetBGMVolume());
@@ -664,14 +658,12 @@ void TutorialScene::Tutorial(float elapsedTime)
 				return;
 			}
 
-			/*m_isCheck = false;
-			m_tutorialIndex = BALL_CATCH;
-			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
-			m_interval = 0.0f;
-			m_explainTexture.SetTexture(nullptr);*/
-
-			// タイトルシーンに戻す
-			ChangeScene<TitleScene>();
+			auto transitionMask = m_pUserResources->GetTransitionMask();
+			// フェードアウトする
+			if (transitionMask->IsOpen())
+			{
+				transitionMask->Close();
+			}
 		}
 	}
 	break;

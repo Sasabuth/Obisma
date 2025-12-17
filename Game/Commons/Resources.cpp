@@ -230,6 +230,26 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetTexture(const std
 	return m_textures[filename];
 }
 
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetDDSTexture(const std::wstring& filename)
+{
+	// モデルの設定
+	auto device = m_userResource->GetDeviceResources()->GetD3DDevice();
+
+	// 未登録の場合
+	if (m_textures.count(filename) == 0)
+	{
+		// テクスチャファイルの読み込み
+		std::wstring fullPath = DEFAULT_TEXTURE_DIRECTORY + std::wstring(filename);
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
+		DX::ThrowIfFailed(DirectX::CreateDDSTextureFromFile(device, fullPath.c_str(), nullptr, texture.ReleaseAndGetAddressOf()));
+
+		// テクスチャデータのハンドルを登録
+		m_textures.emplace(filename, std::move(texture));
+	}
+
+	return m_textures[filename];
+}
+
 
 
 /// <summary>

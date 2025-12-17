@@ -37,5 +37,6 @@ UserResources::UserResources()
 	, m_proj(nullptr)
 	, m_states(nullptr)
 	, m_effectFactory(nullptr)
+	, m_transitionMask(nullptr)
 {
 }

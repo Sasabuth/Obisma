@@ -72,7 +72,12 @@ void FieldSelectUI::Initialize(Scene* pScene)
 	m_button[3].SetTexture(Resources::GetInstance()->GetTexture(L"StagePlay.png"));
 	// ゲームプレイシーンに変更
 	m_button[3].SetFunc([this]() {
-		m_pScene->ChangeScene<GameplayScene>();
+		auto transitionMask = m_pUserResources->GetTransitionMask();
+		// フェードアウトする
+		if (transitionMask->IsOpen())
+		{
+			transitionMask->Close();
+		}
 
 		// Jsonに入力
 		nlohmann::json json = Resources::GetInstance()->GetJson(L"FieldSelect.json");

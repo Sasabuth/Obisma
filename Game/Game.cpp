@@ -24,6 +24,8 @@ Game::Game() noexcept(false)
     //   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
     //   Add DX::DeviceResources::c_EnableHDR for HDR10 display.
     m_deviceResources->RegisterDeviceNotify(this);
+
+    m_transitionTexture = std::make_unique<DX::RenderTexture>(m_deviceResources->GetBackBufferFormat());
 }
 
 // Initialize the Direct3D resources required to run.
@@ -46,6 +48,9 @@ void Game::Initialize(HWND window, int width, int height)
 
     // シーンマネージャーの初期化
     m_sceneManager->SetScene<TitleScene>();
+
+    auto context = m_deviceResources->GetD3DDeviceContext();
+    context->ClearRenderTargetView(m_transitionTexture->GetRenderTargetView(), DirectX::Colors::Black);
 }
 
 #pragma region Frame Update
@@ -76,6 +81,9 @@ void Game::Update(DX::StepTimer const& timer)
 
     // シーンマネージャーの更新
     m_sceneManager->Update(elapsedTime);
+
+    // トランジションマスクの更新
+    m_transitionMask->Update(elapsedTime);
 }
 #pragma endregion
 
@@ -99,6 +107,8 @@ void Game::Render()
 
     // シーンマネージャーの描画
     m_sceneManager->Render();
+
+    m_transitionMask->Draw(context, m_states.get(), m_transitionTexture->GetShaderResourceView(), m_deviceResources->GetOutputSize());
 
     // fpsの描画
     float fream = (float)m_timer.GetFramesPerSecond();
@@ -224,7 +234,14 @@ void Game::CreateDeviceDependentResources()
     m_userResources->SetMouseStateTracker(&m_mouseTracker);
     m_userResources->SetStepTimerStates(&m_timer);
 
+    // トランジションマスクの作成
+    m_transitionMask = std::make_unique<TransitionMask>(device, context, 0.8f);
+    m_userResources->SetTransitionMask(m_transitionMask.get());
+
     m_sceneManager->CreateDeviceDependentResources();
+
+    // トランジションテクスチャにデバイスを設定する
+    m_transitionTexture->SetDevice(device);
 
     // リソースのロード
     Resources::GetInstance()->LoadResource();
@@ -244,6 +261,9 @@ void Game::CreateWindowSizeDependentResources()
         static_cast<float>(rect.right) / static_cast<float>(rect.bottom),
         0.1f,
         1000.0f);
+
+    // トランジションテクスチャに画面サイズを設定する
+    m_transitionTexture->SetWindow(rect);
 
     m_userResources->SetProject(&m_proj);
 

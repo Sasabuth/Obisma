@@ -197,6 +197,7 @@
     <ClInclude Include="Game\Commons\Resources.h" />
     <ClInclude Include="Game\Commons\SceneManager.h" />
     <ClInclude Include="Game\Commons\Sprite.h" />
+    <ClInclude Include="Game\Commons\TransitionMask.h" />
     <ClInclude Include="Game\Commons\UserResources.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Game\GameObjects\AirTarget\AirTarget.h" />
@@ -240,6 +241,7 @@
     <ClInclude Include="json.hpp" />
     <ClInclude Include="MemoryLeakDetector.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="StepTimer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -253,6 +255,7 @@
     <ClCompile Include="Game\Commons\Resources.cpp" />
     <ClCompile Include="Game\Commons\SceneManager.cpp" />
     <ClCompile Include="Game\Commons\Sprite.cpp" />
+    <ClCompile Include="Game\Commons\TransitionMask.cpp" />
     <ClCompile Include="Game\Commons\UserResources.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Game\GameObjects\AirTarget\AirTarget.cpp" />
@@ -300,6 +303,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RenderTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -340,6 +344,14 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Resources\Shaders\%(Filename).cso</ObjectFileOutput>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\PS_Fade.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Resources\Shaders\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Resources\Shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

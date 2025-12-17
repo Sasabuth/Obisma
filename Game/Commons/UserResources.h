@@ -10,6 +10,7 @@
 #include "StepTimer.h"
 #include "DeviceResources.h"
 #include "Game/Commons/DebugFont.h"
+#include "Game/Commons/TransitionMask.h"
 
 // 各シーンに渡す共通リソースを記述してください
 class UserResources
@@ -44,6 +45,9 @@ private:
 
 	// エフェクトファクトリー
 	DirectX::EffectFactory* m_effectFactory;
+
+	// トランジションマスクへのポインタ
+	TransitionMask* m_transitionMask;
 
 private: 
 	// コンストラクタ
@@ -145,5 +149,15 @@ public:
 
 	// エフェクトファクトリーを取得する関数
 	DirectX::EffectFactory* GetEffectFactory() const { return m_effectFactory; }
+
+	// ------------------------------------------ //
+	// トランジションマスク
+	// ------------------------------------------ //
+
+	// トランジションマスクを設定する関数
+	void SetTransitionMask(TransitionMask* transitionMask) { m_transitionMask = transitionMask; }
+
+	// トランジションマスクを取得する関数
+	TransitionMask* GetTransitionMask() { return m_transitionMask; }
 };
 

@@ -245,6 +245,12 @@
     <ClInclude Include="Game\GameObjects\UI\FieldSelectUI.h">
       <Filter>Game\GameObjects\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Commons\TransitionMask.h">
+      <Filter>Game\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTexture.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -399,6 +405,12 @@
     <ClCompile Include="Game\GameObjects\UI\FieldSelectUI.cpp">
       <Filter>Game\GameObjects\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Commons\TransitionMask.cpp">
+      <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTexture.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -445,6 +457,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\ParticleVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\PS_Fade.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

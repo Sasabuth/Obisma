@@ -62,6 +62,7 @@ public:
 
 	// ‰æ‘œƒf[ƒ^‚Ìæ“¾
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetTexture(const std::wstring& filename);
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetDDSTexture(const std::wstring& filename);
 
 	// Json
 	void SetJson(const std::wstring& filename, nlohmann::json json);  // İ’è

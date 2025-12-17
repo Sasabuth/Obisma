@@ -119,6 +119,10 @@ void GameplayScene::Initialize()
 
 	// プレイ人数を初期化
 	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
+
+	// フェードをオープンする
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	transitionMask->Open();
 }
 
 
@@ -400,6 +404,13 @@ void GameplayScene::IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pI
 		}
 	}
 
+	// コライダーが当たっていたら
+	if (isHit)
+	{
+		// 押し出しをする
+		pIEntity->CorrectOverlap(pos);
+	}
+
 	// 法線ベクトルがあったら
 	if (vector.Length() >= 0.00001f)
 	{
@@ -412,13 +423,6 @@ void GameplayScene::IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pI
 	{
 		// 重力の設定
 		pIEntity->SetGravity(pField->CorrectUp(pIEntity));
-	}
-
-	// コライダーが当たっていたら
-	if (isHit)
-	{
-		// 押し出しをする
-		pIEntity->CorrectOverlap(pos);
 	}
 }
 

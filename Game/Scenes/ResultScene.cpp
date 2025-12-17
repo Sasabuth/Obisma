@@ -69,6 +69,10 @@ void ResultScene::Initialize()
 	// 速度の初期化
 	m_speed = 0.0f;
 
+	// フェードをオープンする
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	transitionMask->Open();
+
 	// BGMの初期化
 	m_bgm = Resources::GetInstance()->GetBGMSound(L"ResultBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
 }
@@ -128,8 +132,18 @@ void ResultScene::Update(float elapsedTime)
 	// 速度の更新
 	m_speed += 6.0f * elapsedTime;
 
-	// シーンの変更
+	auto transitionMask = m_pUserResources->GetTransitionMask();
 	if (mouseTK->leftButton == mouseTK->PRESSED)
+	{
+		// フェードアウトする
+		if (transitionMask->IsOpen())
+		{
+			transitionMask->Close();
+		}
+	}
+
+	// タイトルシーンに変更
+	if (transitionMask->IsClose() && transitionMask->IsEnd())
 	{
 		ChangeScene<TitleScene>();
 	}

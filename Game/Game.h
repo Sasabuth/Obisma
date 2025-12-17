@@ -10,7 +10,9 @@
 #include "Game/Commons/DebugFont.h"
 #include "Game/Commons/SceneManager.h"
 #include "Game/Commons/UserResources.h"
+#include "Game/Commons/TransitionMask.h"
 
+#include "RenderTexture.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -79,6 +81,12 @@ private:
 
     // デバック文字列
     std::unique_ptr<DebugFont> m_debugFont;
+
+    // トランジションマスク
+    std::unique_ptr<TransitionMask> m_transitionMask;
+
+    // トランジションテクスチャ
+    std::unique_ptr<DX::RenderTexture> m_transitionTexture;
 
     // エフェクトファクトリー
     std::unique_ptr<DirectX::EffectFactory> m_effectFactory;
