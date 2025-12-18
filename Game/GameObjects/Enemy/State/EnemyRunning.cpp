@@ -90,15 +90,18 @@ void EnemyRunning::Update(float elapsedTime)
 	// 速度の設定
 	m_pEnemy->SetVelocity(m_pEnemy->GetGravity());
 
-	// ボールの方向に走る
+	// 両方にボールを持っていなかったらボールの方向に走る
 	if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) && !m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
 		RunToBall();
 	}
+	// どちらかに持っていたら
 	else
 	{
+		// ターゲットが存在しなかったら設定する
 		if (!m_pEnemy->GetTarget())  m_pEnemy->SetTarget(NearEntity());
 
+		// 実体のほうに走る
 		RunToEntity();
 	}
 
@@ -270,13 +273,14 @@ void EnemyRunning::AnimationUpdate(float elapsedTime)
 /// </summary>
 void EnemyRunning::RunToBall()
 {
+	// ボールの取得
 	Ball* ball = m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
 
+	// ボールが止まっていなかったらステート変更
 	if (ball->GetCurrentState() != ball->GetStopping())
 	{
 		m_pEnemy->ChangeState(m_pEnemy->GetStanding());
 	}
-
 
 	// 方向
 	DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - ball->GetPosition();
@@ -325,12 +329,18 @@ void EnemyRunning::RunToBall()
 /// </summary>
 void EnemyRunning::RunToEntity()
 {
+	// ターゲットがボールだったら
 	if (dynamic_cast<Ball*>(m_pEnemy->GetTarget()))
 	{
+		// つねに近い方向に行く
+		m_pEnemy->SetTarget(NearEntity());
+
+		// ボールのほうに走る
 		RunToBall();
 	}
 	else
 	{
+		// つねに近い方向に行く
 		m_pEnemy->SetTarget(NearEntity());
 
 		// 方向
@@ -424,43 +434,78 @@ void EnemyRunning::ThrowBall()
 /// <returns>実体</returns>
 IEntity* EnemyRunning::NearEntity()
 {
+	// ボールの取得
 	Ball* ball = m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
+	// プレイヤーの取得
 	Player* player = m_pEnemy->GetPlayer();
 
+	// どちらが近いか距離で調べる
 	DirectX::SimpleMath::Vector3 dir1 = m_pEnemy->GetPosition() - ball->GetPosition();
 	DirectX::SimpleMath::Vector3 dir2 = m_pEnemy->GetPosition() - player->GetPosition();
 
-	IEntity* entity;
-	DirectX::SimpleMath::Vector3 nearDir;
+	// 実体の宣言
+	IEntity* entity = nullptr;
 
-	// 短いほうの距離を調べる
+	// ボールが止まっていなかったら
 	if (ball->GetCurrentState() != ball->GetStopping())
 	{
-		entity = player;
-		dir1 = dir2;
-	}
-	else
-	{
-		if (dir1.Length() < dir2.Length())
+		// 無敵時間じゃなかったら
+		if (player->GetCurrentState() != player->GetDizzying() && player->GetInvincibleTime() <= 0.1f)
 		{
-			entity = ball;
-		}
-		else
-		{
+			// プレイヤーに設定
 			entity = player;
+			// プレイヤーの方向を取得
 			dir1 = dir2;
 		}
 	}
+	else
+	{
+		// ボールのほうが近かったら
+		if (dir1.Length() < dir2.Length())
+		{
+			// ボールに設定
+			entity = ball;
+		}
+		// プレイヤーのほうが近かったら
+		else
+		{
+			// 無敵時間じゃなかったら
+			if (player->GetCurrentState() != player->GetDizzying() && player->GetInvincibleTime() <= 0.1f)
+			{
+				// プレイヤーに設定
+				entity = player;
+				// プレイヤーの方向を取得
+				dir1 = dir2;
+			}
+			else
+			{
+				// ボールに設定
+				entity = ball;
+			}
+			
+		}
+	}
 
+	// 空中の的の取得
 	AirTarget* airTarget = m_pEnemy->GetAirTarget();
+	// 距離を調べる
 	dir2 = m_pEnemy->GetPosition() - airTarget->GetPosition();
 
-	// 短いほうの距離を調べる
+	// 空中の的のほうが近かったら
 	if (dir1.Length() > dir2.Length())
 	{
+		// 空中の的に設定
 		entity = airTarget;
 	}
 
+	// もし実体に何も入っていなかったら
+	if (!entity)
+	{
+		// 空中の的に設定
+		entity = airTarget;
+	}
+
+	// ターゲットを返す
 	return entity;
 }
 

@@ -31,7 +31,7 @@ private:
 	{
 		{
 			DirectX::SimpleMath::Vector2(350.0f, 500.0f),
-			DirectX::SimpleMath::Vector2(730.0f, 230.0f),
+			DirectX::SimpleMath::Vector2(812.0f, 260.0f),
 			0.2f,
 		},
 		

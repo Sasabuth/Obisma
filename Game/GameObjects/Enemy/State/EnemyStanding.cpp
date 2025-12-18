@@ -92,35 +92,49 @@ void EnemyStanding::Update(float elapsedTime)
 	// 手に持っていなかったら一番近いボールを探す
 	if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) && !m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
+		// 一番最初のボールを取得
 		Ball* ball = m_pEnemy->GetBallManager()->GetBall(0);
+		// 敵のボール番号を0にする
 		m_pEnemy->SetBallIndex(0);
+
+		// どのボールが一番近いかを調べる
 		for (int i = 1; i < m_pEnemy->GetBallManager()->GetObjectCount(); i++)
 		{
+			// ボールが止まっているたら近いボールを取得する
 			if (m_pEnemy->GetBallManager()->GetBall(i)->GetCurrentState() == m_pEnemy->GetBallManager()->GetBall(i)->GetStopping())
 			{
 				ball = GetNearBall(ball, i);
 			}
 		}
 
+		// ボールが止まっていたらステート変更
 		if (ball->GetCurrentState() == ball->GetStopping())
 		{
 			m_pEnemy->ChangeState(m_pEnemy->GetRunning());
 		}
 	}
+	// どちらかにボールを持っていたら持っていたら
 	else if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) || !m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
+		// 一番最初のボールを取得
 		Ball* ball = m_pEnemy->GetBallManager()->GetBall(0);
+		// 敵のボール番号を0にする
 		m_pEnemy->SetBallIndex(0);
+
+		// どのボールが一番近いかを調べる
 		for (int i = 1; i < m_pEnemy->GetBallManager()->GetObjectCount(); i++)
 		{
+			// ボールが止まっているたら近いボールを取得する
 			if (m_pEnemy->GetBallManager()->GetBall(i)->GetCurrentState() == m_pEnemy->GetBallManager()->GetBall(i)->GetStopping())
 			{
 				ball = GetNearBall(ball, i);
 			}
 		}
 
+		// ステート変更
 		m_pEnemy->ChangeState(m_pEnemy->GetRunning());
 	}
+	// 両方に持っていたらステート変更
 	else
 	{
 		m_pEnemy->ChangeState(m_pEnemy->GetRunning());
@@ -147,13 +161,19 @@ void EnemyStanding::Update(float elapsedTime)
 
 	m_pEnemy->GetCatchCollider().SetPosition(m_pEnemy->GetPosition() + catchPos);
 
+	// ボールの数分回す
 	for (int i = 0; i < m_pEnemy->GetBallManager()->GetObjectCount(); i++)
 	{
+		// ボールの取得
 		Ball* ball = m_pEnemy->GetBallManager()->GetBall(i);
+
+		// ボールとキャッチ用コライダーが当たっていたら
 		if (IsHit(m_pEnemy->GetCatchCollider(), ball->GetCollider()))
 		{
+			// ボールが敵用ではなく動いていたら
 			if (ball->GetBallColorNum() != Ball::ENEMY && ball->GetCurrentState() == ball->GetMoving())
 			{
+				// ステート変更
 				m_pEnemy->ChangeState(m_pEnemy->GetCatching());
 			}
 		}
@@ -297,25 +317,32 @@ void EnemyStanding::AnimationUpdate(float elapsedTime)
 /// <returns>近いボール</returns>
 Ball* EnemyStanding::GetNearBall(Ball* ball, int index)
 {
-	// 止まっていなかったらボールを返す
+	// 今のボール番号のボールが止まっていなかったら
 	if (m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex())->GetCurrentState() != m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex())->GetStopping())
 	{
+		// 新しいボール番号を設定する
 		m_pEnemy->SetBallIndex(index);
+		// 新しいボールを返す
 		return m_pEnemy->GetBallManager()->GetBall(index);
 	}
 
+	// 新しいボールを取得する
 	Ball* ball1 = m_pEnemy->GetBallManager()->GetBall(index);
 
+	// どちらのほうが近いか距離を調べる
 	DirectX::SimpleMath::Vector3 dir1 = m_pEnemy->GetPosition() - ball->GetPosition();
 	DirectX::SimpleMath::Vector3 dir2 = m_pEnemy->GetPosition() - ball1->GetPosition();
 
-	// 短いほうの距離を調べる
+	// 新しいほうが近かったら
 	if (dir1.Length() > dir2.Length())
 	{
+		// 新しいボール番号を設定する
 		m_pEnemy->SetBallIndex(index);
+		// 新しいボールを返す
 		return ball1;
 	}
 
+	// 遠かったら現在のボールを返す
 	return ball;
 }
 

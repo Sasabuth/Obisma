@@ -28,6 +28,8 @@ class GameplayScene : public Scene
 // 定数
 private:
 	static constexpr float MAX_TIME = 100.0f;
+	static constexpr float FINISH_TIME = 0.0f;
+	static constexpr float FADE_TIME = 3.0f;
 	static constexpr int PLAYER_COUNT = 2;
 
 	static constexpr Sprite::Format FREAM =
@@ -42,6 +44,13 @@ private:
 		DirectX::SimpleMath::Vector2(571.0f, 25.0f),   // 座標
 		DirectX::SimpleMath::Vector2(34.5f, 50.0f),    // サイズ
 		1.0f                                           // 拡大率
+	};
+
+	static constexpr Sprite::Format FINISH =
+	{
+		DirectX::SimpleMath::Vector2(640.0f, 360.0f),   // 座標
+		DirectX::SimpleMath::Vector2(1728.0f, 372.0f),  // サイズ
+		0.4f                                           // 拡大率
 	};
 
 
@@ -79,10 +88,13 @@ private:
 
 	// ゲーム時間
 	float m_gameTimer;
+	float m_fadeTimer;
 
 	// テクスチャ
 	Sprite m_frameTexture;
 	Sprite m_timerTexture;
+
+	Sprite m_finishTexture;
 
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;

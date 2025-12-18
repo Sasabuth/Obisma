@@ -173,7 +173,7 @@ void Ball::CorrectOverlap(Field& field)
 	DirectX::SimpleMath::Vector3 reflVec = m_velocity - 2.0f * (m_velocity.Dot(normalVec)) * normalVec;
 
 	// 摩擦
-	reflVec *= 0.6f;
+	reflVec *= (float)Resources::GetInstance()->GetJson(L"Ball.json")["DecelerationRate"];
 
 	if (!m_isSound && m_soundSpan >= 0.1f)
 	{
@@ -219,7 +219,7 @@ void Ball::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 	DirectX::SimpleMath::Vector3 reflVec = m_velocity - 2.0f * (m_velocity.Dot(normalVec)) * normalVec;
 
 	// 摩擦
-	reflVec *= 0.6f;
+	reflVec *= (float)Resources::GetInstance()->GetJson(L"Ball.json")["DecelerationRate"];
 
 	if (!m_isSound && m_soundSpan >= 0.1f)
 	{

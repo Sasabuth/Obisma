@@ -23,5 +23,7 @@ float4 main(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : SV_Target0
     float rate = ((mask.x - 1.0f) + Rate * 2.0f);
     rate = step(0, rate);
     
-    return float4(0.01f, 0.02f, 0.08f, rate);
+    float3 spaceFade = float3(0.005f, 0.01f, 0.04f); // ”wŒi‚æ‚èŠmÀ‚ÉˆÃ‚¢
+    rate = pow(rate, 3.0f);
+    return float4(spaceFade, rate);
 }

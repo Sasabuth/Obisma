@@ -81,6 +81,9 @@ private:
 	// SE
 	std::unique_ptr<DirectX::SoundEffectInstance> m_se;
 
+	// ランダムデバイス 
+	std::random_device m_rd;
+
 
 // 関数
 public:
@@ -114,6 +117,9 @@ public:
 
 	// 影の描画
 	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius = 1.0f);
+
+	// ランダム座標
+	void RandomPosition();
 
 
 // 設定/取得

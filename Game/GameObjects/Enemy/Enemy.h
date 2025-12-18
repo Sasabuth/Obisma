@@ -230,6 +230,9 @@ public:
 	// スコア
 	Score* GetScore() const { return m_score.get(); }
 
+	// 状態の取得
+	IState* GetCurrentState() const { return m_currentState; }
+
 
 // ステートの取得
 public:

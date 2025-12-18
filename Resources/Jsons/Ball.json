@@ -91,5 +91,7 @@
 
 	"ColliderSize": 0.16,
 
-	"ShadowSize": 0.2
+	"ShadowSize": 0.2,
+
+	"DecelerationRate": 0.6
 }

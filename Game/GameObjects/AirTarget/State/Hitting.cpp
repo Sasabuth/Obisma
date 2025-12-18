@@ -72,33 +72,9 @@ void Hitting::Update(float elapsedTime)
 		m_isEffect = true;
 	}
 
-	// ランダムで座標の取得
-	if (!m_isSetPosition)
-	{
-		int index = -1;
-		// 三角形のために3で割れる数にする
-		while ((index + 3) % 3 != 0)
-		{
-			std::uniform_int_distribution<int> dist(0, (int)m_pAirTarget->GetField()->GetStageCollider().GetIndicesCount() - 1);
-			std::mt19937 mt(m_rd());
+	// ランダムに座標を設定する
+	m_pAirTarget->RandomPosition();
 
-			index = dist(mt);
-		}
-
-		// 三角形の中心を取得
-		DirectX::SimpleMath::Vector3 center = m_pAirTarget->GetField()->GetStageCollider().GetCenterPosition(index);
-
-		// 空中の的の設定
-		m_pAirTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
-		m_pAirTarget->SetPosition(center);
-		m_pAirTarget->SetShadowHitPos(center);
-		m_pAirTarget->SetGravity(m_pAirTarget->GetField()->CorrectUp(m_pAirTarget, m_pAirTarget->GetField()->GetStageCollider().GetNormalVector(index)));
-
-		m_isSetPosition = true;
-	}
-
-	// 元の座標からY軸方向に高くして置く
-	m_pAirTarget->SetPosition(m_pAirTarget->GetPosition() + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_pAirTarget->GetRotation()) * 2);
 	// コライダーの設定
 	m_pAirTarget->GetCollider().SetPosition(m_pAirTarget->GetPosition());
 

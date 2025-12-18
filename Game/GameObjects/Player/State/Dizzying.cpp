@@ -142,10 +142,10 @@ void Dizzying::Render()
 	m_pPlayer->SetWorld(scale * rotate * pos);
 
 	// アニメーションモデルを描画
-	if (m_pPlayer->GetInvincibleTime() >= 0.0f && sinf(m_pPlayer->GetInvincibleTime() * 10) <= 0.0f)
-	{
-		return;
-	}
+	//if (m_pPlayer->GetInvincibleTime() >= 0.0f && sinf(m_pPlayer->GetInvincibleTime() * 10) <= 0.0f)
+	//{
+	//	return;
+	//}
 
 	// ボーン数を取得
 	size_t nbones = m_model->bones.size();
@@ -239,6 +239,7 @@ void Dizzying::EventHandle(Event e)
 
 		// 時間の設定
 		m_time = 0.0f;
+
 		// インターバルの設定
 		m_pPlayer->SetInvincibleTime(INTERVAL);
 	}

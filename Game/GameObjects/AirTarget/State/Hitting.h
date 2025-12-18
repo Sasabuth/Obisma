@@ -32,9 +32,6 @@ private:
 	// 空中の的
 	AirTarget* m_pAirTarget;
 
-	// ランダムデバイス 
-	std::random_device m_rd;
-
 	// エフェクトを出したか
 	bool m_isEffect;
 

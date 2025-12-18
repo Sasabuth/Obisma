@@ -71,7 +71,7 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 	auto states = m_userResources->GetCommonStates();
 
 	// ”¼“§–¾‚ÌÝ’è
-	m_spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, states->NonPremultiplied());
+	m_spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, states->NonPremultiplied(), states->LinearClamp());
 
 	// ‰ð‘œ“x‚É‰ž‚¶‚½Šg‘å—¦‚ðŒvŽZ
 	auto const scrennSize = UserResources::GetUserResource()->GetDeviceResources()->GetOutputSize();

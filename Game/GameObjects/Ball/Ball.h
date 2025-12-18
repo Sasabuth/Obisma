@@ -167,7 +167,7 @@ public:
 	// コライダー
 	SphereCollider& GetCollider() override { return m_collider; }
 
-	// シーン
+	// 状態の取得
 	IState* GetCurrentState() const { return m_currentState; }
 
 	// モデルの取得

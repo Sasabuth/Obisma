@@ -293,6 +293,39 @@ void AirTarget::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* 
 
 
 /// <summary>
+/// ランダムに座標を設定
+/// </summary>
+void AirTarget::RandomPosition()
+{
+	// 番号の宣言
+	int index = -1;
+	// 三角形のために3で割れる数にする
+	while ((index + 3) % 3 != 0)
+	{
+		// ステージの三角形の数でランダムに番号を決める
+		std::uniform_int_distribution<int> dist(0, (int)m_pField->GetStageCollider().GetIndicesCount() - 1);
+		std::mt19937 mt(m_rd());
+
+		index = dist(mt);
+	}
+
+	// 三角形の中心を取得
+	DirectX::SimpleMath::Vector3 center = m_pField->GetStageCollider().GetCenterPosition(index);
+
+	// 空中の的の設定
+	m_velocity = DirectX::SimpleMath::Vector3::Zero;
+	m_position = center;
+	m_shadowHitPos = center;
+	m_gravity = m_pField->CorrectUp(this, m_pField->GetStageCollider().GetNormalVector(index));
+
+
+	// 元の座標からY軸方向に高くして置く
+	m_position = m_position + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate) * 2;
+}
+
+
+
+/// <summary>
 /// レイと球体の交差
 /// </summary>
 /// <param name="rayPos">レイの座標</param>

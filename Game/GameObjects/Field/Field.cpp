@@ -55,7 +55,7 @@ void Field::Initialize(int stageIndex, bool isSkyDome)
 			// BasicEffectにキャストする
 			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
 
-			//// ライトをオフにする
+			// ライトをオフにする
 			pBasicEffect->SetLightEnabled(0, false);
 			pBasicEffect->SetLightEnabled(1, false);
 			pBasicEffect->SetLightEnabled(2, false);

@@ -179,7 +179,11 @@ void TutorialScene::Update(float elapsedTime)
 	// 敵の更新
 	if (m_tutorialIndex == ORDER::BALL_CATCH)
 	{
-		m_enemy->Update(elapsedTime);
+		if (!m_isCheck && m_enemy->GetCurrentState() != m_enemy->GetStanding() ||
+			m_player->GetInvincibleTime() < 0.1f)
+		{
+			m_enemy->Update(elapsedTime);
+		}
 
 		// ボールが止まっていたら敵の手にボールを持たせる
 		if (m_ballManager->GetBall(0)->GetCurrentState() == m_ballManager->GetBall(0)->GetStopping())
@@ -308,7 +312,7 @@ void TutorialScene::Render()
 	// カメラの上向きベクトルの描画
 	/*m_cameraUp->Render();*/
 
-	//debugFont->Render(L"Count", m_count);
+	debugFont->Render(L"Interval", m_interval);
 }
 
 
@@ -503,6 +507,7 @@ void TutorialScene::Tutorial(float elapsedTime)
 		// インターバルの時間が上限に行ったら次のチュートリアルに進む
 		if (m_interval >= INTERVAL)
 		{
+			isRightBall = false;
 			m_isCheck = false;
 			m_tutorialIndex = MOUSE_TO_STER;
 			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
@@ -645,25 +650,25 @@ void TutorialScene::Tutorial(float elapsedTime)
 			m_explainTexture.SetTexture(m_pResources->GetTexture(L"Explain" + std::to_wstring(m_explainIndex) + L".png"));
 		}
 
-		// インターバルの時間が上限に行ったら次のチュートリアルに進む
+		// インターバルの時間が上限に行ったら
 		if (m_interval >= EXPLAIN_INTERVAL)
 		{
-			// もし当たった判定が付いたら説明を消して戻す
-			if (isHit)
+			// チェックが付いたらフェードする
+			if (m_isCheck)
 			{
-				isHit = false;
-				m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
-				m_interval = 0.0f;
-				m_explainTexture.SetTexture(nullptr);
+				auto transitionMask = m_pUserResources->GetTransitionMask();
+				// フェードアウトする
+				if (transitionMask->IsOpen())
+				{
+					transitionMask->Close();
+				}
 				return;
 			}
 
-			auto transitionMask = m_pUserResources->GetTransitionMask();
-			// フェードアウトする
-			if (transitionMask->IsOpen())
-			{
-				transitionMask->Close();
-			}
+			isHit = false;
+			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
+			m_interval = 0.0f;
+			m_explainTexture.SetTexture(nullptr);
 		}
 	}
 	break;

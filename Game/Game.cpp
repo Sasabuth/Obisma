@@ -49,6 +49,11 @@ void Game::Initialize(HWND window, int width, int height)
     // シーンマネージャーの初期化
     m_sceneManager->SetScene<TitleScene>();
 
+
+    // マウスカーソルの初期化
+    m_mouseCursor = std::make_unique<Sprite>();
+    m_mouseCursor->SetTexture(Resources::GetInstance()->GetDDSTexture(L"MouseCursor.dds"));
+
     auto context = m_deviceResources->GetD3DDeviceContext();
     context->ClearRenderTargetView(m_transitionTexture->GetRenderTargetView(), DirectX::Colors::Black);
 }
@@ -109,6 +114,14 @@ void Game::Render()
     m_sceneManager->Render();
 
     m_transitionMask->Draw(context, m_states.get(), m_transitionTexture->GetShaderResourceView(), m_deviceResources->GetOutputSize());
+
+    // マウスの座標に合わせる
+    auto mouse = DirectX::Mouse::Get().GetState();
+    // 現在のウィンドウサイズを取得
+    auto const outputSize = m_userResources->GetDeviceResources()->GetOutputSize();
+    float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
+    float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
+    m_mouseCursor->Draw(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f), MOUSECURSOR.size, MOUSECURSOR.scale);
 
     // fpsの描画
     float fream = (float)m_timer.GetFramesPerSecond();

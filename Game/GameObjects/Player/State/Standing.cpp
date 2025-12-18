@@ -153,7 +153,7 @@ void Standing::Render()
 	m_pPlayer->SetWorld(scale * rotate * pos);
 
 	// 無敵時間中なら点滅描画
-	if (m_pPlayer->GetInvincibleTime() >= 0.0f && sinf(m_pPlayer->GetInvincibleTime() * 10) <= 0.0f)
+	if (m_pPlayer->GetInvincibleTime() >= 0.0 && sinf(m_pPlayer->GetInvincibleTime() * 10) <= 0.0f)
 	{
 		return;
 	}

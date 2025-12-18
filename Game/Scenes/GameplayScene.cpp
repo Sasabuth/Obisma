@@ -23,6 +23,7 @@ GameplayScene::GameplayScene()
 	: m_pUserResources(nullptr)
 	, m_pResources(nullptr)
 	, m_gameTimer(0)
+	, m_fadeTimer(0)
 {
 }
 
@@ -73,6 +74,8 @@ void GameplayScene::Initialize()
 		m_pResources->GetJson(L"AirTarget.json")["Position"]["z"]
 		}
 	);
+	// ランダムに座標を設定
+	m_airTarget->RandomPosition();
 
 	// プレイヤーの初期化
 	m_player = Factory::CreatePlayer(m_field.get(), m_airTarget.get(), m_ballManager.get(), DirectX::SimpleMath::Vector3{
@@ -104,9 +107,12 @@ void GameplayScene::Initialize()
 	// ゲーム時間の初期化
 	m_gameTimer = MAX_TIME;
 
+	m_fadeTimer = 0.0f;
+
 	// テクスチャの初期化
 	m_frameTexture.SetTexture(m_pResources->GetTexture(L"ScoreFrame2.png"));
 	m_timerTexture.SetTexture(m_pResources->GetTexture(L"ScoreFont2.png"));
+	m_finishTexture.SetTexture(m_pResources->GetTexture(L"Finish.png"));
 
 	// リスナーの設定
 	m_pResources->SetListener(m_player->GetPosition(),
@@ -133,6 +139,26 @@ void GameplayScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void GameplayScene::Update(float elapsedTime)
 {
+	// シーンの変更
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	if (m_gameTimer <= FINISH_TIME)
+	{
+		m_fadeTimer += elapsedTime;
+
+		// フェードアウトする
+		if (transitionMask->IsOpen() && m_fadeTimer >= FADE_TIME)
+		{
+			transitionMask->Close();
+		}
+
+		if (transitionMask->IsClose() && transitionMask->IsEnd())
+		{
+			ChangeScene<ResultScene>();
+		}
+		
+		return;
+	}
+
 	// リスナーの設定
 	SetListener();
 
@@ -194,11 +220,8 @@ void GameplayScene::Update(float elapsedTime)
 	m_gameTimer -= elapsedTime;
 
 	// 0になったら終了
-	if (m_gameTimer <= 0.0f)
+	if (m_gameTimer <= FINISH_TIME)
 	{
-		// ゲーム時間を戻す
-		m_gameTimer = MAX_TIME;
-
 		// ランキングの更新
 		m_scoreManager->SortRank();
 		GetSceneManager()->SetIsDraw(m_scoreManager->GetIsDraw());
@@ -206,19 +229,6 @@ void GameplayScene::Update(float elapsedTime)
 		{
 			GetSceneManager()->SetRank(i, m_scoreManager->GetRank(i));
 		}
-
-		// シーンの変更
-		ChangeScene<ResultScene>();
-	}
-
-	// シーン変更(デバック)
-	auto kbTracker = m_pUserResources->GetKeyboardStateTracker();
-	if (kbTracker->pressed.R)
-	{
-		Resources::GetInstance()->JsonReset();
-		/*ChangeScene<TitleScene>();*/
-
-		m_player->SetCatchBall(Player::HAND::RIGHT, m_ballManager->GetBall(0));
 	}
 
 	// BGMの音量の設定
@@ -252,11 +262,18 @@ void GameplayScene::Render()
 	m_ballManager->Render();
 
 	// スコアマネージャーの描画
-	/*m_scoreManager->Render();*/
+	m_scoreManager->Render();
 
 	// タイマーの描画
 	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
 	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, (int)m_gameTimer, TIMER.scale);
+
+	// トランジションが閉じているなら
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	if (transitionMask->IsClose() || m_fadeTimer >= 0.1f)
+	{
+		m_finishTexture.Draw(FINISH.pos, FINISH.size, FINISH.scale);
+	}
 
 	// デバック用
 	// カメラの上向きベクトルの描画

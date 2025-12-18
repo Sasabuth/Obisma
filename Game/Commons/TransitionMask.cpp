@@ -31,7 +31,7 @@ TransitionMask::TransitionMask(
 	m_maskTexture = Resources::GetInstance()->GetDDSTexture(L"FadeMask.dds");
 
 	// ピクセルシェーダーの作成
-	std::unique_ptr<BinaryFile> PSData = BinaryFile::LoadFile(L"Resources/Shaders/PS_Fade.cso");
+	std::unique_ptr<BinaryFile> PSData = BinaryFile::LoadFile(L"Resources/Shaders/FadePS.cso");
 
 
 	DX::ThrowIfFailed(

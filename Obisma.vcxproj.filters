@@ -459,7 +459,7 @@
     <FxCompile Include="Shaders\ParticleVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\PS_Fade.hlsl">
+    <FxCompile Include="Shaders\FadePS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

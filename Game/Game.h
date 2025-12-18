@@ -11,6 +11,7 @@
 #include "Game/Commons/SceneManager.h"
 #include "Game/Commons/UserResources.h"
 #include "Game/Commons/TransitionMask.h"
+#include "Game/Commons/Sprite.h"
 
 #include "RenderTexture.h"
 
@@ -50,6 +51,15 @@ public:
 
     // Properties
     void GetDefaultSize( int& width, int& height ) const noexcept;
+
+// 定数
+private:
+    static constexpr Sprite::Format MOUSECURSOR =
+    {
+        DirectX::SimpleMath::Vector2(-1, -1),          // 座標(使わない)
+        DirectX::SimpleMath::Vector2(350, 344),        // サイズ
+        0.045f                                          // 拡大率
+    };
 
 private:
 
@@ -96,6 +106,9 @@ private:
 
     // ユーザーリソース
     UserResources* m_userResources;
+
+    // マウスカーソル
+    std::unique_ptr<Sprite> m_mouseCursor;
 
     // フルスクリーンを管理
     BOOL m_fullscreen; 
