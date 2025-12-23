@@ -1,5 +1,5 @@
 /// <summary>
-/// MenuUIに関するソースファイル
+/// GameMenuUIに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 /// <date></date>
@@ -9,19 +9,19 @@
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "MenuUI.h"
+#include "GameMenuUI.h"
 
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/SceneManager.h"
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/Scenes/TutorialScene.h"
-#include "Game/GameObjects/UI/FieldSelectUI.h"
+#include "Game/GameObjects/UI/AudioUI.h"
 
 
 /// <summary>
 /// コンストラクタ
 /// </summary>
-MenuUI::MenuUI()
+GameMenuUI::GameMenuUI()
 	: m_pUserResources(nullptr)
 	, m_isOpen(false)
 {
@@ -32,7 +32,7 @@ MenuUI::MenuUI()
 /// <summary>
 /// デストラクタ
 /// </summary>
-MenuUI::~MenuUI()
+GameMenuUI::~GameMenuUI()
 {
 }
 
@@ -41,22 +41,25 @@ MenuUI::~MenuUI()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void MenuUI::Initialize(FieldSelectUI* fieldSelectUI)
+void GameMenuUI::Initialize(AudioUI* audioUI)
 {
 	// ユーザーリソースの設定
 	m_pUserResources = UserResources::GetUserResource();
 
 	// ボタンの初期化
-	m_button[0].SetTexture(Resources::GetInstance()->GetTexture(L"RealPerformance.png"));
+	m_button[0].SetTexture(Resources::GetInstance()->GetTexture(L"GameBack.png"));
 	// ゲームプレイシーンに変更
-	m_button[0].SetFunc([=]() { fieldSelectUI->Click(); });
+	m_button[0].SetFunc([=]() { m_isOpen = false; });
 
-	// ボタンの初期化
-	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Practice.png"));
-	// チュートリアルシーンに変更
-	m_button[1].SetFunc([this]()
+	// ボタンの設定(UIを開く)
+	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Audio.png"));
+	m_button[1].SetFunc([=]() { audioUI->Click(); });
+
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	// ボタンの設定(終了)
+	m_button[2].SetTexture(Resources::GetInstance()->GetTexture(L"TitleBack.png"));
+	m_button[2].SetFunc([=]()
 		{
-			auto transitionMask = m_pUserResources->GetTransitionMask();
 			// フェードアウトする
 			if (transitionMask->IsOpen())
 			{
@@ -65,18 +68,16 @@ void MenuUI::Initialize(FieldSelectUI* fieldSelectUI)
 		}
 	);
 
-	// ボタンの初期化
-	m_button[2].SetTexture(Resources::GetInstance()->GetTexture(L"BackButton.png"));
-	// 閉じる
-	m_button[2].SetFunc([this]() { m_isOpen = false; });
-
 	// メニューの設定
-	for (int i = 0; i < MENU_COUNT; i++)
+	for (int i = 0; i < GAMEMENU_COUNT; i++)
 	{
-		m_button[i].SetPosition(DirectX::SimpleMath::Vector2(MENU[i].pos));
-		m_button[i].SetSize(DirectX::SimpleMath::Vector2(MENU[i].size));
-		m_button[i].SetScale(MENU[i].scale);
+		m_button[i].SetPosition(DirectX::SimpleMath::Vector2(GAMEMENU[i].pos));
+		m_button[i].SetSize(DirectX::SimpleMath::Vector2(GAMEMENU[i].size));
+		m_button[i].SetScale(GAMEMENU[i].scale);
 	}
+
+	// 隠すテクスチャの設定
+	m_hideTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Hide.png"));
 
 	// 開いていない
 	m_isOpen = false;
@@ -88,13 +89,13 @@ void MenuUI::Initialize(FieldSelectUI* fieldSelectUI)
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime"></param> 経過時間
-void MenuUI::Update(const BoxCollider2D& collider)
+void GameMenuUI::Update(const BoxCollider2D& collider)
 {
 	// マウストラッカーの取得
 	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
 	// コライダーに当たっていたらクリック関数を呼ぶ
-	for (int i = 0; i < MENU_COUNT; i++)
+	for (int i = 0; i < GAMEMENU_COUNT; i++)
 	{
 		if (IsHit(collider, m_button[i].GetCollider()) && mouseTK->leftButton == mouseTK->PRESSED)
 		{
@@ -103,7 +104,7 @@ void MenuUI::Update(const BoxCollider2D& collider)
 	}
 
 	// SEの音量の設定
-	if(m_se) m_se->SetVolume(Resources::GetInstance()->GetSEVolume());
+	if (m_se) m_se->SetVolume(Resources::GetInstance()->GetSEVolume());
 }
 
 
@@ -111,22 +112,25 @@ void MenuUI::Update(const BoxCollider2D& collider)
 /// <summary>
 /// 描画処理
 /// </summary>
-void MenuUI::Draw(const BoxCollider2D& collider)
+void GameMenuUI::Draw(const BoxCollider2D& collider)
 {
+	// 隠すテクスチャの描画
+	m_hideTexture.Draw(HIDE.pos, HIDE.size, HIDE.scale);
+
 	// メニューの数回す
-	for (int i = 0; i < MENU_COUNT; i++)
+	for (int i = 0; i < GAMEMENU_COUNT; i++)
 	{
 		// マウスのコライダーと当たったら色を変更
 		if (IsHit(collider, m_button[i].GetCollider()))
 		{
-			m_button[i].Draw(MENU_COLORS[i]);
+			m_button[i].Draw(MENU_COLORS);
 		}
 		// 白の文字を出す
 		else
 		{
 			m_button[i].Draw(DirectX::Colors::White);
 		}
-		
+
 	}
 }
 
@@ -135,6 +139,6 @@ void MenuUI::Draw(const BoxCollider2D& collider)
 /// <summary>
 /// 終了処理
 /// </summary>
-void MenuUI::Finalize()
+void GameMenuUI::Finalize()
 {
 }

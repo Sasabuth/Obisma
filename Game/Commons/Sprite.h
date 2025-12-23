@@ -57,7 +57,7 @@ public:
 	void Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Vector2 rect, float width, float scale);
 
 	// Œ…”•`‰æ
-	void DigitsDraw(float x, float y, float width, float height, int value, float size);
+	void DigitsDraw(float x, float y, float width, float height, int value, float size, int digits = 1);
 
 
 // İ’è/æ“¾

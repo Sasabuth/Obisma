@@ -15,7 +15,6 @@
 
 
 // クラスの定義
-class Scene;
 class FieldSelectUI;
 
 
@@ -24,26 +23,31 @@ class MenuUI
 {
 // 定数
 private:
+	// メニューの数
 	static constexpr int MENU_COUNT = 3;
 
-	// メニューの座標
-	static constexpr DirectX::SimpleMath::Vector2 MENU_POSITIONS[MENU_COUNT] =
+	// メニュー
+	static constexpr Sprite::Format MENU[MENU_COUNT] =
 	{
-		DirectX::SimpleMath::Vector2(250.0f, 360.0f),
-		DirectX::SimpleMath::Vector2(600.0f, 360.0f),
-		DirectX::SimpleMath::Vector2(100.0f, 70.0f),
+		{
+			DirectX::SimpleMath::Vector2(250.0f, 360.0f),   // 座標
+			DirectX::SimpleMath::Vector2(475.0f, 260.0f),  // サイズ
+			0.5f                                         // 拡大率
+		},
+
+		{
+			DirectX::SimpleMath::Vector2(600.0f, 360.0f),   // 座標
+			DirectX::SimpleMath::Vector2(475.0f, 260.0f),  // サイズ
+			0.5f                                        // 拡大率
+		},
+
+		{
+			DirectX::SimpleMath::Vector2(100.0f, 70.0f),   // 座標
+			DirectX::SimpleMath::Vector2(475.0f, 260.0f),  // サイズ
+			0.3f                                       // 拡大率
+		},
 	};
 
-	// メニューのサイズ
-	static constexpr DirectX::SimpleMath::Vector2 MENU_SIZE = DirectX::SimpleMath::Vector2(475.0f, 260.0f);
-
-	// 拡大率
-	static constexpr float MENU_SCALES[MENU_COUNT] =
-	{
-	    0.5f,
-	    0.5f,
-	    0.3f,
-	};
 
 	// メニューの色
 	static constexpr DirectX::SimpleMath::Vector4 MENU_COLORS[MENU_COUNT] =
@@ -58,9 +62,6 @@ private:
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;  
-
-	// シーン
-	Scene* m_pScene;
 
 	// ボタン
 	Button m_button[MENU_COUNT];
@@ -81,7 +82,7 @@ public:
 	~MenuUI();
 
 	// 初期化
-	void Initialize(Scene* pScene, FieldSelectUI* fieldSelectUI);
+	void Initialize(FieldSelectUI* fieldSelectUI);
 
 	// 更新
 	void Update(const BoxCollider2D& collider);

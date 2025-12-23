@@ -187,17 +187,15 @@ void Sprite::Draw(DirectX::SimpleMath::Vector2 position, DirectX::SimpleMath::Ve
 /// <param name="height">横の幅</param>
 /// <param name="value">数字</param>
 /// <param name="size">サイズ</param>
-void Sprite::DigitsDraw(float x, float y, float width, float height, int value, float size)
+void Sprite::DigitsDraw(float x, float y, float width, float height, int value, float size, int digits)
 {
 	// スコアフォントの描画
 	float posX = x;
 	float posY = y;
 
-	int numDidits = 2;
+	posX += static_cast<int>(width * (digits));
 
-	posX += static_cast<int>(width * (numDidits));
-
-	for (int i = 0; i < numDidits; i++)
+	for (int i = 0; i < digits; i++)
 	{
 		int number = value % 10 + 1;
 

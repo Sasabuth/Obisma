@@ -68,7 +68,7 @@ void Score::Render()
 	// テクスチャの描画
 	m_frameTexture.Draw(m_position, DirectX::SimpleMath::Vector2::Zero, FRAME_SIZE);
 	m_faceTexture.Draw(m_position, DirectX::SimpleMath::Vector2::Zero, FACE_SIZE);
-	m_scoreTexture.DigitsDraw(m_position.x + FREAM.pos.x, m_position.y + FREAM.pos.y, FREAM.size.x, FREAM.size.y, (int)m_score, FREAM.scale);
+	m_scoreTexture.DigitsDraw(m_position.x + FREAM.pos.x, m_position.y + FREAM.pos.y, FREAM.size.x, FREAM.size.y, (int)m_score, FREAM.scale, 2);
 
 	//auto debagFont = m_pUserResources->GetDebugFont();
 	//debagFont->Render(L"score", m_score);

@@ -58,15 +58,18 @@ void AudioUI::Initialize()
 	}
 
 	// UI用コライダーの設定
-	m_uiCollider.SetPosition(DirectX::SimpleMath::Vector2(640, 360));
-	m_uiCollider.SetSize(DirectX::SimpleMath::Vector2(1743, 850));
-	m_uiCollider.SetScale(0.4f);
+	m_uiCollider.SetPosition(UI.pos);
+	m_uiCollider.SetSize(UI.size);
+	m_uiCollider.SetScale(UI.scale);
 
 	// ボタンの初期化
 	m_button.SetTexture(Resources::GetInstance()->GetTexture(L"BackButton.png"));
-	m_button.SetPosition(DirectX::SimpleMath::Vector2(100.0f, 70.0f));
-	m_button.SetSize(DirectX::SimpleMath::Vector2(475.0f, 260.0f));
-	m_button.SetScale(0.3f);
+	m_button.SetPosition(BUTTON.pos);
+	m_button.SetSize(BUTTON.size);
+	m_button.SetScale(BUTTON.scale);
+
+	// 隠すテクスチャの設定
+	m_hideTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Hide.png"));
 
 	// 開けているか
 	m_isOpen = false;
@@ -146,6 +149,9 @@ void AudioUI::Update(const BoxCollider2D& collider)
 /// </summary>
 void AudioUI::Draw(const BoxCollider2D& collider)
 {
+	// 隠すテクスチャの描画
+	m_hideTexture.Draw(HIDE.pos, HIDE.size, HIDE.scale);
+
 	// オーディオUIの描画
 	m_audioUI.Draw(DirectX::SimpleMath::Vector2(640, 360), DirectX::SimpleMath::Vector2(1743, 850), 0.4f);
 

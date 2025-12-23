@@ -119,6 +119,9 @@ void PlayerCatching::Update(float elapsedTime)
 		}
 	}
 
+	// スコアを下げる
+	m_pPlayer->ScoreDown();
+
 	// プレイヤーの設定
 	m_pPlayer->SetVelocity(m_pPlayer->GetGravity());
 	m_pPlayer->SetPosition(m_pPlayer->GetPosition() + m_pPlayer->GetVelocity() * elapsedTime);

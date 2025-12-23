@@ -22,8 +22,9 @@
 GameplayScene::GameplayScene()
 	: m_pUserResources(nullptr)
 	, m_pResources(nullptr)
-	, m_gameTimer(0)
-	, m_fadeTimer(0)
+	, m_gameTimer(0.0f)
+	, m_fadeTimer(0.0f)
+	, m_countDownTimer(0.0f)
 {
 }
 
@@ -109,10 +110,17 @@ void GameplayScene::Initialize()
 
 	m_fadeTimer = 0.0f;
 
+	m_countDownTimer = COUNTDOWN_TIME;
+
+	// コライダーの設定
+	m_collider.SetSize(DirectX::SimpleMath::Vector2(20.0f));
+
 	// テクスチャの初期化
 	m_frameTexture.SetTexture(m_pResources->GetTexture(L"ScoreFrame2.png"));
 	m_timerTexture.SetTexture(m_pResources->GetTexture(L"ScoreFont2.png"));
 	m_finishTexture.SetTexture(m_pResources->GetTexture(L"Finish.png"));
+	m_countDownTexture.SetTexture(m_pResources->GetTexture(L"CountDown.png"));
+	m_startTexture.SetTexture(m_pResources->GetTexture(L"GameStart.png"));
 
 	// リスナーの設定
 	m_pResources->SetListener(m_player->GetPosition(),
@@ -120,8 +128,18 @@ void GameplayScene::Initialize()
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
 	);
 
-	// BGM
+	// BGMの初期化
 	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", m_player->GetPosition(), true);
+
+	// SEの初期化
+	m_startSE = nullptr;
+	m_finishSE = nullptr;
+
+	// オーディオUIの初期化
+	m_audioUI.Initialize();
+
+	// ゲームメニューUIの初期化
+	m_gameMenuUI.Initialize(&m_audioUI);
 
 	// プレイ人数を初期化
 	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
@@ -139,8 +157,20 @@ void GameplayScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void GameplayScene::Update(float elapsedTime)
 {
+
+	// マウスの座標に合わせる
+	auto mouse = DirectX::Mouse::Get().GetState();
+	// 現在のウィンドウサイズを取得
+	auto const outputSize = m_pUserResources->GetDeviceResources()->GetOutputSize();
+	float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
+	float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
+
 	// シーンの変更
 	auto transitionMask = m_pUserResources->GetTransitionMask();
+
+	// フェードアウト中じゃなかったら更新
+	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
+
 	if (m_gameTimer <= FINISH_TIME)
 	{
 		m_fadeTimer += elapsedTime;
@@ -156,6 +186,42 @@ void GameplayScene::Update(float elapsedTime)
 			ChangeScene<ResultScene>();
 		}
 		
+		return;
+	}
+
+	// カウントダウンの更新
+	m_countDownTimer -= elapsedTime;
+
+	// カウントダウンが0～3秒以内なら更新させない
+	if (m_countDownTimer > 0.0f && m_countDownTimer < 3.0f)
+	{
+		// SEをつける
+        if(!m_startSE)	m_startSE = m_pResources->GetSESound(L"CountDown.wav", m_player->GetPosition(), false);
+
+		return;
+	}
+
+	// キーボードトラッカーの取得
+	auto kbTracker = m_pUserResources->GetKeyboardStateTracker();
+
+	// エスケープキーが押されたらゲームメニューを開く
+	if (kbTracker->pressed.Escape) m_gameMenuUI.Click();
+
+	// オーディオUIの更新
+	if (m_audioUI.IsOpen())
+	{
+		m_audioUI.Update(m_collider);
+		return;
+	}
+	else if (m_gameMenuUI.IsOpen())
+	{
+		m_gameMenuUI.Update(m_collider);
+
+		if (transitionMask->IsClose() && transitionMask->IsEnd())
+		{
+			ChangeScene<TitleScene>();
+		}
+
 		return;
 	}
 
@@ -222,6 +288,9 @@ void GameplayScene::Update(float elapsedTime)
 	// 0になったら終了
 	if (m_gameTimer <= FINISH_TIME)
 	{
+		// SEをつける
+		if (!m_finishSE)	m_finishSE = m_pResources->GetSESound(L"Finish.wav", m_player->GetPosition(), false);
+
 		// ランキングの更新
 		m_scoreManager->SortRank();
 		GetSceneManager()->SetIsDraw(m_scoreManager->GetIsDraw());
@@ -266,11 +335,30 @@ void GameplayScene::Render()
 
 	// タイマーの描画
 	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
-	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, (int)m_gameTimer, TIMER.scale);
+	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, (int)m_gameTimer, TIMER.scale, 2);
 
-	// トランジションが閉じているなら
-	auto transitionMask = m_pUserResources->GetTransitionMask();
-	if (transitionMask->IsClose() || m_fadeTimer >= 0.1f)
+	if (m_countDownTimer > 0.0f)
+	{
+		m_countDownTexture.DigitsDraw(COUNTDOWN.pos.x, COUNTDOWN.pos.y, COUNTDOWN.size.x, COUNTDOWN.size.y, (int)m_countDownTimer, COUNTDOWN.scale);
+	}
+	else if (m_countDownTimer >= -1.0f)
+	{
+		m_startTexture.Draw(START.pos, START.size, START.scale);
+	}
+
+	// オーディオUIの描画
+	if (m_audioUI.IsOpen())
+	{
+		m_audioUI.Draw(m_collider);
+	}
+	// ゲームメニューUIの描画
+	else if (m_gameMenuUI.IsOpen())
+	{
+		m_gameMenuUI.Draw(m_collider);
+	}
+
+	// フェード時間が増えていたら
+	if (m_fadeTimer >= 0.1f)
 	{
 		m_finishTexture.Draw(FINISH.pos, FINISH.size, FINISH.scale);
 	}
@@ -421,11 +509,26 @@ void GameplayScene::IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pI
 		}
 	}
 
-	// コライダーが当たっていたら
+
+	// コライダーが当たっていたらかフィールド貫通しているとき
 	if (isHit)
 	{
 		// 押し出しをする
 		pIEntity->CorrectOverlap(pos);
+	}
+	else
+	{
+		// 万が一ステージに埋まったら
+		if ((pIEntity->GetPosition() - pField->GetPosition()).Length() < (pIEntity->GetShadowHitPos() - pField->GetPosition()).Length())
+		{
+			// Y軸ベクトル
+			DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, pIEntity->GetRotation());
+			// 当たった座標
+			DirectX::SimpleMath::Vector3 hitPos = pIEntity->GetShadowHitPos();
+
+			// ベクトル方向にコライダーの半径分押し出す
+			pIEntity->SetPosition(hitPos + currentUp * pIEntity->GetCollider().GetRadius());
+		}
 	}
 
 	// 法線ベクトルがあったら
@@ -441,6 +544,7 @@ void GameplayScene::IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pI
 		// 重力の設定
 		pIEntity->SetGravity(pField->CorrectUp(pIEntity));
 	}
+
 }
 
 

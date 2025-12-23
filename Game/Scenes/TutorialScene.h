@@ -21,6 +21,8 @@
 #include "Game/GameObjects/Score/ScoreManager.h"
 #include "Game/GameObjects/Tutorial/Arrow.h"
 #include "Game/Commons/Sprite.h"
+#include "Game/GameObjects/UI/AudioUI.h"
+#include "Game/GameObjects/UI/GameMenuUI.h"
 
 
 // クラスの定義
@@ -198,6 +200,15 @@ private:
 	Sprite m_tutorialTexture;
 	Sprite m_checkMarkTexture;
 	Sprite m_explainTexture;
+
+	// オーディオUI
+	AudioUI m_audioUI;
+
+	// ゲームメニューUI
+	GameMenuUI m_gameMenuUI;
+
+	// コライダー
+	BoxCollider2D m_collider;
 
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;

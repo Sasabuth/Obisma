@@ -28,33 +28,35 @@ public:
 
 // 定数
 private:
+	// フィールド選択の数
 	static constexpr int FIELDSELECT_COUNT = 4;
 
-	// フィールド選択の座標
-	static constexpr DirectX::SimpleMath::Vector2 FIELDSELECT_POSITIONS[FIELDSELECT_COUNT] =
+	// フィールド選択
+	static constexpr Sprite::Format FIELDSELECT[FIELDSELECT_COUNT] =
 	{
-		DirectX::SimpleMath::Vector2(100.0f, 360.0f),
-		DirectX::SimpleMath::Vector2(1170.0f, 360.0f),
-		DirectX::SimpleMath::Vector2(100.0f, 70.0f),
-		DirectX::SimpleMath::Vector2(640.0f, 650.0f),
-	};
+		{
+			DirectX::SimpleMath::Vector2(100.0f, 360.0f),   // 座標
+			DirectX::SimpleMath::Vector2(350.0f, 189.0f),  // サイズ
+			0.3f                                         // 拡大率
+		},
 
-	// メニューのサイズ
-	static constexpr DirectX::SimpleMath::Vector2 FIELDSELECT_SIZE[FIELDSELECT_COUNT] =
-	{
-		DirectX::SimpleMath::Vector2(350.0f, 189.0f),
-		DirectX::SimpleMath::Vector2(350.0f, 189.0f),
-		DirectX::SimpleMath::Vector2(475.0f, 260.0f),
-		DirectX::SimpleMath::Vector2(1354.0f, 296.0f),
-	};
+		{
+			DirectX::SimpleMath::Vector2(1170.0f, 360.0f),   // 座標
+			DirectX::SimpleMath::Vector2(350.0f, 189.0f),  // サイズ
+			0.3f                                        // 拡大率
+		},
 
-	// 拡大率
-	static constexpr float FIELDSELECT_SCALES[FIELDSELECT_COUNT] =
-	{
-		0.3f,
-		0.3f,
-		0.3f,
-		0.3f,
+		{
+			DirectX::SimpleMath::Vector2(100.0f, 70.0f),   // 座標
+			DirectX::SimpleMath::Vector2(475.0f, 260.0f),  // サイズ
+			0.3f                                       // 拡大率
+		},
+
+		{
+			DirectX::SimpleMath::Vector2(640.0f, 650.0f),   // 座標
+			DirectX::SimpleMath::Vector2(1354.0f, 296.0f),  // サイズ
+			0.3f                                       // 拡大率
+		},
 	};
 
 	// メニューの色

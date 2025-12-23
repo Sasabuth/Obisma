@@ -74,7 +74,7 @@ void TitleScene::Initialize()
 	m_fieldSelectUI.Initialize(this);
 
 	// メニューUIの初期化
-	m_menuUI.Initialize(this, &m_fieldSelectUI);
+	m_menuUI.Initialize(&m_fieldSelectUI);
 
 
 	// BGMの初期化
@@ -123,8 +123,6 @@ void TitleScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void TitleScene::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
 	// マウスの座標に合わせる
 	auto mouse = DirectX::Mouse::Get().GetState();
 	// 現在のウィンドウサイズを取得

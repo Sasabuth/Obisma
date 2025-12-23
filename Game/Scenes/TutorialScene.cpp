@@ -141,6 +141,15 @@ void TutorialScene::Initialize()
 	// BGM
 	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", m_player->GetPosition(), true);
 
+	// オーディオUIの初期化
+	m_audioUI.Initialize();
+
+	// ゲームメニューUIの初期化
+	m_gameMenuUI.Initialize(&m_audioUI);
+
+	// コライダーの設定
+	m_collider.SetSize(DirectX::SimpleMath::Vector2(20.0f));
+
 	// プレイ人数を初期化
 	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
 
@@ -157,6 +166,43 @@ void TutorialScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void TutorialScene::Update(float elapsedTime)
 {
+	// マウスの座標に合わせる
+	auto mouse = DirectX::Mouse::Get().GetState();
+	// 現在のウィンドウサイズを取得
+	auto const outputSize = m_pUserResources->GetDeviceResources()->GetOutputSize();
+	float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
+	float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
+
+	// シーンの変更
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+
+	// フェードアウト中じゃなかったら更新
+	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
+
+	// キーボードトラッカーの取得
+	auto kbTracker = m_pUserResources->GetKeyboardStateTracker();
+
+	// エスケープキーが押されたらゲームメニューを開く
+	if (kbTracker->pressed.Escape) m_gameMenuUI.Click();
+
+	// オーディオUIの更新
+	if (m_audioUI.IsOpen())
+	{
+		m_audioUI.Update(m_collider);
+		return;
+	}
+	else if (m_gameMenuUI.IsOpen())
+	{
+		m_gameMenuUI.Update(m_collider);
+
+		if (transitionMask->IsClose() && transitionMask->IsEnd())
+		{
+			ChangeScene<TitleScene>();
+		}
+
+		return;
+	}
+
 	// リスナーの設定
 	SetListener();
 
@@ -219,8 +265,18 @@ void TutorialScene::Update(float elapsedTime)
 		}
 	}
 
+	// オーディオUIの描画
+	if (m_audioUI.IsOpen())
+	{
+		m_audioUI.Draw(m_collider);
+	}
+	// ゲームメニューUIの描画
+	else if (m_gameMenuUI.IsOpen())
+	{
+		m_gameMenuUI.Draw(m_collider);
+	}
+
 	// チュートリアルシーンに変更
-	auto transitionMask = m_pUserResources->GetTransitionMask();
 	if (transitionMask->IsClose() && transitionMask->IsEnd())
 	{
 		ChangeScene<TitleScene>();
@@ -285,7 +341,7 @@ void TutorialScene::Render()
 
 	// タイマーの描画
 	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
-	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, MAX_TIME, TIMER.scale);
+	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, MAX_TIME, TIMER.scale, 2);
 
 	// 説明のテクスチャがなかったらチュートリアルを描画
 	if (!m_explainTexture.GetTexture())
@@ -306,13 +362,22 @@ void TutorialScene::Render()
 	{
 		m_checkMarkTexture.Draw(CHECKMARK.pos, CHECKMARK.size, CHECKMARK.scale);
 	}
+
+	// オーディオUIの描画
+	if (m_audioUI.IsOpen())
+	{
+		m_audioUI.Draw(m_collider);
+	}
+	// ゲームメニューUIの描画
+	else if (m_gameMenuUI.IsOpen())
+	{
+		m_gameMenuUI.Draw(m_collider);
+	}
 	
 
 	// デバック用
 	// カメラの上向きベクトルの描画
 	/*m_cameraUp->Render();*/
-
-	debugFont->Render(L"Interval", m_interval);
 }
 
 

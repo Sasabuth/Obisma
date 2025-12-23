@@ -89,9 +89,9 @@ void FieldSelectUI::Initialize(Scene* pScene)
 	// メニューの設定
 	for (int i = 0; i < FIELDSELECT_COUNT; i++)
 	{
-		m_button[i].SetPosition(DirectX::SimpleMath::Vector2(FIELDSELECT_POSITIONS[i]));
-		m_button[i].SetSize(DirectX::SimpleMath::Vector2(FIELDSELECT_SIZE[i]));
-		m_button[i].SetScale(FIELDSELECT_SCALES[i]);
+		m_button[i].SetPosition(DirectX::SimpleMath::Vector2(FIELDSELECT[i].pos));
+		m_button[i].SetSize(DirectX::SimpleMath::Vector2(FIELDSELECT[i].size));
+		m_button[i].SetScale(FIELDSELECT[i].scale);
 	}
 
 	for (int i = 0; i < MAXSTAGE_COUNT; i++)
@@ -148,7 +148,7 @@ void FieldSelectUI::Update(const BoxCollider2D& collider)
 /// </summary>
 void FieldSelectUI::Draw(const BoxCollider2D& collider)
 {
-	m_backGround.Draw(DirectX::SimpleMath::Vector2(FIELDSELECT_POSITIONS[3].x, FIELDSELECT_POSITIONS[3].y - 10), FIELDSELECT_SIZE[3], FIELDSELECT_SCALES[3]);
+	m_backGround.Draw(DirectX::SimpleMath::Vector2(FIELDSELECT[3].pos.x, FIELDSELECT[3].pos.y - 10), FIELDSELECT[3].size, FIELDSELECT[3].scale);
 
 	// メニューの数回す
 	for (int i = 0; i < FIELDSELECT_COUNT; i++)

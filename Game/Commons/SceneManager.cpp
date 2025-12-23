@@ -7,9 +7,9 @@
 void SceneManager::Update(float elapsedTime)
 {
 #ifdef ESC_QUIT_ENABLE
-	// ESCキーで終了
-	auto kb = DirectX::Keyboard::Get().GetState();
-	if (kb.Escape) PostQuitMessage(0);
+	//// ESCキーで終了
+	//auto kb = DirectX::Keyboard::Get().GetState();
+	//if (kb.Escape) PostQuitMessage(0);
 #endif
 
 	// シーンの切り替え処理

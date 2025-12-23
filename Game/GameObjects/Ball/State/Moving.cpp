@@ -78,7 +78,7 @@ void Moving::Update(float elapsedTime)
 	m_ball->GetCollider().SetPosition(m_ball->GetPosition());
 
 	// 速度がなくなったらステート変更
-	if (m_ball->GetVelocity().Length() <= STOP_SPEED)
+	if (m_ball->GetVelocity().Length() <= STOP_SPEED && (m_ball->GetPosition() - m_ball->GetShadowHitPos()).Length() < STOP_LENGTH)
 	{
 		m_ball->ChangeState(m_ball->GetStopping());
 	}
@@ -145,7 +145,6 @@ void Moving::Render()
 
 	/*debugFont->Render(L"Moving");
 	debugFont->Render(L"Speed",m_ball->GetVelocity().Length());*/
-	//debugFont->Render(L"Length", m_ball->GetVelocity());
 }
 
 

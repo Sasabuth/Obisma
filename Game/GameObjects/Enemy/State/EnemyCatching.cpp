@@ -120,6 +120,9 @@ void EnemyCatching::Update(float elapsedTime)
 		}
 	}
 
+	// スコアを下げる
+	m_pEnemy->ScoreDown();
+
 	// プレイヤーの設定
 	m_pEnemy->SetVelocity(m_pEnemy->GetGravity());
 	m_pEnemy->SetPosition(m_pEnemy->GetPosition() + m_pEnemy->GetVelocity() * elapsedTime);

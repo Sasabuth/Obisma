@@ -36,6 +36,30 @@ private:
 	static constexpr float BAR_MINPOS = 542.0f;
 	static constexpr float BAR_MAXPOS = 900.0f;
 
+	// UI
+	static constexpr Sprite::Format UI =
+	{
+		DirectX::SimpleMath::Vector2(640.0f, 360.0f),   // 座標
+		DirectX::SimpleMath::Vector2(1743.0f, 850.0f),  // サイズ
+		0.4f                                            // 拡大率
+	};
+
+	// ボタン
+	static constexpr Sprite::Format BUTTON =
+	{
+		DirectX::SimpleMath::Vector2(100.0f, 70.0f),   // 座標
+		DirectX::SimpleMath::Vector2(475.0f, 260.0f),  // サイズ
+		0.3f                                           // 拡大率
+	};
+
+	// 隠す
+	static constexpr Sprite::Format HIDE =
+	{
+		DirectX::SimpleMath::Vector2(640.0f, 360.0f),   // 座標
+		DirectX::SimpleMath::Vector2(216.0f, 157.0f),  // サイズ
+		6.0f                                         // 拡大率
+	};
+
 
 // 変数
 private:
@@ -51,6 +75,9 @@ private:
 
 	// ボタン
 	Button m_button;
+
+	// 隠す
+	Sprite m_hideTexture;
 
 	// 当たったか
 	bool m_isHit[BAR_COUNT];

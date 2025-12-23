@@ -251,6 +251,9 @@
     <ClInclude Include="RenderTexture.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\UI\GameMenuUI.h">
+      <Filter>Game\GameObjects\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -410,6 +413,9 @@
     </ClCompile>
     <ClCompile Include="RenderTexture.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\UI\GameMenuUI.cpp">
+      <Filter>Game\GameObjects\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -20,6 +20,9 @@
 #include "Game/GameObjects/AirTarget/AirTarget.h"
 #include "Game/GameObjects/Score/ScoreManager.h"
 #include "Game/Commons/Sprite.h"
+#include "Game/Commons/Collision.h"
+#include "Game/GameObjects/UI/AudioUI.h"
+#include "Game/GameObjects/UI/GameMenuUI.h"
 
 
 // クラスの定義
@@ -30,6 +33,7 @@ private:
 	static constexpr float MAX_TIME = 100.0f;
 	static constexpr float FINISH_TIME = 0.0f;
 	static constexpr float FADE_TIME = 3.0f;
+	static constexpr float COUNTDOWN_TIME = 3.2f;
 	static constexpr int PLAYER_COUNT = 2;
 
 	static constexpr Sprite::Format FREAM =
@@ -49,8 +53,22 @@ private:
 	static constexpr Sprite::Format FINISH =
 	{
 		DirectX::SimpleMath::Vector2(640.0f, 360.0f),   // 座標
-		DirectX::SimpleMath::Vector2(1728.0f, 372.0f),  // サイズ
-		0.4f                                           // 拡大率
+		DirectX::SimpleMath::Vector2(712.0f, 231.0f),  // サイズ
+		0.8f                                           // 拡大率
+	};
+
+	static constexpr Sprite::Format START =
+	{
+		DirectX::SimpleMath::Vector2(640.0f, 360.0f),   // 座標
+		DirectX::SimpleMath::Vector2(732.0f, 252.0f),  // サイズ
+		0.7f                                           // 拡大率
+	};
+
+	static constexpr Sprite::Format COUNTDOWN =
+	{
+		DirectX::SimpleMath::Vector2(300.0f, 250.0f),   // 座標
+		DirectX::SimpleMath::Vector2(214.0f, 230.0f),  // サイズ
+		1.0f                                           // 拡大率
 	};
 
 
@@ -86,18 +104,35 @@ private:
 	// スコアマネージャー
 	std::unique_ptr<ScoreManager> m_scoreManager;
 
+	// オーディオUI
+	AudioUI m_audioUI;
+
+	// ゲームメニューUI
+	GameMenuUI m_gameMenuUI;
+
 	// ゲーム時間
 	float m_gameTimer;
 	float m_fadeTimer;
+	float m_countDownTimer;
 
 	// テクスチャ
 	Sprite m_frameTexture;
 	Sprite m_timerTexture;
-
+	Sprite m_countDownTexture;
+	Sprite m_startTexture;
 	Sprite m_finishTexture;
 
 	// BGM
 	std::unique_ptr<DirectX::SoundEffectInstance> m_bgm;
+
+	// 開始SE
+	std::unique_ptr<DirectX::SoundEffectInstance> m_startSE;
+
+	// 終了SE
+	std::unique_ptr<DirectX::SoundEffectInstance> m_finishSE;
+
+	// コライダー
+	BoxCollider2D m_collider;
 
 
 // 関数

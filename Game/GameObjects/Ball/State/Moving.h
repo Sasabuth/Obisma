@@ -27,6 +27,8 @@ private:
 
 	// ’â~‚·‚é‘¬“x
 	static constexpr float STOP_SPEED = 0.05f;
+	// ’â~‚·‚é’·‚³
+	static constexpr float STOP_LENGTH = 0.19f;
 	
 
 // •Ï”
