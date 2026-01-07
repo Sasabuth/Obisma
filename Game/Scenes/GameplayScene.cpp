@@ -63,11 +63,6 @@ void GameplayScene::Initialize()
 	// ボールマネージャーの初期化
 	m_ballManager = Factory::CreateBallManager(m_field.get(), Resources::GetInstance()->GetJson(L"Ball.json")["Count"]);
 
-	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
-	{
-		m_ballManager->GetBall(i)->SetGravity(m_field->CorrectUp(m_ballManager->GetBall(i)));
-	}
-
 	// 空中の的の初期化
 	m_airTarget = Factory::CreateAirTarget(m_field.get(), m_camera.get(), DirectX::SimpleMath::Vector3{
 		m_pResources->GetJson(L"AirTarget.json")["Position"]["x"],
@@ -85,7 +80,7 @@ void GameplayScene::Initialize()
 		m_pResources->GetJson(L"Player.json")["Position"]["z"]
 		}
 	);
-	m_player->SetGravity(m_field->CorrectUp(m_player.get()));
+
 
 	// 敵の初期化
 	m_enemy = Factory::CreateEnemy(m_player.get(), m_field.get(), m_airTarget.get(), m_ballManager.get(), DirectX::SimpleMath::Vector3{
@@ -94,11 +89,9 @@ void GameplayScene::Initialize()
 		m_pResources->GetJson(L"Enemy.json")["Position"]["z"]
 		}
 	);
-	m_enemy->SetGravity(m_field->CorrectUp(m_enemy.get()));
 
 	// カメラの上向きベクトルの初期化
-	m_cameraUp = Factory::CreateCameraUp(m_player.get(), DirectX::SimpleMath::Vector3{ 4.0f,4.0f,4.0f });
-	m_cameraUp->SetGravity(m_field->CorrectUp(m_cameraUp.get()));
+	m_cameraUp = Factory::CreateCameraUp(m_field.get(), m_player.get(), DirectX::SimpleMath::Vector3{ 4.0f,4.0f,4.0f });
 
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
@@ -157,7 +150,6 @@ void GameplayScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void GameplayScene::Update(float elapsedTime)
 {
-
 	// マウスの座標に合わせる
 	auto mouse = DirectX::Mouse::Get().GetState();
 	// 現在のウィンドウサイズを取得
@@ -235,19 +227,6 @@ void GameplayScene::Update(float elapsedTime)
 	// フィールドの更新
 	m_field->Update(elapsedTime);
 
-	// レイを保存しないと各更新でX軸の姿勢が変わって計算がおかしくなる
-	DirectX::SimpleMath::Ray ray{ m_player->GetPosition(),  -DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY,m_player->GetRotation()) };
-	DirectX::SimpleMath::Ray ray2{ m_enemy->GetPosition(),  -DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY,m_enemy->GetRotation()) };
-	std::vector<DirectX::SimpleMath::Ray> ray3;
-	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
-	{
-		DirectX::SimpleMath::Ray ballRay = { m_ballManager->GetBall(i)->GetPosition(), -DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_ballManager->GetBall(i)->GetRotation())};
-		ray3.push_back(ballRay);
-	}
-	DirectX::SimpleMath::Ray ray4{ m_cameraUp->GetPosition(),  -DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY,m_cameraUp->GetRotation()) };
-	DirectX::SimpleMath::Ray ray5{ m_airTarget->GetPosition(),  -DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY,m_airTarget->GetRotation()) };
-
-
 	// プレイヤーの更新
 	SetPlayerInputState();
 	m_player->Update(elapsedTime);
@@ -265,14 +244,13 @@ void GameplayScene::Update(float elapsedTime)
 	m_cameraUp->Update(elapsedTime);
 
 	// ポリゴンの当たり判定
-	IsHitEntityToField(ray, m_player.get(), m_field.get());
-	IsHitEntityToField(ray2, m_enemy.get(), m_field.get());
-	IsHitEntityToField(ray4, m_cameraUp.get(), m_field.get());
-	//IsHitEntityToField(ray5, m_airTarget.get(), m_field.get());
+	IsHitEntityToField(m_player.get(), m_field.get());
+	IsHitEntityToField(m_enemy.get(), m_field.get());
+	IsHitEntityToField(m_cameraUp.get(), m_field.get());
 
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
 	{
-		IsHitEntityToField(ray3[i], m_ballManager->GetBall(i), m_field.get());
+		IsHitEntityToField(m_ballManager->GetBall(i), m_field.get());
 
 		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
 		{
@@ -425,31 +403,14 @@ void GameplayScene::OnDeviceLost()
 
 /// <summary>
 /// 実体とフィールドが当たっていたら
-/// </summary> 
-/// <param name="pIEntity">実体</param>
-/// <param name="pField">フィールド</param>
-void GameplayScene::IsHitEntityToField(IEntity* pIEntity, Field* pField)
-{
-	// 重力の設定
-	pIEntity->SetGravity(pField->CorrectUp(pIEntity));
-
-	// 当たっていたら重なりの補填
-	if (IsHit(pIEntity->GetCollider(), pField->GetCollider()))
-	{
-		pIEntity->CorrectOverlap(*pField);
-	}
-}
-
-
-
-/// <summary>
-/// 実体とフィールドが当たっていたら
 /// </summary>
 /// <param name="ray">レイ</param>
 /// <param name="pIEntity">実体</param>
 /// <param name="pField">フィールド</param>
-void GameplayScene::IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pIEntity, Field* pField)
+void GameplayScene::IsHitEntityToField(IEntity* pIEntity, Field* pField)
 {
+	// レイ
+	DirectX::SimpleMath::Ray ray{ pIEntity->GetPosition(), pIEntity->GetGravity() };
 	// 座標
 	DirectX::SimpleMath::Vector3 pos;
 	// 方向ベクトル
@@ -544,7 +505,6 @@ void GameplayScene::IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pI
 		// 重力の設定
 		pIEntity->SetGravity(pField->CorrectUp(pIEntity));
 	}
-
 }
 
 

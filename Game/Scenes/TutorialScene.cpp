@@ -98,7 +98,7 @@ void TutorialScene::Initialize()
 	);
 
 	// カメラの上向きベクトルの初期化
-	m_cameraUp = Factory::CreateCameraUp(m_player.get(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
+	m_cameraUp = Factory::CreateCameraUp(m_field.get(), m_player.get(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
 
 	// 矢印の生成
 	m_arrow = Factory::CreateArrow(m_player.get(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
@@ -134,6 +134,9 @@ void TutorialScene::Initialize()
 	// 説明番号の初期化
 	m_explainIndex = EXPLAINORDER::SCORE_UP;
 	m_explainTexture.SetTexture(nullptr);
+
+	// 警告テクスチャの設定
+	m_warningTexture.SetTexture(nullptr);
 
 	// チェックできない
 	m_isCheck = false;
@@ -349,13 +352,27 @@ void TutorialScene::Render()
 		if (m_tutorialIndex >= ORDER::MOUSE_MOVE && m_tutorialIndex < ORDER::MAX_ORDERCOUNT)
 		{
 			m_tutorialTexture.Draw(TUTORIAL[m_tutorialIndex].pos, TUTORIAL[m_tutorialIndex].size, TUTORIAL[m_tutorialIndex].scale);
+
+			// 警告のテクスチャの描画
+			if (m_warningTexture.GetTexture())
+			{
+				m_warningTexture.Draw(DirectX::SimpleMath::Vector2(WARNING.pos.x, TUTORIAL[m_tutorialIndex].pos.y + WARNING.pos.y), WARNING.size, WARNING.scale);
+			}
 		}
 	}
 	// 説明の描画
 	else
 	{
 		m_explainTexture.Draw(EXPLAIN[m_explainIndex].pos, EXPLAIN[m_explainIndex].size, EXPLAIN[m_explainIndex].scale);
+
+		// 警告のテクスチャの描画
+		if (m_warningTexture.GetTexture())
+		{
+			m_warningTexture.Draw(DirectX::SimpleMath::Vector2(WARNING.pos.x, EXPLAIN[m_explainIndex].pos.y + WARNING.pos.y), WARNING.size, WARNING.scale);
+		}
 	}
+
+	
 	
 	// チェックが付いたら描画
 	if (m_isCheck)
@@ -443,6 +460,16 @@ void TutorialScene::OnDeviceLost()
 /// </summary>
 void TutorialScene::Tutorial(float elapsedTime)
 {
+	// フィールドとマウスレイが当たっていたらプレイヤーを回転
+	if (!m_player->CalcRaySphere(m_field->GetCollider().GetPosition(), m_field->GetCollider().GetRadius(), m_player->GetMouseRayHitPos()) && !m_player->GetIsLockOn())
+	{
+		m_warningTexture.SetTexture(m_pResources->GetTexture(L"Warning.png"));
+	}
+	else
+	{
+		m_warningTexture.SetTexture(nullptr);
+	}
+
 	// チュートリアル番号で分ける
 	switch (m_tutorialIndex)
 	{
@@ -745,18 +772,107 @@ void TutorialScene::Tutorial(float elapsedTime)
 
 /// <summary>
 /// 実体とフィールドが当たっていたら
-/// </summary> 
+/// </summary>
+/// <param name="ray">レイ</param>
 /// <param name="pIEntity">実体</param>
 /// <param name="pField">フィールド</param>
 void TutorialScene::IsHitEntityToField(IEntity* pIEntity, Field* pField)
 {
-	// 重力の設定
-	pIEntity->SetGravity(pField->CorrectUp(pIEntity));
+	// レイ
+	DirectX::SimpleMath::Ray ray{ pIEntity->GetPosition(), pIEntity->GetGravity() };
+	// 座標
+	DirectX::SimpleMath::Vector3 pos;
+	// 方向ベクトル
+	DirectX::SimpleMath::Vector3 vector;
+	// 当たったか
+	bool isHit = false;
 
-	// 当たっていたら重なりの補填
-	if (IsHit(pIEntity->GetCollider(), pField->GetCollider()))
+	// ワールド座標
+	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(pField->GetStageCollider().GetScale()) *
+		DirectX::SimpleMath::Matrix::CreateTranslation(pField->GetStageCollider().GetPosition());
+
+	// 三角形の数分for文で回す
+	for (size_t i = 0; i + 2 < pField->GetStageCollider().GetIndicesCount(); i += 3)
 	{
-		pIEntity->CorrectOverlap(*pField);
+		// 三角形の点のワールド座標を取得
+		DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i)).position, world);
+		DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i + 1)).position, world);
+		DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i + 2)).position, world);
+
+		// 三角形の中心から遠かったら当たってないことにする
+		DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
+		float length = (ray.position - center).Length();
+		if (length > 5.0f)
+		{
+			continue;
+		}
+
+		// 当たった座標
+		DirectX::SimpleMath::Vector3 pos1;
+		// レイと三角形が当たっているか
+		if (IsHit(ray.position, ray.direction, world, pField->GetStageCollider(), (int)i, pos1))
+		{
+			// 前と後に当たった座標の距離を求める
+			DirectX::SimpleMath::Vector3 d0 = pIEntity->GetPosition() - pos;
+			DirectX::SimpleMath::Vector3 d1 = pIEntity->GetPosition() - pos1;
+
+			// 後に当たったほうが近かったら
+			if (d0.Length() > d1.Length())
+			{
+				// 後の座標を入れる
+				pos = pos1;
+
+				// 三角形の法線ベクトルを入れる
+				vector = DirectX::SimpleMath::Vector3::Lerp(
+					-pIEntity->GetGravity(),
+					pField->GetStageCollider().GetNormalVector((int)i),
+					0.3f
+				);
+			}
+		}
+
+		// 球体コライダーと三角形が当たっているか
+		if (IsHit(pIEntity->GetCollider(), pField->GetStageCollider(), (int)i) && !isHit)
+		{
+			// 当たっている
+			isHit = true;
+		}
+	}
+
+
+	// コライダーが当たっていたらかフィールド貫通しているとき
+	if (isHit)
+	{
+		// 押し出しをする
+		pIEntity->CorrectOverlap(pos);
+	}
+	else
+	{
+		// 万が一ステージに埋まったら
+		if ((pIEntity->GetPosition() - pField->GetPosition()).Length() < (pIEntity->GetShadowHitPos() - pField->GetPosition()).Length())
+		{
+			// Y軸ベクトル
+			DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, pIEntity->GetRotation());
+			// 当たった座標
+			DirectX::SimpleMath::Vector3 hitPos = pIEntity->GetShadowHitPos();
+
+			// ベクトル方向にコライダーの半径分押し出す
+			pIEntity->SetPosition(hitPos + currentUp * pIEntity->GetCollider().GetRadius());
+		}
+	}
+
+	// 法線ベクトルがあったら
+	if (vector.Length() >= 0.00001f)
+	{
+		// 重力の設定
+		pIEntity->SetGravity(pField->CorrectUp(pIEntity, vector));
+		// 影の座標を当たった座標にする
+		pIEntity->SetShadowHitPos(pos);
+	}
+	else
+	{
+		// 重力の設定
+		pIEntity->SetGravity(pField->CorrectUp(pIEntity));
 	}
 }
 

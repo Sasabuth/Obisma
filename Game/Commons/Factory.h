@@ -51,6 +51,7 @@ public:
 
 	// カメラの上向きベクトルを生成する
 	static std::unique_ptr<CameraUp> CreateCameraUp(
+		Field* pField,
 		Player* pPlayer,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);

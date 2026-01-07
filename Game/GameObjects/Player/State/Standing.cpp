@@ -30,13 +30,13 @@ Standing::Standing(Player* pPlayer)
 
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();
-	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources\\Animations\\Player_Idle.sdkmesh_anim");
+	// アニメーションをロードする	
+	m_animation->Load(L"Resources/Animations/Player_Idle.sdkmesh_anim");
 	// アニメーションとモデルをバインドする
 	m_animation->Bind(*m_model);
 	// ボーン用のトランスフォーム配列を生成する
 	m_drawBones = DirectX::ModelBone::MakeArray(m_model->bones.size());
-	ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
+	//ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
 
 	// アニメーションの初期化
 	AnimationUpdate(0.0f);
@@ -206,7 +206,7 @@ void Standing::Render()
 	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), forward, false, DirectX::Colors::Yellow);
 	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), -vertical, false, DirectX::Colors::Green);
-	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetMouseRayHitPos(), DirectX::SimpleMath::Vector3::UnitY, false, DirectX::Colors::White);
+	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetMouseRayHitPos(), DirectX::SimpleMath::Vector3::UnitY, false, DirectX::Colors::White);
 	m_primitiveBatch->End();
 
 	/*auto* debugFont = m_pUserResources->GetDebugFont();

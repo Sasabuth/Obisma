@@ -20,6 +20,7 @@ std::unique_ptr<Player> Factory::CreatePlayer(Field* pField, AirTarget* pAirTarg
 	player = std::make_unique<Player>(pField, pAirTarget, pBallManager);
 	// プレイヤーを初期化
 	player->Initialize(initialPosition);
+	player->SetGravity(pField->CorrectUp(player.get()));
 	// プレイヤーを返す
 	return std::move(player);
 }
@@ -33,11 +34,12 @@ std::unique_ptr<Enemy> Factory::CreateEnemy(Player* pPlayer, Field* pField, AirT
 	enemy = std::make_unique<Enemy>(pPlayer, pField, pAirTarget,pBallManager);
 	// 敵を初期化
 	enemy->Initialize(initialPosition);
+	enemy->SetGravity(pField->CorrectUp(enemy.get()));
 	// 敵を返す
 	return std::move(enemy);
 }
 
-std::unique_ptr<CameraUp> Factory::CreateCameraUp(Player* pPlayer, const DirectX::SimpleMath::Vector3& initialPosition)
+std::unique_ptr<CameraUp> Factory::CreateCameraUp(Field* pField, Player* pPlayer, const DirectX::SimpleMath::Vector3& initialPosition)
 {
 	// カメラの上向きベクトルを宣言
 	std::unique_ptr<CameraUp> cameraUp;
@@ -45,6 +47,7 @@ std::unique_ptr<CameraUp> Factory::CreateCameraUp(Player* pPlayer, const DirectX
 	cameraUp = std::make_unique<CameraUp>(pPlayer);
 	// カメラの上向きベクトルを初期化
 	cameraUp->Initialize(initialPosition);
+	cameraUp->SetGravity(pField->CorrectUp(cameraUp.get()));
 	// カメラの上向きベクトルを返す
 	return std::move(cameraUp);
 }
@@ -69,6 +72,7 @@ std::unique_ptr<Ball> Factory::CreateBall(Field* pField, const DirectX::SimpleMa
 	ball = std::make_unique<Ball>(pField);
 	// ボールの初期化
 	ball->Initialize(initialPosition);
+	ball->SetGravity(pField->CorrectUp(ball.get()));
 	// ボールを返す
 	return std::move(ball);
 }

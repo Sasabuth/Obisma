@@ -173,7 +173,6 @@ public:
 private:
 	// 実体とフィールドの衝突判定
 	void IsHitEntityToField(IEntity* pIEntity, Field* pField);
-	void IsHitEntityToField(DirectX::SimpleMath::Ray ray, IEntity* pIEntity, Field* pField);
 
 	// リスナーの設定
 	void SetListener();

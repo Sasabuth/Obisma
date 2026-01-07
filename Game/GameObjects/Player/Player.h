@@ -264,6 +264,7 @@ public:
 
 	// ロックオンを出すか
 	void SetIsLockOn(bool isLockOn) { m_isLockOn = isLockOn; }
+	bool GetIsLockOn() const { return m_isLockOn; }
 
 	// 状態の取得
 	IState* GetCurrentState() const { return m_currentState; }

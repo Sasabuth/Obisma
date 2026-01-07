@@ -280,8 +280,8 @@ void ThrowingR::Render()
 	//m_primitiveBatch->End();
 
 	// デバックフォントの描画
-	auto* debugFont = m_pUserResources->GetDebugFont();
-	debugFont->Render(L"angleD", std::any(angleD));
+	//auto* debugFont = m_pUserResources->GetDebugFont();
+	/*debugFont->Render(L"angleD", std::any(angleD));*/
 }
 
 

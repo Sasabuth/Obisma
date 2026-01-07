@@ -37,7 +37,10 @@ Running::Running(Player* pPlayer)
 
 	// ボーン用のトランスフォーム配列を生成する
 	m_drawBones = DirectX::ModelBone::MakeArray(m_model->bones.size());
-	ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
+	/*ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());*/
+
+	// アニメーションの初期化
+	AnimationUpdate(0.0f);
 }
 
 
@@ -95,6 +98,9 @@ void Running::Update(float elapsedTime)
 
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
+
+	// マウス方向の回転の更新
+	UpdateRotateToMouse();
 
 	// レイの設定
 	auto const r = m_pUserResources->GetDeviceResources()->GetOutputSize();
@@ -229,14 +235,8 @@ void Running::EventHandle(Event e)
 
 	// 走る
 	case IState::Event::RUN:
-		// 速度の設定
-		m_pPlayer->SetVelocity(m_pPlayer->GetGravity());
-
-		// マウス方向の回転の更新
-		UpdateRotateToMouse();
-
 		// 向いている方向に走る
-		m_pPlayer->SetVelocity(m_pPlayer->GetVelocity() + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation()) *
+		m_pPlayer->SetVelocity(m_pPlayer->GetGravity() + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation()) *
 			Resources::GetInstance()->GetJson(L"Player.json")["PlayerSpeed"]
 		);
 		break;
