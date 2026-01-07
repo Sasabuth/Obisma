@@ -268,15 +268,15 @@ void TutorialScene::Update(float elapsedTime)
 		}
 	}
 
-	// オーディオUIの描画
-	if (m_audioUI.IsOpen())
+	// 警告のテクスチャの設定
+	DirectX::SimpleMath::Vector3 hitPos;
+	if (!m_player->CalcRaySphere(m_field->GetCollider().GetPosition(), m_field->GetCollider().GetRadius(), hitPos) && !m_player->GetIsLockOn())
 	{
-		m_audioUI.Draw(m_collider);
+		m_warningTexture.SetTexture(m_pResources->GetTexture(L"Warning.png"));
 	}
-	// ゲームメニューUIの描画
-	else if (m_gameMenuUI.IsOpen())
+	else
 	{
-		m_gameMenuUI.Draw(m_collider);
+		m_warningTexture.SetTexture(nullptr);
 	}
 
 	// チュートリアルシーンに変更
@@ -460,16 +460,6 @@ void TutorialScene::OnDeviceLost()
 /// </summary>
 void TutorialScene::Tutorial(float elapsedTime)
 {
-	// フィールドとマウスレイが当たっていたらプレイヤーを回転
-	if (!m_player->CalcRaySphere(m_field->GetCollider().GetPosition(), m_field->GetCollider().GetRadius(), m_player->GetMouseRayHitPos()) && !m_player->GetIsLockOn())
-	{
-		m_warningTexture.SetTexture(m_pResources->GetTexture(L"Warning.png"));
-	}
-	else
-	{
-		m_warningTexture.SetTexture(nullptr);
-	}
-
 	// チュートリアル番号で分ける
 	switch (m_tutorialIndex)
 	{
