@@ -16,6 +16,11 @@
 
 
 // クラスの定義
+class Field;
+class Camera;
+
+
+// クラスの定義
 class BallManager
 {
 public:
@@ -26,6 +31,9 @@ private:
 	// フィールド
 	Field* m_pField;
 
+	// カメラ
+	Camera* m_pCamera;
+
 	// ボールの配列
 	std::vector<std::unique_ptr<Ball>> m_balls;
 
@@ -33,7 +41,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	BallManager(Field* pField);
+	BallManager(Field* pField, Camera* pCamera);
 
 	// デストラクタ
 	~BallManager();

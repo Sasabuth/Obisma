@@ -14,10 +14,10 @@
 	"TutorialPos2": {
 		"x": -2.0,
 		"y": 3.0,
-		"z": 2.0
+		"z": 2.5
 	},
 
-	"ColliderSize": 0.4,
+	"ColliderSize": 0.56,
 
 	"ShadowSize": 0.4,
 

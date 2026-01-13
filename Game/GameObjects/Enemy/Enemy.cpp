@@ -163,6 +163,25 @@ void Enemy::CorrectOverlap(Field& field)
 	m_position += delta * pushLength;
 }
 
+void Enemy::CorrectOverlap(IEntity& iEntity)
+{
+	// 差分を求める
+	DirectX::SimpleMath::Vector3 delta = m_position - iEntity.GetCollider().GetPosition();
+
+	// 長さを求める
+	float distance = delta.Length();
+	float minDistance = m_collider.GetRadius() + iEntity.GetCollider().GetRadius();
+
+	// 差分を求める
+	float pushLength = minDistance - distance;
+
+	// 正規化
+	delta.Normalize();
+
+	// 押し出しする
+	m_position += delta * pushLength;
+}
+
 
 
 /// <summary>

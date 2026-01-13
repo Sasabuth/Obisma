@@ -29,6 +29,8 @@ private:
 	static constexpr float STOP_SPEED = 0.05f;
 	// 停止する長さ
 	static constexpr float STOP_LENGTH = 0.19f;
+	// パーティクルの生存時間
+	static constexpr float PARTICLE_LIFE = 0.7f;
 	
 
 // 変数

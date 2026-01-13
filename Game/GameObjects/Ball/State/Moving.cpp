@@ -82,7 +82,12 @@ void Moving::Update(float elapsedTime)
 	{
 		m_ball->ChangeState(m_ball->GetStopping());
 	}
+
+	// パーティクルの設定
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	m_ball->GetParticle()->SetEffectPosition(context, PARTICLE_LIFE, m_ball->GetPosition());
 }
+
 
 
 

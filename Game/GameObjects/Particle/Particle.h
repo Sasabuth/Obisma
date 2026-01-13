@@ -36,7 +36,8 @@ public:
 		DirectX::SimpleMath::Vector4	Diffuse;
 	};
 
-	static constexpr float LINE_SCALE = 0.62f;
+	static constexpr float LINE_SCALE = 0.1f;
+	static constexpr float STER_SCALE = 0.62f;
 
 private:
 	// ランダムデバイス 
@@ -77,7 +78,7 @@ public:
 	Particle();
 	~Particle();
 
-	void Create(ID3D11Device1* device, ID3D11DeviceContext1* context);
+	void Create(ID3D11Device1* device, ID3D11DeviceContext1* context, const std::wstring& filename);
 
 	void Update(float elapsedTime);
 
@@ -88,7 +89,7 @@ public:
 		DirectX::SimpleMath::Vector3 eye,
 		DirectX::SimpleMath::Vector3 up);
 
-	void SetEffectPosition(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Vector3 pos);
+	void SetEffectPosition(ID3D11DeviceContext* pContext, float life, DirectX::SimpleMath::Vector3 pos);
 	void SetEffectPosition(ID3D11DeviceContext* pContext, float life, DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector3 gravity);
 
 	// 当たり判定

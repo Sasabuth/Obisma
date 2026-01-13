@@ -181,33 +181,33 @@ void Standing::Render()
 	// デバック
 	/*m_model->Draw(context, *states, world, *view, *proj);*/
 
-	// 軸の描画
-	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
+	//// 軸の描画
+	//context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
 
-	// 深度の設定
-	context->OMSetDepthStencilState(states->DepthDefault(), 0);
+	//// 深度の設定
+	//context->OMSetDepthStencilState(states->DepthDefault(), 0);
 
-	// カリングの設定
-	context->RSSetState(states->CullNone());
+	//// カリングの設定
+	//context->RSSetState(states->CullNone());
 
-	// 
-	m_basicEffect->SetView(*view);
-	m_basicEffect->SetProjection(*proj);
-	m_basicEffect->Apply(context);
+	//// 
+	//m_basicEffect->SetView(*view);
+	//m_basicEffect->SetProjection(*proj);
+	//m_basicEffect->Apply(context);
 
-	// インプットレイアウトの設定
-	context->IASetInputLayout(m_inputLayout.Get());
+	//// インプットレイアウトの設定
+	//context->IASetInputLayout(m_inputLayout.Get());
 
-	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pPlayer->GetRotation());
-	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pPlayer->GetRotation());
-	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 5.0f, 0.0f), m_pPlayer->GetRotation());
+	//DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pPlayer->GetRotation());
+	//DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pPlayer->GetRotation());
+	//DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 5.0f, 0.0f), m_pPlayer->GetRotation());
 
-	m_primitiveBatch->Begin();
+	//m_primitiveBatch->Begin();
 	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), forward, false, DirectX::Colors::Yellow);
 	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), horizontal, false, DirectX::Colors::Red);
 	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), -vertical, false, DirectX::Colors::Green);
-	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetMouseRayHitPos(), DirectX::SimpleMath::Vector3::UnitY, false, DirectX::Colors::White);
-	m_primitiveBatch->End();
+	////DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetMouseRayHitPos(), DirectX::SimpleMath::Vector3::UnitY, false, DirectX::Colors::White);
+	//m_primitiveBatch->End();
 
 	/*auto* debugFont = m_pUserResources->GetDebugFont();
 
@@ -377,6 +377,8 @@ void Standing::UpdateRotateToMouse()
 		if (m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetMouseRayHitPos()))
 		{
 			m_pPlayer->SetIsLockOn(true);
+			// マウスレイの当たった座標の設定
+			m_pPlayer->SetMouseRayHitPos(m_pPlayer->GetAirTarget()->GetPosition());
 			// マウス方向に回転
 			m_pPlayer->RotateToMouse();
 		}

@@ -71,7 +71,7 @@ void AirTarget::Initialize(DirectX::SimpleMath::Vector3 position)
 	//  パーティクル用オブジェクトの作成
 	m_particle = std::make_unique<Particle>();
 	//  初期化
-	m_particle->Create(device, context);
+	m_particle->Create(device, context, L"Ster.png");
 }
 
 
@@ -89,7 +89,7 @@ void AirTarget::Update(float elapsedTime)
 	m_particle->CreateBillboard(m_position, m_pCamera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 
-	m_particle->HandleFieldCollision(*m_pField);
+	//m_particle->HandleFieldCollision(*m_pField);
 	
 
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
@@ -113,12 +113,12 @@ void AirTarget::Render()
 	m_particle->Render(context, *view, *proj);
 
 	// デバック
-	/*m_collider.Draw(states, *view, *proj);*/
+	//m_collider.Draw(states, *view, *proj);
 
 	/*m_particle->ColliderDraw(states, *view, *proj);*/
 
 	/*auto debugFont = m_pUserResources->GetDebugFont();
-	debugFont->Render(L"Position", std::any(m_position));*/
+	debugFont->Render(L"index", std::any(m_debugIndex));*/
 }
 
 
@@ -271,10 +271,10 @@ void AirTarget::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* 
 
 	uint16_t indexes[] = { 2,3,1,2,1,0 };
 
-	vertexes[0].position = DirectX::SimpleMath::Vector3(-radius, 0.03f, -radius);
-	vertexes[1].position = DirectX::SimpleMath::Vector3(radius, 0.03f, -radius);
-	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, 0.03f, radius);
-	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, 0.03f, radius);
+	vertexes[0].position = DirectX::SimpleMath::Vector3(-radius, SHADOW_OFFSET, -radius);
+	vertexes[1].position = DirectX::SimpleMath::Vector3(radius, SHADOW_OFFSET, -radius);
+	vertexes[2].position = DirectX::SimpleMath::Vector3(-radius, SHADOW_OFFSET, radius);
+	vertexes[3].position = DirectX::SimpleMath::Vector3(radius, SHADOW_OFFSET, radius);
 
 	for (int i = 0; i < 4; ++i)
 	{
@@ -309,6 +309,8 @@ void AirTarget::RandomPosition()
 		index = dist(mt);
 	}
 
+	m_debugIndex = index;
+
 	// 三角形の中心を取得
 	DirectX::SimpleMath::Vector3 center = m_pField->GetStageCollider().GetCenterPosition(index);
 
@@ -320,7 +322,7 @@ void AirTarget::RandomPosition()
 
 
 	// 元の座標からY軸方向に高くして置く
-	m_position = m_position + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate) * 2;
+	m_position = m_position + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate) * OFFSET;
 }
 
 

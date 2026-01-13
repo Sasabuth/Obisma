@@ -168,8 +168,8 @@ void FieldSelectUI::Draw(const BoxCollider2D& collider)
 
 	m_stageTexture[m_fieldIndex].Draw(STAGE.pos, STAGE.size, STAGE.scale);
 
-	auto debugFont = m_pUserResources->GetDebugFont();
-	debugFont->Render(L"FieldIndex", m_fieldIndex);
+	/*auto debugFont = m_pUserResources->GetDebugFont();
+	debugFont->Render(L"FieldIndex", m_fieldIndex);*/
 }
 
 

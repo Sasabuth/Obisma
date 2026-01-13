@@ -64,12 +64,12 @@ std::unique_ptr<Field> Factory::CreateField(int stageIndex, bool isSkyDome)
 	return std::move(field);
 }
 
-std::unique_ptr<Ball> Factory::CreateBall(Field* pField, const DirectX::SimpleMath::Vector3& initialPosition)
+std::unique_ptr<Ball> Factory::CreateBall(Field* pField, Camera* pCamera, const DirectX::SimpleMath::Vector3& initialPosition)
 {
 	// ボールの宣言
 	std::unique_ptr<Ball> ball;
 	// ボールの生成
-	ball = std::make_unique<Ball>(pField);
+	ball = std::make_unique<Ball>(pField, pCamera);
 	// ボールの初期化
 	ball->Initialize(initialPosition);
 	ball->SetGravity(pField->CorrectUp(ball.get()));
@@ -77,12 +77,12 @@ std::unique_ptr<Ball> Factory::CreateBall(Field* pField, const DirectX::SimpleMa
 	return std::move(ball);
 }
 
-std::unique_ptr<BallManager> Factory::CreateBallManager(Field* pField, int ballCount)
+std::unique_ptr<BallManager> Factory::CreateBallManager(Field* pField, Camera* pCamera, int ballCount)
 {
 	// ボールマネージャーの宣言
 	std::unique_ptr<BallManager> ballManager;
 	// ボールマネージャーの生成
-	ballManager = std::make_unique<BallManager>(pField);
+	ballManager = std::make_unique<BallManager>(pField, pCamera);
 	// ボールマネージャーの初期化
 	ballManager->Initialize(ballCount);
 	// ボールマネージャーを返す

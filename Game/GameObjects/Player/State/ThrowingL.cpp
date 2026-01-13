@@ -94,39 +94,48 @@ void ThrowingL::Update(float elapsedTime)
 	if (!m_isThowing)
 	{
 		// 方向
-		DirectX::SimpleMath::Vector3 dir = m_pPlayer->GetPosition() - m_pPlayer->GetMouseRayHitPos();
-		dir.Normalize();
+		DirectX::SimpleMath::Vector3 dir;
+		float angle = 0.0f;
 
-		// 方向ベクトルの反転
-		DirectX::SimpleMath::Vector3 targetUp;
-		targetUp = -dir;
-
-		// 現在の姿勢制御
-		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation());
-
-		// 回転軸の計算
-		DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
-		axis.Normalize();
-
-		// 回転角の計算
-		float dot = currentUp.Dot(targetUp);
-		float angle = acosf(dot);
-
-		// クォータニオンの作成
-		DirectX::SimpleMath::Quaternion q;
-
-		// 角度が少しでもあれば軸を作る
-		if (angle > 0.01f)
+		// マウスレイの当たった座標があったら
+		if (m_pPlayer->GetMouseRayHitPos().Length() > 0.001f)
 		{
-			q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
-		}
-		// なければ何もしない
-		else
-		{
-			q = DirectX::SimpleMath::Quaternion::Identity;
-		}
+			// 現在の位置から当たった座標の長さを調べる
+			dir = m_pPlayer->GetPosition() - m_pPlayer->GetMouseRayHitPos();
+			dir.Normalize();
 
-		m_pPlayer->SetRotation(m_pPlayer->GetRotation() * q);
+			// 方向ベクトルの反転
+			DirectX::SimpleMath::Vector3 targetUp;
+			targetUp = -dir;
+
+			// 現在の姿勢制御
+			DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation());
+
+			// 回転軸の計算
+			DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
+			axis.Normalize();
+
+			// 回転角の計算
+			float dot = currentUp.Dot(targetUp);
+			angle = acosf(dot);
+
+			// クォータニオンの作成
+			DirectX::SimpleMath::Quaternion q;
+
+			// 角度が少しでもあれば軸を作る
+			if (angle > 0.01f)
+			{
+				q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angle);
+			}
+			// なければ何もしない
+			else
+			{
+				q = DirectX::SimpleMath::Quaternion::Identity;
+			}
+
+			// プレイヤーの回転
+			m_pPlayer->SetRotation(m_pPlayer->GetRotation() * q);
+		}
 
 		// 右手に持たせる
 		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
@@ -146,31 +155,37 @@ void ThrowingL::Update(float elapsedTime)
 
 			// 投げる角度の取得
 			DirectX::SimpleMath::Quaternion rotate;
-			// 角度に応じて投げる角度を調整
-			if (angleDeg < 35.0f)
+			// マウスレイがフィールド上に当たっていたら
+			if (m_pPlayer->GetMouseRayHitPos().Length() > 0.001f)
 			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-					Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"])
-				);
-			}
-			else if (angleDeg < 75.0f)
-			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-					Resources::GetInstance()->GetJson(L"Player.json")["AngleMiddle"])
-				);
-			}
-			else
-			{
-				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-					Resources::GetInstance()->GetJson(L"Player.json")["AngleHigh"])
-				);
+				// 角度に応じて投げる角度を調整
+				if (angleDeg < 35.0f)
+				{
+					rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+						Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"])
+					);
+				}
+				else if (angleDeg < 75.0f)
+				{
+					rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+						Resources::GetInstance()->GetJson(L"Player.json")["AngleMiddle"])
+					);
+				}
+				else
+				{
+					rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+						Resources::GetInstance()->GetJson(L"Player.json")["AngleHigh"])
+					);
+				}
 			}
 
 			// ボールの速度の取得
 			float speed = Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"];
 
-			// ロックオンしているかつ当たる範囲外ならボールの速度を遅くする
-			if (!m_pPlayer->IsInHitRange() && m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetMouseRayHitPos()))
+			// ロックオンしているかつ当たる範囲外またはマウスレイの長さが0だったらならボールの速度を遅くする
+			if (!m_pPlayer->IsInHitRange() && 
+				m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetMouseRayHitPos()) ||
+				m_pPlayer->GetMouseRayHitPos().Length() < 0.001f)
 			{
 				speed *= (float)Resources::GetInstance()->GetJson(L"Player.json")["Decay"];
 			}

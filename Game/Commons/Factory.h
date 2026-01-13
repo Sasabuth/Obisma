@@ -62,12 +62,14 @@ public:
 	// ボールを生成する
 	static std::unique_ptr<Ball> CreateBall(
 		Field* pField,
+		Camera* pCamera,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
 	// ボールマネージャーを生成する
 	static std::unique_ptr<BallManager> CreateBallManager(
 		Field* pField,
+		Camera* pCamera,
 		int ballCount
 	);
 

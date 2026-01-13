@@ -143,6 +143,7 @@ public:
 
 	// 重なりの補填
 	void CorrectOverlap(Field& field) override;
+	void CorrectOverlap(IEntity& iEntity);
 	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
 
 	// ステートの変更

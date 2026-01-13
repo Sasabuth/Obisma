@@ -45,13 +45,13 @@ Particle::~Particle()
 /// 生成関数
 /// </summary>
 /// <param name="pDR">ユーザーリソース等から持ってくる</param>
-void Particle::Create(ID3D11Device1* device, ID3D11DeviceContext1* context)
+void Particle::Create(ID3D11Device1* device, ID3D11DeviceContext1* context, const std::wstring& filename)
 {
 	//	シェーダーの作成
 	CreateShader(device);
 
 	// テクスチャの読み込み
-	m_texture = Resources::GetInstance()->GetTexture(L"Ster.png");
+	m_texture = Resources::GetInstance()->GetTexture(filename.c_str());
 
 	//	プリミティブバッチの作成
 	m_batch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColorTexture>>(context);
@@ -133,17 +133,17 @@ void Particle::CreateShader(ID3D11Device1* device)
 	device->CreateBuffer(&bd, nullptr, &m_CBuffer);
 }
 
-void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Vector3 pos)
+void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, float life, DirectX::SimpleMath::Vector3 pos)
 {
 	//	新しいパーティクル情報を作成する
 	std::unique_ptr<ParticleUtility> pU = std::make_unique<ParticleUtility>(
 		pContext,
-		2.3f,																							//	生存時間(s)
+		life,																						    //	生存時間(s)
 		pos,						                                                                    //	基準座標
 		DirectX::SimpleMath::Vector3::Zero,													            //	速度
 		DirectX::SimpleMath::Vector3::Zero,																//	加速度
-		DirectX::SimpleMath::Vector3(LINE_SCALE), DirectX::SimpleMath::Vector3(0.1f),					//	初期スケール、最終スケール
-		DirectX::SimpleMath::Color(1.0f, 0.5f, 0.0f, 0.5f), DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 0.f)//	初期カラー、最終カラー
+		DirectX::SimpleMath::Vector3(LINE_SCALE), DirectX::SimpleMath::Vector3(0.0f),					//	初期スケール、最終スケール
+		DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 1.0f), DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 0.f)//	初期カラー、最終カラー
 	);
 
 	//	リストに追加
@@ -171,7 +171,7 @@ void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, float life, Dire
 		pos,						                                                                    //	基準座標
 		DirectX::SimpleMath::Vector3((float)rand(mt), (float)rand(mt), (float)rand(mt)),				//	速度
 		gravity,																                        //	加速度
-		DirectX::SimpleMath::Vector3(LINE_SCALE), DirectX::SimpleMath::Vector3(0.1f),					//	初期スケール、最終スケール
+		DirectX::SimpleMath::Vector3(STER_SCALE), DirectX::SimpleMath::Vector3(0.1f),					//	初期スケール、最終スケール
 		DirectX::SimpleMath::Color(1.0f, 1.0, 0.0f, 0.7f), DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 0.f)//	初期カラー、最終カラー
 	);
 

@@ -24,7 +24,7 @@ class Hitting : public IState
 {
 // ’è”
 private:
-	static constexpr int PARTICLE_COUNT = 10;
+	static constexpr int PARTICLE_COUNT = 20;
 	static constexpr float PARTICLE_LIFE = 3.0f;
 
 // •Ï”

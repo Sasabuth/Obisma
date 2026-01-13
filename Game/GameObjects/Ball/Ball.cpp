@@ -8,6 +8,7 @@
 #include "Ball.h"
 
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Camera/Camera.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -16,8 +17,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Ball::Ball(Field* pField)
+Ball::Ball(Field* pField, Camera* pCamera)
 	: m_pField(pField)
+	, m_pCamera(pCamera)
 	, m_currentState{}
 	, m_ballColorNum(0)
 	, m_pUserResources(nullptr)
@@ -49,7 +51,6 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	m_position = position;
-
 
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Ball.json")["ColliderSize"]);
 
@@ -87,6 +88,11 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 	// ボールの色の番号の初期化
 	m_ballColorNum = 0;
 
+	// パーティクル用オブジェクトの作成
+	m_particle = std::make_unique<Particle>();
+	// 初期化
+	m_particle->Create(device, context, L"Line.png");
+
 	m_soundSpan = 0.0f;
 
 	m_invincibleTime = 0.0f;
@@ -108,6 +114,10 @@ void Ball::Update(float elapsedTime)
 {
 	m_currentState->Update(elapsedTime);
 
+	// パーティクルの更新
+	m_particle->Update(elapsedTime);
+	m_particle->CreateBillboard(m_position, m_pCamera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
+
 	// 3Dサウンドの設定
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
 
@@ -122,13 +132,18 @@ void Ball::Update(float elapsedTime)
 /// </summary>
 void Ball::Render()
 {
-	m_currentState->Render();
-
-	// デバック
-	/*auto states = m_pUserResources->GetCommonStates();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	//auto states = m_pUserResources->GetCommonStates();
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
-	m_collider.Draw(states, *view, *proj);*/
+
+	m_currentState->Render();
+
+	// パーティクルの描画
+	m_particle->Render(context, *view, *proj);
+
+	// デバック
+	//m_collider.Draw(states, *view, *proj);
 
 	//auto debagFont = m_pUserResources->GetDebugFont();
 	//debagFont->Render(L"SoundSpan", m_soundSpan);

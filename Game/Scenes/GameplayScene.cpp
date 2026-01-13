@@ -61,7 +61,7 @@ void GameplayScene::Initialize()
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
 
 	// ボールマネージャーの初期化
-	m_ballManager = Factory::CreateBallManager(m_field.get(), Resources::GetInstance()->GetJson(L"Ball.json")["Count"]);
+	m_ballManager = Factory::CreateBallManager(m_field.get(), m_camera.get(), Resources::GetInstance()->GetJson(L"Ball.json")["Count"]);
 
 	// 空中の的の初期化
 	m_airTarget = Factory::CreateAirTarget(m_field.get(), m_camera.get(), DirectX::SimpleMath::Vector3{
@@ -247,7 +247,6 @@ void GameplayScene::Update(float elapsedTime)
 	IsHitEntityToField(m_player.get(), m_field.get());
 	IsHitEntityToField(m_enemy.get(), m_field.get());
 	IsHitEntityToField(m_cameraUp.get(), m_field.get());
-
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
 	{
 		IsHitEntityToField(m_ballManager->GetBall(i), m_field.get());
@@ -258,6 +257,12 @@ void GameplayScene::Update(float elapsedTime)
 			m_airTarget->ChangeState(m_airTarget->GetHitting());
 			m_scoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->ScoreUp();
 		}
+	}
+
+	// 敵との押し出し
+	if (IsHit(m_player->GetCollider(), m_enemy->GetCollider()))
+	{
+		m_player->CorrectOverlap(*m_enemy.get());
 	}
 
 	// ゲーム時間の更新

@@ -62,7 +62,7 @@ void TutorialScene::Initialize()
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
 
 	// ボールマネージャーの初期化
-	m_ballManager = Factory::CreateBallManager(m_field.get(), Resources::GetInstance()->GetJson(L"Ball.json")["TutorialCount"]);
+	m_ballManager = Factory::CreateBallManager(m_field.get(), m_camera.get(), Resources::GetInstance()->GetJson(L"Ball.json")["TutorialCount"]);
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
 	{
 		m_ballManager->GetBall(i)->SetPosition(DirectX::SimpleMath::Vector3{
@@ -228,10 +228,13 @@ void TutorialScene::Update(float elapsedTime)
 	// 敵の更新
 	if (m_tutorialIndex == ORDER::BALL_CATCH)
 	{
-		if (!m_isCheck && m_enemy->GetCurrentState() != m_enemy->GetStanding() ||
-			m_player->GetInvincibleTime() < 0.1f)
+		if (!m_isCheck && m_player->GetInvincibleTime() < 0.001f && m_player->GetCurrentState() != m_player->GetDizzying())
 		{
 			m_enemy->Update(elapsedTime);
+		}
+		else
+		{
+			m_enemy->ChangeState(m_enemy->GetStanding());
 		}
 
 		// ボールが止まっていたら敵の手にボールを持たせる
@@ -483,21 +486,22 @@ void TutorialScene::Tutorial(float elapsedTime)
 		if (m_player->CalcRaySphere(m_field->GetCollider().GetPosition(), m_field->GetCollider().GetRadius(), m_player->GetMouseRayHitPos()))
 		{
 			m_player->RotateToMouse();
-		}
 
-		// プレイヤーの設定
-		m_player->SetVelocity(m_player->GetGravity());
-		m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
-		m_player->GetCollider().SetPosition(m_player->GetPosition());
 
-		// マウスの移動距離の計算
-		DirectX::SimpleMath::Vector2 dir = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y) - pos;
+			// プレイヤーの設定
+			m_player->SetVelocity(m_player->GetGravity());
+			m_player->SetPosition(m_player->GetPosition() + m_player->GetVelocity() * elapsedTime);
+			m_player->GetCollider().SetPosition(m_player->GetPosition());
 
-		// 長さが上限になったら座標を更新してカウントを増やす
-		if (dir.Length() >= MAX_LENGTH)
-		{
-			m_count += 1;
-			pos = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y);
+			// マウスの移動距離の計算
+			DirectX::SimpleMath::Vector2 dir = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y) - pos;
+
+			// 長さが上限になったら座標を更新してカウントを増やす
+			if (dir.Length() >= MAX_LENGTH)
+			{
+				m_count += 1;
+				pos = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y);
+			}
 		}
 
 		// カウントが上限に行ったらチェックマークをつける

@@ -26,6 +26,8 @@ class AirTarget : public IEntity
 {
 // 定数
 public:
+	static constexpr float OFFSET = 1.9f;
+	static constexpr float SHADOW_OFFSET = 0.045f;
 
 
 // 変数
@@ -59,6 +61,8 @@ private:
 	DirectX::SimpleMath::Vector3 m_gravity;
 	// コライダー
 	SphereCollider m_collider;
+
+	int m_debugIndex;
 
 	// パーティクル
 	std::unique_ptr<Particle> m_particle;

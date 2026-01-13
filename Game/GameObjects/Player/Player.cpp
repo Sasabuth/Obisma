@@ -136,8 +136,7 @@ void Player::Render()
 
 	// デバック用
 	/*auto* debugFont = m_pUserResources->GetDebugFont();
-	debugFont->Render(L"pos", 1);
-	debugFont->Render(L"pos", std::any(m_velocity));*/
+	debugFont->Render(L"pos", std::any(m_mouseRayHitPos));*/
 
 	//auto states = m_pUserResources->GetCommonStates();
 	//auto view = m_pUserResources->GetView();
@@ -170,6 +169,22 @@ void Player::CorrectOverlap(Field& field)
 	// 長さを求める
 	float distance = delta.Length();
 	float minDistance = m_collider.GetRadius() + field.GetCollider().GetRadius();
+
+	// 差分を求める
+	float pushLength = minDistance - distance;
+
+	delta.Normalize();
+	m_position += delta * pushLength;
+}
+
+void Player::CorrectOverlap(IEntity& iEntity)
+{
+	// 差分を求める
+	DirectX::SimpleMath::Vector3 delta = m_position - iEntity.GetCollider().GetPosition();
+
+	// 長さを求める
+	float distance = delta.Length();
+	float minDistance = m_collider.GetRadius() + iEntity.GetCollider().GetRadius();
 
 	// 差分を求める
 	float pushLength = minDistance - distance;

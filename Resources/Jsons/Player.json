@@ -19,13 +19,13 @@
 
 	"AngleLow": 20,
 
-	"AngleMiddle": 22,
+	"AngleMiddle": 24,
 
 	"AngleHigh": 10,
 
-	"Decay": 0.92,
+	"Decay": 0.75,
 
-	"Offset": 2.5,
+	"Offset": 2.4,
 
 	"HandOffsetScale": 1.015
 }

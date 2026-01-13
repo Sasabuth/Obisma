@@ -11,12 +11,14 @@
 #include "Game/Commons/Interface/IState.h"
 #include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
+#include "Game/GameObjects/Particle/Particle.h"
 #include "Game/GameObjects/Ball/State/Stopping.h"
 #include "Game/GameObjects/Ball/State/Moving.h"
 #include "Game/GameObjects/Ball/State/Catching.h"
 
 // クラスの定義
 class Field;
+class Camera;
 
 
 // クラスの定義
@@ -41,6 +43,9 @@ private:
 
 	// フィールド
 	Field* m_pField;
+
+	// カメラ
+	Camera* m_pCamera;
 
 	// モデル
 	std::unique_ptr<DirectX::Model> m_model;  
@@ -73,6 +78,9 @@ private:
 	// ベーシックエフェクト
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  
 
+	// パーティクル
+	std::unique_ptr<Particle> m_particle;
+
 	// プリミティブバッチ
 	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionTexture>> m_primitiveBatch;  
 
@@ -98,7 +106,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Ball(Field* pField);
+	Ball(Field* pField, Camera* pCamera);
 
 	// デストラクタ
 	~Ball() override;
@@ -169,6 +177,9 @@ public:
 
 	// 状態の取得
 	IState* GetCurrentState() const { return m_currentState; }
+
+	// パーティクルの取得
+	Particle* GetParticle() const { return m_particle.get(); }
 
 	// モデルの取得
 	DirectX::Model* GetModel() const { return m_model.get(); }
