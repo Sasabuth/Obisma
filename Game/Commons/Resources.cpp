@@ -132,7 +132,6 @@ std::unique_ptr<DirectX::SoundEffectInstance> Resources::GetBGMSound(const std::
 	emitter.SetPosition(emitterPos);
 	emitter.CurveDistanceScaler = 10.0f;
 	emitter.DopplerScaler = 1.0f;
-	sound->Apply3D(m_listener, emitter);
 	sound->Play(loop);
 	return sound;
 }

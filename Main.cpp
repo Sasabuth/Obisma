@@ -120,18 +120,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         SetUpMemoryLeakDetector();
         
 #else
-        // 画面モード選択
-        if (MessageBox(NULL, L"フルスクリーンにしますか？", L"画面モード設定", MB_YESNO) == IDYES)
-        {
-            s_fullscreen = true;
-    }
-        else
-        {
-            s_fullscreen = false;
-        }
+    //    // 画面モード選択
+    //    if (MessageBox(NULL, L"フルスクリーンにしますか？", L"画面モード設定", MB_YESNO) == IDYES)
+    //    {
+    //        s_fullscreen = true;
+    //}
+    //    else
+    //    {
+    //        s_fullscreen = false;
+    //    }
 
         // リリース専用コード
-      /*  g_game->SetFullscreenState(TRUE);*/
+        g_game->SetFullscreenState(TRUE);
 #endif
 
         // ゲームが作られた後にスクリーン設定しないとエラー

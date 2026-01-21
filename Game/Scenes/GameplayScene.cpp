@@ -150,6 +150,9 @@ void GameplayScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void GameplayScene::Update(float elapsedTime)
 {
+	// BGMの音量の設定
+	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
+
 	// マウスの座標に合わせる
 	auto mouse = DirectX::Mouse::Get().GetState();
 	// 現在のウィンドウサイズを取得
@@ -283,8 +286,7 @@ void GameplayScene::Update(float elapsedTime)
 		}
 	}
 
-	// BGMの音量の設定
-	m_bgm->SetVolume(m_pResources->GetBGMVolume());
+
 }
 
 

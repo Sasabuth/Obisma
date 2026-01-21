@@ -192,6 +192,9 @@ private:
 	// カウント
 	int m_count;
 
+	// 右のボールを取ったか
+	bool m_isRightBall;
+
 	// チュートリアル番号
 	ORDER m_tutorialIndex;
 

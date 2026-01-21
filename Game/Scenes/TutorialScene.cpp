@@ -141,6 +141,9 @@ void TutorialScene::Initialize()
 	// チェックできない
 	m_isCheck = false;
 
+	// 右のボールを取っているか
+	m_isRightBall = false;
+
 	// BGM
 	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", m_player->GetPosition(), true);
 
@@ -269,6 +272,12 @@ void TutorialScene::Update(float elapsedTime)
 			m_airTarget->ChangeState(m_airTarget->GetHitting());
 			m_scoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->ScoreUp();
 		}
+	}
+
+	// 敵との押し出し
+	if (IsHit(m_player->GetCollider(), m_enemy->GetCollider()))
+	{
+		m_player->CorrectOverlap(*m_enemy.get());
 	}
 
 	// 警告のテクスチャの設定
@@ -561,10 +570,8 @@ void TutorialScene::Tutorial(float elapsedTime)
 	// ボールを拾う
 	case TutorialScene::BALL_PICKUP:
 	{
-		static bool isRightBall = false;;
-
 		// 左手にボールを持ったらチェックマークをつける
-		if (m_player->GetCatchBall(Player::HAND::RIGHT) && !m_player->GetCatchBall(Player::HAND::LEFT) && !isRightBall)
+		if (m_player->GetCatchBall(Player::HAND::RIGHT) && !m_player->GetCatchBall(Player::HAND::LEFT) && !m_isRightBall)
 		{
 			m_ballManager->GetBall(1)->SetPosition(DirectX::SimpleMath::Vector3{
 					m_pResources->GetJson(L"Ball.json")["Position"]["0"]["1"]["x"],
@@ -573,7 +580,7 @@ void TutorialScene::Tutorial(float elapsedTime)
 				}
 			);
 
-			isRightBall = true;
+			m_isRightBall = true;
 		}
 
 		// 左手にボールを持ったらチェックマークをつける
@@ -593,7 +600,7 @@ void TutorialScene::Tutorial(float elapsedTime)
 		// インターバルの時間が上限に行ったら次のチュートリアルに進む
 		if (m_interval >= INTERVAL)
 		{
-			isRightBall = false;
+			m_isRightBall = false;
 			m_isCheck = false;
 			m_tutorialIndex = MOUSE_TO_STER;
 			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));

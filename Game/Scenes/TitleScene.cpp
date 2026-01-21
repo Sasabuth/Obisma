@@ -76,7 +76,6 @@ void TitleScene::Initialize()
 	// ƒƒjƒ…[UI‚Ì‰Šú‰»
 	m_menuUI.Initialize(&m_fieldSelectUI);
 
-
 	// BGM‚Ì‰Šú‰»
 	m_bgm = Resources::GetInstance()->GetBGMSound(L"TitleBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
 
