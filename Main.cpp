@@ -132,15 +132,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
         // リリース専用コード
         g_game->SetFullscreenState(TRUE);
+        // マウスカーソルを消す
+        ShowCursor(FALSE);
 #endif
 
         // ゲームが作られた後にスクリーン設定しないとエラー
         if (s_fullscreen) g_game->SetFullscreenState(TRUE);
-
-
-        // マウスカーソルを消す
-       /* ShowCursor(FALSE);*/
-
     }
 
     // Main message loop
