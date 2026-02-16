@@ -8,7 +8,7 @@
 #include "PlayerCatching.h"
 
 #include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Ball/BallManager.h"
+#include "Game/GameObjects/Field/Field.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -106,10 +106,13 @@ void PlayerCatching::Update(float elapsedTime)
 
 	m_collider.SetPosition(m_pPlayer->GetPosition() + catchPos);
 
+	// ボールマネージャーの取得
+	BallManager* ballManager = m_pPlayer->GetField()->GetBallManager();
+
 	// ボールをキャッチする
-	for (int i = 0; i < m_pPlayer->GetBallManager()->GetObjectCount(); i++)
+	for (int i = 0; i < ballManager->GetObjectCount(); i++)
 	{
-		Ball* ball = m_pPlayer->GetBallManager()->GetBall(i);
+		Ball* ball = ballManager->GetBall(i);
 		if (ball->GetCurrentState() == ball->GetMoving())
 		{
 			if (IsHit(m_collider, ball->GetCollider()))
@@ -284,7 +287,7 @@ void PlayerCatching::CatchHandBall(int index)
 	m_se = Resources::GetInstance()->GetSESound(L"BallCatch.wav", m_pPlayer->GetPosition(), false);
 
 	// ボールのポインタを取得
-	Ball* ball = m_pPlayer->GetBallManager()->GetBall(index);
+	Ball* ball = m_pPlayer->GetField()->GetBallManager()->GetBall(index);
 
 	// 両手に持っていたら終了
 	if (m_pPlayer->GetCatchBall(Player::RIGHT) && m_pPlayer->GetCatchBall(Player::LEFT))

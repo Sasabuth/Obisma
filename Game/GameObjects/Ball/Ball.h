@@ -18,7 +18,6 @@
 
 // クラスの定義
 class Field;
-class Camera;
 
 
 // クラスの定義
@@ -43,9 +42,6 @@ private:
 
 	// フィールド
 	Field* m_pField;
-
-	// カメラ
-	Camera* m_pCamera;
 
 	// モデル
 	std::unique_ptr<DirectX::Model> m_model;  
@@ -106,7 +102,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Ball(Field* pField, Camera* pCamera);
+	Ball(Field* pField);
 
 	// デストラクタ
 	~Ball() override;

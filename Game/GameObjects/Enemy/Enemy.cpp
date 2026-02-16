@@ -10,18 +10,16 @@
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
+#include "Game/GameObjects/Field/Field.h"
 
 
 
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Enemy::Enemy(Player* pPlayer, Field* pField, AirTarget* pAirTarget, BallManager* pBallManager)
-	: m_pPlayer(pPlayer)
-	, m_pField(pField)
-	, m_pAirTarget(pAirTarget)
+Enemy::Enemy(Field* pField)
+	: m_pField(pField)
 	, m_pUserResources(nullptr)
-	, m_ballManager(pBallManager)
 	, m_currentState{}
 	, m_ballIndex(0)
 	, m_invincibleTime(0.0f)
@@ -382,9 +380,9 @@ void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* stat
 /// </summary>
 void Enemy::ScoreDown()
 {
-	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
+	for (int i = 0; i < m_pField->GetBallManager()->GetObjectCount(); i++)
 	{
-		Ball* ball = m_ballManager->GetBall(i);
+		Ball* ball = m_pField->GetBallManager()->GetBall(i);
 
 		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::ENEMY)
 		{
@@ -408,6 +406,17 @@ void Enemy::ScoreDown()
 /// <param name="ball">ボールのポインタ</param>
 void Enemy::SetCatchBall(int key, Ball* ball)
 {
+	// ボールを持っているならテクスチャをつける
+	if (ball)
+	{
+		m_score->SetBallTexture(key);
+	}
+	// ボールを持っていないならテクスチャを外す
+	else
+	{
+		m_score->ClearBallTexture(key);
+	}
+
 	m_isBall[key] = ball;
 }
 

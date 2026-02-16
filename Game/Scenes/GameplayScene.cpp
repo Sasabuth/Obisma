@@ -54,49 +54,19 @@ void GameplayScene::Initialize()
 	auto* debugFont = m_pUserResources->GetDebugFont();
 	debugFont->Initialize();
 
-	// フィールドの初期化
-	m_field = Factory::CreateField(Resources::GetInstance()->GetJson(L"FieldSelect.json")["FieldIndex"]);
-
 	// カメラの初期化
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
 
-	// ボールマネージャーの初期化
-	m_ballManager = Factory::CreateBallManager(m_field.get(), m_camera.get(), Resources::GetInstance()->GetJson(L"Ball.json")["Count"]);
-
-	// 空中の的の初期化
-	m_airTarget = Factory::CreateAirTarget(m_field.get(), m_camera.get(), DirectX::SimpleMath::Vector3{
-		m_pResources->GetJson(L"AirTarget.json")["Position"]["x"],
-		m_pResources->GetJson(L"AirTarget.json")["Position"]["y"],
-		m_pResources->GetJson(L"AirTarget.json")["Position"]["z"]
-		}
-	);
-	// ランダムに座標を設定
-	m_airTarget->RandomPosition();
-
-	// プレイヤーの初期化
-	m_player = Factory::CreatePlayer(m_field.get(), m_airTarget.get(), m_ballManager.get(), DirectX::SimpleMath::Vector3{
-		m_pResources->GetJson(L"Player.json")["Position"]["x"],
-		m_pResources->GetJson(L"Player.json")["Position"]["y"],
-		m_pResources->GetJson(L"Player.json")["Position"]["z"]
-		}
-	);
-
-
-	// 敵の初期化
-	m_enemy = Factory::CreateEnemy(m_player.get(), m_field.get(), m_airTarget.get(), m_ballManager.get(), DirectX::SimpleMath::Vector3{
-		m_pResources->GetJson(L"Enemy.json")["Position"]["x"],
-		m_pResources->GetJson(L"Enemy.json")["Position"]["y"],
-		m_pResources->GetJson(L"Enemy.json")["Position"]["z"]
-		}
-	);
+	// フィールドの初期化
+	m_field = Factory::CreateField(m_camera.get(), Resources::GetInstance()->GetJson(L"FieldSelect.json")["FieldIndex"]);
 
 	// カメラの上向きベクトルの初期化
-	m_cameraUp = Factory::CreateCameraUp(m_field.get(), m_player.get(), DirectX::SimpleMath::Vector3{ 4.0f,4.0f,4.0f });
+	m_cameraUp = Factory::CreateCameraUp(m_field.get(), DirectX::SimpleMath::Vector3{ 4.0f,4.0f,4.0f });
 
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
-	m_scoreManager->Add(m_player->GetScore());
-	m_scoreManager->Add(m_enemy->GetScore());
+	m_scoreManager->Add(m_field->GetPlayer()->GetScore());
+	m_scoreManager->Add(m_field->GetEnemy()->GetScore());
 
 	// ゲーム時間の初期化
 	m_gameTimer = MAX_TIME;
@@ -116,13 +86,13 @@ void GameplayScene::Initialize()
 	m_startTexture.SetTexture(m_pResources->GetTexture(L"GameStart.png"));
 
 	// リスナーの設定
-	m_pResources->SetListener(m_player->GetPosition(),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
+	m_pResources->SetListener(m_field->GetPlayer()->GetPosition(),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_field->GetPlayer()->GetRotation()),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_field->GetPlayer()->GetRotation())
 	);
 
 	// BGMの初期化
-	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", m_player->GetPosition(), true);
+	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", m_field->GetPlayer()->GetPosition(), true);
 
 	// SEの初期化
 	m_startSE = nullptr;
@@ -191,7 +161,7 @@ void GameplayScene::Update(float elapsedTime)
 	if (m_countDownTimer > 0.0f && m_countDownTimer < 3.0f)
 	{
 		// SEをつける
-        if(!m_startSE)	m_startSE = m_pResources->GetSESound(L"CountDown.wav", m_player->GetPosition(), false);
+        if(!m_startSE)	m_startSE = m_pResources->GetSESound(L"CountDown.wav", m_field->GetPlayer()->GetPosition(), false);
 
 		return;
 	}
@@ -224,49 +194,20 @@ void GameplayScene::Update(float elapsedTime)
 	SetListener();
 
 	// カメラの更新
-	m_camera->Update(m_player.get(), m_cameraUp->GetPosition(), m_field->GetCollider().GetPosition());
+	m_camera->Update(m_field.get(), m_cameraUp->GetPosition());
 	/*m_camera->DebugMode();*/
 
 	// フィールドの更新
-	m_field->Update(elapsedTime);
+	m_field->Update(m_scoreManager.get(), elapsedTime);
 
 	// プレイヤーの更新
 	SetPlayerInputState();
-	m_player->Update(elapsedTime);
-
-	// 敵の更新
-	m_enemy->Update(elapsedTime);
-
-	// ボールマネージャの更新
-	m_ballManager->Update(elapsedTime);
-
-	// 空中の的の更新
-	m_airTarget->Update(elapsedTime);
 
 	// カメラの上向きベクトルの更新
 	m_cameraUp->Update(elapsedTime);
 
 	// ポリゴンの当たり判定
-	IsHitEntityToField(m_player.get(), m_field.get());
-	IsHitEntityToField(m_enemy.get(), m_field.get());
-	IsHitEntityToField(m_cameraUp.get(), m_field.get());
-	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
-	{
-		IsHitEntityToField(m_ballManager->GetBall(i), m_field.get());
-
-		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
-		{
-			m_player->SetIsLockOn(false);
-			m_airTarget->ChangeState(m_airTarget->GetHitting());
-			m_scoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->ScoreUp();
-		}
-	}
-
-	// 敵との押し出し
-	if (IsHit(m_player->GetCollider(), m_enemy->GetCollider()))
-	{
-		m_player->CorrectOverlap(*m_enemy.get());
-	}
+	m_field->IsHitEntityToField(m_cameraUp.get());
 
 	// ゲーム時間の更新
 	m_gameTimer -= elapsedTime;
@@ -275,7 +216,7 @@ void GameplayScene::Update(float elapsedTime)
 	if (m_gameTimer <= FINISH_TIME)
 	{
 		// SEをつける
-		if (!m_finishSE)	m_finishSE = m_pResources->GetSESound(L"Finish.wav", m_player->GetPosition(), false);
+		if (!m_finishSE)	m_finishSE = m_pResources->GetSESound(L"Finish.wav", m_field->GetPlayer()->GetPosition(), false);
 
 		// ランキングの更新
 		m_scoreManager->SortRank();
@@ -285,8 +226,6 @@ void GameplayScene::Update(float elapsedTime)
 			GetSceneManager()->SetRank(i, m_scoreManager->GetRank(i));
 		}
 	}
-
-
 }
 
 
@@ -302,18 +241,6 @@ void GameplayScene::Render()
 
 	// フィールドの描画
 	m_field->Render();
-
-	// 空中の的の描画
-	m_airTarget->Render();
-
-	// プレイヤーの描画
-	m_player->Render();
-
-	// 敵の描画
-	m_enemy->Render();
-
-	// ボールマネージャーの描画
-	m_ballManager->Render();
 
 	// スコアマネージャーの描画
 	m_scoreManager->Render();
@@ -363,20 +290,8 @@ void GameplayScene::Finalize()
 	// フィールドの終了
 	m_field->Finalize();
 
-	// ボールマネージャーの終了
-	m_ballManager->Finalize();
-
-	// プレイヤーの終了
-	m_player->Finalize();
-
-	// 敵の終了
-	m_enemy->Finalize();
-
 	// カメラの上向きベクトルの終了
 	m_cameraUp->Finalize();
-
-	// 空中の的の終了
-	m_airTarget->Finalize();
 }
 
 
@@ -409,120 +324,14 @@ void GameplayScene::OnDeviceLost()
 
 
 /// <summary>
-/// 実体とフィールドが当たっていたら
-/// </summary>
-/// <param name="ray">レイ</param>
-/// <param name="pIEntity">実体</param>
-/// <param name="pField">フィールド</param>
-void GameplayScene::IsHitEntityToField(IEntity* pIEntity, Field* pField)
-{
-	// レイ
-	DirectX::SimpleMath::Ray ray{ pIEntity->GetPosition(), pIEntity->GetGravity() };
-	// 座標
-	DirectX::SimpleMath::Vector3 pos;
-	// 方向ベクトル
-	DirectX::SimpleMath::Vector3 vector;
-	// 当たったか
-	bool isHit = false;
-
-	// ワールド座標
-	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(pField->GetStageCollider().GetScale()) *
-		DirectX::SimpleMath::Matrix::CreateTranslation(pField->GetStageCollider().GetPosition());
-
-	// 三角形の数分for文で回す
-	for (size_t i = 0; i + 2 < pField->GetStageCollider().GetIndicesCount(); i += 3)
-	{
-		// 三角形の点のワールド座標を取得
-		DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i)).position, world);
-		DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i + 1)).position, world);
-		DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(pField->GetStageCollider().GetVertices(pField->GetStageCollider().GetIndices((int)i + 2)).position, world);
-
-		// 三角形の中心から遠かったら当たってないことにする
-		DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
-		float length = (ray.position - center).Length();
-		if (length > 5.0f)
-		{
-			continue;
-		}
-
-		// 当たった座標
-		DirectX::SimpleMath::Vector3 pos1;
-		// レイと三角形が当たっているか
-		if (IsHit(ray.position, ray.direction, world, pField->GetStageCollider(), (int)i, pos1))
-		{
-			// 前と後に当たった座標の距離を求める
-			DirectX::SimpleMath::Vector3 d0 = pIEntity->GetPosition() - pos;
-			DirectX::SimpleMath::Vector3 d1 = pIEntity->GetPosition() - pos1;
-
-			// 後に当たったほうが近かったら
-			if (d0.Length() > d1.Length() )
-			{
-				// 後の座標を入れる
-				pos = pos1;
-
-				// 三角形の法線ベクトルを入れる
-				vector = DirectX::SimpleMath::Vector3::Lerp(
-					-pIEntity->GetGravity(),
-					pField->GetStageCollider().GetNormalVector((int)i),
-					0.3f
-				);
-			}
-		}
-
-		// 球体コライダーと三角形が当たっているか
-		if (IsHit(pIEntity->GetCollider(), pField->GetStageCollider(), (int)i) && !isHit)
-		{
-			// 当たっている
-			isHit = true;
-		}
-	}
-
-
-	// コライダーが当たっていたらかフィールド貫通しているとき
-	if (isHit)
-	{
-		// 押し出しをする
-		pIEntity->CorrectOverlap(pos);
-	}
-	else
-	{
-		// 万が一ステージに埋まったら
-		if ((pIEntity->GetPosition() - pField->GetPosition()).Length() < (pIEntity->GetShadowHitPos() - pField->GetPosition()).Length())
-		{
-			// Y軸ベクトル
-			DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, pIEntity->GetRotation());
-			// 当たった座標
-			DirectX::SimpleMath::Vector3 hitPos = pIEntity->GetShadowHitPos();
-
-			// ベクトル方向にコライダーの半径分押し出す
-			pIEntity->SetPosition(hitPos + currentUp * pIEntity->GetCollider().GetRadius());
-		}
-	}
-
-	// 法線ベクトルがあったら
-	if (vector.Length() >= 0.00001f)
-	{
-		// 重力の設定
-		pIEntity->SetGravity(pField->CorrectUp(pIEntity, vector));
-		// 影の座標を当たった座標にする
-		pIEntity->SetShadowHitPos(pos);
-	}
-	else
-	{
-		// 重力の設定
-		pIEntity->SetGravity(pField->CorrectUp(pIEntity));
-	}
-}
-
-
-
-/// <summary>
 /// リスナーの設定
 /// </summary>
 void GameplayScene::SetListener()
 {
+	Player* player = m_field->GetPlayer();
+
 	// 方向
-	DirectX::SimpleMath::Vector3 dir = m_player->GetPosition() - m_cameraUp->GetPosition();
+	DirectX::SimpleMath::Vector3 dir = player->GetPosition() - m_cameraUp->GetPosition();
 	dir.Normalize();
 
 	// 方向ベクトルの反転
@@ -530,7 +339,7 @@ void GameplayScene::SetListener()
 	targetUp = -dir;
 
 	// 現在の姿勢制御
-	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation());
+	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, player->GetRotation());
 
 	// 回転軸の計算
 	DirectX::SimpleMath::Vector3 axis = currentUp.Cross(targetUp);
@@ -554,12 +363,12 @@ void GameplayScene::SetListener()
 		q = DirectX::SimpleMath::Quaternion::Identity;
 	}
 
-	q = m_player->GetRotation() * q;
+	q = player->GetRotation() * q;
 
 	// リスナーの設定
-	m_pResources->SetListener(m_player->GetPosition(),
+	m_pResources->SetListener(player->GetPosition(),
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, q),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_player->GetRotation())
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, player->GetRotation())
 	);
 }
 
@@ -599,5 +408,5 @@ void GameplayScene::SetPlayerInputState()
 	}
 
 	// イベントを渡す
-	m_player->OnEvents(e);
+	m_field->GetPlayer()->OnEvents(e);
 }

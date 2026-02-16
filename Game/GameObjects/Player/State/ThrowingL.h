@@ -45,6 +45,8 @@ private:
 
 	// 左手のマトリックス
 	DirectX::SimpleMath::Matrix m_leftHandMatrix; 
+	// 右手のマトリックス
+	DirectX::SimpleMath::Matrix m_rightHandMatrix; 
 
 	// 時間
 	float m_time;  

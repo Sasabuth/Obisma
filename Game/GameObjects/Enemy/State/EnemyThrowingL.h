@@ -43,7 +43,9 @@ private:
 	std::unique_ptr<DX::AnimationSDKMESH> m_animation; 
 
 	// 左手のマトリックス
-	DirectX::SimpleMath::Matrix m_leftHandMatrix;  
+	DirectX::SimpleMath::Matrix m_leftHandMatrix; 
+	// 右手のマトリックス
+	DirectX::SimpleMath::Matrix m_rightHandMatrix;
 
 	// 時間
 	float m_time;  

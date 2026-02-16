@@ -17,9 +17,8 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-AirTarget::AirTarget(Field* pField, Camera* pCamera)
+AirTarget::AirTarget(Field* pField)
 	: m_pField(pField)
-	, m_pCamera(pCamera)
 	, m_currentState{}
 	, m_pUserResources(nullptr)
 	, m_model(nullptr)
@@ -86,7 +85,7 @@ void AirTarget::Update(float elapsedTime)
 
 	// パーティクルの更新
 	m_particle->Update(elapsedTime);
-	m_particle->CreateBillboard(m_position, m_pCamera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
+	m_particle->CreateBillboard(m_position, m_pField->GetCamera()->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 
 	//m_particle->HandleFieldCollision(*m_pField);
@@ -107,7 +106,10 @@ void AirTarget::Render()
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
 
-	m_currentState->Render();
+	if (m_position.y <= 20.0f)
+	{
+		m_currentState->Render();
+	}
 
 	// パーティクルの描画
 	m_particle->Render(context, *view, *proj);

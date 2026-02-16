@@ -107,10 +107,13 @@ void EnemyCatching::Update(float elapsedTime)
 
 	m_collider.SetPosition(m_pEnemy->GetPosition() + catchPos);
 
+	// ボールマネージャーの取得
+	BallManager* ballManager = m_pEnemy->GetField()->GetBallManager();
+
 	// ボールをキャッチする
-	for (int i = 0; i < m_pEnemy->GetBallManager()->GetObjectCount(); i++)
+	for (int i = 0; i < ballManager->GetObjectCount(); i++)
 	{
-		Ball* ball = m_pEnemy->GetBallManager()->GetBall(i);
+		Ball* ball = ballManager->GetBall(i);
 		if (ball->GetCurrentState() == ball->GetMoving())
 		{
 			if (IsHit(m_collider, ball->GetCollider()))
@@ -274,7 +277,7 @@ void EnemyCatching::CatchHandBall(int index)
 	m_se = Resources::GetInstance()->GetSESound(L"BallCatch.wav", m_pEnemy->GetPosition(), false);
 
 	// ボールのポインタを取得
-	Ball* ball = m_pEnemy->GetBallManager()->GetBall(index);
+	Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(index);
 
 	// 両手に持っていたら終了
 	if (m_pEnemy->GetCatchBall(Enemy::RIGHT) && m_pEnemy->GetCatchBall(Enemy::LEFT))

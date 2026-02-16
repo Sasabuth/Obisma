@@ -18,7 +18,6 @@
 
 // クラスの定義
 class Field;
-class Camera;
 
 
 // クラスの定義
@@ -37,9 +36,6 @@ private:
 
 	// フィールド
 	Field* m_pField;
-
-	// カメラ
-	Camera* m_pCamera;
 
 	// モデル
 	DirectX::Model* m_model;  
@@ -92,7 +88,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	AirTarget(Field* pField, Camera* pCamera);
+	AirTarget(Field* pField);
 
 	// デストラクタ
 	~AirTarget() override;
@@ -159,9 +155,6 @@ public:
 
 	// パーティクルの取得
 	Particle* GetParticle() { return m_particle.get(); }
-
-	// カメラの取得
-	Camera* GetCamera() { return m_pCamera; }
 
 	// フィールドの取得
 	Field* GetField() { return m_pField; }

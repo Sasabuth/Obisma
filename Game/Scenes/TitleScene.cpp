@@ -47,23 +47,24 @@ void TitleScene::Initialize()
 	// テクスチャの初期化
 	m_titleTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Title.png"));
 
+	// カメラの初期化
+	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
+
 	// フィールドの初期化
 	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
 	{
 		if (i == 0)
 		{
-			m_field[i] = Factory::CreateField(i);
+			m_field[i] = Factory::CreateField(m_camera.get(), i);
 		}
 		else
 		{
-			m_field[i] = Factory::CreateField(i, false);
+			m_field[i] = Factory::CreateField(m_camera.get(), i, false);
 		}
 	}
 	
 	m_field[1]->SetPosition(DirectX::SimpleMath::Vector3(-20, 0, 0));
 
-	// カメラの初期化
-	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
 	m_position = DirectX::SimpleMath::Vector3(5, 2, 0);
 	m_eyePosition = DirectX::SimpleMath::Vector3(5, 2, -10);
 
@@ -133,11 +134,14 @@ void TitleScene::Update(float elapsedTime)
 	auto transitionMask = m_pUserResources->GetTransitionMask();
 	// フェードアウト中じゃなかったら更新
 	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
+
+	// カメラの更新
+	m_camera->Update(m_position, m_eyePosition);
 	
 	// フィールドの更新
 	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
 	{
-		m_field[i]->Update(elapsedTime);
+		m_field[i]->TitleUpdate();
 		static float rotate = 0.0f;
 		rotate += 30.0f * elapsedTime;
 		m_field[i]->SetRotate(rotate);
@@ -198,16 +202,13 @@ void TitleScene::Update(float elapsedTime)
 				}
 			}
 		}
-		
+
 		// チュートリアルシーンに変更
 		if (transitionMask->IsClose() && transitionMask->IsEnd())
 		{
 			PostQuitMessage(0);
 		}
 	}
-
-	// カメラの更新
-	m_camera->Update(m_position, m_eyePosition);
 
 	// BGMの音量の設定
 	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
@@ -223,7 +224,7 @@ void TitleScene::Render()
 	// フィールドの描画
 	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
 	{
-		m_field[i]->Render();
+		m_field[i]->TitleRender();
 	}
 	
 	// オーディオUIの描画

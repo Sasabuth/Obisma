@@ -13,11 +13,7 @@
 #include "Game/Commons/UserResources.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Camera/Camera.h"
-#include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Enemy/Enemy.h"
-#include "Game/GameObjects/Ball/BallManager.h"
 #include "Game/GameObjects/Camera/CameraUp.h"
-#include "Game/GameObjects/AirTarget/AirTarget.h"
 #include "Game/GameObjects/Score/ScoreManager.h"
 #include "Game/Commons/Sprite.h"
 #include "Game/Commons/Collision.h"
@@ -89,18 +85,6 @@ private:
 	// カメラの上向きベクトル
 	std::unique_ptr<CameraUp> m_cameraUp;
 
-	// プレイヤー
-	std::unique_ptr<Player> m_player;
-
-	// 敵
-	std::unique_ptr<Enemy> m_enemy;
-
-	// ボールマネージャー
-	std::unique_ptr<BallManager> m_ballManager;
-
-	// 空中の的
-	std::unique_ptr<AirTarget> m_airTarget;
-
 	// スコアマネージャー
 	std::unique_ptr<ScoreManager> m_scoreManager;
 
@@ -171,9 +155,6 @@ public:
 
 	// 内部処理
 private:
-	// 実体とフィールドの衝突判定
-	void IsHitEntityToField(IEntity* pIEntity, Field* pField);
-
 	// リスナーの設定
 	void SetListener();
 

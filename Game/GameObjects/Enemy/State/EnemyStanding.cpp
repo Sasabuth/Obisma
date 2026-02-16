@@ -9,7 +9,6 @@
 
 #include "Game/GameObjects/Enemy/Enemy.h"
 #include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Ball/BallManager.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -89,19 +88,22 @@ void EnemyStanding::Update(float elapsedTime)
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
 
+	// ボールマネージャーの取得
+	BallManager* ballManager = m_pEnemy->GetField()->GetBallManager();
+
 	// 手に持っていなかったら一番近いボールを探す
 	if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) && !m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
 		// 一番最初のボールを取得
-		Ball* ball = m_pEnemy->GetBallManager()->GetBall(0);
+		Ball* ball = ballManager->GetBall(0);
 		// 敵のボール番号を0にする
 		m_pEnemy->SetBallIndex(0);
 
 		// どのボールが一番近いかを調べる
-		for (int i = 1; i < m_pEnemy->GetBallManager()->GetObjectCount(); i++)
+		for (int i = 1; i < ballManager->GetObjectCount(); i++)
 		{
 			// ボールが止まっているたら近いボールを取得する
-			if (m_pEnemy->GetBallManager()->GetBall(i)->GetCurrentState() == m_pEnemy->GetBallManager()->GetBall(i)->GetStopping())
+			if (ballManager->GetBall(i)->GetCurrentState() == ballManager->GetBall(i)->GetStopping())
 			{
 				ball = GetNearBall(ball, i);
 			}
@@ -117,15 +119,15 @@ void EnemyStanding::Update(float elapsedTime)
 	else if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) || !m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
 		// 一番最初のボールを取得
-		Ball* ball = m_pEnemy->GetBallManager()->GetBall(0);
+		Ball* ball = ballManager->GetBall(0);
 		// 敵のボール番号を0にする
 		m_pEnemy->SetBallIndex(0);
 
 		// どのボールが一番近いかを調べる
-		for (int i = 1; i < m_pEnemy->GetBallManager()->GetObjectCount(); i++)
+		for (int i = 1; i < ballManager->GetObjectCount(); i++)
 		{
 			// ボールが止まっているたら近いボールを取得する
-			if (m_pEnemy->GetBallManager()->GetBall(i)->GetCurrentState() == m_pEnemy->GetBallManager()->GetBall(i)->GetStopping())
+			if (ballManager->GetBall(i)->GetCurrentState() == ballManager->GetBall(i)->GetStopping())
 			{
 				ball = GetNearBall(ball, i);
 			}
@@ -162,10 +164,10 @@ void EnemyStanding::Update(float elapsedTime)
 	m_pEnemy->GetCatchCollider().SetPosition(m_pEnemy->GetPosition() + catchPos);
 
 	// ボールの数分回す
-	for (int i = 0; i < m_pEnemy->GetBallManager()->GetObjectCount(); i++)
+	for (int i = 0; i < ballManager->GetObjectCount(); i++)
 	{
 		// ボールの取得
-		Ball* ball = m_pEnemy->GetBallManager()->GetBall(i);
+		Ball* ball = ballManager->GetBall(i);
 
 		// ボールとキャッチ用コライダーが当たっていたら
 		if (IsHit(m_pEnemy->GetCatchCollider(), ball->GetCollider()))
@@ -317,17 +319,20 @@ void EnemyStanding::AnimationUpdate(float elapsedTime)
 /// <returns>近いボール</returns>
 Ball* EnemyStanding::GetNearBall(Ball* ball, int index)
 {
+	// ボールマネージャーの取得
+	BallManager* ballManager = m_pEnemy->GetField()->GetBallManager();
+
 	// 今のボール番号のボールが止まっていなかったら
-	if (m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex())->GetCurrentState() != m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex())->GetStopping())
+	if (ballManager->GetBall(m_pEnemy->GetBallIndex())->GetCurrentState() != ballManager->GetBall(m_pEnemy->GetBallIndex())->GetStopping())
 	{
 		// 新しいボール番号を設定する
 		m_pEnemy->SetBallIndex(index);
 		// 新しいボールを返す
-		return m_pEnemy->GetBallManager()->GetBall(index);
+		return ballManager->GetBall(index);
 	}
 
 	// 新しいボールを取得する
-	Ball* ball1 = m_pEnemy->GetBallManager()->GetBall(index);
+	Ball* ball1 = ballManager->GetBall(index);
 
 	// どちらのほうが近いか距離を調べる
 	DirectX::SimpleMath::Vector3 dir1 = m_pEnemy->GetPosition() - ball->GetPosition();
@@ -353,18 +358,25 @@ Ball* EnemyStanding::GetNearBall(Ball* ball, int index)
 /// </summary>
 void EnemyStanding::CatchHandBall()
 {
+	// 右手にボールを持っているか
 	if (m_pEnemy->GetCatchBall(Enemy::RIGHT))
 	{
+		// ボールを右手の座標に合わせる
 		Ball* ball = m_pEnemy->GetCatchBall(Enemy::RIGHT);
 		m_pEnemy->SetBallPosition(ball, m_rightHandMatrix);
 	}
+	// 左手にボールを持っているか
 	if (m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
+		// ボールを左手の座標に合わせる
 		Ball* ball = m_pEnemy->GetCatchBall(Enemy::LEFT);
 		m_pEnemy->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
-	for (int i = 0; i < m_pEnemy->GetBallManager()->GetObjectCount(); i++)
+	// ボールマネージャーの取得
+	BallManager* ballManager = m_pEnemy->GetField()->GetBallManager();
+
+	for (int i = 0; i < ballManager->GetObjectCount(); i++)
 	{
 		// 両手に持っていたら終了
 		if (m_pEnemy->GetCatchBall(Enemy::RIGHT) && m_pEnemy->GetCatchBall(Enemy::LEFT))
@@ -373,7 +385,7 @@ void EnemyStanding::CatchHandBall()
 		}
 
 		// ボールのポインタを取得
-		Ball* ball = m_pEnemy->GetBallManager()->GetBall(i);
+		Ball* ball = ballManager->GetBall(i);
 
 		// 止まっているボールに当たったらボールを拾う
 		if (IsHit(m_pEnemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())

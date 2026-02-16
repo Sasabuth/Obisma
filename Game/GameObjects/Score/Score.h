@@ -39,6 +39,14 @@ private:
 		1.0f                                          // 拡大率
 	};
 
+	// ボール
+	static constexpr Sprite::Format BALL =
+	{
+		DirectX::SimpleMath::Vector2(70.0f, 80.0f),   // 座標
+		DirectX::SimpleMath::Vector2(0.0f, 0.0f), // サイズ
+		0.2f                                          // 拡大率
+	};
+
 
 // 変数
 private:
@@ -58,6 +66,7 @@ private:
 	Sprite m_scoreTexture;
 	Sprite m_frameTexture;
 	Sprite m_faceTexture;
+	Sprite m_ballTexture[2];
 
 
 // 関数
@@ -89,6 +98,9 @@ public:
 	// 順位
 	int GetIndex() const { return m_index; }  // 取得
 
+	// ボールの画像の設定
+	void SetBallTexture(int index) { m_ballTexture[index].SetTexture(Resources::GetInstance()->GetTexture(L"Ball" + std::to_wstring(m_index) + L".png")); }
+	void ClearBallTexture(int index) { m_ballTexture[index].SetTexture(Resources::GetInstance()->GetTexture(L"Ball2.png")); }
 
 // 内部処理
 private:

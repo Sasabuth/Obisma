@@ -13,11 +13,7 @@
 #include "Game/Commons/UserResources.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Camera/Camera.h"
-#include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Enemy/Enemy.h"
-#include "Game/GameObjects/Ball/BallManager.h"
 #include "Game/GameObjects/Camera/CameraUp.h"
-#include "Game/GameObjects/AirTarget/AirTarget.h"
 #include "Game/GameObjects/Score/ScoreManager.h"
 #include "Game/GameObjects/Tutorial/Arrow.h"
 #include "Game/Commons/Sprite.h"
@@ -29,7 +25,7 @@
 class TutorialScene : public Scene
 {
 // 定数
-private:
+public:
 	// 順番
 	enum ORDER
 	{
@@ -41,6 +37,10 @@ private:
 		BALL_CATCH,
 		MAX_ORDERCOUNT
 	};
+
+// 定数
+private:
+	
 
 	// 説明順番
 	enum EXPLAINORDER
@@ -77,60 +77,60 @@ private:
 	{
 		// マウス動かす
 		{
-		   DirectX::SimpleMath::Vector2(230.0f, 150.0f),   // 座標
+		   DirectX::SimpleMath::Vector2(230.0f, 200.0f),   // 座標
 		   DirectX::SimpleMath::Vector2(1832.0f, 172.0f),  // サイズ
 		   0.22f                                      	   // 拡大率
 		},
 
 		// プレイヤーが矢印のほうに動く
 		{
-		   DirectX::SimpleMath::Vector2(210.0f, 150.0f),   // 座標
+		   DirectX::SimpleMath::Vector2(210.0f, 200.0f),   // 座標
 		   DirectX::SimpleMath::Vector2(1635.0f, 172.0f),  // サイズ
 		   0.22f                                      	   // 拡大率
 		},
 
 		// ボールを拾う
 		{
-		   DirectX::SimpleMath::Vector2(203.0f, 150.0f),   // 座標
+		   DirectX::SimpleMath::Vector2(203.0f, 200.0f),   // 座標
 		   DirectX::SimpleMath::Vector2(1577.0f, 172.0f),  // サイズ
 		   0.22f                                      	   // 拡大率
 		},
 
 		// マウスを星に近づける
 		{
-		   DirectX::SimpleMath::Vector2(185.0f, 150.0f),   // 座標
+		   DirectX::SimpleMath::Vector2(185.0f, 200.0f),   // 座標
 		   DirectX::SimpleMath::Vector2(1402.0f, 171.0f),  // サイズ
 		   0.22f                                      	   // 拡大率
 		},
 
 		// ボールを投げる
 		{
-		   DirectX::SimpleMath::Vector2(210.0f, 150.0f),   // 座標
+		   DirectX::SimpleMath::Vector2(210.0f, 200.0f),   // 座標
 		   DirectX::SimpleMath::Vector2(1635.0f, 305.0f),  // サイズ
 		   0.22f                                      	   // 拡大率
 		},
 
 		// ボールをキャッチする
 		{
-		   DirectX::SimpleMath::Vector2(200.0f, 150.0f),   // 座標
+		   DirectX::SimpleMath::Vector2(200.0f, 200.0f),   // 座標
 		   DirectX::SimpleMath::Vector2(1516.0f, 304.0f),  // サイズ
 		   0.22f                                      	   // 拡大率
 		},
-		
+
 	};
 
 	static constexpr Sprite::Format EXPLAIN[EXPLAINORDER::MAX_EXPLAINCOUNT] =
 	{
 		// 星に当てるとスコアが上がる
 		{
-		   DirectX::SimpleMath::Vector2(207.0f, 148.0f),   // 座標
+		   DirectX::SimpleMath::Vector2(207.0f, 198.0f),   // 座標
 		   DirectX::SimpleMath::Vector2(1610.0f, 172.0f),  // サイズ
 		   0.22f                                      	   // 拡大率
 		},
 
 		// ボールに当たるとスコアが減る
 		{
-		   DirectX::SimpleMath::Vector2(217.0f, 150.0f),   // 座標
+		   DirectX::SimpleMath::Vector2(217.0f, 200.0f),   // 座標
 		   DirectX::SimpleMath::Vector2(1718.0f, 171.0f),  // サイズ
 		   0.22f                                      	   // 拡大率
 		}
@@ -138,14 +138,14 @@ private:
 	
 	static constexpr Sprite::Format CHECKMARK =
 	{
-		DirectX::SimpleMath::Vector2(45.0f, 145.0f),    // 座標
+		DirectX::SimpleMath::Vector2(45.0f, 195.0f),    // 座標
 		DirectX::SimpleMath::Vector2(643.0f, 448.0f),   // サイズ
 		0.06f                                 		    // 拡大率
 	};
 
 	static constexpr Sprite::Format WARNING =
 	{
-		DirectX::SimpleMath::Vector2(180.0f, 60.0f),    // 座標
+		DirectX::SimpleMath::Vector2(180.0f, 70.0f),    // 座標
 		DirectX::SimpleMath::Vector2(1426.0f, 305.0f), // サイズ
 		0.22f                                          // 拡大率
 	};
@@ -167,18 +167,6 @@ private:
 
 	// カメラの上向きベクトル
 	std::unique_ptr<CameraUp> m_cameraUp;
-
-	// プレイヤー
-	std::unique_ptr<Player> m_player;
-
-	// 敵
-	std::unique_ptr<Enemy> m_enemy;
-
-	// ボールマネージャー
-	std::unique_ptr<BallManager> m_ballManager;
-
-	// 空中の的
-	std::unique_ptr<AirTarget> m_airTarget;
 
 	// スコアマネージャー
 	std::unique_ptr<ScoreManager> m_scoreManager;
@@ -207,8 +195,8 @@ private:
 	// テクスチャ
 	Sprite m_frameTexture;
 	Sprite m_timerTexture;
-	Sprite m_tutorialTexture;
 	Sprite m_checkMarkTexture;
+	Sprite m_tutorialTexture;
 	Sprite m_explainTexture;
 	Sprite m_warningTexture;
 
@@ -254,19 +242,20 @@ public:
 	// デバイスロストした時に呼び出される関数
 	void OnDeviceLost() override;
 
-
-// 設定/取得
-public:
-
-
-// 内部処理
-private:
 	// チュートリアル
 	void Tutorial(float elapsedTime);
 
-	// 実体とフィールドの衝突判定
-	void IsHitEntityToField(IEntity* pIEntity, Field* pField);
 
+// 設定/取得
+public:
+	// チェック入れたかの取得
+	bool GetIsCheck() const { return m_isCheck; }
+
+	// チュートリアルの番号の取得
+	ORDER GetTutorialIndex() const { return m_tutorialIndex; }
+
+// 内部処理
+private:
 	// リスナーの設定
 	void SetListener();
 

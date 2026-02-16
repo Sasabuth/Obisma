@@ -9,9 +9,7 @@
 
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/AirTarget/AirTarget.h"
 #include "Game/GameObjects/Camera/Camera.h"
-#include "Game/GameObjects/Ball/BallManager.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -290,19 +288,20 @@ void Standing::AnimationUpdate(float elapsedTime)
 /// </summary>
 void Standing::ThrowBall()
 {
-	if (m_pPlayer->GetCatchBall(Player::RIGHT))
-	{
-		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
-		m_pPlayer->SetBallPosition(ball, m_rightHandMatrix);
-		m_pPlayer->ChangeState(m_pPlayer->GetThrowingR());
-		return;
-
-	}
+	// 左手に持っていたら投げる
 	if (m_pPlayer->GetCatchBall(Player::LEFT))
 	{
 		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
 		m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
 		m_pPlayer->ChangeState(m_pPlayer->GetThrowingL());
+		return;
+	}
+	// 右手に持っていたら投げる
+	if (m_pPlayer->GetCatchBall(Player::RIGHT))
+	{
+		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
+		m_pPlayer->SetBallPosition(ball, m_rightHandMatrix);
+		m_pPlayer->ChangeState(m_pPlayer->GetThrowingR());
 	}
 }
 
@@ -320,6 +319,12 @@ void Standing::UpdateRotateToMouse()
 	// 両方当たっていた場合どちらが先に当たったか調べる
 	hitPos2 = DirectX::SimpleMath::Vector3(10000);
 
+	// 空中の的の取得
+	AirTarget* airTarget = m_pPlayer->GetField()->GetAirTarget();
+
+	// カメラの取得
+	Camera* camera = m_pPlayer->GetField()->GetCamera();
+
 	// ワールド座標
 	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_pPlayer->GetField()->GetStageCollider().GetScale()) *
 		DirectX::SimpleMath::Matrix::CreateTranslation(m_pPlayer->GetField()->GetStageCollider().GetPosition());
@@ -332,8 +337,8 @@ void Standing::UpdateRotateToMouse()
 		if (IsHit(m_pPlayer->GetMouseRay().position, m_pPlayer->GetMouseRay().direction, world, m_pPlayer->GetField()->GetStageCollider(), (int)i, pos))
 		{
 			// 前と今の当たった座標の長さを調べる
-			DirectX::SimpleMath::Vector3 d0 = m_pPlayer->GetAirTarget()->GetCamera()->GetEyePosition() - hitPos2;
-			DirectX::SimpleMath::Vector3 d1 = m_pPlayer->GetAirTarget()->GetCamera()->GetEyePosition() - pos;
+			DirectX::SimpleMath::Vector3 d0 = camera->GetEyePosition() - hitPos2;
+			DirectX::SimpleMath::Vector3 d1 = camera->GetEyePosition() - pos;
 
 			// 今のほうが短かったら座標を入れる
 			if (d0.Length() > d1.Length())
@@ -344,7 +349,7 @@ void Standing::UpdateRotateToMouse()
 	}
 
 	// 空中の的と三角形に当たっていたら
-	if (m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), hitPos1) &&
+	if (m_pPlayer->CalcRaySphere(airTarget->GetPosition(), airTarget->GetCollider().GetRadius(), hitPos1) &&
 		hitPos2 != DirectX::SimpleMath::Vector3(10000))
 	{
 		// どちらのほうが短いか調べる
@@ -357,7 +362,7 @@ void Standing::UpdateRotateToMouse()
 		// 空中の的のほうが短かったらロックオンを出す
 		if (a.Length() < b.Length())
 		{
-			m_pPlayer->SetMouseRayHitPos(m_pPlayer->GetAirTarget()->GetPosition());
+			m_pPlayer->SetMouseRayHitPos(airTarget->GetPosition());
 			m_pPlayer->SetIsLockOn(true);
 		}
 		// 違ったらロックオンを出さない
@@ -374,11 +379,11 @@ void Standing::UpdateRotateToMouse()
 	else
 	{
 		// 空中の的に当たっていたらロックオンを出す
-		if (m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetMouseRayHitPos()))
+		if (m_pPlayer->CalcRaySphere(airTarget->GetPosition(), airTarget->GetCollider().GetRadius(), m_pPlayer->GetMouseRayHitPos()))
 		{
 			m_pPlayer->SetIsLockOn(true);
 			// マウスレイの当たった座標の設定
-			m_pPlayer->SetMouseRayHitPos(m_pPlayer->GetAirTarget()->GetPosition());
+			m_pPlayer->SetMouseRayHitPos(airTarget->GetPosition());
 			// マウス方向に回転
 			m_pPlayer->RotateToMouse();
 		}
@@ -408,7 +413,10 @@ void Standing::UpdateRotateToMouse()
 /// </summary>
 void Standing::CatchHandBall()
 {
-	for (int i = 0; i < m_pPlayer->GetBallManager()->GetObjectCount(); i++)
+	// ボールマネージャーの取得
+	BallManager* ballManager = m_pPlayer->GetField()->GetBallManager();
+
+	for (int i = 0; i < ballManager->GetObjectCount(); i++)
 	{
 		// 両手に持っていたら終了
 		if (m_pPlayer->GetCatchBall(Player::RIGHT) && m_pPlayer->GetCatchBall(Player::LEFT))
@@ -416,7 +424,7 @@ void Standing::CatchHandBall()
 			return;
 		}
 
-		Ball* ball = m_pPlayer->GetBallManager()->GetBall(i);
+		Ball* ball = ballManager->GetBall(i);
 		if (IsHit(m_pPlayer->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 		{
 			// ボールの状態の変更

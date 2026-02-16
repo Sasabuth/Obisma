@@ -9,9 +9,7 @@
 
 #include "Game/GameObjects/Enemy/Enemy.h"
 #include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/AirTarget/AirTarget.h"
 #include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Ball/BallManager.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -125,9 +123,12 @@ void EnemyRunning::Update(float elapsedTime)
 
 	m_pEnemy->GetCatchCollider().SetPosition(m_pEnemy->GetPosition() + catchPos);
 
-	for (int i = 0; i < m_pEnemy->GetBallManager()->GetObjectCount(); i++)
+	// ボールマネージャーの取得
+	BallManager* ballManager = m_pEnemy->GetField()->GetBallManager();
+
+	for (int i = 0; i < ballManager->GetObjectCount(); i++)
 	{
-		Ball* ball = m_pEnemy->GetBallManager()->GetBall(i);
+		Ball* ball = ballManager->GetBall(i);
 		if (IsHit(m_pEnemy->GetCatchCollider(), ball->GetCollider()))
 		{
 			if (ball->GetBallColorNum() != Ball::ENEMY && ball->GetCurrentState() == ball->GetMoving())
@@ -274,7 +275,7 @@ void EnemyRunning::AnimationUpdate(float elapsedTime)
 void EnemyRunning::RunToBall()
 {
 	// ボールの取得
-	Ball* ball = m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
+	Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
 
 	// ボールが止まっていなかったらステート変更
 	if (ball->GetCurrentState() != ball->GetStopping())
@@ -394,32 +395,40 @@ void EnemyRunning::RunToEntity()
 /// <param name="mouseTK">マウストラッカー</param>
 void EnemyRunning::ThrowBall()
 {
-	if (m_pEnemy->GetCatchBall(Enemy::RIGHT))
-	{
-		Ball* ball = m_pEnemy->GetCatchBall(Enemy::RIGHT);
-		m_pEnemy->SetBallPosition(ball, m_rightHandMatrix);
-
-		if (!dynamic_cast<Ball*>(m_pEnemy->GetTarget()))
-		{
-			DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
-			if (dir.Length() <= 2.0f)
-			{
-				m_pEnemy->ChangeState(m_pEnemy->GetThrowingR());
-				return;
-			}
-		}
-	}
+	// 左手に持っていたら
 	if (m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
+		// ボールを手に持たせる
 		Ball* ball = m_pEnemy->GetCatchBall(Enemy::LEFT);
 		m_pEnemy->SetBallPosition(ball, m_leftHandMatrix);
 
+		// ターゲットがボール以外なら
 		if (!dynamic_cast<Ball*>(m_pEnemy->GetTarget()))
 		{
+			// 距離が一定以内になったら投げる
 			DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
 			if (dir.Length() <= 2.0f)
 			{
 				m_pEnemy->ChangeState(m_pEnemy->GetThrowingL());
+				return;
+			}
+		}
+	}
+	// 右手に持っていたら
+	if (m_pEnemy->GetCatchBall(Enemy::RIGHT))
+	{
+		// ボールを手に持たせる
+		Ball* ball = m_pEnemy->GetCatchBall(Enemy::RIGHT);
+		m_pEnemy->SetBallPosition(ball, m_rightHandMatrix);
+
+		// ターゲットがボール以外なら
+		if (!dynamic_cast<Ball*>(m_pEnemy->GetTarget()))
+		{
+			// 距離が一定以内になったら投げる
+			DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
+			if (dir.Length() <= 2.0f)
+			{
+				m_pEnemy->ChangeState(m_pEnemy->GetThrowingR());
 			}
 		}
 	}
@@ -435,9 +444,9 @@ void EnemyRunning::ThrowBall()
 IEntity* EnemyRunning::NearEntity()
 {
 	// ボールの取得
-	Ball* ball = m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
+	Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
 	// プレイヤーの取得
-	Player* player = m_pEnemy->GetPlayer();
+	Player* player = m_pEnemy->GetField()->GetPlayer();
 
 	// どちらが近いか距離で調べる
 	DirectX::SimpleMath::Vector3 dir1 = m_pEnemy->GetPosition() - ball->GetPosition();
@@ -487,7 +496,7 @@ IEntity* EnemyRunning::NearEntity()
 	}
 
 	// 空中の的の取得
-	AirTarget* airTarget = m_pEnemy->GetAirTarget();
+	AirTarget* airTarget = m_pEnemy->GetField()->GetAirTarget();
 	// 距離を調べる
 	dir2 = m_pEnemy->GetPosition() - airTarget->GetPosition();
 
@@ -516,7 +525,10 @@ IEntity* EnemyRunning::NearEntity()
 /// </summary>
 void EnemyRunning::CatchHandBall()
 {
-	Ball* ball = m_pEnemy->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
+	// ボールの取得
+	Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
+
+	// ボールが止まっているときにボールに当たったら
 	if (IsHit(m_pEnemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 	{
 		// 両手に持っていたら終了

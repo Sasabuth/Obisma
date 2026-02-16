@@ -56,6 +56,10 @@ void Score::Initialize(int index)
 	m_scoreTexture.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFont" + std::to_wstring(index) + L".png"));
 	m_frameTexture.SetTexture(Resources::GetInstance()->GetTexture(L"ScoreFrame" + std::to_wstring(index) + L".png"));
 	m_faceTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Face" + std::to_wstring(index) + L".png"));
+	for (int i = 0; i < 2; i++)
+	{
+		m_ballTexture[i].SetTexture(Resources::GetInstance()->GetTexture(L"Ball2.png"));
+	}
 }
 
 
@@ -69,10 +73,13 @@ void Score::Render()
 	m_frameTexture.Draw(m_position, DirectX::SimpleMath::Vector2::Zero, FRAME_SIZE);
 	m_faceTexture.Draw(m_position, DirectX::SimpleMath::Vector2::Zero, FACE_SIZE);
 	m_scoreTexture.DigitsDraw(m_position.x + FREAM.pos.x, m_position.y + FREAM.pos.y, FREAM.size.x, FREAM.size.y, (int)m_score, FREAM.scale, 2);
+	for (int i = 0; i < 2; i++)
+	{
+		m_ballTexture[i].Draw(DirectX::SimpleMath::Vector2(m_position.x + i * BALL.pos.x, m_position.y + BALL.pos.y), BALL.size, BALL.scale);
+	}
 
 	//auto debagFont = m_pUserResources->GetDebugFont();
 	//debagFont->Render(L"score", m_score);
-	
 }
 
 

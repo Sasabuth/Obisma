@@ -17,9 +17,8 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Ball::Ball(Field* pField, Camera* pCamera)
+Ball::Ball(Field* pField)
 	: m_pField(pField)
-	, m_pCamera(pCamera)
 	, m_currentState{}
 	, m_ballColorNum(0)
 	, m_pUserResources(nullptr)
@@ -116,7 +115,7 @@ void Ball::Update(float elapsedTime)
 
 	// パーティクルの更新
 	m_particle->Update(elapsedTime);
-	m_particle->CreateBillboard(m_position, m_pCamera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
+	m_particle->CreateBillboard(m_position, m_pField->GetCamera()->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	// 3Dサウンドの設定
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);

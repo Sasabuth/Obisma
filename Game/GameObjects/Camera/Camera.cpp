@@ -7,7 +7,7 @@
 #include "Camera.h"
 
 #include "Game/Commons/UserResources.h"
-#include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Field/Field.h"
 
 
 
@@ -42,26 +42,25 @@ void Camera::Update(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vecto
 
 
 /// <summary>
-/// 更新
+/// 更新処理
 /// </summary>
-/// <param name="pPlayer">プレイヤー</param>
+/// <param name="pField">フィールド</param>
 /// <param name="upPos">上向きベクトル</param>
-/// <param name="field">フィールド</param>
-void Camera::Update(Player* pPlayer, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field)
+void Camera::Update(Field* pField, DirectX::SimpleMath::Vector3 upPos)
 {
 	// プレイヤー位置
-	DirectX::SimpleMath::Vector3 playerPos = pPlayer->GetPosition();
+	DirectX::SimpleMath::Vector3 playerPos = pField->GetPlayer()->GetPosition();
 
-	DirectX::SimpleMath::Vector3 eye = pPlayer->GetPosition() * 3;
+	DirectX::SimpleMath::Vector3 eye = pField->GetPlayer()->GetPosition() * 3;
 
 	// 世界Y軸
-	m_up = upPos + field;
+	m_up = upPos + pField->GetPosition();
 	m_up.Normalize();
 	m_eye = eye;
 	m_target = playerPos;
 
 	// ビュー行列更新
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, pPlayer->GetPosition(), m_up);
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, pField->GetPlayer()->GetPosition(), m_up);
 	UserResources::GetUserResource()->SetView(&m_view);
 }
 

@@ -185,6 +185,10 @@ void EnemyThrowingL::Update(float elapsedTime)
 	// アニメーションを更新し終了したらステート変更
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
 	{
+		// 左手に持たせる
+		Ball* ball = m_pEnemy->GetCatchBall(Enemy::RIGHT);
+		if (ball) m_pEnemy->SetBallPosition(ball, m_rightHandMatrix);
+
 		// アニメーションを更新する
 		m_animation->Update(elapsedTime);
 	}
@@ -313,4 +317,5 @@ void EnemyThrowingL::AnimationUpdate()
 	m_animation->Apply(*m_model, nbones, m_drawBones.get());
 	// ボーンマトリクスを設定する
 	m_leftHandMatrix = m_drawBones[20];
+	m_rightHandMatrix = m_drawBones[15];
 }

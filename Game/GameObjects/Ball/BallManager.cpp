@@ -16,9 +16,8 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-BallManager::BallManager(Field* pField, Camera* pCamera)
+BallManager::BallManager(Field* pField)
 	: m_pField(pField)
-	, m_pCamera(pCamera)
 {
 }
 
@@ -42,7 +41,7 @@ void BallManager::Initialize(int ballCount)
 
 	for (int i = 0; i < ballCount; i++)
 	{
-		std::unique_ptr<Ball> ball = Factory::CreateBall(m_pField, m_pCamera, DirectX::SimpleMath::Vector3(
+		std::unique_ptr<Ball> ball = Factory::CreateBall(m_pField, DirectX::SimpleMath::Vector3(
 			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(stageIndex)][std::to_string(i)]["x"],
 			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(stageIndex)][std::to_string(i)]["y"],
 			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(stageIndex)][std::to_string(i)]["z"])
@@ -74,7 +73,10 @@ void BallManager::Render()
 {
 	for (int i = 0; i < m_balls.size(); i++)
 	{
-		m_balls[i]->Render();
+		if (m_balls[i]->GetPosition().y <= 20.0f)
+		{
+			m_balls[i]->Render();
+		}
 	}
 }
 

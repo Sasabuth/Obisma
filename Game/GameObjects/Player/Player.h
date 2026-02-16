@@ -23,11 +23,7 @@
 
 
 // クラスの定義
-class AirTarget;
 class Field;
-class BallManager;
-class Ball;
-class Enemy;
 
 
 // クラスの定義
@@ -38,8 +34,7 @@ public:
 	// 手
 	enum HAND
 	{
-		NONE=0,
-		RIGHT,
+		RIGHT=0,
 		LEFT,
 	};
 
@@ -63,12 +58,6 @@ private:
 
 	// フィールド
 	Field* m_pField;  
-
-	// 空中の的
-	AirTarget* m_pAirTarget;
-
-	// ボールマネージャー
-	BallManager* m_pBallManager;
 
 	// 現在のステート
 	IState* m_currentState;  
@@ -135,7 +124,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Player(Field* pField, AirTarget* pAirTarget, BallManager* pBallManager);
+	Player(Field* pField);
 
 	// デストラクタ
 	~Player() override;
@@ -245,12 +234,6 @@ public:
 
 	// フィールドの取得
 	Field* GetField() const { return m_pField; }
-
-	// 空中の的の取得
-	AirTarget* GetAirTarget() const { return m_pAirTarget; }
-
-	// ボールマネージャー
-	BallManager* GetBallManager() const { return m_pBallManager; }
 
 	// ボール
 	void SetCatchBall(int key, Ball* ball);  // 設定

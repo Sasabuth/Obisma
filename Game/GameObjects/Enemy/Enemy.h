@@ -37,8 +37,7 @@ public:
 	// 手
 	enum HAND
 	{
-		NONE = 0,
-		RIGHT,
+		RIGHT = 0,
 		LEFT,
 	};
 
@@ -48,20 +47,11 @@ private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;
 
-	// プレイヤー
-	Player* m_pPlayer; 
-
 	// フィールド
 	Field* m_pField;
 
-	// 空中の的
-	AirTarget* m_pAirTarget;
-
 	// ワールド座標
 	DirectX::SimpleMath::Matrix m_worldMatrix;
-
-	// ボールマネージャーのポインタ
-	BallManager* m_ballManager;
 
 	// 現在のステート
 	IState* m_currentState;  
@@ -124,7 +114,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Enemy(Player* pPlayer, Field* pField, AirTarget* pAirTarget, BallManager* pBallManager);
+	Enemy(Field* pField);
 
 	// デストラクタ
 	~Enemy() override;
@@ -207,14 +197,8 @@ public:
 	// キャッチ用コライダー
 	SphereCollider& GetCatchCollider() { return m_catchCollider; }
 
-	// プレイヤーの取得
-	Player* GetPlayer() const { return m_pPlayer; }
-
-	// 空中の的の取得
-	AirTarget* GetAirTarget() const { return m_pAirTarget; }
-
-	// ボールマネージャーの取得
-	BallManager* GetBallManager() const { return m_ballManager; }
+	// フィールドの取得
+	Field* GetField() const { return m_pField; }
 
 	// ボール
 	void SetCatchBall(int key, Ball* ball);  // 設定

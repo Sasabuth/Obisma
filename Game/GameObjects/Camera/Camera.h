@@ -8,7 +8,7 @@
 
 
 // クラスの定義
-class Player;
+class Field;
 
 
 // クラスの定義
@@ -62,7 +62,7 @@ public:
 
 	// カメラの更新
 	void Update(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector3 eye);
-	void Update(Player* pPlayer, DirectX::SimpleMath::Vector3 upPos, DirectX::SimpleMath::Vector3 field);
+	void Update(Field* pField, DirectX::SimpleMath::Vector3 upPos);
 
 	// デバック用
 	void DebugMode();

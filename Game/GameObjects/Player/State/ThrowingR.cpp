@@ -9,7 +9,7 @@
 
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Ball/Ball.h"
-#include "Game/GameObjects/AirTarget/AirTarget.h"
+#include "Game/GameObjects/Field/Field.h"
 #include "DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
@@ -182,9 +182,12 @@ void ThrowingR::Update(float elapsedTime)
 			// ボールの速度の取得
 			float speed = Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"];
 
+			// 空中の的の取得
+			AirTarget* airTarget = m_pPlayer->GetField()->GetAirTarget();
+
 			// ロックオンしているかつ当たる範囲外またはマウスレイの長さが0だったらならボールの速度を遅くする
 			if (!m_pPlayer->IsInHitRange() &&
-				m_pPlayer->CalcRaySphere(m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetMouseRayHitPos()) ||
+				m_pPlayer->CalcRaySphere(airTarget->GetPosition(), airTarget->GetCollider().GetRadius(), m_pPlayer->GetMouseRayHitPos()) ||
 				m_pPlayer->GetMouseRayHitPos().Length() < 0.001f)
 			{
 				speed *= (float)Resources::GetInstance()->GetJson(L"Player.json")["Decay"];
@@ -210,10 +213,6 @@ void ThrowingR::Update(float elapsedTime)
 	// アニメーションを更新し終了したらステート変更
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
 	{
-		// 左手に持たせる
-		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
-		if (ball) m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
-
 		// アニメーションを更新する
 		m_animation->Update(elapsedTime);
 	}
@@ -356,5 +355,4 @@ void ThrowingR::AnimationUpdate()
 	m_animation->Apply(*m_model, nbones, m_drawBones.get());
 	// ボーンマトリクスを設定する
 	m_rightHandMatrix = m_drawBones[15];
-	m_leftHandMatrix = m_drawBones[20];
 }

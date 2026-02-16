@@ -7,20 +7,21 @@
 #pragma once
 
 // ヘッダファイルの読み込み
-#include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Enemy/Enemy.h"
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Camera/CameraUp.h"
-#include "Game/GameObjects/Ball/Ball.h"
-#include "Game/GameObjects/Ball/BallManager.h"
-#include "Game/GameObjects/AirTarget/AirTarget.h"
-#include "Game/GameObjects/Score/Score.h"
-#include "Game/GameObjects/Score/ScoreManager.h"
-#include "Game/GameObjects/Tutorial/Arrow.h"
+
 
 
 // クラスの定義
 class Camera;
+class Player;
+class Enemy;
+class Field;
+class CameraUp;
+class Ball;
+class BallManager;
+class AirTarget;
+class Score;
+class ScoreManager;
+class Arrow;
 
 
 // クラスの定義
@@ -35,48 +36,40 @@ public:
 	// プレイヤーを生成する
 	static std::unique_ptr<Player> CreatePlayer(
 		Field* pField,
-		AirTarget* pAirTarget,
-		BallManager* pBallManager,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
 	// 敵を生成する
 	static std::unique_ptr<Enemy> CreateEnemy(
-		Player* pPlayer,
 		Field* pField,
-		AirTarget* pAirTarget,
-		BallManager* pBallManager,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
 	// カメラの上向きベクトルを生成する
 	static std::unique_ptr<CameraUp> CreateCameraUp(
 		Field* pField,
-		Player* pPlayer,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
 	// フィールド生成する
-	static std::unique_ptr<Field> CreateField(int stageIndex, bool isSkyDome = true);
+	static std::unique_ptr<Field> CreateField(Camera* pCamera, int stageIndex, bool isSkyDome = true);
+	static std::unique_ptr<Field> CreateTutorialField(Camera* pCamera, int stageIndex, bool isSkyDome = true);
 
 	// ボールを生成する
 	static std::unique_ptr<Ball> CreateBall(
 		Field* pField,
-		Camera* pCamera,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
 	// ボールマネージャーを生成する
 	static std::unique_ptr<BallManager> CreateBallManager(
 		Field* pField,
-		Camera* pCamera,
 		int ballCount
 	);
 
 	// 空中の的を生成する
 	static std::unique_ptr<AirTarget> CreateAirTarget(
 		Field* pField,
-		Camera* pCamera,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 

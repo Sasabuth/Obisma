@@ -18,11 +18,9 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Player::Player(Field* pField, AirTarget* pAirTarget, BallManager* pBallManager)
+Player::Player(Field* pField)
 	: m_pField(pField)
-	, m_pAirTarget(pAirTarget)
 	, m_pUserResources(nullptr)
-	, m_pBallManager(pBallManager)
 	, m_currentState{}
 	, m_invincibleTime(0.0f)
 	, m_isLockOn(false)
@@ -131,7 +129,7 @@ void Player::Render()
 	// 空中の的にマウスが当たっていたらロックオンを描画
 	if (m_isLockOn)
 	{
-		DrawLockOn(m_pAirTarget->GetPosition());
+		DrawLockOn(m_pField->GetAirTarget()->GetPosition());
 	}
 
 	// デバック用
@@ -583,9 +581,9 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 /// </summary>
 void Player::ScoreDown()
 {
-	for (int i = 0; i < m_pBallManager->GetObjectCount(); i++)
+	for (int i = 0; i < m_pField->GetBallManager()->GetObjectCount(); i++)
 	{
-		Ball* ball = m_pBallManager->GetBall(i);
+		Ball* ball = m_pField->GetBallManager()->GetBall(i);
 
 		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::PLAYER)
 		{
@@ -609,7 +607,7 @@ void Player::ScoreDown()
 bool Player::IsInHitRange(float offset)
 {
 	// 距離の計算
-	DirectX::SimpleMath::Vector3 dir = m_position - m_pAirTarget->GetPosition();
+	DirectX::SimpleMath::Vector3 dir = m_position - m_pField->GetAirTarget()->GetPosition();
 
 	// 距離が当たる距離に入っているか
 	if (dir.Length() <= offset + (float)Resources::GetInstance()->GetJson(L"Player.json")["Offset"])
@@ -629,6 +627,17 @@ bool Player::IsInHitRange(float offset)
 /// <param name="ball">ボールのポインタ</param>
 void Player::SetCatchBall(int key, Ball* ball)
 {
+	// ボールを持っているならテクスチャをつける
+	if (ball)
+	{
+		m_score->SetBallTexture(key);
+	}
+	// ボールを持っていないならテクスチャを外す
+	else
+	{
+		m_score->ClearBallTexture(key);
+	}
+
 	m_isBall[key] = ball;
 }
 
