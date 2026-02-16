@@ -100,7 +100,7 @@ void TransitionMask::Draw(
 
 	context->Map(m_constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	static_cast<ConstantBuffer*>(mappedResource.pData)->rate = m_rate;
-	static_cast<ConstantBuffer*>(mappedResource.pData)->flag = m_flag;
+	static_cast<ConstantBuffer*>(mappedResource.pData)->flag = (float)m_flag;
 	context->Unmap(m_constantBuffer.Get(), 0);
 
 	m_spriteBatch->Begin(

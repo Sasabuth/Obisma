@@ -346,7 +346,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             s_fullscreen = !s_fullscreen;
         }
+
     case WM_SYSKEYUP:
+        break;
     case WM_KEYDOWN:
     case WM_KEYUP:
         // 押された時にメッセージを飛ばす
