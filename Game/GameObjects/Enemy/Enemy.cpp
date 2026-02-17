@@ -25,6 +25,17 @@ Enemy::Enemy(Field* pField)
 	, m_invincibleTime(0.0f)
 	, m_target(nullptr)
 {
+	// モデル
+	m_model = Resources::GetInstance()->GetModel(L"Enemy.sdkmesh");
+	m_model->UpdateEffects(
+		[&](DirectX::IEffect* pEffect)
+		{
+			// BasicEffectにキャストする
+			auto pBasicEffect = dynamic_cast<DirectX::SkinnedEffect*> (pEffect);
+
+			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 0.5));
+		}
+	);
 }
 
 
@@ -137,29 +148,6 @@ void Enemy::Finalize()
 }
 
 
-
-/// <summary>
-/// 重なりの補填
-/// </summary>
-/// <param name="field">フィールド</param>
-void Enemy::CorrectOverlap(Field& field)
-{
-	// 差分を求める
-	DirectX::SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
-
-	// 長さを求める
-	float distance = delta.Length();
-	float minDistance = m_collider.GetRadius() + field.GetCollider().GetRadius();
-
-	// 差分を求める
-	float pushLength = minDistance - distance;
-
-	// 正規化
-	delta.Normalize();
-
-	// 押し出しする
-	m_position += delta * pushLength;
-}
 
 void Enemy::CorrectOverlap(IEntity& iEntity)
 {

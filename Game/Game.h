@@ -19,39 +19,6 @@
 // provides a game loop.
 class Game final : public DX::IDeviceNotify
 {
-public:
-
-    Game() noexcept(false);
-    ~Game() = default;
-
-    Game(Game&&) = default;
-    Game& operator= (Game&&) = default;
-
-    Game(Game const&) = delete;
-    Game& operator= (Game const&) = delete;
-
-    // Initialization and management
-    void Initialize(HWND window, int width, int height);
-
-    // Basic game loop
-    void Tick();
-
-    // IDeviceNotify
-    void OnDeviceLost() override;
-    void OnDeviceRestored() override;
-
-    // Messages
-    void OnActivated();
-    void OnDeactivated();
-    void OnSuspending();
-    void OnResuming();
-    void OnWindowMoved();
-    void OnDisplayChange();
-    void OnWindowSizeChanged(int width, int height);
-
-    // Properties
-    void GetDefaultSize( int& width, int& height ) const noexcept;
-
 // 定数
 private:
     static constexpr Sprite::Format MOUSECURSOR =
@@ -61,16 +28,8 @@ private:
         0.045f                                          // 拡大率
     };
 
+// 変数
 private:
-
-    void Update(DX::StepTimer const& timer);
-    void Render();
-
-    void Clear();
-
-    void CreateDeviceDependentResources();
-    void CreateWindowSizeDependentResources();
-
     // Device resources.
     std::unique_ptr<DX::DeviceResources>    m_deviceResources;
 
@@ -111,8 +70,44 @@ private:
     std::unique_ptr<Sprite> m_mouseCursor;
 
     // フルスクリーンを管理
-    BOOL m_fullscreen; 
+    BOOL m_fullscreen;
 
+
+// 関数
+public:
+    Game() noexcept(false);
+    ~Game() = default;
+
+    Game(Game&&) = default;
+    Game& operator= (Game&&) = default;
+
+    Game(Game const&) = delete;
+    Game& operator= (Game const&) = delete;
+
+    // Initialization and management
+    void Initialize(HWND window, int width, int height);
+
+    // Basic game loop
+    void Tick();
+
+    // IDeviceNotify
+    void OnDeviceLost() override;
+    void OnDeviceRestored() override;
+
+    // Messages
+    void OnActivated();
+    void OnDeactivated();
+    void OnSuspending();
+    void OnResuming();
+    void OnWindowMoved();
+    void OnDisplayChange();
+    void OnWindowSizeChanged(int width, int height);
+
+    // Properties
+    void GetDefaultSize( int& width, int& height ) const noexcept;
+
+   
+// 設定/取得
 public:
     // 画面モードを設定する関数(TURE フルスクリーン)
     void SetFullscreenState(BOOL value)
@@ -121,4 +116,16 @@ public:
         m_deviceResources->GetSwapChain()->SetFullscreenState(m_fullscreen, nullptr);
         if (value) m_deviceResources->CreateWindowSizeDependentResources();
     }
+
+
+// 内部関数
+private:
+
+    void Update(DX::StepTimer const& timer);
+    void Render();
+
+    void Clear();
+
+    void CreateDeviceDependentResources();
+    void CreateWindowSizeDependentResources();
 };

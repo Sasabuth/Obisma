@@ -626,6 +626,13 @@ void ModelCollider::DebugDraw(ID3D11DeviceContext* pContext, DirectX::SimpleMath
 	m_batch->End();
 }
 
+
+
+/// <summary>
+/// 中心座標の取得
+/// </summary>
+/// <param name="index">番号</param>
+/// <returns>中心座標</returns>
 DirectX::SimpleMath::Vector3 ModelCollider::GetCenterPosition(int index) const
 {
 	// ワールド座標
@@ -639,6 +646,13 @@ DirectX::SimpleMath::Vector3 ModelCollider::GetCenterPosition(int index) const
 	return (p0 + p1 + p2) / 3;
 }
 
+
+
+/// <summary>
+/// 法線ベクトルの取得
+/// </summary>
+/// <param name="index">番号</param>
+/// <returns>法線ベクトル</returns>
 DirectX::SimpleMath::Vector3 ModelCollider::GetNormalVector(int index) const
 {
 	// ワールド座標
@@ -818,6 +832,18 @@ bool IsHit(const SphereCollider& sphere, const ModelCollider& model, int index)
 	return false;
 }
 
+
+
+/// <summary>
+/// 当たり判定
+/// </summary>
+/// <param name="rayOrigin">レイの座標</param>
+/// <param name="rayDir">レイの方向</param>
+/// <param name="world">ワールド座標</param>
+/// <param name="model">モデル</param>
+/// <param name="index">番号</param>
+/// <param name="outHitPoint">当たった座標</param>
+/// <returns>当たったか</returns>
 bool IsHit(const DirectX::SimpleMath::Vector3& rayOrigin, const DirectX::SimpleMath::Vector3& rayDir, const DirectX::SimpleMath::Matrix& world, const ModelCollider& model, int index, DirectX::SimpleMath::Vector3& outHitPoint)
 {
 	// 三角形の点のワールド座標を取得

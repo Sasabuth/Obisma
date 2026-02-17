@@ -39,71 +39,6 @@ Resources* const Resources::GetInstance()
 
 
 /// <summary>
-/// リソースのロード
-/// </summary>
-void Resources::LoadResource()
-{
-	// モデルの設定
-	auto device = m_userResource->GetDeviceResources()->GetD3DDevice();
-
-	auto effectFactory = m_userResource->GetEffectFactory();
-	effectFactory->SetDirectory(L"Resources/Models");
-
-	// プレーヤーモデルローダーフラグ
-	DirectX::ModelLoaderFlags flags = DirectX::ModelLoader_Clockwise | DirectX::ModelLoader_IncludeBones;
-	// プレーヤーモデルをロードする
-	m_playerModel = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/Player.sdkmesh", *effectFactory, flags);
-	m_playerModel->UpdateEffects(
-		[&](DirectX::IEffect* pEffect)
-		{
-			// BasicEffectにキャストする
-			auto pBasicEffect = dynamic_cast<DirectX::SkinnedEffect*> (pEffect);
-
-			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 0.5));
-		}
-	);
-
-	// 敵モデルをロードする
-	m_enemyModel = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/Enemy.sdkmesh", *effectFactory, flags);
-	m_enemyModel->UpdateEffects(
-		[&](DirectX::IEffect* pEffect)
-		{
-			// BasicEffectにキャストする
-			auto pBasicEffect = dynamic_cast<DirectX::SkinnedEffect*> (pEffect);
-
-			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 0.5));
-		}
-	);
-
-	// 星モデルをロードする
-	m_sterModel = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/Ster.sdkmesh", *effectFactory);
-	m_sterModel->UpdateEffects(
-		[&](DirectX::IEffect* pEffect)
-		{
-			// BasicEffectにキャストする
-			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
-			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 1));
-		}
-	);
-
-
-	// スカイドームをロードする
-	m_skydome = DirectX::Model::CreateFromSDKMESH(device, L"Resources/Models/skydome.sdkmesh", *effectFactory);
-	m_skydome->UpdateEffects(
-		[&](DirectX::IEffect* pEffect)
-		{
-			// BasicEffectにキャストする
-			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
-
-
-			pBasicEffect->SetAmbientLightColor(DirectX::Colors::WhiteSmoke);
-		}
-	);
-}
-
-
-
-/// <summary>
 /// 音の取得
 /// </summary>
 /// <param name="filename">ファイル名</param>
@@ -184,6 +119,9 @@ DirectX::Model* Resources::GetModel(const std::wstring& filename)
 	// モデルの設定
 	auto device = m_userResource->GetDeviceResources()->GetD3DDevice();
 
+	// プレーヤーモデルローダーフラグ
+	DirectX::ModelLoaderFlags flags = DirectX::ModelLoader_Clockwise | DirectX::ModelLoader_IncludeBones;
+
 	auto effectFactory = m_userResource->GetEffectFactory();
 	effectFactory->SetDirectory(L"Resources/Models");
 
@@ -193,7 +131,7 @@ DirectX::Model* Resources::GetModel(const std::wstring& filename)
 		// モデルファイルの読み込み
 		std::wstring fullPath = DEFAULT_MODEL_DIRECTORY + std::wstring(filename);
 
-		std::unique_ptr<DirectX::Model> model = DirectX::Model::CreateFromSDKMESH(device, fullPath.c_str(), *effectFactory);
+		std::unique_ptr<DirectX::Model> model = DirectX::Model::CreateFromSDKMESH(device, fullPath.c_str(), *effectFactory, flags);
 
 		// モデルデータのハンドルを登録
 		m_models.emplace(filename, std::move(model));
@@ -344,11 +282,6 @@ void Resources::Set3DSound(DirectX::SoundEffectInstance* sound, const DirectX::S
 /// </summary>
 void Resources::Reset()
 {
-	m_playerModel.reset();
-	m_enemyModel.reset();
-	m_sterModel.reset();
-	m_skydome.reset();
-
 	// 音データの削除
 	m_sounds.clear();
 

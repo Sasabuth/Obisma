@@ -71,9 +71,19 @@ void Field::Initialize(int stageIndex, bool isSkyDome)
 		}
 	);
 
+	// スカイドームを入れるなら
 	if (isSkyDome)
 	{
-		m_skydomeModel = Resources::GetInstance()->GetSkydome();
+		m_skydomeModel = Resources::GetInstance()->GetModel(L"skydome.sdkmesh");
+		m_skydomeModel->UpdateEffects(
+			[&](DirectX::IEffect* pEffect)
+			{
+				// BasicEffectにキャストする
+				DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
+
+				pBasicEffect->SetAmbientLightColor(DirectX::Colors::WhiteSmoke);
+			}
+		);
 	}
 
 
@@ -152,9 +162,19 @@ void Field::TutorialInitialize(int stageIndex, bool isSkyDome)
 		}
 	);
 
+	// スカイドームを入れるなら
 	if (isSkyDome)
 	{
-		m_skydomeModel = Resources::GetInstance()->GetSkydome();
+		m_skydomeModel = Resources::GetInstance()->GetModel(L"skydome.sdkmesh");
+		m_skydomeModel->UpdateEffects(
+			[&](DirectX::IEffect* pEffect)
+			{
+				// BasicEffectにキャストする
+				DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
+
+				pBasicEffect->SetAmbientLightColor(DirectX::Colors::WhiteSmoke);
+			}
+		);
 	}
 
 

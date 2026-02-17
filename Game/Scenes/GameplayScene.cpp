@@ -235,9 +235,9 @@ void GameplayScene::Update(float elapsedTime)
 /// </summary>
 void GameplayScene::Render()
 {
-	// デバックフォントの描画
-	auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
-	debugFont->Render(L"GameplayScene");
+	//// デバックフォントの描画
+	//auto* debugFont = UserResources::GetUserResource()->GetDebugFont();
+	//debugFont->Render(L"GameplayScene");
 
 	// フィールドの描画
 	m_field->Render();

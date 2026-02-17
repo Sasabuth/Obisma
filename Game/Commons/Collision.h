@@ -275,7 +275,7 @@ public:
 	// ç¿ïWÇÃê›íË
 	void SetPosition(DirectX::SimpleMath::Vector3 position) { m_position = position; }
 	void SetPosition(float posX, float posY, float posZ) { m_position = DirectX::SimpleMath::Vector3(posX, posY, posZ); }
-	DirectX::SimpleMath::Vector3 GetPosition() const { return m_position; }
+	const DirectX::SimpleMath::Vector3& GetPosition() const { return m_position; }
 
 	// ägëÂó¶ÇÃê›íË
 	void SetScale(float scale) { m_scale = scale; }
@@ -288,7 +288,7 @@ public:
 
 	DirectX::SimpleMath::Vector3 GetCenterPosition(int index) const;
 
-	DirectX::VertexPosition GetVertices(int index) const { return m_vertices[index]; }
+	const DirectX::VertexPosition& GetVertices(int index)  const { return m_vertices[index]; }
 	
 	DirectX::SimpleMath::Vector3 GetNormalVector(int index) const;
 

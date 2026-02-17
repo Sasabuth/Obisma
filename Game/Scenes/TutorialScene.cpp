@@ -500,8 +500,6 @@ void TutorialScene::Tutorial(float elapsedTime)
 	// マウスを星に近づける
 	case TutorialScene::MOUSE_TO_STER:
 	{
-		
-
 		// マウスの取得
 		auto mouse = DirectX::Mouse::Get().GetState();
 		// 行列の取得
@@ -648,7 +646,6 @@ void TutorialScene::Tutorial(float elapsedTime)
 	}
 	break;
 	}
-	
 }
 
 

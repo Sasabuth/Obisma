@@ -163,49 +163,6 @@ void Ball::Finalize()
 /// <summary>
 /// 重なりの補填
 /// </summary>
-/// <param name="field">フィールド</param>
-void Ball::CorrectOverlap(Field& field)
-{
-	// 差分を求める
-	DirectX::SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
-
-	// 長さを求める
-	float distance = delta.Length();
-	float minDistance = m_collider.GetRadius() + field.GetCollider().GetRadius();
-
-	// 差分を求める
-	float pushLength = minDistance - distance;
-
-	delta.Normalize();
-	m_position += delta * pushLength;
-
-	// 法線ベクトル
-	DirectX::SimpleMath::Vector3 normalVec = m_gravity * -1.0f;
-	normalVec.Normalize();
-
-	// 反射ベクトル
-	DirectX::SimpleMath::Vector3 reflVec = m_velocity - 2.0f * (m_velocity.Dot(normalVec)) * normalVec;
-
-	// 摩擦
-	reflVec *= (float)Resources::GetInstance()->GetJson(L"Ball.json")["DecelerationRate"];
-
-	if (!m_isSound && m_soundSpan >= 0.1f)
-	{
-		m_se = Resources::GetInstance()->GetSESound(L"BallBound.wav", m_position, false);
-		m_isSound = true;
-	}
-
-	m_soundSpan = 0.0f;
-
-	// 速度の設定
-	m_velocity = reflVec;
-}
-
-
-
-/// <summary>
-/// 重なりの補填
-/// </summary>
 /// <param name="field">座標</param>
 void Ball::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 {

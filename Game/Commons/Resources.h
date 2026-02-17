@@ -10,7 +10,7 @@
 #include "Model.h"
 #include "Game/Commons/UserResources.h"
 #include <unordered_map>
-#include "Common/json.hpp"
+#include <Common/json.hpp>
 
 
 // Resourcesクラスを定義する
@@ -32,16 +32,52 @@ private:
 	using ResourceJson = std::unordered_map<std::wstring, nlohmann::json>;
 
 
-public:
-	// プレイヤーモデルの取得
-	DirectX::Model* GetPlayerModel() { return m_playerModel.get(); }
-	// 敵モデルの取得
-	DirectX::Model* GetEnemyModel() { return m_enemyModel.get(); }
-	// 星モデルの取得
-	DirectX::Model* GetSterModel() { return m_sterModel.get(); }
-	// スカイドームの取得
-	DirectX::Model* GetSkydome() { return m_skydome.get(); }
+// 変数
+private:
+	// リソース
+	static std::unique_ptr<Resources> m_resources;
 
+	// ユーザーリソースの取得
+	UserResources* m_userResource = UserResources::GetUserResource();
+
+	// 音エンジン
+	std::unique_ptr<DirectX::AudioEngine>  m_audEngine;
+	// 音データ群
+	ResourceSound m_sounds;
+
+	// モデルデータ群
+	ResourceModel m_models;
+
+	// 画像データ群
+	ResourceTexture m_textures;
+
+	// Jsonデータ群
+	ResourceJson m_jsons;
+
+	// 音量
+	float m_bgmVolume;
+	float m_seVolume;;
+
+	// リスナー
+	DirectX::AudioListener m_listener;
+
+
+// 関数
+private:
+	// コンストラクタ
+	Resources() noexcept
+		:
+		m_bgmVolume{},
+		m_seVolume{}
+	{
+		m_userResource = UserResources::GetUserResource();
+
+		DirectX::AUDIO_ENGINE_FLAGS eflags = DirectX::AudioEngine_Default;
+		m_audEngine = std::make_unique<DirectX::AudioEngine>(eflags);
+	}
+
+
+// 関数
 public:
 	Resources(Resources&&) = default;
 	Resources& operator= (Resources&&) = default;
@@ -50,9 +86,14 @@ public:
 	~Resources() = default;
 	// Resoucesクラスのインスタンスを取得する
 	static Resources* const GetInstance();
-	// リソースをロードする
-	void LoadResource();
 
+	// リセット
+	void Reset();
+	void JsonReset() { m_jsons.clear(); }
+
+
+// 設定/取得
+public:
 	// 音データの取得
 	std::unique_ptr<DirectX::SoundEffectInstance> GetBGMSound(const std::wstring& filename, DirectX::SimpleMath::Vector3 emitterPos, bool loop);
 	std::unique_ptr<DirectX::SoundEffectInstance> GetSESound(const std::wstring& filename, DirectX::SimpleMath::Vector3 emitterPos, bool loop);
@@ -76,66 +117,8 @@ public:
 
 	// リスナーの設定
 	void SetListener(const DirectX::SimpleMath::Vector3& pos, const DirectX::SimpleMath::Vector3& forward, const DirectX::SimpleMath::Vector3& up);
-	DirectX::AudioListener GetListener() const { return m_listener; }
+	const DirectX::AudioListener& GetListener() const { return m_listener; }
 
 	// 3Dサウンドの設定
 	void Set3DSound(DirectX::SoundEffectInstance* sound, const DirectX::SimpleMath::Vector3& pos);
-
-	// リセット
-	void Reset();
-	void JsonReset() { m_jsons.clear(); }
-
-
-private:
-	// コンストラクタ
-	Resources() noexcept
-		:
-		m_playerModel{},
-		m_bgmVolume{},
-		m_seVolume{}
-	{
-		m_userResource = UserResources::GetUserResource();
-
-		DirectX::AUDIO_ENGINE_FLAGS eflags = DirectX::AudioEngine_Default;
-		m_audEngine = std::make_unique<DirectX::AudioEngine>(eflags);
-	}
-
-private:
-	// リソース
-	static std::unique_ptr<Resources> m_resources;
-
-	// モデル
-	// グラフィックス
-	UserResources* m_userResource = UserResources::GetUserResource();
-
-	// プレーヤーモデル
-	std::unique_ptr<DirectX::Model> m_playerModel;
-	// 敵モデル
-	std::unique_ptr<DirectX::Model> m_enemyModel;
-	// 星モデル
-	std::unique_ptr<DirectX::Model> m_sterModel;
-	// スカイドーム
-	std::unique_ptr<DirectX::Model> m_skydome;
-	
-	// 音エンジン
-	std::unique_ptr<DirectX::AudioEngine>  m_audEngine;
-	// 音データ群
-	ResourceSound m_sounds;  
-
-	// モデルデータ群
-	ResourceModel m_models;      
-
-	// 画像データ群
-	ResourceTexture m_textures;  
-
-	// Jsonデータ群
-	ResourceJson m_jsons;
-
-	// 音量
-	float m_bgmVolume;
-	float m_seVolume;;
-
-	// リスナー
-	DirectX::AudioListener m_listener;
-
 };

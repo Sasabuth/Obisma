@@ -24,7 +24,19 @@ Player::Player(Field* pField)
 	, m_currentState{}
 	, m_invincibleTime(0.0f)
 	, m_isLockOn(false)
+	, m_model(nullptr)
 {
+	// モデル
+	m_model = Resources::GetInstance()->GetModel(L"Player.sdkmesh");
+	m_model->UpdateEffects(
+		[&](DirectX::IEffect* pEffect)
+		{
+			// BasicEffectにキャストする
+			auto pBasicEffect = dynamic_cast<DirectX::SkinnedEffect*> (pEffect);
+
+			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 0.5));
+		}
+	);
 }
 
 
@@ -156,25 +168,9 @@ void Player::Finalize()
 
 
 /// <summary>
-/// 重なりの補填
+/// 実体との当たり判定
 /// </summary>
-/// <param name="field">フィールド</param>
-void Player::CorrectOverlap(Field& field)
-{
-	// 差分を求める
-	DirectX::SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
-
-	// 長さを求める
-	float distance = delta.Length();
-	float minDistance = m_collider.GetRadius() + field.GetCollider().GetRadius();
-
-	// 差分を求める
-	float pushLength = minDistance - distance;
-
-	delta.Normalize();
-	m_position += delta * pushLength;
-}
-
+/// <param name="iEntity">実体</param>
 void Player::CorrectOverlap(IEntity& iEntity)
 {
 	// 差分を求める

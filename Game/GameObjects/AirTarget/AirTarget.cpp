@@ -23,6 +23,7 @@ AirTarget::AirTarget(Field* pField)
 	, m_pUserResources(nullptr)
 	, m_model(nullptr)
 	, m_shadowHitPos{}
+	, m_debugIndex(0)
 {
 }
 
@@ -49,8 +50,16 @@ void AirTarget::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"AirTarget.json")["ColliderSize"]);
 
-	// ボールのモデルをロードする
-	m_model = Resources::GetInstance()->GetSterModel();
+	// モデル
+	m_model = Resources::GetInstance()->GetModel(L"ster.sdkmesh");
+	m_model->UpdateEffects(
+		[&](DirectX::IEffect* pEffect)
+		{
+			// BasicEffectにキャストする
+			DirectX::BasicEffect* pBasicEffect = dynamic_cast<DirectX::BasicEffect*>(pEffect);
+			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 1));
+		}
+	);
 
 	// 「浮いている」状態の生成
 	m_floating = std::make_unique<Floating>(this);
@@ -131,31 +140,6 @@ void AirTarget::Render()
 void AirTarget::Finalize()
 {
 	m_currentState->Finalize();
-}
-
-
-
-/// <summary>
-/// 重なりの補填
-/// </summary>
-/// <param name="field">フィールド</param>
-void AirTarget::CorrectOverlap(Field& field)
-{
-	// 差分を求める
-	DirectX::SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
-
-	// 長さを求める
-	float distance = delta.Length();
-	float minDistance = m_collider.GetRadius() + field.GetCollider().GetRadius();
-
-	// 差分を求める
-	float pushLength = minDistance - distance;
-
-	// 正規化
-	delta.Normalize();
-
-	// 押し出しする
-	m_position += delta * pushLength;
 }
 
 

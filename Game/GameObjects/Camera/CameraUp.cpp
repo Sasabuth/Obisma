@@ -186,28 +186,6 @@ void CameraUp::Finalize()
 /// <summary>
 /// 重なりの補填
 /// </summary>
-/// <param name="field">フィールド</param>
-void CameraUp::CorrectOverlap(Field& field)
-{
-	// 差分を求める
-	DirectX::SimpleMath::Vector3 delta = m_position - field.GetCollider().GetPosition();
-
-	// 長さを求める
-	float distance = delta.Length();
-	float minDistance = m_collider.GetRadius() + field.GetCollider().GetRadius();
-
-	// 差分を求める
-	float pushLength = minDistance - distance;
-
-	delta.Normalize();
-	m_position += delta * pushLength;
-}
-
-
-
-/// <summary>
-/// 重なりの補填
-/// </summary>
 /// <param name="field">座標</param>
 void CameraUp::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 {

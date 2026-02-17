@@ -26,7 +26,7 @@ ThrowingL::ThrowingL(Player* pPlayer)
 	, m_isThowing(false)
 {
 	// モデルの作成
-	m_model = Resources::GetInstance()->GetPlayerModel();
+	m_model = pPlayer->GetModel();
 
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();

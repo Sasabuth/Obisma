@@ -255,9 +255,6 @@ void Game::CreateDeviceDependentResources()
 
     // トランジションテクスチャにデバイスを設定する
     m_transitionTexture->SetDevice(device);
-
-    // リソースのロード
-    Resources::GetInstance()->LoadResource();
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.

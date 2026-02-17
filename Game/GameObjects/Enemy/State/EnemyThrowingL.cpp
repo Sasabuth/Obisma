@@ -26,7 +26,7 @@ EnemyThrowingL::EnemyThrowingL(Enemy* pEnemy)
 	, m_isThowing(false)
 {
 	// モデルの作成
-	m_model = Resources::GetInstance()->GetEnemyModel();
+	m_model = pEnemy->GetModel();
 
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();

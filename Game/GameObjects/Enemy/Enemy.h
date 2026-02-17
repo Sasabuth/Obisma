@@ -83,6 +83,9 @@ private:
 	// 影の当たった座標
 	DirectX::SimpleMath::Vector3 m_shadowHitPos;
 
+	// モデル
+	DirectX::Model* m_model;
+
 	// スコア
 	std::unique_ptr<Score> m_score;  
 
@@ -132,7 +135,6 @@ public:
 	void Finalize() override;
 
 	// 重なりの補填
-	void CorrectOverlap(Field& field) override;
 	void CorrectOverlap(IEntity& iEntity);
 	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
 
@@ -165,27 +167,30 @@ public:
 public:
 	// 座標
 	void SetPosition(DirectX::SimpleMath::Vector3 position) override { m_position = position; }   // 設定
-	DirectX::SimpleMath::Vector3 GetPosition() const override { return m_position; }		      // 取得
+	const DirectX::SimpleMath::Vector3& GetPosition() override { return m_position; }		      // 取得
 
 	// 速度
 	void SetVelocity(DirectX::SimpleMath::Vector3 velocity) override { m_velocity = velocity; }   // 設定
-	DirectX::SimpleMath::Vector3 GetVelocity() const override { return m_velocity; };		      // 取得
+	const DirectX::SimpleMath::Vector3& GetVelocity() override { return m_velocity; };		      // 取得
 
 	// 回転
 	void SetRotation(DirectX::SimpleMath::Quaternion rotation) override { m_rotate = rotation; }  // 設定
-	DirectX::SimpleMath::Quaternion GetRotation() const override { return m_rotate; }		      // 取得
+	const DirectX::SimpleMath::Quaternion& GetRotation() override { return m_rotate; }		      // 取得
 
 	// 速度
 	void SetGravity(DirectX::SimpleMath::Vector3 gravity) override { m_gravity = gravity; }       // 設定
-	DirectX::SimpleMath::Vector3 GetGravity() const override { return m_gravity; }		          // 取得
+	const DirectX::SimpleMath::Vector3& GetGravity() override { return m_gravity; }		          // 取得
 
 	// 影の当たった座標
 	void SetShadowHitPos(DirectX::SimpleMath::Vector3 hitPos) override { m_shadowHitPos = hitPos; }   // 設定
-	DirectX::SimpleMath::Vector3 GetShadowHitPos() const override { return m_shadowHitPos; }		  // 取得
+	const DirectX::SimpleMath::Vector3& GetShadowHitPos() override { return m_shadowHitPos; }		  // 取得
 
 	// ワールド
 	void SetWorld(DirectX::SimpleMath::Matrix world) { m_worldMatrix = world; }       // 設定
 	DirectX::SimpleMath::Matrix GetWorld() const { return m_worldMatrix; }		       // 取得
+
+	// モデルの取得
+	DirectX::Model* GetModel() const { return m_model; }
 
 	// ターゲット
 	void SetTarget(IEntity* target) { m_target = target; }       // 設定
