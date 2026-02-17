@@ -9,7 +9,7 @@
 
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Field/Field.h"
-#include "DebugDraw.h"
+#include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
 

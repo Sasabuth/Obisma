@@ -12,7 +12,7 @@
 #include "Game/Scenes/TitleScene.h"
 #include "Game/Commons/Factory.h"
 #include "Game/Commons/Resources.h"
-#include "DebugDraw.h"
+#include "Common/DebugDraw.h"
 
 
 

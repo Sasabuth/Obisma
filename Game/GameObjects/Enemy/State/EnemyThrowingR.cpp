@@ -10,7 +10,7 @@
 #include "Game/GameObjects/Enemy/Enemy.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Ball/Ball.h"
-#include "DebugDraw.h"
+#include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
 

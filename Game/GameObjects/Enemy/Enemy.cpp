@@ -7,7 +7,7 @@
 #include "pch.h"
 #include "Enemy.h"
 
-#include "DebugDraw.h"
+#include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
 #include "Game/GameObjects/Field/Field.h"

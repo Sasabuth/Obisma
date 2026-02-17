@@ -14,7 +14,7 @@
 
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Sprite.h"
-#include "DebugDraw.h"
+#include "Common/DebugDraw.h"
 
 
 

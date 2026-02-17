@@ -8,7 +8,7 @@
 #include "pch.h"
 #include "Stopping.h"
 
-#include "DebugDraw.h"
+#include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/GameObjects/Ball/Ball.h"
 

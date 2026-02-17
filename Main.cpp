@@ -5,7 +5,7 @@
 #include "pch.h"
 #include "Game/Game.h"
 
-#include "MemoryLeakDetector.h"
+#include "Common/MemoryLeakDetector.h"
 
 using namespace DirectX;
 

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "DeviceResources.h"
-#include "StepTimer.h"
+#include "Common/DeviceResources.h"
+#include "Common/StepTimer.h"
 
 #include "Game/Commons/DebugFont.h"
 #include "Game/Commons/SceneManager.h"
@@ -13,7 +13,7 @@
 #include "Game/Commons/TransitionMask.h"
 #include "Game/Commons/Sprite.h"
 
-#include "RenderTexture.h"
+#include "Common/RenderTexture.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.

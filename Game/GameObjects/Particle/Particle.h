@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include "StepTimer.h"
-#include <DeviceResources.h>
+#include "Common/StepTimer.h"
+#include "Common/DeviceResources.h"
 #include <SimpleMath.h>
 #include <Effects.h>
 #include <PrimitiveBatch.h>

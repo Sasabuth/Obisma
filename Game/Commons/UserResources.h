@@ -7,8 +7,8 @@
 //--------------------------------------------------------------------------------------
 #pragma once
 
-#include "StepTimer.h"
-#include "DeviceResources.h"
+#include "Common/StepTimer.h"
+#include "Common/DeviceResources.h"
 #include "Game/Commons/DebugFont.h"
 #include "Game/Commons/TransitionMask.h"
 

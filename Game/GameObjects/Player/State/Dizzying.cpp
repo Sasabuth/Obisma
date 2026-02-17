@@ -8,7 +8,7 @@
 #include "Dizzying.h"
 
 #include "Game/GameObjects/Player/Player.h"
-#include "DebugDraw.h"
+#include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 
 

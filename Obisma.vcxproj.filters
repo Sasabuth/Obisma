@@ -80,12 +80,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="StepTimer.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="DeviceResources.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Game.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -118,9 +112,6 @@
     </ClInclude>
     <ClInclude Include="Game\Scenes\GameplayScene.h">
       <Filter>Game\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugDraw.h">
-      <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Game\GameObjects\Player\State\Standing.h">
       <Filter>Game\GameObjects\Player\State</Filter>
@@ -179,9 +170,6 @@
     <ClInclude Include="Game\GameObjects\Player\State\PlayerCatching.h">
       <Filter>Game\GameObjects\Player\State</Filter>
     </ClInclude>
-    <ClInclude Include="MemoryLeakDetector.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Game\GameObjects\AirTarget\AirTarget.h">
       <Filter>Game\GameObjects\AirTarget</Filter>
     </ClInclude>
@@ -221,9 +209,6 @@
     <ClInclude Include="Game\GameObjects\UI\AudioUI.h">
       <Filter>Game\GameObjects\UI</Filter>
     </ClInclude>
-    <ClInclude Include="json.hpp">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Game\GameObjects\UI\MenuUI.h">
       <Filter>Game\GameObjects\UI</Filter>
     </ClInclude>
@@ -232,9 +217,6 @@
     </ClInclude>
     <ClInclude Include="Game\GameObjects\Tutorial\Arrow.h">
       <Filter>Game\GameObjects\Tutorial</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Commons\BinaryFile.h">
-      <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Game\GameObjects\Particle\Particle.h">
       <Filter>Game\GameObjects\Particle</Filter>
@@ -248,19 +230,34 @@
     <ClInclude Include="Game\Commons\TransitionMask.h">
       <Filter>Game\Commons</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTexture.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Game\GameObjects\UI\GameMenuUI.h">
       <Filter>Game\GameObjects\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\BinaryFile.h">
+      <Filter>Game\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\DebugDraw.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\DeviceResources.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\json.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\MemoryLeakDetector.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\RenderTexture.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\StepTimer.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="DeviceResources.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Commons\Collision.cpp">
       <Filter>Game\Commons</Filter>
     </ClCompile>
@@ -290,9 +287,6 @@
     </ClCompile>
     <ClCompile Include="Game\Scenes\GameplayScene.cpp">
       <Filter>Game\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugDraw.cpp">
-      <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Player\State\Standing.cpp">
       <Filter>Game\GameObjects\Player\State</Filter>
@@ -396,9 +390,6 @@
     <ClCompile Include="Game\GameObjects\Tutorial\Arrow.cpp">
       <Filter>Game\GameObjects\Tutorial</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Commons\BinaryFile.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Game\GameObjects\Particle\Particle.cpp">
       <Filter>Game\GameObjects\Particle</Filter>
     </ClCompile>
@@ -411,11 +402,20 @@
     <ClCompile Include="Game\Commons\TransitionMask.cpp">
       <Filter>Game\Commons</Filter>
     </ClCompile>
-    <ClCompile Include="RenderTexture.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Game\GameObjects\UI\GameMenuUI.cpp">
       <Filter>Game\GameObjects\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Commons\BinaryFile.cpp">
+      <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\DebugDraw.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\DeviceResources.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\RenderTexture.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
