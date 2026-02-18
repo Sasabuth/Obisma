@@ -93,8 +93,5 @@ private:
 
 	// ボールを投げる
 	void ThrowBall();
-
-	// マウス方向の回転の更新
-	void UpdateRotateToMouse();
 };
 

@@ -1,14 +1,10 @@
-/**
- * @file   Collider.cpp
- *
- * @brief  コライダーに関するソースファイル
- *
- * @author 制作者名
- *
- * @date   日付
- */
+/// <summary>
+/// Collisionに関するヘッダファイル
+/// </summary>
+/// <author>仲森智史</author>
 
- // ヘッダファイルの読み込み ===================================================
+
+// ヘッダファイルの読み込み
 #include "pch.h"
 #include "Collision.h"
 
@@ -18,15 +14,13 @@
 
 
 
-// メンバ関数の定義 ===========================================================
-//*************************************************************************
-// 
-// 短形コライダー
-// 
-//*************************************************************************
-/**
- * @brief コンストラクタ
- */
+
+//////////////////////////////////////////////////////////////////////////
+// 四角のコライダー
+//////////////////////////////////////////////////////////////////////////
+/// <summary>
+/// コンストラクタ
+/// </summary>
 BoxCollider2D::BoxCollider2D()
 	: m_center{}
 	, m_halfSize{}
@@ -39,22 +33,19 @@ BoxCollider2D::BoxCollider2D()
 
 
 
-/**
- * @brief デストラクタ
- */
+/// <summary>
+/// デストラクタ
+/// </summary>
 BoxCollider2D::~BoxCollider2D()
 {
 }
 
 
 
-/**
- * @brief 描画
- *
- * @param[in] color 描画色
- *
- * @return なし
- */
+/// <summary>
+/// 描画処理
+/// </summary>
+/// <param name="color"></param>
 void BoxCollider2D::Draw(DirectX::FXMVECTOR color)
 {
 	m_debug->Draw(m_center, DirectX::SimpleMath::Vector2(1, 1), m_halfSize * m_scale * 2, color);
@@ -62,13 +53,10 @@ void BoxCollider2D::Draw(DirectX::FXMVECTOR color)
 
 
 
-/**
- * @brief 左端の取得
- *
- * @param[in] なし
- *
- * @return 左端のX座標
- */
+/// <summary>
+/// 左端の取得
+/// </summary>
+/// <returns>左端</returns>
 float BoxCollider2D::GetLeft() const
 {
 	return m_center.x - m_halfSize.x * m_scale;
@@ -76,13 +64,10 @@ float BoxCollider2D::GetLeft() const
 
 
 
-/**
- * @brief 上端の取得
- *
- * @param[in] なし
- *
- * @return 上端のY座標
- */
+/// <summary>
+/// 上端の取得
+/// </summary>
+/// <returns>上端</returns>
 float BoxCollider2D::GetTop() const
 {
 	return m_center.y - m_halfSize.y * m_scale;
@@ -90,13 +75,10 @@ float BoxCollider2D::GetTop() const
 
 
 
-/**
- * @brief 右端の取得
- *
- * @param[in] なし
- *
- * @return 右端のX座標
- */
+/// <summary>
+/// 右端の取得
+/// </summary>
+/// <returns>右端</returns>
 float BoxCollider2D::GetRight() const
 {
 	return m_center.x + m_halfSize.x * m_scale;
@@ -104,13 +86,10 @@ float BoxCollider2D::GetRight() const
 
 
 
-/**
- * @brief 下端の取得
- *
- * @param[in] なし
- *
- * @return 下端のY座標
- */
+/// <summary>
+/// 下端の取得
+/// </summary>
+/// <returns>下端</returns>
 float BoxCollider2D::GetBottom() const
 {
 	return m_center.y + m_halfSize.y * m_scale;
@@ -118,13 +97,12 @@ float BoxCollider2D::GetBottom() const
 
 
 
-// メンバ関数の定義 ===========================================================
-//*************************************************************************
-// 
+//////////////////////////////////////////////////////////////////////////
 // 円のコライダー
-// 
-//*************************************************************************
-// コンストラクタ
+//////////////////////////////////////////////////////////////////////////
+/// <summary>
+/// コンストラクタ
+/// </summary>
 CircleCollider2D::CircleCollider2D()
 	: m_centerX(0.0f)
 	, m_centerY(0.0f)
@@ -138,22 +116,18 @@ CircleCollider2D::CircleCollider2D()
 
 
 
-/**
- * @brief デストラクタ
- */
+/// <summary>
+/// デストラクタ
+/// </summary>
 CircleCollider2D::~CircleCollider2D()
 {
 }
 
 
 
-/**
- * @brief 描画
- *
- * @param[in] color 描画色
- *
- * @return なし
- */
+/// <summary>
+/// 描画処理
+/// </summary>
 void CircleCollider2D::Draw()
 {
 	m_debug->Draw(DirectX::SimpleMath::Vector2(m_centerX, m_centerY), DirectX::SimpleMath::Vector2(1, 1), m_radius);
@@ -161,13 +135,10 @@ void CircleCollider2D::Draw()
 
 
 
-/**
- * @brief 中心座標(X座標)の取得
- *
- * @param[in] なし
- *
- * @return 中心座標(X座標)
- */
+/// <summary>
+/// X座標の中心の取得
+/// </summary>
+/// <returns>X座標の中心</returns>
 float CircleCollider2D::GetCenterX() const
 {
 	return m_centerX;
@@ -175,13 +146,10 @@ float CircleCollider2D::GetCenterX() const
 
 
 
-/**
- * @brief 中心座標(Y座標)の取得
- *
- * @param[in] なし
- *
- * @return 中心座標(Y座標)
- */
+/// <summary>
+/// Y座標の中心の取得
+/// </summary>
+/// <returns>Y座標の中心</returns>
 float CircleCollider2D::GetCenterY() const
 {
 	return m_centerY;
@@ -189,13 +157,10 @@ float CircleCollider2D::GetCenterY() const
 
 
 
-/**
- * @brief 半径の取得
- *
- * @param[in] なし
- *
- * @return 半径
- */
+/// <summary>
+/// 半径の取得
+/// </summary>
+/// <returns>半径</returns>
 float CircleCollider2D::GetRadius() const
 {
 	return m_radius;
@@ -203,14 +168,11 @@ float CircleCollider2D::GetRadius() const
 
 
 
-/**
- * @brief 円形の中心座標の設定
- *
- * @param[in] centerX 円形の中心座標(X座標)
- * @param[in] centerY 円形の中心座標(Y座標)
- *
- * @return なし
- */
+/// <summary>
+/// 中心座標の設定
+/// </summary>
+/// <param name="centerX">X座標</param>
+/// <param name="centerY">Y座標</param>
 void CircleCollider2D::SetPosition(float centerX, float centerY)
 {
 	m_centerX = centerX;
@@ -219,14 +181,10 @@ void CircleCollider2D::SetPosition(float centerX, float centerY)
 
 
 
-/**
- * @brief 円形の中心座標の設定
- *
- * @param[in] centerX 矩形の中心座標(X座標)
- * @param[in] centerY 矩形の中心座標(Y座標)
- *
- * @return なし
- */
+/// <summary>
+/// 半径の設定
+/// </summary>
+/// <param name="radius">半径</param>
 void CircleCollider2D::SetRadius(float radius)
 {
 	m_radius = radius;
@@ -234,17 +192,12 @@ void CircleCollider2D::SetRadius(float radius)
 
 
 
-// メンバ関数の定義 ===========================================================
-//*************************************************************************
-// 
+//////////////////////////////////////////////////////////////////////////
 // 球のコライダー
-// 
-//*************************************************************************
-/**
- * @brief コンストラクタ
- *
- * @param[in] なし
- */
+//////////////////////////////////////////////////////////////////////////
+/// <summary>
+/// コンストラクタ
+/// </summary>
 SphereCollider::SphereCollider()
 	: m_position{ DirectX::SimpleMath::Vector3{0.0f,0.0f,0.0f} }
     , m_radius{ 0.0f }
@@ -255,9 +208,9 @@ SphereCollider::SphereCollider()
 
 
 
-/**
- * @brief デストラクタ
- */
+/// <summary>
+/// デストラクタ
+/// </summary>
 SphereCollider::~SphereCollider()
 {
 
@@ -265,13 +218,12 @@ SphereCollider::~SphereCollider()
 
 
 
-/**
- * @brief 初期化処理
- *
- * @param[in] なし
- *
- * @return なし
- */
+/// <summary>
+/// 初期化処理
+/// </summary>
+/// <param name="pContext">コンテキスト</param>
+/// <param name="position">座標</param>
+/// <param name="radius">半径</param>
 void SphereCollider::Initialize(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Vector3 position, float radius)
 {
 	// 座標の設定
@@ -286,13 +238,12 @@ void SphereCollider::Initialize(ID3D11DeviceContext* pContext, DirectX::SimpleMa
 
 
 
-/**
- * @brief 描画処理
- *
- * @param[in] なし
- *
- * @return なし
- */
+/// <summary>
+/// 描画処理
+/// </summary>
+/// <param name="states">共通ステート</param>
+/// <param name="view">ビュー行列</param>
+/// <param name="proj">プロジェクション行列</param>
 void SphereCollider::Draw(DirectX::CommonStates* states, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj)
 {
 	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_radius * 2) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position);
@@ -312,7 +263,7 @@ void SphereCollider::Draw(DirectX::CommonStates* states, DirectX::SimpleMath::Ma
 /// <summary>
 /// 座標の取得
 /// </summary>
-/// <param name="position"></param> 座標
+/// <param name="position">座標</param> 
 void SphereCollider::SetPosition(DirectX::SimpleMath::Vector3 position)
 {
 	m_position = position;
@@ -323,9 +274,9 @@ void SphereCollider::SetPosition(DirectX::SimpleMath::Vector3 position)
 /// <summary>
 /// 座標の設定
 /// </summary>
-/// <param name="posX"></param> X座標
-/// <param name="posY"></param> Y座標
-/// <param name="posZ"></param> Z座標
+/// <param name="posX">X座標</param>
+/// <param name="posY">Y座標</param>
+/// <param name="posZ">Z座標</param> 
 void SphereCollider::SetPosition(float posX, float posY, float posZ)
 {
 	m_position.x = posX;
@@ -338,7 +289,7 @@ void SphereCollider::SetPosition(float posX, float posY, float posZ)
 /// <summary>
 /// 半径の設定
 /// </summary>
-/// <param name="radius"></param> 半径
+/// <param name="radius">半径</param> 
 void SphereCollider::SetRadius(float radius)
 {
 	m_radius = radius;
@@ -349,7 +300,7 @@ void SphereCollider::SetRadius(float radius)
 /// <summary>
 /// 座標の取得
 /// </summary>
-/// <returns></returns> 座標
+/// <returns>座標</returns>
 DirectX::SimpleMath::Vector3 SphereCollider::GetPosition() const
 {
 	return m_position;
@@ -360,7 +311,7 @@ DirectX::SimpleMath::Vector3 SphereCollider::GetPosition() const
 /// <summary>
 /// 半径の取得
 /// </summary>
-/// <returns></returns> 半径
+/// <returns>半径</returns> 
 float SphereCollider::GetRadius() const
 {
 	return m_radius;
@@ -368,11 +319,9 @@ float SphereCollider::GetRadius() const
 
 
 
-//*************************************************************************
-// 
+//////////////////////////////////////////////////////////////////////////
 // 立方体のコライダー
-// 
-//*************************************************************************
+//////////////////////////////////////////////////////////////////////////
 /// <summary>
 /// コンストラクタ
 /// </summary>
@@ -428,11 +377,9 @@ void CubeCollider::Draw(DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::M
 
 
 
-//*************************************************************************
-// 
-// モデルコライダー
-// 
-//*************************************************************************
+//////////////////////////////////////////////////////////////////////////
+// モデルのコライダー
+//////////////////////////////////////////////////////////////////////////
 /// <summary>
 /// コンストラクタ
 /// </summary>
@@ -576,22 +523,22 @@ void ModelCollider::Draw(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Mat
 		DirectX::VertexPositionColor p1{ m_vertices[m_indices[i + 1]].position, (DirectX::SimpleMath::Vector4)color };
 		DirectX::VertexPositionColor p2{ m_vertices[m_indices[i + 2]].position, (DirectX::SimpleMath::Vector4)color };
 
-		//DirectX::SimpleMath::Vector3 edge1 = DirectX::SimpleMath::Vector3(p1.position) - p0.position;
-		//DirectX::SimpleMath::Vector3 edge2 = DirectX::SimpleMath::Vector3(p2.position) - p0.position;
+		DirectX::SimpleMath::Vector3 edge1 = DirectX::SimpleMath::Vector3(p1.position) - p0.position;
+		DirectX::SimpleMath::Vector3 edge2 = DirectX::SimpleMath::Vector3(p2.position) - p0.position;
 
-		//// 外積で法線を求める
-		//DirectX::SimpleMath::Vector3 normal = edge1.Cross(edge2);
+		// 外積で法線を求める
+		DirectX::SimpleMath::Vector3 normal = edge1.Cross(edge2);
 
-		//// 正規化（必須）
-		//normal.Normalize();
+		// 正規化（必須）
+		normal.Normalize();
 
-		//DirectX::SimpleMath::Vector3 center = DirectX::SimpleMath::Vector3(
-		//	(p0.position.x + p1.position.x + p2.position.x) / 3,
-		//	(p0.position.y + p1.position.y + p2.position.y) / 3,
-		//	(p0.position.z + p1.position.z + p2.position.z) / 3
-		//);
+		DirectX::SimpleMath::Vector3 center = DirectX::SimpleMath::Vector3(
+			(p0.position.x + p1.position.x + p2.position.x) / 3,
+			(p0.position.y + p1.position.y + p2.position.y) / 3,
+			(p0.position.z + p1.position.z + p2.position.z) / 3
+		);
 
-	/*	DX::DrawRay(m_batch.get(), center, normal / 5, false, DirectX::Colors::Red);*/
+		DX::DrawRay(m_batch.get(), center, normal / 5, false, DirectX::Colors::Red);
 
 		m_batch->DrawLine(p0, p1);
 		m_batch->DrawLine(p1, p2);
@@ -601,6 +548,16 @@ void ModelCollider::Draw(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Mat
 	m_batch->End();
 }
 
+
+
+/// <summary>
+/// デバック用の描画
+/// </summary>
+/// <param name="pContext">コンテキスト</param>
+/// <param name="view">ビュー行列</param>
+/// <param name="proj">プロジェクション行列</param>
+/// <param name="index">番号</param>
+/// <param name="color">色</param>
 void ModelCollider::DebugDraw(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, int index, DirectX::FXMVECTOR color)
 {
 	// ワールド行列
@@ -676,13 +633,11 @@ DirectX::SimpleMath::Vector3 ModelCollider::GetNormalVector(int index) const
 
 
 
-//*************************************************************************
-// 
-// 当たり判定
-// 
-//*************************************************************************
+//////////////////////////////////////////////////////////////////////////
+// 当たり判定のコライダー
+//////////////////////////////////////////////////////////////////////////
 /// <summary>
-/// 矩形コライダーと 矩形コライダーの当たり判定
+/// 矩形コライダーと矩形コライダーの当たり判定
 /// </summary>
 /// <param name="boxA">ボックスA</param>
 /// <param name="boxB">ボックスB</param>
@@ -749,26 +704,18 @@ bool IsHit(const CubeCollider& cubeA, const CubeCollider& cubeB)
 
 
 /// <summary>
-/// 当たり判定
+/// 球体とモデルの当たり判定
 /// </summary>
 /// <param name="sphereA">球</param>
 /// <param name="modelB">モデル</param>
 /// <param name="index">インデックス</param>
 /// <returns>当たっているか</returns>
-bool IsHit(const SphereCollider& sphere, const ModelCollider& model, int index)
+bool IsHit(const SphereCollider& sphere, const DirectX::SimpleMath::Vector3& p0, const DirectX::SimpleMath::Vector3& p1, const DirectX::SimpleMath::Vector3& p2)
 {
 	// 球体の座標
 	DirectX::SimpleMath::Vector3 sphereCenter = sphere.GetPosition();
 	// 球体の半径
 	float sphereRadius = sphere.GetRadius();
-
-	// 三角形のワールド座標
-	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(model.GetScale()) * DirectX::SimpleMath::Matrix::CreateTranslation(model.GetPosition());
-
-	// 三角形の点のワールド座標
-	DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(model.GetVertices(model.GetIndices(index)).position, world);
-	DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(model.GetVertices(model.GetIndices(index + 1)).position, world);
-	DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(model.GetVertices(model.GetIndices(index + 2)).position, world);
 
 	// 距離が長いとfalseにする
 	DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
@@ -777,7 +724,6 @@ bool IsHit(const SphereCollider& sphere, const ModelCollider& model, int index)
 	{
 		return false;
 	}
-
 
 	// 法線
 	DirectX::SimpleMath::Vector3 N = (p1 - p0).Cross(p2 - p0);
@@ -835,7 +781,7 @@ bool IsHit(const SphereCollider& sphere, const ModelCollider& model, int index)
 
 
 /// <summary>
-/// 当たり判定
+/// レイとモデルの当たり判定
 /// </summary>
 /// <param name="rayOrigin">レイの座標</param>
 /// <param name="rayDir">レイの方向</param>
@@ -844,13 +790,9 @@ bool IsHit(const SphereCollider& sphere, const ModelCollider& model, int index)
 /// <param name="index">番号</param>
 /// <param name="outHitPoint">当たった座標</param>
 /// <returns>当たったか</returns>
-bool IsHit(const DirectX::SimpleMath::Vector3& rayOrigin, const DirectX::SimpleMath::Vector3& rayDir, const DirectX::SimpleMath::Matrix& world, const ModelCollider& model, int index, DirectX::SimpleMath::Vector3& outHitPoint)
+bool IsHit(const DirectX::SimpleMath::Vector3& rayOrigin, const DirectX::SimpleMath::Vector3& rayDir,
+	const DirectX::SimpleMath::Vector3& p0, const DirectX::SimpleMath::Vector3& p1, const DirectX::SimpleMath::Vector3& p2, DirectX::SimpleMath::Vector3& outHitPoint)
 {
-	// 三角形の点のワールド座標を取得
-	DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(model.GetVertices(model.GetIndices(index)).position, world);
-	DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(model.GetVertices(model.GetIndices(index + 1)).position, world);
-	DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(model.GetVertices(model.GetIndices(index + 2)).position, world);
-
 	// 二つの辺を求める
 	DirectX::SimpleMath::Vector3 edge1 = p1 - p0;
 	DirectX::SimpleMath::Vector3 edge2 = p2 - p0;

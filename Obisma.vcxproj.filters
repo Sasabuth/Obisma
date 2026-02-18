@@ -300,9 +300,6 @@
     <ClCompile Include="Game\Commons\Resources.cpp">
       <Filter>Game\Commons</Filter>
     </ClCompile>
-    <ClCompile Include="Game\GameObjects\Ball\Ball.cpp">
-      <Filter>Game\GameObjects\Ball</Filter>
-    </ClCompile>
     <ClCompile Include="Game\GameObjects\Ball\State\Stopping.cpp">
       <Filter>Game\GameObjects\Ball\State</Filter>
     </ClCompile>
@@ -416,6 +413,9 @@
     </ClCompile>
     <ClCompile Include="Common\RenderTexture.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Ball\Ball.cpp">
+      <Filter>Game\GameObjects\Ball</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

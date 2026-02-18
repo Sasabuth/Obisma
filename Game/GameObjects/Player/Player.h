@@ -166,14 +166,8 @@ public:
 		DirectX::SimpleMath::Vector3& hitPos
 	);
 
-	// レイと球体の交差
-	bool CalcRaySphere(
-		DirectX::SimpleMath::Vector3 rayPos,
-		DirectX::SimpleMath::Vector3 rayDir,
-		DirectX::SimpleMath::Vector3 spherePos,
-		float radius,
-		DirectX::SimpleMath::Vector3& hitPos
-	);
+	// レイがオブジェクトに当たっているか
+	void RayHitObject();
 
 	// マウスの方向に回転
 	void RotateToMouse();
@@ -234,7 +228,6 @@ public:
 	DirectX::SimpleMath::Ray GetMouseRay() const { return m_mouseRay; }
 
 	// 当たった座標
-	void SetMouseRayHitPos(DirectX::SimpleMath::Vector3 hitPos) { m_mouseRayHitPos = hitPos; }
 	DirectX::SimpleMath::Vector3& GetMouseRayHitPos() { return m_mouseRayHitPos; }
 
 	// フィールドの取得
@@ -267,7 +260,6 @@ public:
 	ThrowingL* GetThrowingL() const { return m_throwingL.get(); }
 	PlayerCatching* GetCatching() const { return m_catching.get(); }
 	Dizzying* GetDizzying() const { return m_dizzying.get(); }
-
 	
 };
 

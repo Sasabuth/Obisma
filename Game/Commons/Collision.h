@@ -306,14 +306,14 @@ bool IsHit(const SphereCollider& sphereA, const SphereCollider& sphereB);  // ‹…
 bool IsHit(const CubeCollider& cubeA, const CubeCollider& cubeB);          // —§•û‘Ì‚Æ—§•û‘Ì
 
 // ‹…‚Æƒ‚ƒfƒ‹
-bool IsHit(const SphereCollider& sphere, const ModelCollider& model, int index);    
+bool IsHit(const SphereCollider& sphere, const DirectX::SimpleMath::Vector3& p0, const DirectX::SimpleMath::Vector3& p1, const DirectX::SimpleMath::Vector3& p2);
 
 // ƒŒƒC‚Æƒ‚ƒfƒ‹
 bool IsHit(
 	const DirectX::SimpleMath::Vector3& rayOrigin,
 	const DirectX::SimpleMath::Vector3& rayDir,
-	const DirectX::SimpleMath::Matrix& world,
-	const ModelCollider& model,
-	int index,
+	const DirectX::SimpleMath::Vector3& p0,
+	const DirectX::SimpleMath::Vector3& p1,
+	const DirectX::SimpleMath::Vector3& p2,
 	DirectX::SimpleMath::Vector3& outHitPoint
 );

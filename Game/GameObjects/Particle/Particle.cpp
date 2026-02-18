@@ -200,28 +200,28 @@ void Particle::HandleFieldCollision(Field& field)
 
 void Particle::HandleStageCollision(Field& field)
 {
-	// 三角形の数分for文で回す
-	for (size_t i = 0; i + 2 < field.GetStageCollider().GetIndicesCount(); i += 3)
-	{
-		// パーティクルのイテレータの取得
-		for (std::list<std::unique_ptr<ParticleUtility>>::iterator ite = m_particleUtility.begin(); ite != m_particleUtility.end(); ite++)
-		{
-			// 球体コライダーと三角形が当たっているか
-			if (IsHit((*ite)->GetCollider(), field.GetStageCollider(), (int)i))
-			{
-				// ワールド座標
-				DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(field.GetStageCollider().GetScale()) *
-					DirectX::SimpleMath::Matrix::CreateTranslation(field.GetPosition());
+	//// 三角形の数分for文で回す
+	//for (size_t i = 0; i + 2 < field.GetStageCollider().GetIndicesCount(); i += 3)
+	//{
+	//	// パーティクルのイテレータの取得
+	//	for (std::list<std::unique_ptr<ParticleUtility>>::iterator ite = m_particleUtility.begin(); ite != m_particleUtility.end(); ite++)
+	//	{
+	//		// 球体コライダーと三角形が当たっているか
+	//		if (IsHit((*ite)->GetCollider(), field.GetStageCollider(), (int)i))
+	//		{
+	//			// ワールド座標
+	//			DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(field.GetStageCollider().GetScale()) *
+	//				DirectX::SimpleMath::Matrix::CreateTranslation(field.GetPosition());
 
-				DirectX::SimpleMath::Vector3 pos;
-				if (IsHit((*ite)->GetCollider().GetPosition(), (*ite)->GetVelocity(), world, field.GetStageCollider(), (int)i, pos))
-				{
-					(*ite)->CorrectOverlap(pos);
-				}
+	//			DirectX::SimpleMath::Vector3 pos;
+	//			if (IsHit((*ite)->GetCollider().GetPosition(), (*ite)->GetVelocity(), world, field.GetStageCollider(), (int)i, pos))
+	//			{
+	//				(*ite)->CorrectOverlap(pos);
+	//			}
 
-			}
-		}
-	}
+	//		}
+	//	}
+	//}
 }
 
 

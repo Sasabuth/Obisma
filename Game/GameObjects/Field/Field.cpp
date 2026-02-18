@@ -86,7 +86,6 @@ void Field::Initialize(int stageIndex, bool isSkyDome)
 		);
 	}
 
-
 	// 座標の初期化
 	m_position = DirectX::SimpleMath::Vector3{ 0.0f,0.0f,0.0f };
 
@@ -117,7 +116,6 @@ void Field::Initialize(int stageIndex, bool isSkyDome)
 		Resources::GetInstance()->GetJson(L"Player.json")["Position"]["z"]
 		}
 	);
-
 
 	// 敵の初期化
 	m_enemy = Factory::CreateEnemy(this, DirectX::SimpleMath::Vector3{
@@ -177,7 +175,6 @@ void Field::TutorialInitialize(int stageIndex, bool isSkyDome)
 		);
 	}
 
-
 	// 座標の初期化
 	m_position = DirectX::SimpleMath::Vector3{ 0.0f,0.0f,0.0f };
 
@@ -216,7 +213,6 @@ void Field::TutorialInitialize(int stageIndex, bool isSkyDome)
 		Resources::GetInstance()->GetJson(L"Player.json")["Position"]["z"]
 		}
 	);
-
 
 	// 敵の初期化
 	m_enemy = Factory::CreateEnemy(this, DirectX::SimpleMath::Vector3{
@@ -303,6 +299,7 @@ void Field::TutorialUpdate(TutorialScene* scene, float elapsedTime)
 	// チュートリアルの更新
 	scene->Tutorial(elapsedTime);
 
+	// プレイヤーの更新
 	m_player->Update(elapsedTime);
 
 	// 敵の更新
@@ -372,6 +369,10 @@ void Field::Render()
 	// モデルの描画
 	m_model->Draw(context, *states, world, *view, *proj);
 
+
+	//// デバック
+	//m_stageCollider.Draw(context, *view, *proj);
+
 	// スカイドームの描画
 	if (m_skydomeModel)
 	{
@@ -390,10 +391,6 @@ void Field::Render()
 
 	// ボールマネージャーの描画
 	m_ballManager->Render();
-
-
-	// デバック
-	/*m_stageCollider.Draw(context, *view, *proj);*/
 }
 
 
@@ -524,7 +521,6 @@ DirectX::SimpleMath::Vector3 Field::CorrectUp(IEntity* iEntity, DirectX::SimpleM
 	// クォータニオンの作成
 	DirectX::SimpleMath::Quaternion q;
 
-
 	// 角度が少しでもあれば軸を作る
 	if (angle > 0.01f && axis.Length() > 0.01f)
 	{
@@ -585,7 +581,7 @@ void Field::IsHitEntityToField(IEntity* pIEntity)
 		// 当たった座標
 		DirectX::SimpleMath::Vector3 pos1;
 		// レイと三角形が当たっているか
-		if (IsHit(ray.position, ray.direction, world, m_stageCollider, (int)i, pos1))
+		if (IsHit(ray.position, ray.direction, p0, p1, p2, pos1))
 		{
 			// 前と後に当たった座標の距離を求める
 			DirectX::SimpleMath::Vector3 d0 = pIEntity->GetPosition() - pos;
@@ -607,7 +603,7 @@ void Field::IsHitEntityToField(IEntity* pIEntity)
 		}
 
 		// 球体コライダーと三角形が当たっているか
-		if (IsHit(pIEntity->GetCollider(), m_stageCollider, (int)i) && !isHit)
+		if (IsHit(pIEntity->GetCollider(), p0, p1, p2) && !isHit)
 		{
 			// 当たっている
 			isHit = true;

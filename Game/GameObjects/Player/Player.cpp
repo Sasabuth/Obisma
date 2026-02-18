@@ -9,6 +9,7 @@
 
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Ball/Ball.h"
+#include "Game/GameObjects/Camera/Camera.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
@@ -294,12 +295,12 @@ bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 spherePos, float radius,
 
 	// レイが存在するか
 	if (A == 0.0f)
-		return false; 
+		return false;
 
 	// 衝突しているか
 	float s = B * B - A * C;
 	if (s < 0.0f)
-		return false; 
+		return false;
 
 	s = sqrtf(s);
 	float a1 = (B - s) / A;
@@ -307,8 +308,8 @@ bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 spherePos, float radius,
 
 	// マイナス方向に当たっていないか
 	if (a1 < 0.0f || a2 < 0.0f)
-		return false; 
-	
+		return false;
+
 	// 当たった座標を入れる
 	hitPos.x = m_mouseRay.position.x + a1 * m_mouseRay.direction.x;
 	hitPos.y = m_mouseRay.position.y + a1 * m_mouseRay.direction.y;
@@ -320,47 +321,107 @@ bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 spherePos, float radius,
 
 
 /// <summary>
-/// レイと球体の交差
+/// レイにオブジェクトが当たっているか
 /// </summary>
-/// <param name="rayPos">レイの座標</param>
-/// <param name="rayDir">レイのベクトル</param>
-/// <param name="spherePos">球の座標</param>
-/// <param name="radius">半径</param>
-/// <param name="hitPos">当たった座標</param>
-/// <returns>[true] 当たった　[false] 当たってない</returns>
-bool Player::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, float radius, DirectX::SimpleMath::Vector3& hitPos)
+void Player::RayHitObject()
 {
-	spherePos.x = spherePos.x - rayPos.x;
-	spherePos.y = spherePos.y - rayPos.y;
-	spherePos.z = spherePos.z - rayPos.z;
+	// 当たった座標
+	DirectX::SimpleMath::Vector3 hitPos1;
+	DirectX::SimpleMath::Vector3 hitPos2;
 
-	float A = rayDir.x * rayDir.x + rayDir.y * rayDir.y + rayDir.z * rayDir.z;
-	float B = rayDir.x * spherePos.x + rayDir.y * spherePos.y + rayDir.z * spherePos.z;
-	float C = spherePos.x * spherePos.x + spherePos.y * spherePos.y + spherePos.z * spherePos.z - radius * radius;
+	// 両方当たっていた場合どちらが先に当たったか調べる
+	hitPos2 = DirectX::SimpleMath::Vector3(10000);
 
-	// レイが存在するか
-	if (A == 0.0f)
-		return false;
+	// 空中の的の取得
+	AirTarget* airTarget = m_pField->GetAirTarget();
 
-	// 衝突しているか
-	float s = B * B - A * C;
-	if (s < 0.0f)
-		return false;
+	// カメラの取得
+	Camera* camera = m_pField->GetCamera();
 
-	s = sqrtf(s);
-	float a1 = (B - s) / A;
-	float a2 = (B + s) / A;
+	// ワールド座標
+	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_pField->GetStageCollider().GetScale()) *
+		DirectX::SimpleMath::Matrix::CreateTranslation(m_pField->GetStageCollider().GetPosition());
 
-	// マイナス方向に当たっていないか
-	if (a1 < 0.0f || a2 < 0.0f)
-		return false;
+	// フィールドの三角形の数分回す
+	for (size_t i = 0; i + 2 < m_pField->GetStageCollider().GetIndicesCount(); i += 3)
+	{
+		// 三角形の点のワールド座標を取得
+		DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i)).position, world);
+		DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i + 1)).position, world);
+		DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i + 2)).position, world);
 
-	// 当たった座標を入れる
-	hitPos.x = rayPos.x + a1 * rayDir.x;
-	hitPos.y = rayPos.y + a1 * rayDir.y;
-	hitPos.z = rayPos.z + a1 * rayDir.z;
+		// マウスレイと三角が当たっているかを調べる
+		DirectX::SimpleMath::Vector3 pos;
+		if (IsHit(m_mouseRay.position, m_mouseRay.direction, p0, p1, p2, pos))
+		{
+			// 前と今の当たった座標の長さを調べる
+			DirectX::SimpleMath::Vector3 d0 = camera->GetEyePosition() - hitPos2;
+			DirectX::SimpleMath::Vector3 d1 = camera->GetEyePosition() - pos;
 
-	return true;
+			// 今のほうが短かったら座標を入れる
+			if (d0.Length() > d1.Length())
+			{
+				hitPos2 = pos;
+			}
+		}
+	}
+
+	// 空中の的と三角形に当たっていたら
+	if (CalcRaySphere(airTarget->GetPosition(), airTarget->GetCollider().GetRadius(), hitPos1) &&
+		hitPos2 != DirectX::SimpleMath::Vector3(10000))
+	{
+		// どちらのほうが短いか調べる
+		DirectX::SimpleMath::Vector3 a;
+		DirectX::SimpleMath::Vector3 b;
+
+		a = m_mouseRay.position - hitPos1;
+		b = m_mouseRay.position - hitPos2;
+
+		// 空中の的のほうが短かったらロックオンを出す
+		if (a.Length() < b.Length())
+		{
+			m_mouseRayHitPos = airTarget->GetPosition();
+			m_isLockOn = true;
+		}
+		// 違ったらロックオンを出さない
+		else
+		{
+			m_mouseRayHitPos = hitPos2;
+			m_isLockOn = false;
+		}
+
+		// マウス方向に回転
+		RotateToMouse();
+	}
+	// 違ったら
+	else
+	{
+		// 空中の的に当たっていたらロックオンを出す
+		if (CalcRaySphere(airTarget->GetPosition(), airTarget->GetCollider().GetRadius(), GetMouseRayHitPos()))
+		{
+			m_isLockOn = true;
+			// マウスレイの当たった座標の設定
+			m_mouseRayHitPos = airTarget->GetPosition();
+			// マウス方向に回転
+			RotateToMouse();
+		}
+		// 三角形に当たっていたらロックオンを出さない
+		else if (hitPos2 != DirectX::SimpleMath::Vector3(10000))
+		{
+			m_isLockOn = false;
+			// マウスレイの当たった座標の設定
+			m_mouseRayHitPos = hitPos2;
+			// マウス方向に回転
+			RotateToMouse();
+
+		}
+		// 当たっていない時は何もしない
+		else
+		{
+			m_mouseRayHitPos = DirectX::SimpleMath::Vector3::Zero;
+			m_isLockOn = false;
+		}
+	}
 }
 
 
