@@ -11,6 +11,7 @@
 #include "Game/Commons/Interface/IState.h"
 #include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
+#include "Game/Commons/Sprite.h"
 #include "Game/GameObjects/Player/State/Standing.h"
 #include "Game/GameObjects/Player/State/Running.h"
 #include "Game/GameObjects/Player/State/ThrowingR.h"
@@ -18,7 +19,7 @@
 #include "Game/GameObjects/Player/State/PlayerCatching.h"
 #include "Game/GameObjects/Player/State/Dizzying.h"
 #include "Game/GameObjects/Score/Score.h"
-#include "Game/Commons/Sprite.h"
+#include "Game/GameObjects/Particle/Particle.h"
 #include <map>
 
 
@@ -84,6 +85,9 @@ private:
 	DirectX::SimpleMath::Matrix m_world;
 	// モデル
 	DirectX::Model* m_model;
+
+	// パーティクル
+	std::unique_ptr<Particle> m_particle;
 
 	// スコア
 	std::unique_ptr<Score> m_score;       
@@ -241,6 +245,9 @@ public:
 	void SetInvincibleTime(float time) { m_invincibleTime = time; }
 	float GetInvincibleTime() const { return m_invincibleTime; }
 
+	// パーティクルの取得
+	Particle* GetParticle() const { return m_particle.get(); }
+
 	// スコア
 	Score* GetScore() { return m_score.get(); }
 
@@ -260,6 +267,13 @@ public:
 	ThrowingL* GetThrowingL() const { return m_throwingL.get(); }
 	PlayerCatching* GetCatching() const { return m_catching.get(); }
 	Dizzying* GetDizzying() const { return m_dizzying.get(); }
+
+private:
+	// レイと平面の交差
+	bool CalcRayPlane(
+		const DirectX::SimpleMath::Ray& ray,
+		const DirectX::SimpleMath::Plane& plane,
+		DirectX::SimpleMath::Vector3* const hitPos);
 	
 };
 

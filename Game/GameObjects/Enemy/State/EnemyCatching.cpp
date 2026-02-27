@@ -23,6 +23,7 @@ EnemyCatching::EnemyCatching(Enemy* pEnemy)
 	, m_pUserResources(nullptr)
 	, m_model{}
 	, m_collider{}
+	, m_isEffect(false)
 {
 	// モデルの作成
 	m_model = pEnemy->GetModel();
@@ -73,6 +74,9 @@ void EnemyCatching::Initialize()
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
 	m_basicEffect->SetVertexColorEnabled(true);
+
+	// エフェクトをつけていない
+	m_isEffect = false;
 
 	// プリミティブバッチの作成
 	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
@@ -278,6 +282,24 @@ void EnemyCatching::CatchHandBall(int index)
 
 	// ボールのポインタを取得
 	Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(index);
+
+	// エフェクトが入っていなかったら
+	if (!m_isEffect)
+	{
+		// パーティクルの設定
+		auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+		m_pEnemy->GetParticle()->SetEffectPosition(context,
+			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["life"],
+			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["startScale"],
+			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["endScale"],
+			ball->GetPosition() + (m_pEnemy->GetPosition() - ball->GetPosition()) / 3);
+
+		m_pEnemy->GetParticle()->SetWorld(
+			DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(90.0f)) * DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pEnemy->GetRotation())
+		);
+
+		m_isEffect = true;
+	}
 
 	// 両手に持っていたら終了
 	if (m_pEnemy->GetCatchBall(Enemy::RIGHT) && m_pEnemy->GetCatchBall(Enemy::LEFT))

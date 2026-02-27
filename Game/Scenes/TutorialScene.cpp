@@ -100,9 +100,6 @@ void TutorialScene::Initialize()
 	m_explainIndex = EXPLAINORDER::SCORE_UP;
 	m_explainTexture.SetTexture(nullptr);
 
-	// 警告テクスチャの設定
-	m_warningTexture.SetTexture(nullptr);
-
 	// チェックできない
 	m_isCheck = false;
 
@@ -194,17 +191,6 @@ void TutorialScene::Update(float elapsedTime)
 	m_field->IsHitEntityToField(m_cameraUp.get());
 	m_field->IsHitEntityToField(m_arrow.get());
 
-	// 警告のテクスチャの設定
-	DirectX::SimpleMath::Vector3 hitPos;
-	if (!m_field->GetPlayer()->CalcRaySphere(m_field->GetCollider().GetPosition(), m_field->GetCollider().GetRadius(), hitPos) && !m_field->GetPlayer()->GetIsLockOn())
-	{
-		m_warningTexture.SetTexture(m_pResources->GetTexture(L"Warning.png"));
-	}
-	else
-	{
-		m_warningTexture.SetTexture(nullptr);
-	}
-
 	// チュートリアルシーンに変更
 	if (transitionMask->IsClose() && transitionMask->IsEnd())
 	{
@@ -248,24 +234,12 @@ void TutorialScene::Render()
 		if (m_tutorialIndex >= ORDER::MOUSE_MOVE && m_tutorialIndex < ORDER::MAX_ORDERCOUNT)
 		{
 			m_tutorialTexture.Draw(TUTORIAL[m_tutorialIndex].pos, TUTORIAL[m_tutorialIndex].size, TUTORIAL[m_tutorialIndex].scale);
-
-			// 警告のテクスチャの描画
-			if (m_warningTexture.GetTexture())
-			{
-				m_warningTexture.Draw(DirectX::SimpleMath::Vector2(WARNING.pos.x, TUTORIAL[m_tutorialIndex].pos.y + WARNING.pos.y), WARNING.size, WARNING.scale);
-			}
 		}
 	}
 	// 説明の描画
 	else
 	{
 		m_explainTexture.Draw(EXPLAIN[m_explainIndex].pos, EXPLAIN[m_explainIndex].size, EXPLAIN[m_explainIndex].scale);
-
-		// 警告のテクスチャの描画
-		if (m_warningTexture.GetTexture())
-		{
-			m_warningTexture.Draw(DirectX::SimpleMath::Vector2(WARNING.pos.x, EXPLAIN[m_explainIndex].pos.y + WARNING.pos.y), WARNING.size, WARNING.scale);
-		}
 	}
 	
 	// チェックが付いたら描画
@@ -370,25 +344,21 @@ void TutorialScene::Tutorial(float elapsedTime)
 		auto const r = m_pUserResources->GetDeviceResources()->GetOutputSize();
 		player->SetMouseRay(player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
 
-		// フィールドとマウスレイが当たっていたらプレイヤーを回転
-		if (player->CalcRaySphere(m_field->GetCollider().GetPosition(), m_field->GetCollider().GetRadius(), player->GetMouseRayHitPos()))
+		player->RotateToMouse();
+
+		// プレイヤーの設定
+		player->SetVelocity(player->GetGravity());
+		player->SetPosition(player->GetPosition() + player->GetVelocity() * elapsedTime);
+		player->GetCollider().SetPosition(player->GetPosition());
+
+		// マウスの移動距離の計算
+		DirectX::SimpleMath::Vector2 dir = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y) - pos;
+
+		// 長さが上限になったら座標を更新してカウントを増やす
+		if (dir.Length() >= MAX_LENGTH)
 		{
-			player->RotateToMouse();
-
-			// プレイヤーの設定
-			player->SetVelocity(player->GetGravity());
-			player->SetPosition(player->GetPosition() + player->GetVelocity() * elapsedTime);
-			player->GetCollider().SetPosition(player->GetPosition());
-
-			// マウスの移動距離の計算
-			DirectX::SimpleMath::Vector2 dir = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y) - pos;
-
-			// 長さが上限になったら座標を更新してカウントを増やす
-			if (dir.Length() >= MAX_LENGTH)
-			{
-				m_count += 1;
-				pos = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y);
-			}
+			m_count += 1;
+			pos = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y);
 		}
 
 		// カウントが上限に行ったらチェックマークをつける

@@ -85,7 +85,11 @@ void Moving::Update(float elapsedTime)
 
 	// パーティクルの設定
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
-	m_ball->GetParticle()->SetEffectPosition(context, PARTICLE_LIFE, m_ball->GetPosition());
+	m_ball->GetParticle()->SetEffectPosition(context, 
+		Resources::GetInstance()->GetJson(L"Ball.json")["EffectData"]["life"],
+		Resources::GetInstance()->GetJson(L"Ball.json")["EffectData"]["startScale"],
+		Resources::GetInstance()->GetJson(L"Ball.json")["EffectData"]["endScale"], 
+		m_ball->GetPosition());
 }
 
 

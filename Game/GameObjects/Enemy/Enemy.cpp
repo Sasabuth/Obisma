@@ -98,12 +98,21 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_isBall.insert(std::make_pair(RIGHT, nullptr));
 	m_isBall.insert(std::make_pair(LEFT, nullptr));
 
+	// 無敵時間の初期化
 	m_invincibleTime = 0.0f;
 
+	// パーティクル用オブジェクトの作成
+	m_particle = std::make_unique<Particle>();
+	// 初期化
+	m_particle->Create(device, context, L"Circle.png");
+
+	// ターゲットの初期化
 	m_target = nullptr;
 
+	// スコアの初期化
 	m_score = Factory::CreateScore(Ball::ENEMY);
 
+	// 影の初期化
 	InitializeShadow(device, context);
 }
 
@@ -117,7 +126,13 @@ void Enemy::Update(float elapsedTime)
 {
 	m_currentState->Update(elapsedTime);
 
+	// パーティクルの更新
+	m_particle->Update(elapsedTime);
+
+	// 音の更新
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
+
+	// 無敵時間の減少
 	m_invincibleTime -= elapsedTime;
 }
 
@@ -128,11 +143,15 @@ void Enemy::Update(float elapsedTime)
 /// </summary>
 void Enemy::Render()
 {
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	//auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
+
 	m_currentState->Render();
 
-	//auto states = m_pUserResources->GetCommonStates();
-	//auto view = m_pUserResources->GetView();
-	//auto proj = m_pUserResources->GetProject();
+	// パーティクルの描画
+	m_particle->Render(context, *view, *proj);
 
 	//m_collider.Draw(states, *view, *proj);
 }

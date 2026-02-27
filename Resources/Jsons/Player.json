@@ -5,6 +5,12 @@
 		"z": 0.1
 	},
 
+	"EffectData": {
+		"life": 0.3,
+		"startScale": 0.2,
+		"endScale": 2.0
+	},
+
 	"PlayerSpeed": 1.9,
 
 	"PlayerSize": 0.003,

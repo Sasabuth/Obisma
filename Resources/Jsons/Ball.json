@@ -86,6 +86,12 @@
 		}
 	},
 
+	"EffectData": {
+		"life": 0.7,
+		"startScale": 0.1,
+		"endScale": 0.0
+	},
+
 
 	"BallSize": 0.15,
 

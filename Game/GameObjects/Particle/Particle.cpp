@@ -133,7 +133,7 @@ void Particle::CreateShader(ID3D11Device1* device)
 	device->CreateBuffer(&bd, nullptr, &m_CBuffer);
 }
 
-void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, float life, DirectX::SimpleMath::Vector3 pos)
+void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, float life, float startScale, float endScale, DirectX::SimpleMath::Vector3 pos)
 {
 	//	新しいパーティクル情報を作成する
 	std::unique_ptr<ParticleUtility> pU = std::make_unique<ParticleUtility>(
@@ -142,7 +142,7 @@ void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, float life, Dire
 		pos,						                                                                    //	基準座標
 		DirectX::SimpleMath::Vector3::Zero,													            //	速度
 		DirectX::SimpleMath::Vector3::Zero,																//	加速度
-		DirectX::SimpleMath::Vector3(LINE_SCALE), DirectX::SimpleMath::Vector3(0.0f),					//	初期スケール、最終スケール
+		DirectX::SimpleMath::Vector3(startScale), DirectX::SimpleMath::Vector3(endScale),			    //	初期スケール、最終スケール
 		DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 1.0f), DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 0.f)//	初期カラー、最終カラー
 	);
 
@@ -196,32 +196,6 @@ void Particle::HandleFieldCollision(Field& field)
 			(*ite)->CorrectOverlap(field);
 		}
 	}
-}
-
-void Particle::HandleStageCollision(Field& field)
-{
-	//// 三角形の数分for文で回す
-	//for (size_t i = 0; i + 2 < field.GetStageCollider().GetIndicesCount(); i += 3)
-	//{
-	//	// パーティクルのイテレータの取得
-	//	for (std::list<std::unique_ptr<ParticleUtility>>::iterator ite = m_particleUtility.begin(); ite != m_particleUtility.end(); ite++)
-	//	{
-	//		// 球体コライダーと三角形が当たっているか
-	//		if (IsHit((*ite)->GetCollider(), field.GetStageCollider(), (int)i))
-	//		{
-	//			// ワールド座標
-	//			DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(field.GetStageCollider().GetScale()) *
-	//				DirectX::SimpleMath::Matrix::CreateTranslation(field.GetPosition());
-
-	//			DirectX::SimpleMath::Vector3 pos;
-	//			if (IsHit((*ite)->GetCollider().GetPosition(), (*ite)->GetVelocity(), world, field.GetStageCollider(), (int)i, pos))
-	//			{
-	//				(*ite)->CorrectOverlap(pos);
-	//			}
-
-	//		}
-	//	}
-	//}
 }
 
 

@@ -143,13 +143,6 @@ private:
 		0.06f                                 		    // 拡大率
 	};
 
-	static constexpr Sprite::Format WARNING =
-	{
-		DirectX::SimpleMath::Vector2(180.0f, 70.0f),    // 座標
-		DirectX::SimpleMath::Vector2(1426.0f, 305.0f), // サイズ
-		0.22f                                          // 拡大率
-	};
-
 
 	// 変数
 private:
@@ -198,7 +191,6 @@ private:
 	Sprite m_checkMarkTexture;
 	Sprite m_tutorialTexture;
 	Sprite m_explainTexture;
-	Sprite m_warningTexture;
 
 	// オーディオUI
 	AudioUI m_audioUI;

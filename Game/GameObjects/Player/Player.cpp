@@ -101,6 +101,11 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	// 無敵時間の初期化
 	m_invincibleTime = 0.0f;
 
+	// パーティクル用オブジェクトの作成
+	m_particle = std::make_unique<Particle>();
+	// 初期化
+	m_particle->Create(device, context, L"Circle.png");
+
 	// スコアの初期化
 	m_score = Factory::CreateScore(Ball::PLAYER);
 
@@ -125,6 +130,9 @@ void Player::Update(float elapsedTime)
 	// 現在のステートの更新
 	m_currentState->Update(elapsedTime);
 
+	// パーティクルの更新
+	m_particle->Update(elapsedTime);
+
 	// 無敵時間の減少
 	m_invincibleTime -= elapsedTime;
 }
@@ -136,8 +144,16 @@ void Player::Update(float elapsedTime)
 /// </summary>
 void Player::Render()
 {
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+	//auto states = m_pUserResources->GetCommonStates();
+	auto view = m_pUserResources->GetView();
+	auto proj = m_pUserResources->GetProject();
+
 	// 現在のステートの描画
 	m_currentState->Render();
+
+	// パーティクルの描画
+	m_particle->Render(context, *view, *proj);
 
 	// 空中の的にマウスが当たっていたらロックオンを描画
 	if (m_isLockOn)
@@ -147,11 +163,9 @@ void Player::Render()
 
 	// デバック用
 	/*auto* debugFont = m_pUserResources->GetDebugFont();
-	debugFont->Render(L"pos", std::any(m_mouseRayHitPos));*/
+	debugFont->Render(L"PlayerPos", std::any(m_position));
+	debugFont->Render(L"RayHitPos", std::any(m_mouseRayHitPos));*/
 
-	//auto states = m_pUserResources->GetCommonStates();
-	//auto view = m_pUserResources->GetView();
-	//auto proj = m_pUserResources->GetProject();
 	//m_collider.Draw(states, *view, *proj);
 }
 
@@ -329,47 +343,50 @@ void Player::RayHitObject()
 	DirectX::SimpleMath::Vector3 hitPos1;
 	DirectX::SimpleMath::Vector3 hitPos2;
 
-	// 両方当たっていた場合どちらが先に当たったか調べる
-	hitPos2 = DirectX::SimpleMath::Vector3(10000);
+	// カメラ方向に平面を出す
+	DirectX::SimpleMath::Vector3 normal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate);
+	normal.Normalize();
+	DirectX::SimpleMath::Plane plane(normal, 2.0f);
 
 	// 空中の的の取得
 	AirTarget* airTarget = m_pField->GetAirTarget();
-
-	// カメラの取得
-	Camera* camera = m_pField->GetCamera();
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_pField->GetStageCollider().GetScale()) *
 		DirectX::SimpleMath::Matrix::CreateTranslation(m_pField->GetStageCollider().GetPosition());
 
-	// フィールドの三角形の数分回す
-	for (size_t i = 0; i + 2 < m_pField->GetStageCollider().GetIndicesCount(); i += 3)
-	{
-		// 三角形の点のワールド座標を取得
-		DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i)).position, world);
-		DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i + 1)).position, world);
-		DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i + 2)).position, world);
-
-		// マウスレイと三角が当たっているかを調べる
-		DirectX::SimpleMath::Vector3 pos;
-		if (IsHit(m_mouseRay.position, m_mouseRay.direction, p0, p1, p2, pos))
-		{
-			// 前と今の当たった座標の長さを調べる
-			DirectX::SimpleMath::Vector3 d0 = camera->GetEyePosition() - hitPos2;
-			DirectX::SimpleMath::Vector3 d1 = camera->GetEyePosition() - pos;
-
-			// 今のほうが短かったら座標を入れる
-			if (d0.Length() > d1.Length())
-			{
-				hitPos2 = pos;
-			}
-		}
-	}
-
 	// 空中の的と三角形に当たっていたら
 	if (CalcRaySphere(airTarget->GetPosition(), airTarget->GetCollider().GetRadius(), hitPos1) &&
-		hitPos2 != DirectX::SimpleMath::Vector3(10000))
+		CalcRayPlane(m_mouseRay, plane, &m_mouseRayHitPos))
 	{
+		// フィールドの三角形の数分回す
+		for (size_t i = 0; i + 2 < m_pField->GetStageCollider().GetIndicesCount(); i += 3)
+		{
+			// 三角形の点のワールド座標を取得
+			DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i)).position, world);
+			DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i + 1)).position, world);
+			DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i + 2)).position, world);
+
+			// マウスレイと三角が当たっているかを調べる
+			DirectX::SimpleMath::Vector3 pos;
+			if (IsHit(m_mouseRay.position, m_mouseRay.direction, p0, p1, p2, pos))
+			{
+				hitPos2 = pos;
+				break;
+			}
+
+			// 当たっていないとする
+			hitPos2 = DirectX::SimpleMath::Vector3(-10000);
+		}
+
+		// 当たっていなかったらロックオンを出す
+		if (hitPos2 == DirectX::SimpleMath::Vector3(-10000))
+		{
+			m_mouseRayHitPos = airTarget->GetPosition();
+			m_isLockOn = true;
+			return;
+		}
+
 		// どちらのほうが短いか調べる
 		DirectX::SimpleMath::Vector3 a;
 		DirectX::SimpleMath::Vector3 b;
@@ -386,7 +403,6 @@ void Player::RayHitObject()
 		// 違ったらロックオンを出さない
 		else
 		{
-			m_mouseRayHitPos = hitPos2;
 			m_isLockOn = false;
 		}
 
@@ -406,14 +422,11 @@ void Player::RayHitObject()
 			RotateToMouse();
 		}
 		// 三角形に当たっていたらロックオンを出さない
-		else if (hitPos2 != DirectX::SimpleMath::Vector3(10000))
+		else if (CalcRayPlane(m_mouseRay, plane, &m_mouseRayHitPos))
 		{
 			m_isLockOn = false;
-			// マウスレイの当たった座標の設定
-			m_mouseRayHitPos = hitPos2;
 			// マウス方向に回転
 			RotateToMouse();
-
 		}
 		// 当たっていない時は何もしない
 		else
@@ -715,6 +728,34 @@ Ball* Player::GetCatchBall(int key) const
 	}
 
 	return nullptr;
+}
+
+
+
+/// <summary>
+/// レイと平面の交差
+/// </summary>
+/// <param name="ray">レイ</param>
+/// <param name="plane">平面</param>
+/// <param name="intersection"></param>
+/// <returns></returns>
+bool Player::CalcRayPlane(const DirectX::SimpleMath::Ray& ray, const DirectX::SimpleMath::Plane& plane, DirectX::SimpleMath::Vector3* const hitPos)
+{
+	// 平面法線ベクトルと光線の内積を計算する
+	float d = plane.Normal().Dot(ray.direction);
+	// 光線と平面が平行の場合は交点は存在しない
+	if (d == 0.0f)
+		return false;
+	// 平面の法線ベクトルと光線の原点の間の内積を計算する
+	float t = (plane.D() - plane.Normal().Dot(ray.position)) / d;
+	// レイの後ろは無効
+	if (t < 0.0f)
+		return false;
+
+	// 交差点を計算する
+	*hitPos = ray.position + ray.direction * t;
+	// 光線と平面が交差している
+	return true;
 }
 
 

@@ -18,6 +18,7 @@
 #include "Game/GameObjects/Enemy/State/EnemyDizzying.h"
 #include "Game/GameObjects/Enemy/State/EnemyCatching.h"
 #include "Game/GameObjects/Score/Score.h"
+#include "Game/GameObjects/Particle/Particle.h"
 #include <map>
 
 
@@ -85,6 +86,9 @@ private:
 
 	// モデル
 	DirectX::Model* m_model;
+
+	// パーティクル
+	std::unique_ptr<Particle> m_particle;
 
 	// スコア
 	std::unique_ptr<Score> m_score;  
@@ -204,6 +208,9 @@ public:
 
 	// フィールドの取得
 	Field* GetField() const { return m_pField; }
+
+	// パーティクルの取得
+	Particle* GetParticle() const { return m_particle.get(); }
 
 	// ボール
 	void SetCatchBall(int key, Ball* ball);  // 設定

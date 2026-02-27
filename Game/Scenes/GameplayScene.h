@@ -68,7 +68,7 @@ private:
 	};
 
 
-	// 変数
+// 変数
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;

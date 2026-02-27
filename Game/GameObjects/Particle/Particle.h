@@ -36,7 +36,14 @@ public:
 		DirectX::SimpleMath::Vector4	Diffuse;
 	};
 
-	static constexpr float LINE_SCALE = 0.1f;
+	// エフェクトのデータ
+	struct EffectData
+	{
+		float life;
+		float startScale;
+		float endScale;
+	};
+
 	static constexpr float STER_SCALE = 0.62f;
 
 private:
@@ -89,12 +96,13 @@ public:
 		DirectX::SimpleMath::Vector3 eye,
 		DirectX::SimpleMath::Vector3 up);
 
-	void SetEffectPosition(ID3D11DeviceContext* pContext, float life, DirectX::SimpleMath::Vector3 pos);
+	void SetWorld(DirectX::SimpleMath::Matrix world) { m_world = world; }
+
+	void SetEffectPosition(ID3D11DeviceContext* pContext, float life, float startScale, float endScale, DirectX::SimpleMath::Vector3 pos);
 	void SetEffectPosition(ID3D11DeviceContext* pContext, float life, DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector3 gravity);
 
 	// 当たり判定
 	void HandleFieldCollision(Field& field);
-	void HandleStageCollision(Field& field);
 
 	void ColliderDraw(DirectX::CommonStates* states, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj);
 

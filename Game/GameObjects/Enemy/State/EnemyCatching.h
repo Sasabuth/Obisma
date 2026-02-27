@@ -58,6 +58,9 @@ private:
 	// 入力レイアウトへのポインタ
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout; 
 
+	// エフェクトをつけたか
+	bool m_isEffect;
+
 	// SE
 	std::unique_ptr<DirectX::SoundEffectInstance> m_se;
 

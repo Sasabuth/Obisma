@@ -24,6 +24,7 @@ class PlayerCatching : public IState
 {
 // 定数
 private:
+	// コライダーサイズ
 	static constexpr float COLLIDER_SIZE = 0.35f;
 
 
@@ -59,6 +60,9 @@ private:
 
 	// 入力レイアウトへのポインタ
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout; 
+
+	// エフェクトを入れたか
+	bool m_isEffect;
 
 	// SE
 	std::unique_ptr<DirectX::SoundEffectInstance> m_se;

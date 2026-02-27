@@ -22,6 +22,7 @@ PlayerCatching::PlayerCatching(Player* pPlayer)
 	, m_pUserResources(nullptr)
 	, m_model{}
 	, m_collider{}
+	, m_isEffect(false)
 {
 	// モデルの作成
 	m_model = pPlayer->GetModel();
@@ -72,6 +73,9 @@ void PlayerCatching::Initialize()
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
 	m_basicEffect->SetVertexColorEnabled(true);
+
+	// エフェクトを入れてない
+	m_isEffect = false;
 
 	// プリミティブバッチの作成
 	m_primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(context);
@@ -288,6 +292,24 @@ void PlayerCatching::CatchHandBall(int index)
 
 	// ボールのポインタを取得
 	Ball* ball = m_pPlayer->GetField()->GetBallManager()->GetBall(index);
+
+	// エフェクトが入っていなかったら
+	if (!m_isEffect)
+	{
+		// パーティクルの設定
+		auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
+		m_pPlayer->GetParticle()->SetEffectPosition(context,
+			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["life"],
+			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["startScale"],
+			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["endScale"],
+			ball->GetPosition() + (m_pPlayer->GetPosition() - ball->GetPosition()) / 3);
+
+		m_pPlayer->GetParticle()->SetWorld(
+			DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(90.0f)) * DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pPlayer->GetRotation())
+		);
+
+		m_isEffect = true;
+	}
 
 	// 両手に持っていたら終了
 	if (m_pPlayer->GetCatchBall(Player::RIGHT) && m_pPlayer->GetCatchBall(Player::LEFT))
