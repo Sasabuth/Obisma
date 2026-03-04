@@ -35,8 +35,15 @@ public:
 	// 手
 	enum HAND
 	{
-		RIGHT=0,
+		RIGHT = 0,
 		LEFT,
+	};
+
+	enum PARTICLE
+	{
+		CIRCLE = 0,
+		STER,
+		MAX_COUNT
 	};
 
 	// ベースの画面サイズ
@@ -87,7 +94,7 @@ private:
 	DirectX::Model* m_model;
 
 	// パーティクル
-	std::unique_ptr<Particle> m_particle;
+	std::unique_ptr<Particle> m_particle[MAX_COUNT];
 
 	// スコア
 	std::unique_ptr<Score> m_score;       
@@ -246,7 +253,7 @@ public:
 	float GetInvincibleTime() const { return m_invincibleTime; }
 
 	// パーティクルの取得
-	Particle* GetParticle() const { return m_particle.get(); }
+	Particle* GetParticle(int index) const { return m_particle[index].get(); }
 
 	// スコア
 	Score* GetScore() { return m_score.get(); }

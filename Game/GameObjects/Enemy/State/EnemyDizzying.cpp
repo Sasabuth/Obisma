@@ -23,6 +23,7 @@ EnemyDizzying::EnemyDizzying(Enemy* pEnemy)
 	, m_pUserResources(nullptr)
 	, m_model{}
 	, m_time(0)
+	, m_isEffect(false)
 {
 	// モデルの作成
 	m_model = pEnemy->GetModel();
@@ -70,6 +71,9 @@ void EnemyDizzying::Initialize()
 	// 時間の初期化
 	m_time = 0.0f;
 
+	// エフェクトの初期化
+	m_isEffect = false;
+
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
 	m_basicEffect->SetVertexColorEnabled(true);
@@ -100,7 +104,7 @@ void EnemyDizzying::Update(float elapsedTime)
 		m_pEnemy->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
-	// プレイヤーの設定
+	// 敵の設定
 	m_pEnemy->SetVelocity(m_pEnemy->GetGravity());
 	m_pEnemy->SetPosition(m_pEnemy->GetPosition() + m_pEnemy->GetVelocity() * elapsedTime);
 	m_pEnemy->GetCollider().SetPosition(m_pEnemy->GetPosition());
@@ -128,6 +132,19 @@ void EnemyDizzying::Update(float elapsedTime)
 	// アニメーションの更新
 	AnimationUpdate();
 
+	// エフェクトがなかったら
+	if (!m_isEffect)
+	{
+		auto context = UserResources::GetUserResource()->GetDeviceResources()->GetD3DDeviceContext();
+		// 指定数パーティクルを生成
+		for (int i = 0; i < Resources::GetInstance()->GetJson(L"Player.json")["EffectData"][std::to_string(Player::STER)]["count"]; i++)
+		{
+			m_pEnemy->GetParticle(Player::STER)->SetEffectPosition(context, Resources::GetInstance()->GetJson(L"Player.json")["EffectData"][std::to_string(Player::STER)]["life"], m_pEnemy->GetPosition(), DirectX::SimpleMath::Vector3::Zero, DirectX::Colors::White);
+		}
+
+		// エフェクトを出した
+		m_isEffect = true;
+	}
 }
 
 

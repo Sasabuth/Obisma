@@ -71,8 +71,10 @@ void GameplayScene::Initialize()
 	// ゲーム時間の初期化
 	m_gameTimer = MAX_TIME;
 
+	// フェード時間の初期化
 	m_fadeTimer = 0.0f;
 
+	// カウントダウン時間の初期化
 	m_countDownTimer = COUNTDOWN_TIME;
 
 	// コライダーの設定
@@ -206,7 +208,7 @@ void GameplayScene::Update(float elapsedTime)
 	// カメラの上向きベクトルの更新
 	m_cameraUp->Update(elapsedTime);
 
-	// ポリゴンの当たり判定
+	// カメラ用の上向きベクトルの当たり判定
 	m_field->IsHitEntityToField(m_cameraUp.get());
 
 	// ゲーム時間の更新

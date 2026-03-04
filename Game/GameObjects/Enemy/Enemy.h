@@ -42,6 +42,13 @@ public:
 		LEFT,
 	};
 
+	enum PARTICLE
+	{
+		CIRCLE = 0,
+		STER,
+		MAX_COUNT
+	};
+
 
 // 変数
 private:
@@ -88,7 +95,7 @@ private:
 	DirectX::Model* m_model;
 
 	// パーティクル
-	std::unique_ptr<Particle> m_particle;
+	std::unique_ptr<Particle> m_particle[MAX_COUNT];
 
 	// スコア
 	std::unique_ptr<Score> m_score;  
@@ -210,7 +217,7 @@ public:
 	Field* GetField() const { return m_pField; }
 
 	// パーティクルの取得
-	Particle* GetParticle() const { return m_particle.get(); }
+	Particle* GetParticle(int index) const { return m_particle[index].get(); }
 
 	// ボール
 	void SetCatchBall(int key, Ball* ball);  // 設定

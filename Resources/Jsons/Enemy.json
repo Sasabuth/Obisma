@@ -5,6 +5,19 @@
 		"z": 0.1
 	},
 
+	"EffectData": {
+		"0": {
+			"life": 0.3,
+			"startScale": 0.2,
+			"endScale": 2.0
+		},
+
+		"1": {
+			"count": 10,
+			"life": 1.0
+		}
+	},
+
 	"EnemySpeed": 2.2,
 
 	"EnemySize": 0.003,

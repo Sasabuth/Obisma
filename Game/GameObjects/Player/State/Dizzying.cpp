@@ -21,6 +21,7 @@ Dizzying::Dizzying(Player* pPlayer)
 	, m_pUserResources(nullptr)
 	, m_model{}
 	, m_time(0)
+	, m_isEffect(false)
 {
 	// モデルの作成
 	m_model = pPlayer->GetModel();
@@ -67,6 +68,9 @@ void Dizzying::Initialize()
 
 	// 時間の初期化
 	m_time = 0.0f;
+
+	// エフェクト入れたか
+	m_isEffect = false;
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -119,6 +123,21 @@ void Dizzying::Update(float elapsedTime)
 
 	// アニメーションの更新
 	AnimationUpdate();
+
+	// エフェクトがなかったら
+	if (!m_isEffect)
+	{
+		// コンテキストの取得
+		auto context = UserResources::GetUserResource()->GetDeviceResources()->GetD3DDeviceContext();
+		// 指定数パーティクルを生成
+		for (int i = 0; i < Resources::GetInstance()->GetJson(L"Player.json")["EffectData"][std::to_string(Player::STER)]["count"]; i++)
+		{
+			m_pPlayer->GetParticle(Player::STER)->SetEffectPosition(context, Resources::GetInstance()->GetJson(L"Player.json")["EffectData"][std::to_string(Player::STER)]["life"], m_pPlayer->GetPosition(), DirectX::SimpleMath::Vector3::Zero,DirectX::Colors::White);
+		}
+
+		// エフェクトを出した
+		m_isEffect = true;
+	}
 
 }
 

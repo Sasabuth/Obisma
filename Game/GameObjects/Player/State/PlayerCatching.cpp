@@ -298,13 +298,13 @@ void PlayerCatching::CatchHandBall(int index)
 	{
 		// パーティクルの設定
 		auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
-		m_pPlayer->GetParticle()->SetEffectPosition(context,
-			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["life"],
-			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["startScale"],
-			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["endScale"],
+		m_pPlayer->GetParticle(Player::CIRCLE)->SetEffectPosition(context,
+			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"][std::to_string(Player::CIRCLE)]["life"],
+			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"][std::to_string(Player::CIRCLE)]["startScale"],
+			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"][std::to_string(Player::CIRCLE)]["endScale"],
 			ball->GetPosition() + (m_pPlayer->GetPosition() - ball->GetPosition()) / 3);
 
-		m_pPlayer->GetParticle()->SetWorld(
+		m_pPlayer->GetParticle(Player::CIRCLE)->SetWorld(
 			DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(90.0f)) * DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pPlayer->GetRotation())
 		);
 

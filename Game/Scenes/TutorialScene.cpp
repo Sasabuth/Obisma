@@ -68,7 +68,6 @@ void TutorialScene::Initialize()
 	// 矢印の生成
 	m_arrow = Factory::CreateArrow(m_field->GetPlayer(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
 
-
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
 	m_scoreManager->Add(m_field->GetPlayer()->GetScore());
@@ -335,21 +334,6 @@ void TutorialScene::Tutorial(float elapsedTime)
 		auto mouse = DirectX::Mouse::Get().GetState();
 		// 最初のマウス座標を保存
 		static DirectX::SimpleMath::Vector2 pos = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y);
-
-		// 行列の取得
-		auto proj = m_pUserResources->GetProject();
-		auto view = m_pUserResources->GetView();
-
-		// レイの設定
-		auto const r = m_pUserResources->GetDeviceResources()->GetOutputSize();
-		player->SetMouseRay(player->CreatePickingRay(mouse.x, mouse.y, r.right, r.bottom, *view, *proj));
-
-		player->RotateToMouse();
-
-		// プレイヤーの設定
-		player->SetVelocity(player->GetGravity());
-		player->SetPosition(player->GetPosition() + player->GetVelocity() * elapsedTime);
-		player->GetCollider().SetPosition(player->GetPosition());
 
 		// マウスの移動距離の計算
 		DirectX::SimpleMath::Vector2 dir = DirectX::SimpleMath::Vector2((float)mouse.x, (float)mouse.y) - pos;

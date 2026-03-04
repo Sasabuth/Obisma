@@ -156,7 +156,7 @@ void ThrowingR::Update(float elapsedTime)
 			// 投げる角度の取得
 			DirectX::SimpleMath::Quaternion rotate;
 			// マウスレイがフィールド上に当たっていたら
-			if (m_pPlayer->GetMouseRayHitPos().Length() > 0.001f)
+			if (m_pPlayer->GetMouseRayHitPos().Length() > 0.001f && m_pPlayer->GetIsLockOn())
 			{
 				// 角度に応じて投げる角度を調整
 				if (angleDeg < 35.0f)

@@ -41,8 +41,10 @@ Hitting::~Hitting()
 /// </summary>
 void Hitting::Initialize()
 {
+	// エフェクトをつけていない
 	m_isEffect = false;
 
+	// 座標を設定していない
 	m_isSetPosition = false;
 }
 
@@ -65,7 +67,7 @@ void Hitting::Update(float elapsedTime)
 		// 指定数パーティクルを生成
 		for (int i = 0; i < PARTICLE_COUNT; i++)
 		{
-			m_pAirTarget->GetParticle()->SetEffectPosition(context, PARTICLE_LIFE, m_pAirTarget->GetPosition(), m_pAirTarget->GetGravity());
+			m_pAirTarget->GetParticle()->SetEffectPosition(context, PARTICLE_LIFE, m_pAirTarget->GetPosition(), m_pAirTarget->GetGravity(), DirectX::Colors::Yellow);
 		}
 
 		// エフェクトを出した

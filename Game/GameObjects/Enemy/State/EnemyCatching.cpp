@@ -130,7 +130,7 @@ void EnemyCatching::Update(float elapsedTime)
 	// スコアを下げる
 	m_pEnemy->ScoreDown();
 
-	// プレイヤーの設定
+	// 敵の設定
 	m_pEnemy->SetVelocity(m_pEnemy->GetGravity());
 	m_pEnemy->SetPosition(m_pEnemy->GetPosition() + m_pEnemy->GetVelocity() * elapsedTime);
 	m_pEnemy->GetCollider().SetPosition(m_pEnemy->GetPosition());
@@ -288,13 +288,13 @@ void EnemyCatching::CatchHandBall(int index)
 	{
 		// パーティクルの設定
 		auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
-		m_pEnemy->GetParticle()->SetEffectPosition(context,
-			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["life"],
-			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["startScale"],
-			Resources::GetInstance()->GetJson(L"Player.json")["EffectData"]["endScale"],
+		m_pEnemy->GetParticle(Enemy::CIRCLE)->SetEffectPosition(context,
+			Resources::GetInstance()->GetJson(L"Enemy.json")["EffectData"][std::to_string(Enemy::CIRCLE)]["life"],
+			Resources::GetInstance()->GetJson(L"Enemy.json")["EffectData"][std::to_string(Enemy::CIRCLE)]["startScale"],
+			Resources::GetInstance()->GetJson(L"Enemy.json")["EffectData"][std::to_string(Enemy::CIRCLE)]["endScale"],
 			ball->GetPosition() + (m_pEnemy->GetPosition() - ball->GetPosition()) / 3);
 
-		m_pEnemy->GetParticle()->SetWorld(
+		m_pEnemy->GetParticle(Enemy::CIRCLE)->SetWorld(
 			DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(90.0f)) * DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pEnemy->GetRotation())
 		);
 

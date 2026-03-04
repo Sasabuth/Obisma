@@ -89,13 +89,16 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	// パーティクル用オブジェクトの作成
 	m_particle = std::make_unique<Particle>();
-	// 初期化
+	// パーティクルの初期化
 	m_particle->Create(device, context, L"Line.png");
 
+	// 音の間隔の初期化
 	m_soundSpan = 0.0f;
 
+	// 無敵時間の初期化
 	m_invincibleTime = 0.0f;
 
+	// 音をつける
 	m_isSound = true;
 
 	// 影の初期化
@@ -192,12 +195,14 @@ void Ball::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 	// 摩擦
 	reflVec *= (float)Resources::GetInstance()->GetJson(L"Ball.json")["DecelerationRate"];
 
+	// 音をつけていないかつ音の間隔が一定時間たったら音を入れる
 	if (!m_isSound && m_soundSpan >= 0.1f)
 	{
 		m_se = Resources::GetInstance()->GetSESound(L"BallBound.wav", m_position, false);
 		m_isSound = true;
 	}
 
+	// 音の間隔の設定
 	m_soundSpan = 0.0f;
 
 	// 速度の設定

@@ -78,7 +78,10 @@ void EnemyThrowingL::Initialize()
 	// 入力レイアウトの作成
 	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 
+	// 時間の初期化
 	m_time = 0.0f;
+
+	// 投げたかの初期化
 	m_isThowing = false;
 }
 
@@ -141,7 +144,7 @@ void EnemyThrowingL::Update(float elapsedTime)
 			// ボールのステートを変更
 			ball->ChangeState(ball->GetMoving());
 
-			// プレイヤーの向いている方向の取得
+			// 敵の向いている方向の取得
 			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_pEnemy->GetRotation());
 
 			float angleDeg = DirectX::XMConvertToDegrees(angle);
@@ -176,8 +179,7 @@ void EnemyThrowingL::Update(float elapsedTime)
 	// スコアを下げる
 	m_pEnemy->ScoreDown();
 
-
-	// 敵ーの設定
+	// 敵の設定
 	m_pEnemy->SetVelocity(m_pEnemy->GetGravity());
 	m_pEnemy->SetPosition(m_pEnemy->GetPosition() + m_pEnemy->GetVelocity() * elapsedTime);
 	m_pEnemy->GetCollider().SetPosition(m_pEnemy->GetPosition());

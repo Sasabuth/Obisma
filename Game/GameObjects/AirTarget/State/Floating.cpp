@@ -43,6 +43,7 @@ void Floating::Initialize()
 	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
 
+	// 回転の初期化
 	m_rotate = 0.0f;
 }
 
@@ -54,13 +55,13 @@ void Floating::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void Floating::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
+	// マウスの取得
 	auto mouse = DirectX::Mouse::Get().GetState();
 
+	// 回転させる
 	m_rotate += Resources::GetInstance()->GetJson(L"AirTarget.json")["RotateSpeed"] * elapsedTime;
 
-	// プレイヤーの設定
+	// 空中の的の設定
 	m_pAirTarget->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
 	m_pAirTarget->GetCollider().SetPosition(m_pAirTarget->GetPosition());
 }
@@ -82,7 +83,6 @@ void Floating::Render()
 
 	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_pAirTarget->GetPosition());
 	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"AirTarget.json")["ColliderSize"]));
-
 	DirectX::SimpleMath::Matrix rotate =
 		DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rotate)) *
 		DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_pAirTarget->GetRotation());

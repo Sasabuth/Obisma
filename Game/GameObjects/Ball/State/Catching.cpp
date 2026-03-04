@@ -65,7 +65,7 @@ void Catching::Update(float elapsedTime)
 {
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	// プレイヤーの設定
+	// ボールの設定
 	m_ball->SetVelocity(DirectX::SimpleMath::Vector3::Zero);
 	m_ball->GetCollider().SetPosition(m_ball->GetPosition());
 }

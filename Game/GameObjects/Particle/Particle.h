@@ -99,7 +99,7 @@ public:
 	void SetWorld(DirectX::SimpleMath::Matrix world) { m_world = world; }
 
 	void SetEffectPosition(ID3D11DeviceContext* pContext, float life, float startScale, float endScale, DirectX::SimpleMath::Vector3 pos);
-	void SetEffectPosition(ID3D11DeviceContext* pContext, float life, DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector3 gravity);
+	void SetEffectPosition(ID3D11DeviceContext* pContext, float life, DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector3 gravity, DirectX::XMVECTORF32 color);
 
 	// “–‚½‚è”»’è
 	void HandleFieldCollision(Field& field);

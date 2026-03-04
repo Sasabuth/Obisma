@@ -11,6 +11,7 @@
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
 #include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Camera/Camera.h"
 
 
 
@@ -102,9 +103,14 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_invincibleTime = 0.0f;
 
 	// パーティクル用オブジェクトの作成
-	m_particle = std::make_unique<Particle>();
+	for (int i = 0; i < MAX_COUNT; i++)
+	{
+		m_particle[i] = std::make_unique<Particle>();
+	}
+
 	// 初期化
-	m_particle->Create(device, context, L"Circle.png");
+	m_particle[CIRCLE]->Create(device, context, L"Circle.png");
+	m_particle[STER]->Create(device, context, L"Ster.png");
 
 	// ターゲットの初期化
 	m_target = nullptr;
@@ -127,7 +133,11 @@ void Enemy::Update(float elapsedTime)
 	m_currentState->Update(elapsedTime);
 
 	// パーティクルの更新
-	m_particle->Update(elapsedTime);
+	for (int i = 0; i < MAX_COUNT; i++)
+	{
+		m_particle[i]->Update(elapsedTime);
+	}
+	m_particle[STER]->CreateBillboard(m_position, m_pField->GetCamera()->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	// 音の更新
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
@@ -151,7 +161,10 @@ void Enemy::Render()
 	m_currentState->Render();
 
 	// パーティクルの描画
-	m_particle->Render(context, *view, *proj);
+	for (int i = 0; i < MAX_COUNT; i++)
+	{
+		m_particle[i]->Render(context, *view, *proj);
+	}
 
 	//m_collider.Draw(states, *view, *proj);
 }
@@ -395,7 +408,7 @@ void Enemy::ScoreDown()
 		{
 			if (IsHit(m_collider, ball->GetCollider()) && m_invincibleTime <= 0.0f)
 			{
-				m_currentState = m_dizzying.get();
+				ChangeState(m_dizzying.get());
 				m_score->ScoreDown();
 
 				m_se = Resources::GetInstance()->GetSESound(L"BallHit.wav", m_position, false);

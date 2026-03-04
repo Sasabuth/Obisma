@@ -242,7 +242,7 @@ void Field::Update(ScoreManager* pScoreManager, float elapsedTime)
 	m_player->Update(elapsedTime);
 
 	// 敵の更新
-	//m_enemy->Update(elapsedTime);
+	m_enemy->Update(elapsedTime);
 
 	// ボールマネージャの更新
 	m_ballManager->Update(elapsedTime);

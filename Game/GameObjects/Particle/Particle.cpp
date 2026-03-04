@@ -158,7 +158,7 @@ void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, float life, floa
 /// <param name="pContext">コンテキスト</param>
 /// <param name="pos">座標</param>
 /// <param name="gravity">重力</param>
-void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, float life, DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector3 gravity)
+void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, float life, DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector3 gravity, DirectX::XMVECTORF32 color)
 {
 	// ランダムの数の取得
 	std::mt19937 mt(m_rd());
@@ -172,7 +172,7 @@ void Particle::SetEffectPosition(ID3D11DeviceContext* pContext, float life, Dire
 		DirectX::SimpleMath::Vector3((float)rand(mt), (float)rand(mt), (float)rand(mt)),				//	速度
 		gravity,																                        //	加速度
 		DirectX::SimpleMath::Vector3(STER_SCALE), DirectX::SimpleMath::Vector3(0.1f),					//	初期スケール、最終スケール
-		DirectX::SimpleMath::Color(1.0f, 1.0, 0.0f, 0.7f), DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 0.f)//	初期カラー、最終カラー
+		(DirectX::SimpleMath::Color)color, DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 0.f)//	初期カラー、最終カラー
 	);
 
 	//	リストに追加

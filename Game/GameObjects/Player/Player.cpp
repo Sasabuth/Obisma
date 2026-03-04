@@ -102,9 +102,14 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_invincibleTime = 0.0f;
 
 	// パーティクル用オブジェクトの作成
-	m_particle = std::make_unique<Particle>();
+	for (int i = 0; i < MAX_COUNT; i++)
+	{
+		m_particle[i] = std::make_unique<Particle>();
+	}
+	
 	// 初期化
-	m_particle->Create(device, context, L"Circle.png");
+	m_particle[CIRCLE]->Create(device, context, L"Circle.png");
+	m_particle[STER]->Create(device, context, L"Ster.png");
 
 	// スコアの初期化
 	m_score = Factory::CreateScore(Ball::PLAYER);
@@ -131,7 +136,11 @@ void Player::Update(float elapsedTime)
 	m_currentState->Update(elapsedTime);
 
 	// パーティクルの更新
-	m_particle->Update(elapsedTime);
+	for (int i = 0; i < MAX_COUNT; i++)
+	{
+		m_particle[i]->Update(elapsedTime);
+	}
+	m_particle[STER]->CreateBillboard(m_position, m_pField->GetCamera()->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	// 無敵時間の減少
 	m_invincibleTime -= elapsedTime;
@@ -145,7 +154,7 @@ void Player::Update(float elapsedTime)
 void Player::Render()
 {
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
-	//auto states = m_pUserResources->GetCommonStates();
+	/*auto states = m_pUserResources->GetCommonStates();*/
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
 
@@ -153,7 +162,10 @@ void Player::Render()
 	m_currentState->Render();
 
 	// パーティクルの描画
-	m_particle->Render(context, *view, *proj);
+	for (int i = 0; i < MAX_COUNT; i++)
+	{
+		m_particle[i]->Render(context, *view, *proj);
+	}
 
 	// 空中の的にマウスが当たっていたらロックオンを描画
 	if (m_isLockOn)
@@ -162,9 +174,9 @@ void Player::Render()
 	}
 
 	// デバック用
-	/*auto* debugFont = m_pUserResources->GetDebugFont();
-	debugFont->Render(L"PlayerPos", std::any(m_position));
-	debugFont->Render(L"RayHitPos", std::any(m_mouseRayHitPos));*/
+	/*auto* debugFont = m_pUserResources->GetDebugFont();*/
+	/*debugFont->Render(L"PlayerPos", std::any(m_position));*/
+	/*debugFont->Render(L"RayHitPos", std::any(m_mouseRayHitPos));*/
 
 	//m_collider.Draw(states, *view, *proj);
 }
@@ -344,9 +356,10 @@ void Player::RayHitObject()
 	DirectX::SimpleMath::Vector3 hitPos2;
 
 	// カメラ方向に平面を出す
+	/*DirectX::SimpleMath::Vector3 normal = m_pUserResources->GetView()->Invert().Forward();*/
 	DirectX::SimpleMath::Vector3 normal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate);
 	normal.Normalize();
-	DirectX::SimpleMath::Plane plane(normal, 2.0f);
+	DirectX::SimpleMath::Plane plane(normal, normal.Dot(m_position));
 
 	// 空中の的の取得
 	AirTarget* airTarget = m_pField->GetAirTarget();
@@ -659,7 +672,7 @@ void Player::ScoreDown()
 		{
 			if (IsHit(m_collider, ball->GetCollider()) && m_invincibleTime <= 0.0f)
 			{
-				m_currentState = m_dizzying.get();
+				ChangeState(m_dizzying.get());
 				m_score->ScoreDown();
 
 				m_se = Resources::GetInstance()->GetSESound(L"BallHit.wav", m_position, false);

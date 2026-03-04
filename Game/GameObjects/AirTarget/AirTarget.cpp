@@ -96,10 +96,9 @@ void AirTarget::Update(float elapsedTime)
 	m_particle->Update(elapsedTime);
 	m_particle->CreateBillboard(m_position, m_pField->GetCamera()->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
-
 	//m_particle->HandleFieldCollision(*m_pField);
 	
-
+	// 音の設定
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
 }
 
@@ -115,6 +114,7 @@ void AirTarget::Render()
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
 
+	// 座標の上限で描画する
 	if (m_position.y <= 20.0f)
 	{
 		m_currentState->Render();

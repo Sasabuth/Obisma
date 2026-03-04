@@ -67,7 +67,7 @@ void Stopping::Update(float elapsedTime)
 	// 白色にする
 	m_ball->SetBallColorNum(Ball::BallColor::NOMAL);
 
-	// プレイヤーの設定
+	// ボールの設定
 	m_ball->SetVelocity(m_ball->GetGravity());
 	m_ball->SetPosition(m_ball->GetPosition() + m_ball->GetVelocity() * elapsedTime);
 	m_ball->GetCollider().SetPosition(m_ball->GetPosition());

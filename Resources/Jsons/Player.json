@@ -6,9 +6,16 @@
 	},
 
 	"EffectData": {
-		"life": 0.3,
-		"startScale": 0.2,
-		"endScale": 2.0
+		"0": {
+			"life": 0.3,
+			"startScale": 0.2,
+			"endScale": 2.0
+		},
+
+		"1": {
+			"count": 10,
+			"life": 1.0
+		}
 	},
 
 	"PlayerSpeed": 1.9,

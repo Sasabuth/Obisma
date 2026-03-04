@@ -48,6 +48,9 @@ private:
 	// 時間
 	float m_time; 
 
+	// エフェクト入れたか
+	bool m_isEffect;
+
 	// 右手のマトリックス
 	DirectX::SimpleMath::Matrix m_rightHandMatrix; 
 	// 左手のマトリックス
