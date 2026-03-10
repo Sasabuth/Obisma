@@ -17,17 +17,20 @@ class Sprite
 {
 // 構造体
 public:
+	// フォーマット
 	struct Format
 	{
-		DirectX::SimpleMath::Vector2 pos;
-		DirectX::SimpleMath::Vector2 size;
-		float scale;
+		DirectX::SimpleMath::Vector2 pos;   // 座標
+		DirectX::SimpleMath::Vector2 size;  // サイズ
+		float scale;                        // スケール
 	};
 
 
 // 定数
 private:
+	// ベースの横幅
 	static constexpr float BASE_WIDTH = 1280.0f;
+	// ベースの縦幅
 	static constexpr float BASE_HEIGHT = 720.0f;
 
 private:

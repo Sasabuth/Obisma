@@ -4,7 +4,10 @@
 // s_messengerを初期化する
 std::unique_ptr<Messenger> Messenger::s_messenger = nullptr;
 
-// コンストラクタ
+
+/// <summary>
+/// コンストラクタ
+/// </summary>
 Messenger::Messenger()
 	:
 	m_elapsedTime{},
@@ -12,7 +15,12 @@ Messenger::Messenger()
 {
 }
 
-// Messengerクラスのインスタンスを取得する
+
+
+/// <summary>
+/// インスタンスの取得
+/// </summary>
+/// <returns>メッセンジャー</returns>
 Messenger* Messenger::GetInstance()
 {
 	// Messengerクラスのインスタンス生成されていない場合
@@ -25,28 +33,49 @@ Messenger* Messenger::GetInstance()
 	return s_messenger.get();
 }
 
-// インスタンスを破棄する
+
+
+/// <summary>
+/// インスタンスの破棄
+/// </summary>
 void Messenger::DestroyInstance()
 { 
 	// Messengerクラスのインスタンスをリセットする
 	s_messenger.reset();
 }
 
-// オブジェクトを登録する
+
+
+/// <summary>
+/// オブジェクトの登録
+/// </summary>
+/// <param name="objectID">オブジェクトID</param>
+/// <param name="object">オブジェクト</param>
 void Messenger::Register(int objectID, IObject* object)
 {
 	// オブジェクトIDとオブジェクトを登録する
 	m_objects.emplace(objectID, object);
 }
 
-// オブジェクトの登録を解除する
+
+
+/// <summary>
+/// オブジェクトの登録を解除
+/// </summary>
+/// <param name="objectID">オブジェクトID</param>
 void Messenger::UnRegister(int objectID)
 {
 	// オブジェクトIDを指定してオブジェクトの登録を解除する
 	m_objects.erase(objectID);
 }
 
-// オブジェクトにメッセージを送信する
+
+
+/// <summary>
+/// オブジェクトにメッセージを送信
+/// </summary>
+/// <param name="objectID">オブジェクトID</param>
+/// <param name="messageID">メッセージID</param>
 void Messenger::Notify(int objectID, Message::MessageID messageID)
 {
 	// メッセージを送信するオブジェクトを検索する
@@ -60,7 +89,14 @@ void Messenger::Notify(int objectID, Message::MessageID messageID)
 	}
 }
 
-// 遅延メッセージを通知する
+
+
+/// <summary>
+/// 一定時間通知拒否
+/// </summary>
+/// <param name="objectID">オブジェクトID</param>
+/// <param name="messageID">メッセージID</param>
+/// <param name="delaySeconds">拒否する時間</param>
 void Messenger::NotifyAfterDelay(int objectID, Message::MessageID messageID, float delaySeconds)
 {
 	// オブジェクトにメッセージを送信する
@@ -77,7 +113,14 @@ void Messenger::NotifyAfterDelay(int objectID, Message::MessageID messageID, flo
 	}
 }
 
-// 強制通知する
+
+
+/// <summary>
+/// 強制通知
+/// </summary>
+/// <param name="objectID">オブジェクトID</param>
+/// <param name="messageID">メッセージID</param>
+/// <param name="delaySeconds">拒否する時間</param>
 void Messenger::NotifyForce(int objectID, Message::MessageID messageID, float delaySeconds)
 {
 	// 遅延メッセージを調べる
@@ -97,6 +140,12 @@ void Messenger::NotifyForce(int objectID, Message::MessageID messageID, float de
 	m_objectsAfterDelay.emplace(objectID, delaySeconds);
 }
 
+
+
+/// <summary>
+/// 更新処理
+/// </summary>
+/// <param name="elapsedTime">経過時間</param>
 void Messenger::Update(float elapsedTime)
 {
 	// 登録された遅延メッセージの時間を更新する
@@ -118,7 +167,12 @@ void Messenger::Update(float elapsedTime)
 }
 
 
-// オブジェクトを取得する
+
+/// <summary>
+/// オブジェクトの取得
+/// </summary>
+/// <param name="objectID">オブジェクトID</param>
+/// <returns>オブジェクト</returns>
 IObject* Messenger::GetObject(int objectID)
 {
 	// メッセージを送信するオブジェクトを検索する

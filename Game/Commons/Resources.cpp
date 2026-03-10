@@ -167,6 +167,13 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetTexture(const std
 	return m_textures[filename];
 }
 
+
+
+/// <summary>
+/// DDSテクスチャの取得
+/// </summary>
+/// <param name="filename">ファイル名</param>
+/// <returns>DDSテクスチャ</returns>
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Resources::GetDDSTexture(const std::wstring& filename)
 {
 	// モデルの設定

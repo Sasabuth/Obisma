@@ -21,7 +21,7 @@
 Sprite::Sprite()
 	: m_spriteBatch{ nullptr }
 {
-	// 
+	// ユーザーリソースの取得
 	m_userResources = UserResources::GetUserResource();
 
 	auto context = m_userResources->GetDeviceResources()->GetD3DDeviceContext();
@@ -193,15 +193,21 @@ void Sprite::DigitsDraw(float x, float y, float width, float height, int value, 
 	float posX = x;
 	float posY = y;
 
+	// 横にずらす
 	posX += static_cast<int>(width * (digits));
 
+	// 桁数に応じて
 	for (int i = 0; i < digits; i++)
 	{
+		// 一桁ずつ取り出す
 		int number = value % 10 + 1;
 
+		// テクスチャのサイズの取得
 		int sourceX = static_cast<int>(number * width);
+		// 描画
 		Draw(DirectX::SimpleMath::Vector2(posX, posY), DirectX::SimpleMath::Vector2((float)sourceX, height), width, size);
 
+		// 桁をずらす
 		value /= 10;
 		posX -= static_cast<int>(width);
 	}

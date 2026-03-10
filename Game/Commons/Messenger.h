@@ -27,7 +27,7 @@ public:
 	void UnRegister(int objectID);
 	// メッセージを通知する
 	void Notify(int objectID, Message::MessageID messageID);
-	// 遅延メッセージを通知する
+	// 一定時間通知拒否
 	void NotifyAfterDelay(int objectID, Message::MessageID messageID, float delaySeconds);
 	// 強制通知する
 	void NotifyForce(int objectID, Message::MessageID messageID, float delaySeconds);

@@ -388,8 +388,10 @@ void Player::RayHitObject()
 	DirectX::SimpleMath::Vector3 hitPos1;
 	DirectX::SimpleMath::Vector3 hitPos2;
 
+	// 当たった判定
+	bool isHit = false;
+
 	// カメラ方向に平面を出す
-	/*DirectX::SimpleMath::Vector3 normal = m_pUserResources->GetView()->Invert().Forward();*/
 	DirectX::SimpleMath::Vector3 normal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate);
 	normal.Normalize();
 	DirectX::SimpleMath::Plane plane(normal, normal.Dot(m_position));
@@ -416,22 +418,21 @@ void Player::RayHitObject()
 			DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(field->GetFieldCollider().GetVertices(field->GetFieldCollider().GetIndices((int)i + 2)).position, world);
 
 			// マウスレイと三角が当たっているかを調べる
-			DirectX::SimpleMath::Vector3 pos;
-			if (IsHit(m_mouseRay.position, m_mouseRay.direction, p0, p1, p2, pos))
+			if (IsHit(m_mouseRay.position, m_mouseRay.direction, p0, p1, p2, hitPos2))
 			{
-				hitPos2 = pos;
+				isHit = true;
 				break;
 			}
-
-			// 当たっていないとする
-			hitPos2 = DirectX::SimpleMath::Vector3(-10000);
 		}
 
 		// 当たっていなかったらロックオンを出す
-		if (hitPos2 == DirectX::SimpleMath::Vector3(-10000))
+		if (!isHit)
 		{
 			m_mouseRayHitPos = airTarget->GetPosition();
 			m_isLockOn = true;
+
+			// マウス方向に回転
+			RotateToMouse();
 			return;
 		}
 
@@ -453,9 +454,6 @@ void Player::RayHitObject()
 		{
 			m_isLockOn = false;
 		}
-
-		// マウス方向に回転
-		RotateToMouse();
 	}
 	// 違ったら
 	else
@@ -466,23 +464,17 @@ void Player::RayHitObject()
 			m_isLockOn = true;
 			// マウスレイの当たった座標の設定
 			m_mouseRayHitPos = airTarget->GetPosition();
-			// マウス方向に回転
-			RotateToMouse();
 		}
 		// 三角形に当たっていたらロックオンを出さない
 		else if (CalcRayPlane(m_mouseRay, plane, &m_mouseRayHitPos))
 		{
 			m_isLockOn = false;
-			// マウス方向に回転
-			RotateToMouse();
-		}
-		// 当たっていない時は何もしない
-		else
-		{
-			m_mouseRayHitPos = DirectX::SimpleMath::Vector3::Zero;
-			m_isLockOn = false;
+			
 		}
 	}
+
+	// マウス方向に回転
+	RotateToMouse();
 }
 
 
