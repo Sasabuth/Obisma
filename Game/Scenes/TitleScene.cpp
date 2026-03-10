@@ -86,7 +86,7 @@ void TitleScene::Initialize()
 	m_bgm = Resources::GetInstance()->GetBGMSound(L"TitleBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
 
 	// コライダーの設定
-	m_collider.SetSize(DirectX::SimpleMath::Vector2(20.0f));
+	m_collider.SetSize(DirectX::SimpleMath::Vector2(Resources::GetInstance()->GetJson(L"Mouse.json")["Collider"]));
 
 	// ボタンの設定(シーン変更)
 	m_button[0].SetTexture(Resources::GetInstance()->GetTexture(L"Start.png"));
@@ -139,7 +139,7 @@ void TitleScene::Update(float elapsedTime)
 	// トランジションマスクの取得
 	auto transitionMask = m_pUserResources->GetTransitionMask();
 	// フェードアウト中じゃなかったら更新
-	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
+	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * Sprite::BASE_WIDTH, (mouse.y / windowHeight) * Sprite::BASE_HEIGHT));
 
 	// カメラの更新
 	m_camera->Update(m_cameraPosition, m_eyePosition);

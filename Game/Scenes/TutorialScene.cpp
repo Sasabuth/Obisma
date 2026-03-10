@@ -64,7 +64,12 @@ void TutorialScene::Initialize()
 	m_field = Factory::CreateTutorialField(0);
 
 	// カメラの上向きベクトルの初期化
-	m_cameraUp = Factory::CreateCameraUp(m_field.get(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
+	m_cameraUp = Factory::CreateCameraUp(m_field.get(), DirectX::SimpleMath::Vector3{
+		Resources::GetInstance()->GetJson(L"CameraUp.json")["TutorialPos"]["x"],
+		Resources::GetInstance()->GetJson(L"CameraUp.json")["TutorialPos"]["y"],
+		Resources::GetInstance()->GetJson(L"CameraUp.json")["TutorialPos"]["z"]
+		}
+	);
 
 	// プレイヤーの取得
 	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
@@ -72,7 +77,12 @@ void TutorialScene::Initialize()
 	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
 
 	// 矢印の生成
-	m_arrow = Factory::CreateArrow(DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
+	m_arrow = Factory::CreateArrow(DirectX::SimpleMath::Vector3{
+		Resources::GetInstance()->GetJson(L"Arrow.json")["Position"]["x"],
+		Resources::GetInstance()->GetJson(L"Arrow.json")["Position"]["y"],
+		Resources::GetInstance()->GetJson(L"Arrow.json")["Position"]["z"]
+		}
+	);
 
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
@@ -121,7 +131,7 @@ void TutorialScene::Initialize()
 	m_gameMenuUI.Initialize(&m_audioUI);
 
 	// コライダーの設定
-	m_collider.SetSize(DirectX::SimpleMath::Vector2(20.0f));
+	m_collider.SetSize(DirectX::SimpleMath::Vector2(Resources::GetInstance()->GetJson(L"Mouse.json")["Collider"]));
 
 	// プレイ人数を初期化
 	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
@@ -599,7 +609,7 @@ bool TutorialScene::UpdateUI()
 	auto transitionMask = m_pUserResources->GetTransitionMask();
 
 	// フェードアウト中じゃなかったら更新
-	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
+	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * Sprite::BASE_WIDTH, (mouse.y / windowHeight) * Sprite::BASE_HEIGHT));
 
 	// チュートリアルシーンに変更
 	if (transitionMask->IsClose() && transitionMask->IsEnd())

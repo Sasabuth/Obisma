@@ -171,10 +171,12 @@ void Arrow::Render()
 
 	uint16_t indexes[] = { 2,3,1,2,1,0 };
 
-	vertexes[0].position = DirectX::SimpleMath::Vector3(-ARROW_SIZE,  ARROW_SIZE, 0.01f);
-	vertexes[1].position = DirectX::SimpleMath::Vector3( ARROW_SIZE,  ARROW_SIZE, 0.01f);
-	vertexes[2].position = DirectX::SimpleMath::Vector3(-ARROW_SIZE, -ARROW_SIZE, 0.01f);
-	vertexes[3].position = DirectX::SimpleMath::Vector3( ARROW_SIZE, -ARROW_SIZE, 0.01f);
+	float size = Resources::GetInstance()->GetJson(L"Arrow.json")["Size"];
+
+	vertexes[0].position = DirectX::SimpleMath::Vector3(-size, size, 0.01f);
+	vertexes[1].position = DirectX::SimpleMath::Vector3(size, size, 0.01f);
+	vertexes[2].position = DirectX::SimpleMath::Vector3(-size, -size, 0.01f);
+	vertexes[3].position = DirectX::SimpleMath::Vector3(size, -size, 0.01f);
 
 	for (int i = 0; i < 4; ++i)
 	{

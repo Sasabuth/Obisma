@@ -15,15 +15,6 @@
 // クラスの定義
 class CameraUp : public IEntity
 {
-// 定数
-public:
-	// コライダーのサイズ
-	static constexpr float COLLIDER_SIZE = 0.5f;
-	// 距離
-	static constexpr float MAX_DISTANCE = 4.0f;
-	// 速度
-	static constexpr float SPEED = 3.0f;
-
 // 変数
 private:
 	// ユーザーリソース

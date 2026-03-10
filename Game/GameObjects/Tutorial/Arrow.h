@@ -15,12 +15,6 @@
 // クラスの定義
 class Arrow : public IEntity
 {
-// 定数
-public:
-	// 矢のサイズ
-	static constexpr float ARROW_SIZE = 0.4f;
-
-
 // 変数
 private:
 	// ユーザーリソース

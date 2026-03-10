@@ -27,7 +27,7 @@ public:
 
 
 // 定数
-private:
+public:
 	// ベースの横幅
 	static constexpr float BASE_WIDTH = 1280.0f;
 	// ベースの縦幅

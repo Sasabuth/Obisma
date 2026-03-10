@@ -323,10 +323,13 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Resources\Jsons\AirTarget.json" />
+    <None Include="Resources\Jsons\Arrow.json" />
     <None Include="Resources\Jsons\AudioUI.json" />
     <None Include="Resources\Jsons\Ball.json" />
+    <None Include="Resources\Jsons\CameraUp.json" />
     <None Include="Resources\Jsons\Enemy.json" />
     <None Include="Resources\Jsons\FieldSelect.json" />
+    <None Include="Resources\Jsons\Mouse.json" />
     <None Include="Resources\Jsons\Player.json" />
     <None Include="Shaders\Particle.hlsli" />
   </ItemGroup>

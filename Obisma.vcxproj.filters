@@ -466,6 +466,15 @@
     <None Include="Resources\Jsons\FieldSelect.json">
       <Filter>Resources\Jsons</Filter>
     </None>
+    <None Include="Resources\Jsons\CameraUp.json">
+      <Filter>Resources\Jsons</Filter>
+    </None>
+    <None Include="Resources\Jsons\Arrow.json">
+      <Filter>Resources\Jsons</Filter>
+    </None>
+    <None Include="Resources\Jsons\Mouse.json">
+      <Filter>Resources\Jsons</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\ParticleGS.hlsl">

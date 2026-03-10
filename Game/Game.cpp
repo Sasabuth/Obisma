@@ -125,11 +125,11 @@ void Game::Render()
     auto const outputSize = m_userResources->GetDeviceResources()->GetOutputSize();
     float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
     float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
-    m_mouseCursor->Draw(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f), MOUSECURSOR.size, MOUSECURSOR.scale);
+    m_mouseCursor->Draw(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * Sprite::BASE_WIDTH, (mouse.y / windowHeight) * Sprite::BASE_HEIGHT), MOUSECURSOR.size, MOUSECURSOR.scale);
 
     // fps‚Ì•`‰æ
-    float fream = (float)m_timer.GetFramesPerSecond();
-    m_debugFont->Render(L"fps", std::any(fream));
+    /*float fream = (float)m_timer.GetFramesPerSecond();
+    m_debugFont->Render(L"fps", std::any(fream));*/
 
     m_deviceResources->PIXEndEvent();
 

@@ -51,7 +51,7 @@ void CameraUp::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_position = position;
 
 	// コライダーの初期化
-	m_collider.Initialize(context, m_position, COLLIDER_SIZE);
+	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"CameraUp.json")["ColliderSize"]);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -81,14 +81,14 @@ void CameraUp::Update(float elapsedTime)
 	// 重力の方向
 	DirectX::SimpleMath::Vector3 dir = m_position - player->GetPosition();
 	// 距離が一定以上離れたら近づける
-	if (dir.Length() > MAX_DISTANCE)
+	if (dir.Length() > Resources::GetInstance()->GetJson(L"CameraUp.json")["MaxDistance"])
 	{
-		m_velocity += DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_rotate) * SPEED;
+		m_velocity += DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_rotate) * Resources::GetInstance()->GetJson(L"CameraUp.json")["Speed"];
 	}
 	// 近いなら離す
 	else
 	{
-		m_velocity += DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_rotate) * SPEED;
+		m_velocity += DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_rotate) * Resources::GetInstance()->GetJson(L"CameraUp.json")["Speed"];
 	}
 
 	// 正規化
