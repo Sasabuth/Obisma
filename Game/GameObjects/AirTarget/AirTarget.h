@@ -17,15 +17,13 @@
 
 
 // クラスの定義
-class Field;
-
-
-// クラスの定義
 class AirTarget : public IEntity
 {
 // 定数
 public:
+	// オフセット
 	static constexpr float OFFSET = 1.9f;
+	// 影のオフセット
 	static constexpr float SHADOW_OFFSET = 0.045f;
 
 
@@ -33,9 +31,6 @@ public:
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;
-
-	// フィールド
-	Field* m_pField;
 
 	// モデル
 	DirectX::Model* m_model;
@@ -88,7 +83,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	AirTarget(Field* pField);
+	AirTarget();
 
 	// デストラクタ
 	~AirTarget() override;
@@ -107,6 +102,9 @@ public:
 
 	// 重なりの補填
 	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
+
+	// メッセージを取得する
+	void OnMessegeAccepted(Message::MessageID messageID) override;
 
 	// ステートの変更
 	void ChangeState(IState* newState);
@@ -154,9 +152,6 @@ public:
 
 	// パーティクルの取得
 	Particle* GetParticle() { return m_particle.get(); }
-
-	// フィールドの取得
-	Field* GetField() { return m_pField; }
 
 
 // ステートの取得

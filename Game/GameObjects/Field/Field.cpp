@@ -7,25 +7,28 @@
 #include "pch.h"
 #include "Field.h"
 
+#include "Game/Scenes/TutorialScene.h"
 #include "Game/Commons/Interface/IEntity.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
 #include "Game/GameObjects/Score/ScoreManager.h"
-#include "Game/Scenes/TutorialScene.h"
+
 
 
 
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Field::Field(Camera* pCamera)
+Field::Field()
 	: m_pUserResources(nullptr)
-	, m_pCamera(pCamera)
 	, m_position{}
 	, m_model{}
 	, m_skydomeModel{}
 	, m_rotate(0)
 {
+	// オブジェクト番号とオブジェクトを登録する
+	Messenger::GetInstance()->Register(Factory::FIELD, this);
 }
 
 
@@ -92,15 +95,15 @@ void Field::Initialize(int stageIndex, bool isSkyDome)
 	// コライダーの初期化
 	m_collider.Initialize(context, m_position, MODEL_SCALE);
 
-	m_stageCollider.Initialize(device, context, m_model);
-	m_stageCollider.SetPosition(m_position);
-	m_stageCollider.SetScale(MODEL_SCALE);
+	m_fieldCollider.Initialize(device, context, m_model);
+	m_fieldCollider.SetPosition(m_position);
+	m_fieldCollider.SetScale(MODEL_SCALE);
 
 	// ボールマネージャーの初期化
-	m_ballManager = Factory::CreateBallManager(this, Resources::GetInstance()->GetJson(L"Ball.json")["Count"]);
+	m_ballManager = Factory::CreateBallManager(this, BallManager::BALLCOUNT);
 
 	// 空中の的の初期化
-	m_airTarget = Factory::CreateAirTarget(this, DirectX::SimpleMath::Vector3{
+	m_airTarget = Factory::CreateAirTarget(DirectX::SimpleMath::Vector3{
 		Resources::GetInstance()->GetJson(L"AirTarget.json")["Position"]["x"],
 		Resources::GetInstance()->GetJson(L"AirTarget.json")["Position"]["y"],
 		Resources::GetInstance()->GetJson(L"AirTarget.json")["Position"]["z"]
@@ -181,12 +184,12 @@ void Field::TutorialInitialize(int stageIndex, bool isSkyDome)
 	// コライダーの初期化
 	m_collider.Initialize(context, m_position, MODEL_SCALE);
 
-	m_stageCollider.Initialize(device, context, m_model);
-	m_stageCollider.SetPosition(m_position);
-	m_stageCollider.SetScale(MODEL_SCALE);
+	m_fieldCollider.Initialize(device, context, m_model);
+	m_fieldCollider.SetPosition(m_position);
+	m_fieldCollider.SetScale(MODEL_SCALE);
 
 	// ボールマネージャーの初期化
-	m_ballManager = Factory::CreateBallManager(this, Resources::GetInstance()->GetJson(L"Ball.json")["Count"]);
+	m_ballManager = Factory::CreateBallManager(this, BallManager::TUTORIAL_BALLCOUNT);
 
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
 	{
@@ -199,7 +202,7 @@ void Field::TutorialInitialize(int stageIndex, bool isSkyDome)
 	}
 
 	// 空中の的の初期化
-	m_airTarget = Factory::CreateAirTarget(this, DirectX::SimpleMath::Vector3{
+	m_airTarget = Factory::CreateAirTarget(DirectX::SimpleMath::Vector3{
 		Resources::GetInstance()->GetJson(L"AirTarget.json")["TutorialPos"]["x"],
 		Resources::GetInstance()->GetJson(L"AirTarget.json")["TutorialPos"]["y"],
 		Resources::GetInstance()->GetJson(L"AirTarget.json")["TutorialPos"]["z"]
@@ -236,7 +239,7 @@ void Field::Update(ScoreManager* pScoreManager, float elapsedTime)
 	m_collider.SetPosition(m_position);
 
 	// ステージコライダーの設定
-	m_stageCollider.SetPosition(m_position);
+	m_fieldCollider.SetPosition(m_position);
 
 	// プレイヤーの更新
 	m_player->Update(elapsedTime);
@@ -257,10 +260,14 @@ void Field::Update(ScoreManager* pScoreManager, float elapsedTime)
 	{
 		IsHitEntityToField(m_ballManager->GetBall(i));
 
+		// ボールと空中の的が当たったら
 		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
 		{
+			// ロックオンを外す
 			m_player->SetIsLockOn(false);
+			// 空中の的のステートを変更
 			m_airTarget->ChangeState(m_airTarget->GetHitting());
+			// スコアを増やす
 			pScoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->ScoreUp();
 		}
 	}
@@ -284,7 +291,7 @@ void Field::TitleUpdate()
 	m_collider.SetPosition(m_position);
 
 	// ステージコライダーの設定
-	m_stageCollider.SetPosition(m_position);
+	m_fieldCollider.SetPosition(m_position);
 }
 
 
@@ -294,18 +301,16 @@ void Field::TitleUpdate()
 /// </summary>
 /// <param name="scene">シーン</param>
 /// <param name="elapsedTime">経過時間</param>
-void Field::TutorialUpdate(TutorialScene* scene, float elapsedTime)
+void Field::TutorialUpdate(TutorialScene* scene, ScoreManager* pScoreManager, float elapsedTime)
 {
-	// チュートリアルの更新
-	scene->Tutorial(elapsedTime);
-
 	// プレイヤーの更新
 	m_player->Update(elapsedTime);
 
-	// 敵の更新
+	// シーンがボールキャッチだったら
 	if (scene->GetTutorialIndex() == TutorialScene::ORDER::BALL_CATCH)
 	{
-		if (!scene->GetIsCheck() && m_player->GetInvincibleTime() < 0.001f && m_player->GetCurrentState() != m_player->GetDizzying())
+		// 敵を更新させたいなら更新する
+		if (IsEnemyUpdate(scene))
 		{
 			m_enemy->Update(elapsedTime);
 		}
@@ -334,10 +339,15 @@ void Field::TutorialUpdate(TutorialScene* scene, float elapsedTime)
 	{
 		IsHitEntityToField(m_ballManager->GetBall(i));
 
+		// ボールと空中の的が当たったら
 		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
 		{
+			// ロックオンを外す
 			m_player->SetIsLockOn(false);
+			// 空中の的のステートを変更
 			m_airTarget->ChangeState(m_airTarget->GetHitting());
+			// スコアを増やす
+			pScoreManager->GetScore(m_ballManager->GetBall(i)->GetBallColorNum())->ScoreUp();
 		}
 	}
 
@@ -371,7 +381,7 @@ void Field::Render()
 
 
 	//// デバック
-	/*m_stageCollider.Draw(context, *view, *proj);*/
+	/*m_fieldCollider.Draw(context, *view, *proj);*/
 
 	// スカイドームの描画
 	if (m_skydomeModel)
@@ -559,16 +569,16 @@ void Field::IsHitEntityToField(IEntity* pIEntity)
 	bool isHit = false;
 
 	// ワールド座標
-	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_stageCollider.GetScale()) *
-		DirectX::SimpleMath::Matrix::CreateTranslation(m_stageCollider.GetPosition());
+	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_fieldCollider.GetScale()) *
+		DirectX::SimpleMath::Matrix::CreateTranslation(m_fieldCollider.GetPosition());
 
 	// 三角形の数分for文で回す
-	for (size_t i = 0; i + 2 < m_stageCollider.GetIndicesCount(); i += 3)
+	for (size_t i = 0; i + 2 < m_fieldCollider.GetIndicesCount(); i += 3)
 	{
 		// 三角形の点のワールド座標を取得
-		DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(m_stageCollider.GetVertices(m_stageCollider.GetIndices((int)i)).position, world);
-		DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(m_stageCollider.GetVertices(m_stageCollider.GetIndices((int)i + 1)).position, world);
-		DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(m_stageCollider.GetVertices(m_stageCollider.GetIndices((int)i + 2)).position, world);
+		DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(m_fieldCollider.GetVertices(m_fieldCollider.GetIndices((int)i)).position, world);
+		DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(m_fieldCollider.GetVertices(m_fieldCollider.GetIndices((int)i + 1)).position, world);
+		DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(m_fieldCollider.GetVertices(m_fieldCollider.GetIndices((int)i + 2)).position, world);
 
 		// 三角形の中心から遠かったら当たってないことにする
 		DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
@@ -596,7 +606,7 @@ void Field::IsHitEntityToField(IEntity* pIEntity)
 				// 三角形の法線ベクトルを入れる
 				vector = DirectX::SimpleMath::Vector3::Lerp(
 					-pIEntity->GetGravity(),
-					m_stageCollider.GetNormalVector((int)i),
+					m_fieldCollider.GetNormalVector((int)i),
 					0.3f
 				);
 			}
@@ -650,10 +660,38 @@ void Field::IsHitEntityToField(IEntity* pIEntity)
 
 
 /// <summary>
+/// メッセージの取得
+/// </summary>
+/// <param name="messageID">メッセージID</param>
+void Field::OnMessegeAccepted(Message::MessageID messageID)
+{
+	UNREFERENCED_PARAMETER(messageID);
+}
+
+
+
+/// <summary>
 /// コライダーの取得
 /// </summary>
 /// <returns>コライダー</returns>
 SphereCollider& Field::GetCollider()
 {
 	return m_collider;
+}
+
+
+
+/// <summary>
+/// 敵を更新させるか
+/// </summary>
+/// <param name="scene">シーン</param>
+/// <returns>更新させるか</returns>
+bool Field::IsEnemyUpdate(TutorialScene* scene)
+{
+	if (!scene->GetIsCheck() && m_player->GetInvincibleTime() < 0.001f && m_player->GetCurrentState() != m_player->GetDizzying())
+	{
+		return true;
+	}
+
+	return false;
 }

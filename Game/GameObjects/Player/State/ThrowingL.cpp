@@ -7,11 +7,13 @@
 #include "pch.h"
 #include "ThrowingL.h"
 
-#include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Ball/Ball.h"
-#include "Game/GameObjects/Field/Field.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Ball/Ball.h"
+#include "Game/GameObjects/AirTarget/AirTarget.h"
 
 
 
@@ -28,18 +30,6 @@ ThrowingL::ThrowingL(Player* pPlayer)
 	// モデルの作成
 	m_model = pPlayer->GetModel();
 
-	// AnimationSDKMESH クラスのインスタンスを生成する
-	m_animation = std::make_unique<DX::AnimationSDKMESH>();
-	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources\\Animations\\Player_ThrowL.sdkmesh_anim");
-	// アニメーションとモデルをバインドする
-	m_animation->Bind(*m_model);
-	// ボーン用のトランスフォーム配列を生成する
-	m_drawBones = DirectX::ModelBone::MakeArray(m_model->bones.size());
-	ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
-
-	// アニメーションの初期化
-	AnimationUpdate();
 }
 
 
@@ -63,10 +53,24 @@ void ThrowingL::Initialize()
 	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
+
+	// AnimationSDKMESH クラスのインスタンスを生成する
+	m_animation = std::make_unique<DX::AnimationSDKMESH>();
+	// サッカープレイヤー アイドリングアニメーションをロードする
+	m_animation->Load(L"resources\\Animations\\Player_ThrowL.sdkmesh_anim");
+	// アニメーションとモデルをバインドする
+	m_animation->Bind(*m_model);
+	// ボーン用のトランスフォーム配列を生成する
+	m_drawBones = DirectX::ModelBone::MakeArray(m_model->bones.size());
+	ZeroMemory(m_drawBones.get(), sizeof(DirectX::ModelBone) * m_model->bones.size());
+
+	// アニメーションの初期化
+	AnimationUpdate();
+
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
-	m_animation->SetEndTime(1.42f);
+	m_animation->SetEndTime(Resources::GetInstance()->GetJson(L"Player.json")["ThrowingEndTime"]);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -159,22 +163,22 @@ void ThrowingL::Update(float elapsedTime)
 			if (m_pPlayer->GetMouseRayHitPos().Length() > 0.001f && m_pPlayer->GetIsLockOn())
 			{
 				// 角度に応じて投げる角度を調整
-				if (angleDeg < 35.0f)
+				if (angleDeg < Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"])
 				{
 					rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-						Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"])
+						Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleLow"])
 					);
 				}
-				else if (angleDeg < 75.0f)
+				else if (angleDeg < Resources::GetInstance()->GetJson(L"Player.json")["AngleMiddle"])
 				{
 					rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-						Resources::GetInstance()->GetJson(L"Player.json")["AngleMiddle"])
+						Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleMiddle"])
 					);
 				}
 				else
 				{
 					rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-						Resources::GetInstance()->GetJson(L"Player.json")["AngleHigh"])
+						Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleHigh"])
 					);
 				}
 			}
@@ -183,7 +187,7 @@ void ThrowingL::Update(float elapsedTime)
 			float speed = Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"];
 
 			// 空中の的の取得
-			AirTarget* airTarget = m_pPlayer->GetField()->GetAirTarget();
+			AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
 
 			// ロックオンしているかつ当たる範囲外またはマウスレイの長さが0だったらならボールの速度を遅くする
 			if (!m_pPlayer->IsInHitRange() &&
@@ -204,7 +208,6 @@ void ThrowingL::Update(float elapsedTime)
 
 	// スコアを下げる
 	m_pPlayer->ScoreDown();
-
 
 	// プレイヤーの設定
 	m_pPlayer->SetVelocity(m_pPlayer->GetGravity());
@@ -315,40 +318,6 @@ void ThrowingL::Render()
 /// </summary>
 void ThrowingL::Finalize()
 {
-}
-
-
-
-/// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void ThrowingL::EventHandle(Event e)
-{
-	// アニメーション時間が終了時間を越していたら
-	if (m_animation->GetAnimTime() > m_animation->GetEndTime())
-	{
-		switch (e)
-		{
-		// 立ち
-		case IState::Event::STAND:
-			// ステートの変更
-			m_pPlayer->ChangeState(m_pPlayer->GetStanding());
-			break;
-
-		// 走る
-		case IState::Event::RUN:
-			// ステートの変更
-			m_pPlayer->ChangeState(m_pPlayer->GetRunning());
-			break;
-
-		// 捕る
-		case IState::Event::CATCH:
-			// ステートの変更
-			m_pPlayer->ChangeState(m_pPlayer->GetCatching());
-			break;
-		}
-	}
 }
 
 

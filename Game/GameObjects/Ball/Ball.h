@@ -16,9 +16,6 @@
 #include "Game/GameObjects/Ball/State/Moving.h"
 #include "Game/GameObjects/Ball/State/Catching.h"
 
-// クラスの定義
-class Field;
-
 
 // クラスの定義
 class Ball : public IEntity
@@ -39,9 +36,6 @@ public:
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;
-
-	// フィールド
-	Field* m_pField;
 
 	// モデル
 	std::unique_ptr<DirectX::Model> m_model;  
@@ -102,7 +96,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Ball(Field* pField);
+	Ball(int objectID);
 
 	// デストラクタ
 	~Ball() override;
@@ -121,6 +115,9 @@ public:
 
 	// 重なりの補填
 	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
+
+	// メッセージを取得する
+	void OnMessegeAccepted(Message::MessageID messageID) override;
 
 	// ステートの変更
 	void ChangeState(IState* newState);

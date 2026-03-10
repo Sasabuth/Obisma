@@ -78,9 +78,6 @@ public:
 	// 終了処理
 	void Finalize() override;
 
-	// 特定のイベントの処理
-	void EventHandle(Event e) override;
-
 
 private:
 	// アニメーションの更新

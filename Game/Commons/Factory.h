@@ -27,8 +27,21 @@ class Arrow;
 // クラスの定義
 class Factory
 {
-// 変数
-private:
+// 定数
+public:
+	// フィールドの番号
+	enum FieldNumder : int
+	{
+		PLAYER = 0,
+		ENEMY,
+		AIRTARGET,
+		CAMERAUP,
+		ARROW,
+		FIELD,
+		CAMERA,
+
+		BALL = 10,
+	};
 
 
 // 関数
@@ -52,13 +65,14 @@ public:
 	);
 
 	// フィールド生成する
-	static std::unique_ptr<Field> CreateField(Camera* pCamera, int stageIndex, bool isSkyDome = true);
-	static std::unique_ptr<Field> CreateTutorialField(Camera* pCamera, int stageIndex, bool isSkyDome = true);
+	static std::unique_ptr<Field> CreateField(int stageIndex, bool isSkyDome = true);
+	static std::unique_ptr<Field> CreateTutorialField(int stageIndex, bool isSkyDome = true);
 
 	// ボールを生成する
 	static std::unique_ptr<Ball> CreateBall(
 		Field* pField,
-		const DirectX::SimpleMath::Vector3& initialPosition
+		const DirectX::SimpleMath::Vector3& initialPosition,
+		int objectID
 	);
 
 	// ボールマネージャーを生成する
@@ -69,13 +83,11 @@ public:
 
 	// 空中の的を生成する
 	static std::unique_ptr<AirTarget> CreateAirTarget(
-		Field* pField,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 
 	// 矢印を生成する
 	static std::unique_ptr<Arrow> CreateArrow(
-		Player* pPlayer,
 		const DirectX::SimpleMath::Vector3& initialPosition
 	);
 

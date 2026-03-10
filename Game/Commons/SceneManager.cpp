@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Game/Commons/SceneManager.h"
 
+#include "Game/Commons/Messenger.h"
+
 
 
 // 更新関数
@@ -71,6 +73,9 @@ void SceneManager::DeleteScene()
 	if (m_scene)
 	{
 		m_scene->Finalize();
+
+		// メッセンジャーを破棄する
+		Messenger::DestroyInstance();
 
 		delete m_scene;
 

@@ -38,6 +38,7 @@ Stopping::~Stopping()
 /// </summary>
 void Stopping::Initialize()
 {
+	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
 
 	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
@@ -141,15 +142,4 @@ void Stopping::Render()
 /// </summary>
 void Stopping::Finalize()
 {
-}
-
-
-
-/// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void Stopping::EventHandle(Event e)
-{
-	UNREFERENCED_PARAMETER(e);
 }

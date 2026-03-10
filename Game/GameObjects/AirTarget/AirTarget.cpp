@@ -7,24 +7,28 @@
 #include "pch.h"
 #include "AirTarget.h"
 
-#include "Game/GameObjects//Camera/Camera.h"
-#include "Game/GameObjects/Field/Field.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Camera/Camera.h"
+#include "Game/GameObjects/Field/Field.h"
+
 
 
 
 /// <summary>
 /// コンストラクタ
 /// </summary>
-AirTarget::AirTarget(Field* pField)
-	: m_pField(pField)
-	, m_currentState{}
+AirTarget::AirTarget()
+	: m_currentState{}
 	, m_pUserResources(nullptr)
 	, m_model(nullptr)
 	, m_shadowHitPos{}
 	, m_debugIndex(0)
 {
+	// オブジェクト番号とオブジェクトを登録する
+	Messenger::GetInstance()->Register(Factory::AIRTARGET, this);
 }
 
 
@@ -42,12 +46,16 @@ AirTarget::~AirTarget()
 /// </summary>
 void AirTarget::Initialize(DirectX::SimpleMath::Vector3 position)
 {
+	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
+
 	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
+	// 座標の設定
 	m_position = position;
 
+	// コライダーの初期化
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"AirTarget.json")["ColliderSize"]);
 
 	// モデル
@@ -94,7 +102,9 @@ void AirTarget::Update(float elapsedTime)
 
 	// パーティクルの更新
 	m_particle->Update(elapsedTime);
-	m_particle->CreateBillboard(m_position, m_pField->GetCamera()->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
+	// カメラの取得
+	Camera* camera = dynamic_cast<Camera*>(Messenger::GetInstance()->GetObject(Factory::CAMERA));
+	m_particle->CreateBillboard(m_position, camera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	//m_particle->HandleFieldCollision(*m_pField);
 	
@@ -170,11 +180,23 @@ void AirTarget::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 
 
 /// <summary>
+/// メッセージの取得
+/// </summary>
+/// <param name="messageID">メッセージID</param>
+void AirTarget::OnMessegeAccepted(Message::MessageID messageID)
+{
+	UNREFERENCED_PARAMETER(messageID);
+}
+
+
+
+/// <summary>
 /// ステートの変更
 /// </summary>
 /// <param name="newState">新しいステート</param>
 void AirTarget::ChangeState(IState* newState)
 {
+	// シーンで音を途切れないようにするため
 	if (m_currentState == m_floating.get())
 	{
 		m_se = Resources::GetInstance()->GetSESound(L"GetSter.wav", m_position, false);
@@ -283,13 +305,16 @@ void AirTarget::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* 
 /// </summary>
 void AirTarget::RandomPosition()
 {
+	// フィールドの取得
+	Field* field = dynamic_cast<Field*>(Messenger::GetInstance()->GetObject(Factory::FIELD));
+
 	// 番号の宣言
 	int index = -1;
 	// 三角形のために3で割れる数にする
 	while ((index + 3) % 3 != 0)
 	{
 		// ステージの三角形の数でランダムに番号を決める
-		std::uniform_int_distribution<int> dist(0, (int)m_pField->GetStageCollider().GetIndicesCount() - 1);
+		std::uniform_int_distribution<int> dist(0, (int)field->GetFieldCollider().GetIndicesCount() - 1);
 		std::mt19937 mt(m_rd());
 
 		index = dist(mt);
@@ -298,13 +323,13 @@ void AirTarget::RandomPosition()
 	m_debugIndex = index;
 
 	// 三角形の中心を取得
-	DirectX::SimpleMath::Vector3 center = m_pField->GetStageCollider().GetCenterPosition(index);
+	DirectX::SimpleMath::Vector3 center = field->GetFieldCollider().GetCenterPosition(index);
 
 	// 空中の的の設定
 	m_velocity = DirectX::SimpleMath::Vector3::Zero;
 	m_position = center;
 	m_shadowHitPos = center;
-	m_gravity = m_pField->CorrectUp(this, m_pField->GetStageCollider().GetNormalVector(index));
+	m_gravity = field->CorrectUp(this, field->GetFieldCollider().GetNormalVector(index));
 
 
 	// 元の座標からY軸方向に高くして置く

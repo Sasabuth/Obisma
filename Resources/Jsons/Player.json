@@ -30,15 +30,23 @@
 
 	"LockOn": 3.8,
 
-	"AngleLow": 20,
+	"AngleLow": 35.0,
+	"ThrowAngleLow": 20,
 
-	"AngleMiddle": 24,
+	"AngleMiddle": 75.0,
+	"ThrowAngleMiddle": 24,
 
-	"AngleHigh": 10,
+	"ThrowAngleHigh": 10,
 
 	"Decay": 0.75,
 
 	"Offset": 2.4,
 
-	"HandOffsetScale": 1.015
+	"HandOffsetScale": 1.015,
+
+	"CatchingEndTime": 0.5,
+
+	"DizzyingEndTime": 3.0,
+
+	"ThrowingEndTime": 1.42
 }

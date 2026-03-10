@@ -15,8 +15,6 @@
 
 // クラスの定義
 class Player;
-class Ball;
-
 
 
 // クラスの定義
@@ -77,9 +75,6 @@ public:
 	// 終了処理
 	void Finalize() override;
 
-	// 特定のイベントの処理
-	void EventHandle(Event e) override;
-
 
 // 内部処理
 private:
@@ -88,8 +83,5 @@ private:
 
 	// ボールを持つ
 	void CatchHandBall();
-
-	// ボールを投げる
-	void ThrowBall();
 };
 

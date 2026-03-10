@@ -11,10 +11,10 @@
 #include "pch.h"
 #include "FieldSelectUI.h"
 
-#include "Game/Commons/Resources.h"
-#include "Game/Commons/SceneManager.h"
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/Scenes/TutorialScene.h"
+#include "Game/Commons/Resources.h"
+#include "Game/Commons/SceneManager.h"
 
 
 /// <summary>

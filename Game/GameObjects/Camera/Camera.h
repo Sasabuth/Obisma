@@ -5,14 +5,14 @@
 
 // 多重インクルードの防止
 #pragma once
-
+#include "Game/Commons/Interface/IObject.h"
 
 // クラスの定義
 class Field;
 
 
 // クラスの定義
-class Camera
+class Camera : public IObject
 {
 // 変数
 private:
@@ -81,5 +81,8 @@ public:
 
 	// 画面サイズの取得
 	void GetWindowSize(int& windowWidth, int& windowHeight);
+
+	// メッセージを取得する
+	void OnMessegeAccepted(Message::MessageID messageID) override;
 };
 

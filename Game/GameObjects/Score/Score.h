@@ -19,11 +19,6 @@ class Score
 {
 // 定数
 private:
-	// フレームのサイズ
-	static constexpr float FRAME_SIZE = 0.3f;
-	// 顔のサイズ
-	static constexpr float FACE_SIZE = 0.1f;
-
 	// 座標
 	static constexpr DirectX::SimpleMath::Vector2 POSITIONS[] =
 	{
@@ -47,6 +42,13 @@ private:
 		0.2f                                          // 拡大率
 	};
 
+	// フレームのサイズ
+	static constexpr float FRAME_SIZE = 0.3f;
+	// 顔のサイズ
+	static constexpr float FACE_SIZE = 0.1f;
+	// ボールテクスチャカウント
+	static constexpr int BALLTEXTURE_COUNT = 2;
+
 
 // 変数
 private:
@@ -66,7 +68,7 @@ private:
 	Sprite m_scoreTexture;
 	Sprite m_frameTexture;
 	Sprite m_faceTexture;
-	Sprite m_ballTexture[2];
+	Sprite m_ballTexture[BALLTEXTURE_COUNT];
 
 
 // 関数
@@ -100,6 +102,8 @@ public:
 
 	// ボールの画像の設定
 	void SetBallTexture(int index) { m_ballTexture[index].SetTexture(Resources::GetInstance()->GetTexture(L"Ball" + std::to_wstring(m_index) + L".png")); }
+
+	// ボール画像の初期化
 	void ClearBallTexture(int index) { m_ballTexture[index].SetTexture(Resources::GetInstance()->GetTexture(L"Ball2.png")); }
 
 // 内部処理

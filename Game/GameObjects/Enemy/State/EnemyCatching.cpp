@@ -7,11 +7,13 @@
 #include "pch.h"
 #include "EnemyCatching.h"
 
-#include "Game/GameObjects/Enemy/Enemy.h"
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Ball/BallManager.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Enemy/Enemy.h"
+#include "Game/GameObjects/Ball/Ball.h"
+
 
 
 
@@ -93,6 +95,7 @@ void EnemyCatching::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void EnemyCatching::Update(float elapsedTime)
 {
+	// ボールを持っていたら手に持たせる
 	if (m_pEnemy->GetCatchBall(Enemy::RIGHT))
 	{
 		Ball* ball = m_pEnemy->GetCatchBall(Enemy::RIGHT);
@@ -108,18 +111,18 @@ void EnemyCatching::Update(float elapsedTime)
 	DirectX::SimpleMath::Vector3 catchPos =
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation()) / 2.5 -
 		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_pEnemy->GetRotation()) / 3;
-
 	m_collider.SetPosition(m_pEnemy->GetPosition() + catchPos);
 
-	// ボールマネージャーの取得
-	BallManager* ballManager = m_pEnemy->GetField()->GetBallManager();
 
-	// ボールをキャッチする
-	for (int i = 0; i < ballManager->GetObjectCount(); i++)
+	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
-		Ball* ball = ballManager->GetBall(i);
+		// ボールの取得
+		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+
+		// ボールが動いている状態なら
 		if (ball->GetCurrentState() == ball->GetMoving())
 		{
+			// ボールをキャッチする
 			if (IsHit(m_collider, ball->GetCollider()))
 			{
 				CatchHandBall(i);
@@ -150,6 +153,7 @@ void EnemyCatching::Update(float elapsedTime)
 	// アニメーションの更新
 	AnimationUpdate();
 
+	// SEの設定
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_pEnemy->GetPosition());
 }
 
@@ -245,17 +249,6 @@ void EnemyCatching::Finalize()
 
 
 /// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void EnemyCatching::EventHandle(Event e)
-{
-	UNREFERENCED_PARAMETER(e);
-}
-
-
-
-/// <summary>
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
@@ -280,8 +273,11 @@ void EnemyCatching::CatchHandBall(int index)
 	// SEを出す
 	m_se = Resources::GetInstance()->GetSESound(L"BallCatch.wav", m_pEnemy->GetPosition(), false);
 
-	// ボールのポインタを取得
-	Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(index);
+	//// ボールのポインタを取得
+	//Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(index);
+	// ボールの取得
+	Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + index));
+		
 
 	// エフェクトが入っていなかったら
 	if (!m_isEffect)

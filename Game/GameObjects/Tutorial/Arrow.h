@@ -13,10 +13,6 @@
 
 
 // クラスの定義
-class Player;
-
-
-// クラスの定義
 class Arrow : public IEntity
 {
 // 定数
@@ -29,9 +25,6 @@ public:
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;
-
-	// プレイヤー
-	Player* m_pPlayer;
 
 	// 座標
 	DirectX::SimpleMath::Vector3 m_position;
@@ -69,7 +62,7 @@ private:
 	// 関数
 public:
 	// コンストラクタ
-	Arrow(Player* pPlayer);
+	Arrow();
 
 	// デストラクタ
 	~Arrow() override;
@@ -88,6 +81,9 @@ public:
 
 	// 重なりの補填
 	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
+
+	// メッセージを取得する
+	void OnMessegeAccepted(Message::MessageID messageID) override;
 
 	// 矢印の初期化
 	void InitializeArrow(ID3D11Device* device, ID3D11DeviceContext* context);

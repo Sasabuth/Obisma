@@ -11,6 +11,7 @@
 #include "Game/Scenes/ResultScene.h"
 #include "Game/Scenes/TitleScene.h"
 #include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
 #include "Game/Commons/Resources.h"
 
 
@@ -60,18 +61,24 @@ void TutorialScene::Initialize()
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
 
 	// フィールドの初期化
-	m_field = Factory::CreateTutorialField(m_camera.get(), 0);
+	m_field = Factory::CreateTutorialField(0);
 
 	// カメラの上向きベクトルの初期化
 	m_cameraUp = Factory::CreateCameraUp(m_field.get(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
 
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	// 敵の取得
+	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
+
 	// 矢印の生成
-	m_arrow = Factory::CreateArrow(m_field->GetPlayer(), DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
+	m_arrow = Factory::CreateArrow(DirectX::SimpleMath::Vector3{ 2.0f,2.0f,2.0f });
 
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
-	m_scoreManager->Add(m_field->GetPlayer()->GetScore());
-	m_scoreManager->Add(m_field->GetEnemy()->GetScore());
+	// スコアマネージャーに追加
+	m_scoreManager->Add(player->GetScore());
+	m_scoreManager->Add(enemy->GetScore());
 
 	// ゲーム時間の初期化
 	m_interval = 0.0f;
@@ -79,13 +86,12 @@ void TutorialScene::Initialize()
 	// テクスチャの初期化
 	m_frameTexture.SetTexture(m_pResources->GetTexture(L"ScoreFrame2.png"));
 	m_timerTexture.SetTexture(m_pResources->GetTexture(L"ScoreFont2.png"));
-	
 	m_checkMarkTexture.SetTexture(m_pResources->GetTexture(L"CheckMark.png"));
 
 	// リスナーの設定
-	m_pResources->SetListener(m_field->GetPlayer()->GetPosition(),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_field->GetPlayer()->GetRotation()),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_field->GetPlayer()->GetRotation())
+	m_pResources->SetListener(player->GetPosition(),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, player->GetRotation()),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, player->GetRotation())
 	);
 
 	// カウントの初期化
@@ -106,7 +112,7 @@ void TutorialScene::Initialize()
 	m_isRightBall = false;
 
 	// BGM
-	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", m_field->GetPlayer()->GetPosition(), true);
+	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", player->GetPosition(), true);
 
 	// オーディオUIの初期化
 	m_audioUI.Initialize();
@@ -133,45 +139,17 @@ void TutorialScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void TutorialScene::Update(float elapsedTime)
 {
-	// マウスの座標に合わせる
-	auto mouse = DirectX::Mouse::Get().GetState();
-	// 現在のウィンドウサイズを取得
-	auto const outputSize = m_pUserResources->GetDeviceResources()->GetOutputSize();
-	float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
-	float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
-
-	// シーンの変更
-	auto transitionMask = m_pUserResources->GetTransitionMask();
-
-	// フェードアウト中じゃなかったら更新
-	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
-
-	// キーボードトラッカーの取得
-	auto kbTracker = m_pUserResources->GetKeyboardStateTracker();
-
-	// エスケープキーが押されたらゲームメニューを開く
-	if (kbTracker->pressed.Escape) m_gameMenuUI.Click();
-
-	// オーディオUIの更新
-	if (m_audioUI.IsOpen())
+	// UIの更新で止めたいときがあったら更新しない
+	if (UpdateUI())
 	{
-		m_audioUI.Update(m_collider);
 		return;
 	}
-	else if (m_gameMenuUI.IsOpen())
-	{
-		m_gameMenuUI.Update(m_collider);
 
-		if (transitionMask->IsClose() && transitionMask->IsEnd())
-		{
-			ChangeScene<TitleScene>();
-		}
-
-		return;
-	}
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
 
 	// リスナーの設定
-	SetListener();
+	SetListener(player);
 
 	// カメラの上向きベクトルの更新
 	m_cameraUp->Update(elapsedTime);
@@ -180,21 +158,21 @@ void TutorialScene::Update(float elapsedTime)
 	m_camera->Update(m_field.get(), m_cameraUp->GetPosition());
 	/*m_camera->DebugMode();*/
 
-	m_field->TutorialUpdate(this, elapsedTime);
+	// チュートリアルの更新
+	Tutorial(player, elapsedTime);
 
-	SetPlayerInputState();
+	// フィールドの更新
+	m_field->TutorialUpdate(this, m_scoreManager.get(), elapsedTime);
+
+	// 入力ステートの設定
+	SetPlayerInputState(player);
 
 	// 矢印の更新
 	m_arrow->Update(elapsedTime);
 
+	// フィールドとの当たり判定
 	m_field->IsHitEntityToField(m_cameraUp.get());
 	m_field->IsHitEntityToField(m_arrow.get());
-
-	// チュートリアルシーンに変更
-	if (transitionMask->IsClose() && transitionMask->IsEnd())
-	{
-		ChangeScene<TitleScene>();
-	}
 
 	// BGMの音量の設定
 	m_bgm->SetVolume(m_pResources->GetBGMVolume());
@@ -313,21 +291,18 @@ void TutorialScene::OnDeviceLost()
 /// <summary>
 /// チュートリアル
 /// </summary>
-void TutorialScene::Tutorial(float elapsedTime)
+void TutorialScene::Tutorial(Player* player, float elapsedTime)
 {
-	// プレイヤーの取得
-	Player* player = m_field->GetPlayer();
 	// 敵の取得
-	Enemy* enemy = m_field->GetEnemy();
-	// ボールマネージャーの取得
-	BallManager* ballManager = m_field->GetBallManager();
+	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
+
 	// 空中の的の取得
-	AirTarget* airTarget = m_field->GetAirTarget();
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
 
 	// チュートリアル番号で分ける
 	switch (m_tutorialIndex)
 	{
-	// マウスを動かす
+		// マウスを動かす
 	case TutorialScene::MOUSE_MOVE:
 	{
 		// マウスの取得
@@ -389,7 +364,7 @@ void TutorialScene::Tutorial(float elapsedTime)
 			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
 			m_interval = 0.0f;
 
-			ballManager->GetBall(0)->SetPosition(DirectX::SimpleMath::Vector3{
+			dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->SetPosition(DirectX::SimpleMath::Vector3{
 				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["0"]["x"],
 				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["0"]["y"],
 				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["0"]["z"]
@@ -405,13 +380,13 @@ void TutorialScene::Tutorial(float elapsedTime)
 		// 左手にボールを持ったらチェックマークをつける
 		if (player->GetCatchBall(Player::HAND::RIGHT) && !player->GetCatchBall(Player::HAND::LEFT) && !m_isRightBall)
 		{
-			ballManager->GetBall(1)->SetPosition(DirectX::SimpleMath::Vector3{
+			dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + 1))->SetPosition(DirectX::SimpleMath::Vector3{
 					m_pResources->GetJson(L"Ball.json")["Position"]["0"]["1"]["x"],
 					m_pResources->GetJson(L"Ball.json")["Position"]["0"]["1"]["y"],
 					m_pResources->GetJson(L"Ball.json")["Position"]["0"]["1"]["z"]
 				}
 			);
-			
+
 			m_isRightBall = true;
 		}
 
@@ -490,10 +465,11 @@ void TutorialScene::Tutorial(float elapsedTime)
 	// ボールを投げる
 	case TutorialScene::BALL_THROW:
 	{
-		// いずれかのボールが空中の的に当たったらチェックマークをつける
-		for (int i = 0; i < ballManager->GetObjectCount(); i++)
+		for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 		{
-			if (IsHit(ballManager->GetBall(i)->GetCollider(), airTarget->GetCollider()))
+			// ボールの取得
+			Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+			if (IsHit(ball->GetCollider(), airTarget->GetCollider()))
 			{
 				m_isCheck = true;
 			}
@@ -521,22 +497,23 @@ void TutorialScene::Tutorial(float elapsedTime)
 			player->SetCatchBall(Player::HAND::RIGHT, nullptr);
 			player->ChangeState(player->GetStanding());
 
-			// ボールを触れないように高い所に置く
-			for (int i = 0; i < ballManager->GetObjectCount(); i++)
+			for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 			{
-				ballManager->GetBall(i)->SetPosition(DirectX::SimpleMath::Vector3{
+				// ボールの取得
+				Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+				ball->SetPosition(DirectX::SimpleMath::Vector3{
 						m_pResources->GetJson(L"Ball.json")["TutorialPos"]["x"],
 						m_pResources->GetJson(L"Ball.json")["TutorialPos"]["y"],
 						m_pResources->GetJson(L"Ball.json")["TutorialPos"]["z"]
 					}
 				);
 
-				ballManager->GetBall(i)->GetCollider().SetPosition(ballManager->GetBall(i)->GetPosition());
+				ball->GetCollider().SetPosition(ball->GetPosition());
 			}
 
 			// ボールを止める状態にして敵に持たせる
-			ballManager->GetBall(0)->ChangeState(ballManager->GetBall(0)->GetStopping());
-			ballManager->GetBall(0)->SetPosition(enemy->GetPosition());
+			dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->ChangeState(dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->GetStopping());
+			dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->SetPosition(enemy->GetPosition());
 
 			// 描画されないように空中の的を高い所に置く
 			airTarget->SetPosition(DirectX::SimpleMath::Vector3{
@@ -563,7 +540,7 @@ void TutorialScene::Tutorial(float elapsedTime)
 		else
 		{
 			// 敵のボールに当たったら当たった判定をつける
-			if (IsHit(ballManager->GetBall(0)->GetCollider(), player->GetCollider()) && ballManager->GetBall(0)->GetCurrentState() == ballManager->GetBall(0)->GetMoving())
+			if (IsHit(dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->GetCollider(), player->GetCollider()) && dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->GetCurrentState() == dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->GetMoving())
 			{
 				isHit = true;
 			}
@@ -605,13 +582,62 @@ void TutorialScene::Tutorial(float elapsedTime)
 
 
 /// <summary>
+/// UIの更新
+/// </summary>
+/// <param name="elapsedTime">経過時間</param>
+/// <returns>止めたいか</returns>
+bool TutorialScene::UpdateUI()
+{
+	// マウスの座標に合わせる
+	auto mouse = DirectX::Mouse::Get().GetState();
+	// 現在のウィンドウサイズを取得
+	auto const outputSize = m_pUserResources->GetDeviceResources()->GetOutputSize();
+	float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
+	float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
+
+	// シーンの変更
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+
+	// フェードアウト中じゃなかったら更新
+	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
+
+	// チュートリアルシーンに変更
+	if (transitionMask->IsClose() && transitionMask->IsEnd())
+	{
+		ChangeScene<TitleScene>();
+	}
+
+	// キーボードトラッカーの取得
+	auto kbTracker = m_pUserResources->GetKeyboardStateTracker();
+
+	// エスケープキーが押されたらゲームメニューを開く
+	if (kbTracker->pressed.Escape) m_gameMenuUI.Click();
+
+	// オーディオUIの更新
+	if (m_audioUI.IsOpen())
+	{
+		m_audioUI.Update(m_collider);
+		return true;
+	}
+	// ゲームメニューUIの更新
+	else if (m_gameMenuUI.IsOpen())
+	{
+		m_gameMenuUI.Update(m_collider);
+
+		return true;
+	}
+
+	return false;
+}
+
+
+
+/// <summary>
 /// リスナーの設定
 /// </summary>
-void TutorialScene::SetListener()
+/// <param name="player">プレイヤー</param>
+void TutorialScene::SetListener(Player* player)
 {
-	// プレイヤーの取得
-	Player* player = m_field->GetPlayer();
-
 	// 方向
 	DirectX::SimpleMath::Vector3 dir = player->GetPosition() - m_cameraUp->GetPosition();
 	dir.Normalize();
@@ -659,41 +685,35 @@ void TutorialScene::SetListener()
 /// <summary>
 /// 入力ステートの設定
 /// </summary>
-void TutorialScene::SetPlayerInputState()
+/// <param name="player">プレイヤー</param>
+void TutorialScene::SetPlayerInputState(Player* player)
 {
 	auto kb = DirectX::Keyboard::Get().GetState();
 	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
-	// イベントのキー
-	std::vector<IState::Event> e;
-
-	// Wキーで走る
-	if (kb.W)
+	// Wキーを押したら
+	if (kb.W && m_tutorialIndex != ORDER::MOUSE_MOVE && m_tutorialIndex != ORDER::MOUSE_TO_STER)
 	{
-		// プレイヤーの更新
-		if (m_tutorialIndex != ORDER::MOUSE_MOVE && m_tutorialIndex != ORDER::MOUSE_TO_STER)
-		{
-			e.push_back(IState::Event::RUN);
-		}
+		// プレイヤーに対して「走る」状態に遷移する
+		Messenger::GetInstance()->Notify(Factory::PLAYER, Message::RUNNING);
 	}
-	// 右クリックでキャッチ
+	// 何もなかったら
+	else
+	{
+		// プレイヤーに対して「立つ」状態に遷移する
+		Messenger::GetInstance()->Notify(Factory::PLAYER, Message::STANDING);
+	}
+
+	// 左クリックを押したら
+	if (mouseTK->leftButton == mouseTK->PRESSED && player->IsThrow() && m_tutorialIndex == TutorialScene::BALL_THROW)
+	{
+		// プレイヤーに対して「投げる」状態に遷移する
+		Messenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::THROWING, m_pResources->GetJson(L"Player.json")["ThrowingEndTime"]);
+	}
+	// 右クリックを押したら
 	if (mouseTK->rightButton == mouseTK->PRESSED && m_tutorialIndex == ORDER::BALL_CATCH)
 	{
-		e.push_back(IState::Event::CATCH);
+		// プレイヤーに対して「キャッチ」状態に遷移する
+		Messenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::CATCHING, m_pResources->GetJson(L"Player.json")["CatchingEndTime"]);
 	}
-	// 左クリックで投げる
-	if (mouseTK->leftButton == mouseTK->PRESSED && m_tutorialIndex == TutorialScene::BALL_THROW)
-	{
-		e.push_back(IState::Event::THROW);
-	}
-
-
-	// 何もなかったら立ち状態にする
-	if (e.size() == 0)
-	{
-		e.push_back(IState::Event::STAND);
-	}
-
-	// イベントを渡す
-	m_field->GetPlayer()->OnEvents(e);
 }

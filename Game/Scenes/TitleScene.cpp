@@ -11,6 +11,7 @@
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/Scenes/TutorialScene.h"
 #include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
 #include "Game/Commons/Resources.h"
 
 
@@ -53,20 +54,24 @@ void TitleScene::Initialize()
 	// フィールドの初期化
 	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
 	{
+		// 最初はスカイドームつける
 		if (i == 0)
 		{
-			m_field[i] = Factory::CreateField(m_camera.get(), i);
+			m_field[i] = Factory::CreateField(i);
 		}
 		else
 		{
-			m_field[i] = Factory::CreateField(m_camera.get(), i, false);
+			m_field[i] = Factory::CreateField(i, false);
 		}
+
+		// 惑星の座標を設定
+		m_field[i]->SetPosition(DirectX::SimpleMath::Vector3(i * FIELD_POSITION, 0, 0));
 	}
 	
-	m_field[1]->SetPosition(DirectX::SimpleMath::Vector3(-20, 0, 0));
-
-	m_position = DirectX::SimpleMath::Vector3(5, 2, 0);
-	m_eyePosition = DirectX::SimpleMath::Vector3(5, 2, -10);
+	// カメラ座標の初期化
+	m_cameraPosition = CAMERA_POSITION;
+	// 目の座標の初期化
+	m_eyePosition = EYE_POSITION;
 
 	// オーディオUIの初期化
 	m_audioUI.Initialize();
@@ -104,6 +109,7 @@ void TitleScene::Initialize()
 		}
 	);
 
+	// ボタンの設定
 	for (int i = 0; i < MENU_COUNT; i++)
 	{
 		m_button[i].SetPosition(MENU[i].pos);
@@ -136,7 +142,7 @@ void TitleScene::Update(float elapsedTime)
 	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
 
 	// カメラの更新
-	m_camera->Update(m_position, m_eyePosition);
+	m_camera->Update(m_cameraPosition, m_eyePosition);
 	
 	// フィールドの更新
 	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
@@ -161,7 +167,7 @@ void TitleScene::Update(float elapsedTime)
 		// フェードアウト中じゃなかったら更新
 		if (!transitionMask->IsClose()) m_fieldSelectUI.Update(m_collider);
 
-		m_position = m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition();
+		m_cameraPosition = m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition();
 		m_eyePosition = DirectX::SimpleMath::Vector3(m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition().x, m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition().y, -10);
 
 		// ゲームプレイシーンに変更
@@ -176,7 +182,7 @@ void TitleScene::Update(float elapsedTime)
 		// フェードアウト中じゃなかったら更新
 		if (!transitionMask->IsClose()) m_menuUI.Update(m_collider);
 
-		m_position = DirectX::SimpleMath::Vector3(5, 2, 0);
+		m_cameraPosition = DirectX::SimpleMath::Vector3(5, 2, 0);
 		m_eyePosition = DirectX::SimpleMath::Vector3(5, 2, -10);
 
 		// チュートリアルシーンに変更

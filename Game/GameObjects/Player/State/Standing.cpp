@@ -7,11 +7,12 @@
 #include "pch.h"
 #include "Standing.h"
 
-#include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Camera/Camera.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Ball/Ball.h"
 
 
 
@@ -56,6 +57,7 @@ Standing::~Standing()
 /// </summary>
 void Standing::Initialize()
 {
+	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
 
 	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
@@ -138,11 +140,6 @@ void Standing::Render()
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
 
-	/*if (m_pPlayer->CalcRaySphere(m_pPlayer->GetMouseRay().position, m_pPlayer->GetMouseRay().direction, m_pPlayer->GetAirTarget()->GetPosition(), m_pPlayer->GetAirTarget()->GetCollider().GetRadius(), m_pPlayer->GetHitPos()))
-	{
-		m_pPlayer->DrawLockOn(m_pPlayer->GetAirTarget()->GetPosition());
-	}*/
-
 	// ワールド座標
 	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(m_pPlayer->GetPosition());
 	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(Resources::GetInstance()->GetJson(L"Player.json")["PlayerSize"]));
@@ -224,36 +221,6 @@ void Standing::Finalize()
 
 
 /// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void Standing::EventHandle(Event e)
-{
-	switch (e)
-	{
-	// 走る
-	case IState::Event::RUN:
-		// ステート変更
-		m_pPlayer->ChangeState(m_pPlayer->GetRunning());
-		break;
-
-	// 投げる
-	case IState::Event::THROW:
-		// ボールを投げる
-		ThrowBall();
-		break;
-
-	// 捕る
-	case IState::Event::CATCH:
-		// ステート変更
-		m_pPlayer->ChangeState(m_pPlayer->GetCatching());
-		break;
-	}
-}
-
-
-
-/// <summary>
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
@@ -284,38 +251,11 @@ void Standing::AnimationUpdate(float elapsedTime)
 
 
 /// <summary>
-/// ボールを投げる
-/// </summary>
-void Standing::ThrowBall()
-{
-	// 左手に持っていたら投げる
-	if (m_pPlayer->GetCatchBall(Player::LEFT))
-	{
-		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
-		m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
-		m_pPlayer->ChangeState(m_pPlayer->GetThrowingL());
-		return;
-	}
-	// 右手に持っていたら投げる
-	if (m_pPlayer->GetCatchBall(Player::RIGHT))
-	{
-		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
-		m_pPlayer->SetBallPosition(ball, m_rightHandMatrix);
-		m_pPlayer->ChangeState(m_pPlayer->GetThrowingR());
-	}
-}
-
-
-
-/// <summary>
 /// ボールを持つ
 /// </summary>
 void Standing::CatchHandBall()
 {
-	// ボールマネージャーの取得
-	BallManager* ballManager = m_pPlayer->GetField()->GetBallManager();
-
-	for (int i = 0; i < ballManager->GetObjectCount(); i++)
+	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
 		// 両手に持っていたら終了
 		if (m_pPlayer->GetCatchBall(Player::RIGHT) && m_pPlayer->GetCatchBall(Player::LEFT))
@@ -323,7 +263,10 @@ void Standing::CatchHandBall()
 			return;
 		}
 
-		Ball* ball = ballManager->GetBall(i);
+		// ボールの取得
+		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+
+		// コライダーとボールが当たっているかつボールが止まっていたら
 		if (IsHit(m_pPlayer->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
 		{
 			// ボールの状態の変更
@@ -332,6 +275,7 @@ void Standing::CatchHandBall()
 			// 色を変更する
 			ball->SetBallColorNum(Ball::BallColor::PLAYER);
 
+			// 持っていない手のほうにボールを持たせる
 			if (!m_pPlayer->GetCatchBall(Player::RIGHT))
 			{
 				m_pPlayer->SetCatchBall(Player::RIGHT, ball);

@@ -23,10 +23,6 @@
 
 
 // クラスの定義
-class Player;
-class Field;
-class AirTarget;
-class BallManager;
 class Ball;
 
 
@@ -41,7 +37,7 @@ public:
 		RIGHT = 0,
 		LEFT,
 	};
-
+	// パーティクル
 	enum PARTICLE
 	{
 		CIRCLE = 0,
@@ -54,9 +50,6 @@ public:
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;
-
-	// フィールド
-	Field* m_pField;
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix m_worldMatrix;
@@ -128,7 +121,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Enemy(Field* pField);
+	Enemy();
 
 	// デストラクタ
 	~Enemy() override;
@@ -148,6 +141,9 @@ public:
 	// 重なりの補填
 	void CorrectOverlap(IEntity& iEntity);
 	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
+
+	// メッセージを取得する
+	void OnMessegeAccepted(Message::MessageID messageID) override;
 
 	// ステートの変更
 	void ChangeState(IState* newState);
@@ -212,9 +208,6 @@ public:
 
 	// キャッチ用コライダー
 	SphereCollider& GetCatchCollider() { return m_catchCollider; }
-
-	// フィールドの取得
-	Field* GetField() const { return m_pField; }
 
 	// パーティクルの取得
 	Particle* GetParticle(int index) const { return m_particle[index].get(); }

@@ -7,11 +7,10 @@
 #include "pch.h"
 #include "EnemyThrowingR.h"
 
-#include "Game/GameObjects/Enemy/Enemy.h"
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Ball/Ball.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/GameObjects/Enemy/Enemy.h"
+#include "Game/GameObjects/Ball/Ball.h"
 
 
 
@@ -96,6 +95,7 @@ void EnemyThrowingR::Update(float elapsedTime)
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
+		// 実体の取得
 		auto* entity = m_pEnemy->GetTarget();
 
 		// 方向
@@ -147,21 +147,20 @@ void EnemyThrowingR::Update(float elapsedTime)
 			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_pEnemy->GetRotation());
 
 			float angleDeg = DirectX::XMConvertToDegrees(angle);
-			m_debugAngle = DirectX::XMConvertToDegrees(angle);
 
 			// 投げる角度の取得
 			DirectX::SimpleMath::Quaternion rotate;
 			// 角度に応じて投げる角度を調整
-			if (angleDeg < 35.0f)
+			if (angleDeg < Resources::GetInstance()->GetJson(L"Enemy.json")["AngleLow"])
 			{
 				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-					Resources::GetInstance()->GetJson(L"Enemy.json")["AngleLow"])
+					Resources::GetInstance()->GetJson(L"Enemy.json")["ThrowAngleLow"])
 				);
 			}
 			else
 			{
 				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-					Resources::GetInstance()->GetJson(L"Enemy.json")["AngleHigh"])
+					Resources::GetInstance()->GetJson(L"Enemy.json")["ThrowAngleHigh"])
 				);
 			}
 
@@ -289,17 +288,6 @@ void EnemyThrowingR::Render()
 /// </summary>
 void EnemyThrowingR::Finalize()
 {
-}
-
-
-
-/// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void EnemyThrowingR::EventHandle(Event e)
-{
-	UNREFERENCED_PARAMETER(e);
 }
 
 

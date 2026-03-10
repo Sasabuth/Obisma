@@ -40,8 +40,6 @@ public:
 
 // 定数
 private:
-	
-
 	// 説明順番
 	enum EXPLAINORDER
 	{
@@ -50,29 +48,21 @@ private:
 		MAX_EXPLAINCOUNT
 	};
 
-	static constexpr float INTERVAL = 2.0f;
-	static constexpr float EXPLAIN_INTERVAL = 3.5f;
-
-	static constexpr float MAX_LENGTH = 100.0f;
-	static constexpr int MAX_COUNT = 50;
-
-	static constexpr int MAX_TIME = 99;
-	static constexpr int PLAYER_COUNT = 2;
-
+	// フレーム
 	static constexpr Sprite::Format FREAM =
 	{
 		DirectX::SimpleMath::Vector2(640.0f, 52.0f),   // 座標
 		DirectX::SimpleMath::Vector2(415.0f, 239.0f),  // サイズ
 		0.28f                                          // 拡大率
 	};
-
+	// タイマー
 	static constexpr Sprite::Format TIMER =
 	{
 		DirectX::SimpleMath::Vector2(571.0f, 25.0f),   // 座標
 		DirectX::SimpleMath::Vector2(34.5f, 50.0f),    // サイズ
 		1.0f                                           // 拡大率
 	};
-	
+	// チュートリアル
 	static constexpr Sprite::Format TUTORIAL[ORDER::MAX_ORDERCOUNT] =
 	{
 		// マウス動かす
@@ -118,7 +108,7 @@ private:
 		},
 
 	};
-
+	// 説明
 	static constexpr Sprite::Format EXPLAIN[EXPLAINORDER::MAX_EXPLAINCOUNT] =
 	{
 		// 星に当てるとスコアが上がる
@@ -135,13 +125,28 @@ private:
 		   0.22f                                      	   // 拡大率
 		}
 	};
-	
+	// チェックマーク
 	static constexpr Sprite::Format CHECKMARK =
 	{
 		DirectX::SimpleMath::Vector2(45.0f, 195.0f),    // 座標
 		DirectX::SimpleMath::Vector2(643.0f, 448.0f),   // サイズ
 		0.06f                                 		    // 拡大率
 	};
+
+	// インターバル時間
+	static constexpr float INTERVAL = 2.0f;
+	// 説明のインターバル時間
+	static constexpr float EXPLAIN_INTERVAL = 3.5f;
+	// 長さの上限
+	static constexpr float MAX_LENGTH = 100.0f;
+	// カウント
+	static constexpr int MAX_COUNT = 50;
+	// 時間
+	static constexpr int MAX_TIME = 99;
+	// プレイヤーカウント
+	static constexpr int PLAYER_COUNT = 2;
+
+	
 
 
 	// 変数
@@ -235,7 +240,7 @@ public:
 	void OnDeviceLost() override;
 
 	// チュートリアル
-	void Tutorial(float elapsedTime);
+	void Tutorial(Player* player, float elapsedTime);
 
 
 // 設定/取得
@@ -248,11 +253,14 @@ public:
 
 // 内部処理
 private:
+	// UIの更新
+	bool UpdateUI();
+
 	// リスナーの設定
-	void SetListener();
+	void SetListener(Player* player);
 
 	// 入力ステートの設定
-	void SetPlayerInputState();
+	void SetPlayerInputState(Player* player);
 
 };
 

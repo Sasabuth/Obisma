@@ -15,8 +15,6 @@
 
 // クラスの定義
 class Enemy;
-class Ball;
-
 
 
 // クラスの定義
@@ -50,8 +48,6 @@ private:
 	// 投げたか
 	bool m_isThowing; 
 
-	float m_debugAngle;
-
 	// ベーシックエフェクト
 	std::unique_ptr<DirectX::BasicEffect> m_basicEffect; 
 
@@ -81,9 +77,6 @@ public:
 
 	// 終了処理
 	void Finalize() override;
-
-	// 特定のイベントの処理
-	void EventHandle(Event e) override;
 
 
 // 内部処理

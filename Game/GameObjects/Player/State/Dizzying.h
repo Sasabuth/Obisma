@@ -15,8 +15,6 @@
 
 // クラスの定義
 class Player;
-class Ball;
-
 
 
 // クラスの定義
@@ -24,9 +22,12 @@ class Dizzying : public IState
 {
 // 定数
 private:
-	static constexpr float COLLIDER_SIZE = 0.25f;
+	// インターバル
 	static constexpr float INTERVAL = 3.0f;
-	static constexpr float DIZZY_TIME = 3.0f;
+	// アニメーションの終了時間
+	static constexpr float ANIMATION_ENDTIME = 1.2f;
+	// アニメーションの再開時間
+	static constexpr float ANIMATION_RESTARTTIME = 0.19f;
 
 
 // 変数
@@ -85,9 +86,6 @@ public:
 
 	// 終了処理
 	void Finalize() override;
-
-	// 特定のイベントの処理
-	void EventHandle(Event e) override;
 
 
 // 内部処理

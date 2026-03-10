@@ -7,11 +7,15 @@
 #include "pch.h"
 #include "EnemyRunning.h"
 
-#include "Game/GameObjects/Enemy/Enemy.h"
-#include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Field/Field.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Enemy/Enemy.h"
+#include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Ball/Ball.h"
+#include "Game/GameObjects/AirTarget/AirTarget.h"
+
 
 
 
@@ -119,20 +123,22 @@ void EnemyRunning::Update(float elapsedTime)
 	m_pEnemy->SetPosition(m_pEnemy->GetPosition() + m_pEnemy->GetVelocity() * elapsedTime);
 	m_pEnemy->GetCollider().SetPosition(m_pEnemy->GetPosition());
 
+	// キャッチ用コライダーの初期化
 	DirectX::SimpleMath::Vector3 catchPos = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation()) / 2.5;
-
 	m_pEnemy->GetCatchCollider().SetPosition(m_pEnemy->GetPosition() + catchPos);
 
-	// ボールマネージャーの取得
-	BallManager* ballManager = m_pEnemy->GetField()->GetBallManager();
-
-	for (int i = 0; i < ballManager->GetObjectCount(); i++)
+	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
-		Ball* ball = ballManager->GetBall(i);
+		// ボールの取得
+		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+
+		// キャッチ用のコライダーとボールが当たっていたら
 		if (IsHit(m_pEnemy->GetCatchCollider(), ball->GetCollider()))
 		{
+			// 敵のボールではないかつボールが動いているなら
 			if (ball->GetBallColorNum() != Ball::ENEMY && ball->GetCurrentState() == ball->GetMoving())
 			{
+				// ステート変更
 				m_pEnemy->ChangeState(m_pEnemy->GetCatching());
 			}
 		}
@@ -230,17 +236,6 @@ void EnemyRunning::Finalize()
 
 
 /// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void EnemyRunning::EventHandle(Event e)
-{
-	UNREFERENCED_PARAMETER(e);
-}
-
-
-
-/// <summary>
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
@@ -275,7 +270,7 @@ void EnemyRunning::AnimationUpdate(float elapsedTime)
 void EnemyRunning::RunToBall()
 {
 	// ボールの取得
-	Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
+	Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + m_pEnemy->GetBallIndex()));
 
 	// ボールが止まっていなかったらステート変更
 	if (ball->GetCurrentState() != ball->GetStopping())
@@ -444,9 +439,9 @@ void EnemyRunning::ThrowBall()
 IEntity* EnemyRunning::NearEntity()
 {
 	// ボールの取得
-	Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
+	Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + m_pEnemy->GetBallIndex()));
 	// プレイヤーの取得
-	Player* player = m_pEnemy->GetField()->GetPlayer();
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
 
 	// どちらが近いか距離で調べる
 	DirectX::SimpleMath::Vector3 dir1 = m_pEnemy->GetPosition() - ball->GetPosition();
@@ -496,7 +491,7 @@ IEntity* EnemyRunning::NearEntity()
 	}
 
 	// 空中の的の取得
-	AirTarget* airTarget = m_pEnemy->GetField()->GetAirTarget();
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
 	// 距離を調べる
 	dir2 = m_pEnemy->GetPosition() - airTarget->GetPosition();
 
@@ -526,7 +521,7 @@ IEntity* EnemyRunning::NearEntity()
 void EnemyRunning::CatchHandBall()
 {
 	// ボールの取得
-	Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(m_pEnemy->GetBallIndex());
+	Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + m_pEnemy->GetBallIndex()));
 
 	// ボールが止まっているときにボールに当たったら
 	if (IsHit(m_pEnemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
@@ -543,15 +538,18 @@ void EnemyRunning::CatchHandBall()
 		// 色を変更する
 		ball->SetBallColorNum(Ball::BallColor::ENEMY);
 
+		// ボールを持っていなかったらどちらかに持たせる
 		if (!m_pEnemy->GetCatchBall(Enemy::RIGHT))
 		{
 			m_pEnemy->SetCatchBall(Enemy::RIGHT, ball);
+			// ターゲットの設定をなくす
 			m_pEnemy->SetTarget(nullptr);
 			m_pEnemy->ChangeState(m_pEnemy->GetStanding());
 		}
 		else
 		{
 			m_pEnemy->SetCatchBall(Enemy::LEFT, ball);
+			// ターゲットの設定をなくす
 			m_pEnemy->SetTarget(nullptr);
 			m_pEnemy->ChangeState(m_pEnemy->GetStanding());
 		}

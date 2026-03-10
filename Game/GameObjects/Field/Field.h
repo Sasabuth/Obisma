@@ -9,6 +9,7 @@
 // ヘッダファイルの読み込み
 #include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
+#include "Game/Commons/Interface/IObject.h"
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Enemy/Enemy.h"
 #include "Game/GameObjects/Ball/BallManager.h"
@@ -18,17 +19,18 @@
 
 // クラスの定義
 class IEntity;
-class Camera;
 class ScoreManager;
 class TutorialScene;
 
 
 // クラスの定義
-class Field
+class Field : public IObject
 {
 // 定数
 private:
+	// モデルスケール
 	static constexpr float MODEL_SCALE = 3.0f;
+	// スカイドームスケール
 	static constexpr float SKYDOME_SCALE = 800.0f;
 
 
@@ -36,9 +38,6 @@ private:
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;
-
-	// カメラ
-	Camera* m_pCamera;
 
 	// プレイヤー
 	std::unique_ptr<Player> m_player;
@@ -63,7 +62,7 @@ private:
 
 	// コライダー
 	SphereCollider m_collider; 
-	ModelCollider m_stageCollider; 
+	ModelCollider m_fieldCollider; 
 
 	// 回転
 	float m_rotate;
@@ -72,7 +71,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Field(Camera* pCamera);
+	Field();
 
 	// デストラクタ
 	~Field();
@@ -87,7 +86,7 @@ public:
 	// タイトルの更新
 	void TitleUpdate();
 	// チュートリアルの更新
-	void TutorialUpdate(TutorialScene* scene, float elapsedTime);
+	void TutorialUpdate(TutorialScene* scene, ScoreManager* pScoreManager, float elapsedTime);
 
 	// 描画
 	void Render();
@@ -104,6 +103,9 @@ public:
 	// 実体とフィールドの衝突判定
 	void IsHitEntityToField(IEntity* pIEntity);
 
+	// メッセージを取得する
+	void OnMessegeAccepted(Message::MessageID messageID) override;
+
 
 // 設定/取得
 public:
@@ -113,26 +115,15 @@ public:
 
 	// コライダーの取得
 	SphereCollider& GetCollider();
-
-	// コライダーの取得
-	ModelCollider& GetStageCollider() { return m_stageCollider; }
+	ModelCollider& GetFieldCollider() { return m_fieldCollider; }
 
 	// 回転の設定
 	void SetRotate(float rotate) { m_rotate = rotate; }
 
-	// プレイヤーの取得
-	Player* GetPlayer() const { return m_player.get(); }
 
-	// 敵の取得
-	Enemy* GetEnemy() const { return m_enemy.get(); }
-
-	// ボールマネージャーの取得
-	BallManager* GetBallManager() const { return m_ballManager.get(); }
-
-	// 空中の的の取得
-	AirTarget* GetAirTarget() const { return m_airTarget.get(); }
-
-	// カメラの取得
-	Camera* GetCamera() const { return m_pCamera; }
+// 内部処理
+private:
+	// 敵を更新させるか
+	bool IsEnemyUpdate(TutorialScene* scene);
 };
 

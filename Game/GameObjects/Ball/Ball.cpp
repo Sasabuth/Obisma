@@ -7,27 +7,29 @@
 #include "pch.h"
 #include "Ball.h"
 
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Camera/Camera.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Camera/Camera.h"
+
 
 
 
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Ball::Ball(Field* pField)
-	: m_pField(pField)
-	, m_currentState{}
+Ball::Ball(int objectID)
+	: m_currentState{}
 	, m_ballColorNum(0)
 	, m_pUserResources(nullptr)
 	, m_shadowHitPos{}
 	, m_soundSpan(0.0f)
 	, m_isSound(true)
 	, m_invincibleTime(0.0f)
-
 {
+	// オブジェクト番号とオブジェクトを登録する
+	Messenger::GetInstance()->Register(objectID, this);
 }
 
 
@@ -49,8 +51,10 @@ void Ball::Initialize(DirectX::SimpleMath::Vector3 position)
 	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
+	// 座標の初期化
 	m_position = position;
 
+	// コライダーの初期化
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Ball.json")["ColliderSize"]);
 
 	// ボールのモデルをロードする
@@ -118,7 +122,9 @@ void Ball::Update(float elapsedTime)
 
 	// パーティクルの更新
 	m_particle->Update(elapsedTime);
-	m_particle->CreateBillboard(m_position, m_pField->GetCamera()->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
+	// カメラの取得
+	Camera* camera = dynamic_cast<Camera*>(Messenger::GetInstance()->GetObject(Factory::CAMERA));
+	m_particle->CreateBillboard(m_position, camera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	// 3Dサウンドの設定
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
@@ -207,6 +213,17 @@ void Ball::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 
 	// 速度の設定
 	m_velocity = reflVec;
+}
+
+
+
+/// <summary>
+/// メッセージの取得
+/// </summary>
+/// <param name="messageID">メッセージID</param>
+void Ball::OnMessegeAccepted(Message::MessageID messageID)
+{
+	UNREFERENCED_PARAMETER(messageID);
 }
 
 

@@ -11,6 +11,7 @@
 #include "Game/Scenes/ResultScene.h"
 #include "Game/Scenes/TitleScene.h"
 #include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
 #include "Game/Commons/Resources.h"
 #include "Common/DebugDraw.h"
 
@@ -58,15 +59,21 @@ void GameplayScene::Initialize()
 	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
 
 	// フィールドの初期化
-	m_field = Factory::CreateField(m_camera.get(), Resources::GetInstance()->GetJson(L"FieldSelect.json")["FieldIndex"]);
+	m_field = Factory::CreateField(Resources::GetInstance()->GetJson(L"FieldSelect.json")["FieldIndex"]);
 
 	// カメラの上向きベクトルの初期化
 	m_cameraUp = Factory::CreateCameraUp(m_field.get(), DirectX::SimpleMath::Vector3{ 4.0f,4.0f,4.0f });
 
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	// 敵の取得
+	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
+
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
-	m_scoreManager->Add(m_field->GetPlayer()->GetScore());
-	m_scoreManager->Add(m_field->GetEnemy()->GetScore());
+	// スコアマネージャーに追加
+	m_scoreManager->Add(player->GetScore());
+	m_scoreManager->Add(enemy->GetScore());
 
 	// ゲーム時間の初期化
 	m_gameTimer = MAX_TIME;
@@ -88,13 +95,13 @@ void GameplayScene::Initialize()
 	m_startTexture.SetTexture(m_pResources->GetTexture(L"GameStart.png"));
 
 	// リスナーの設定
-	m_pResources->SetListener(m_field->GetPlayer()->GetPosition(),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_field->GetPlayer()->GetRotation()),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_field->GetPlayer()->GetRotation())
+	m_pResources->SetListener(player->GetPosition(),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, player->GetRotation()),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, player->GetRotation())
 	);
 
 	// BGMの初期化
-	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", m_field->GetPlayer()->GetPosition(), true);
+	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", player->GetPosition(), true);
 
 	// SEの初期化
 	m_startSE = nullptr;
@@ -125,75 +132,17 @@ void GameplayScene::Update(float elapsedTime)
 	// BGMの音量の設定
 	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
 
-	// マウスの座標に合わせる
-	auto mouse = DirectX::Mouse::Get().GetState();
-	// 現在のウィンドウサイズを取得
-	auto const outputSize = m_pUserResources->GetDeviceResources()->GetOutputSize();
-	float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
-	float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
 
-	// シーンの変更
-	auto transitionMask = m_pUserResources->GetTransitionMask();
-
-	// フェードアウト中じゃなかったら更新
-	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
-
-	if (m_gameTimer <= FINISH_TIME)
+	// UIの更新で止めたいときがあったら更新しない
+	if (UpdateUI(player, elapsedTime))
 	{
-		m_fadeTimer += elapsedTime;
-
-		// フェードアウトする
-		if (transitionMask->IsOpen() && m_fadeTimer >= FADE_TIME)
-		{
-			transitionMask->Close();
-		}
-
-		if (transitionMask->IsClose() && transitionMask->IsEnd())
-		{
-			ChangeScene<ResultScene>();
-		}
-		
-		return;
-	}
-
-	// カウントダウンの更新
-	m_countDownTimer -= elapsedTime;
-
-	// カウントダウンが0～3秒以内なら更新させない
-	if (m_countDownTimer > 0.0f && m_countDownTimer < 3.0f)
-	{
-		// SEをつける
-        if(!m_startSE)	m_startSE = m_pResources->GetSESound(L"CountDown.wav", m_field->GetPlayer()->GetPosition(), false);
-
-		return;
-	}
-
-	// キーボードトラッカーの取得
-	auto kbTracker = m_pUserResources->GetKeyboardStateTracker();
-
-	// エスケープキーが押されたらゲームメニューを開く
-	if (kbTracker->pressed.Escape) m_gameMenuUI.Click();
-
-	// オーディオUIの更新
-	if (m_audioUI.IsOpen())
-	{
-		m_audioUI.Update(m_collider);
-		return;
-	}
-	else if (m_gameMenuUI.IsOpen())
-	{
-		m_gameMenuUI.Update(m_collider);
-
-		if (transitionMask->IsClose() && transitionMask->IsEnd())
-		{
-			ChangeScene<TitleScene>();
-		}
-
 		return;
 	}
 
 	// リスナーの設定
-	SetListener();
+	SetListener(player);
 
 	// カメラの更新
 	m_camera->Update(m_field.get(), m_cameraUp->GetPosition());
@@ -203,7 +152,7 @@ void GameplayScene::Update(float elapsedTime)
 	m_field->Update(m_scoreManager.get(), elapsedTime);
 
 	// プレイヤーの更新
-	SetPlayerInputState();
+	SetPlayerInputState(player);
 
 	// カメラの上向きベクトルの更新
 	m_cameraUp->Update(elapsedTime);
@@ -218,7 +167,7 @@ void GameplayScene::Update(float elapsedTime)
 	if (m_gameTimer <= FINISH_TIME)
 	{
 		// SEをつける
-		if (!m_finishSE)	m_finishSE = m_pResources->GetSESound(L"Finish.wav", m_field->GetPlayer()->GetPosition(), false);
+		if (!m_finishSE)	m_finishSE = m_pResources->GetSESound(L"Finish.wav", player->GetPosition(), false);
 
 		// ランキングの更新
 		m_scoreManager->SortRank();
@@ -251,11 +200,13 @@ void GameplayScene::Render()
 	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
 	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, (int)m_gameTimer, TIMER.scale, 2);
 
+	// カウントダウンが0じゃなかったらカウントを描画
 	if (m_countDownTimer > 0.0f)
 	{
 		m_countDownTexture.DigitsDraw(COUNTDOWN.pos.x, COUNTDOWN.pos.y, COUNTDOWN.size.x, COUNTDOWN.size.y, (int)m_countDownTimer, COUNTDOWN.scale);
 	}
-	else if (m_countDownTimer >= -1.0f)
+	// 0だったらスタートを描画
+	else if (m_countDownTimer >= START_TIMER)
 	{
 		m_startTexture.Draw(START.pos, START.size, START.scale);
 	}
@@ -326,12 +277,91 @@ void GameplayScene::OnDeviceLost()
 
 
 /// <summary>
+/// UIの更新
+/// </summary>
+/// <param name="player">プレイヤー</param>
+/// <param name="elapsedTime">経過時間</param>
+/// <returns>止めたいか</returns>
+bool GameplayScene::UpdateUI(Player* player, float elapsedTime)
+{
+	// マウスの座標に合わせる
+	auto mouse = DirectX::Mouse::Get().GetState();
+	// 現在のウィンドウサイズを取得
+	auto const outputSize = m_pUserResources->GetDeviceResources()->GetOutputSize();
+	float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
+	float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
+
+	// キーボードトラッカーの取得
+	auto kbTracker = m_pUserResources->GetKeyboardStateTracker();
+
+	// シーンの変更
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+
+	// フェードアウト中じゃなかったら更新
+	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * 1280.0f, (mouse.y / windowHeight) * 720.0f));
+
+	if (m_gameTimer <= FINISH_TIME)
+	{
+		m_fadeTimer += elapsedTime;
+
+		// フェードアウトする
+		if (transitionMask->IsOpen() && m_fadeTimer >= FADE_TIME)
+		{
+			transitionMask->Close();
+		}
+
+		if (transitionMask->IsClose() && transitionMask->IsEnd())
+		{
+			ChangeScene<ResultScene>();
+		}
+
+		return true;
+	}
+
+	// カウントダウンの更新
+	m_countDownTimer -= elapsedTime;
+
+	// カウントダウンが0～3秒以内なら更新させない
+	if (m_countDownTimer > 0.0f && m_countDownTimer < 3.0f)
+	{
+		// SEをつける
+		if (!m_startSE)	m_startSE = m_pResources->GetSESound(L"CountDown.wav", player->GetPosition(), false);
+
+		return true;
+	}
+
+	// エスケープキーが押されたらゲームメニューを開く
+	if (kbTracker->pressed.Escape) m_gameMenuUI.Click();
+
+	// オーディオUIの更新
+	if (m_audioUI.IsOpen())
+	{
+		m_audioUI.Update(m_collider);
+		return true;
+	}
+	// ゲームメニューUIの描画
+	else if (m_gameMenuUI.IsOpen())
+	{
+		m_gameMenuUI.Update(m_collider);
+
+		if (transitionMask->IsClose() && transitionMask->IsEnd())
+		{
+			ChangeScene<TitleScene>();
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+
+
+/// <summary>
 /// リスナーの設定
 /// </summary>
-void GameplayScene::SetListener()
+void GameplayScene::SetListener(Player* player)
 {
-	Player* player = m_field->GetPlayer();
-
 	// 方向
 	DirectX::SimpleMath::Vector3 dir = player->GetPosition() - m_cameraUp->GetPosition();
 	dir.Normalize();
@@ -379,36 +409,34 @@ void GameplayScene::SetListener()
 /// <summary>
 /// 入力ステートの設定
 /// </summary>
-void GameplayScene::SetPlayerInputState()
+void GameplayScene::SetPlayerInputState(Player* player)
 {
 	auto kb = DirectX::Keyboard::Get().GetState();
 	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
-	// イベントのキー
-	std::vector<IState::Event> e;
-
-	// Wキーで走る
+	// Wキーを押したら
 	if (kb.W)
 	{
-		e.push_back(IState::Event::RUN);
+		// プレイヤーに対して「走る」状態に遷移する
+		Messenger::GetInstance()->Notify(Factory::PLAYER, Message::RUNNING);
 	}
-	// 右クリックでキャッチ
+	// 何もしなかったら
+	else
+	{
+		// プレイヤーに対して「立つ」状態に遷移する
+		Messenger::GetInstance()->Notify(Factory::PLAYER, Message::STANDING);
+	}
+
+	// 左クリックを押したら
+	if (mouseTK->leftButton == mouseTK->PRESSED && player->IsThrow())
+	{
+		// プレイヤーに対して「投げる」状態に遷移する
+		Messenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::THROWING, m_pResources->GetJson(L"Player.json")["ThrowingEndTime"]);
+	}
+	// 右クリックを押したら
 	if (mouseTK->rightButton == mouseTK->PRESSED)
 	{
-		e.push_back(IState::Event::CATCH);
+		// プレイヤーに対して「キャッチ」状態に遷移する
+		Messenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::CATCHING, m_pResources->GetJson(L"Player.json")["CatchingEndTime"]);
 	}
-	// 左クリックで投げる
-	if (mouseTK->leftButton == mouseTK->PRESSED)
-	{
-		e.push_back(IState::Event::THROW);
-	}
-
-	// 何もなかったら立ち状態にする
-	if (e.size() == 0)
-	{
-		e.push_back(IState::Event::STAND);
-	}
-
-	// イベントを渡す
-	m_field->GetPlayer()->OnEvents(e);
 }

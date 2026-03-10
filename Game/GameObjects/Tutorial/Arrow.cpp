@@ -9,17 +9,17 @@
 
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
 #include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Field/Field.h"
 
 
 
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Arrow::Arrow(Player* pPlayer)
+Arrow::Arrow()
 	: m_pUserResources(nullptr)
-	, m_pPlayer(pPlayer)
 	, m_waveSpeed(0.0f)
 	, m_isDraw(false)
 {
@@ -73,8 +73,11 @@ void Arrow::Update(float elapsedTime)
 	// 座標の更新
 	m_velocity = m_gravity;
 
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+
 	// 重力の方向
-	DirectX::SimpleMath::Vector3 dir = m_position - m_pPlayer->GetPosition();
+	DirectX::SimpleMath::Vector3 dir = m_position - player->GetPosition();
 	dir.Normalize();
 
 	// 方向ベクトルの反転
@@ -120,7 +123,7 @@ void Arrow::Update(float elapsedTime)
 	m_waveSpeed += 1.0f * elapsedTime;
 
 	// 座標の更新
-	m_position = basePos+sinWave * (sin(m_waveSpeed) + 1.5f) * 0.2f;
+	m_position = basePos + sinWave * (sin(m_waveSpeed) + 1.5f) * 0.2f;
 
 	// コライダーの更新
 	m_collider.SetPosition(m_position);
@@ -223,6 +226,17 @@ void Arrow::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 
 	// 押し出しする
 	m_position += delta * pushLength;
+}
+
+
+
+/// <summary>
+/// メッセージの取得
+/// </summary>
+/// <param name="messageID">メッセージID</param>
+void Arrow::OnMessegeAccepted(Message::MessageID messageID)
+{
+	UNREFERENCED_PARAMETER(messageID);
 }
 
 

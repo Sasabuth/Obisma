@@ -7,11 +7,13 @@
 #include "pch.h"
 #include "ThrowingR.h"
 
-#include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Ball/Ball.h"
-#include "Game/GameObjects/Field/Field.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Ball/Ball.h"
+#include "Game/GameObjects/AirTarget/AirTarget.h"
 
 
 
@@ -66,7 +68,7 @@ void ThrowingR::Initialize()
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
-	m_animation->SetEndTime(1.42f);
+	m_animation->SetEndTime(Resources::GetInstance()->GetJson(L"Player.json")["ThrowingEndTime"]);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -78,7 +80,10 @@ void ThrowingR::Initialize()
 	// 入力レイアウトの作成
 	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 
+	// 時間の初期化
 	m_time = 0.0f;
+
+	// 投げていない
 	m_isThowing = false;
 }
 
@@ -151,7 +156,6 @@ void ThrowingR::Update(float elapsedTime)
 			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_pPlayer->GetRotation());
 
 			float angleDeg = DirectX::XMConvertToDegrees(angle);
-			angleD = angleDeg;
 
 			// 投げる角度の取得
 			DirectX::SimpleMath::Quaternion rotate;
@@ -159,22 +163,22 @@ void ThrowingR::Update(float elapsedTime)
 			if (m_pPlayer->GetMouseRayHitPos().Length() > 0.001f && m_pPlayer->GetIsLockOn())
 			{
 				// 角度に応じて投げる角度を調整
-				if (angleDeg < 35.0f)
+				if (angleDeg < Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"])
 				{
 					rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-						Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"])
+						Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleLow"])
 					);
 				}
-				else if (angleDeg < 75.0f)
+				else if (angleDeg < Resources::GetInstance()->GetJson(L"Player.json")["AngleMiddle"])
 				{
 					rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-						Resources::GetInstance()->GetJson(L"Player.json")["AngleMiddle"])
+						Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleMiddle"])
 					);
 				}
 				else
 				{
 					rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-						Resources::GetInstance()->GetJson(L"Player.json")["AngleHigh"])
+						Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleHigh"])
 					);
 				}
 			}
@@ -183,7 +187,7 @@ void ThrowingR::Update(float elapsedTime)
 			float speed = Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"];
 
 			// 空中の的の取得
-			AirTarget* airTarget = m_pPlayer->GetField()->GetAirTarget();
+			AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
 
 			// ロックオンしているかつ当たる範囲外またはマウスレイの長さが0だったらならボールの速度を遅くする
 			if (!m_pPlayer->IsInHitRange() &&
@@ -305,40 +309,6 @@ void ThrowingR::Render()
 /// </summary>
 void ThrowingR::Finalize()
 {
-}
-
-
-
-/// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void ThrowingR::EventHandle(Event e)
-{
-	// アニメーション時間が終了時間を越していたらイベントの処理
-	if (m_animation->GetAnimTime() > m_animation->GetEndTime())
-	{
-		switch (e)
-		{
-		// 立ち
-		case IState::Event::STAND:
-			// ステートの変更
-			m_pPlayer->ChangeState(m_pPlayer->GetStanding());
-			break;
-
-		// 走る
-		case IState::Event::RUN:
-			// ステートの変更
-			m_pPlayer->ChangeState(m_pPlayer->GetRunning());
-			break;
-
-		// 捕る
-		case IState::Event::CATCH:
-			// ステートの変更
-			m_pPlayer->ChangeState(m_pPlayer->GetCatching());
-			break;
-		}
-	}
 }
 
 

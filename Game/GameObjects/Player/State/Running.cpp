@@ -7,11 +7,12 @@
 #include "pch.h"
 #include "Running.h"
 
-#include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Camera/Camera.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Ball/Ball.h"
 
 
 
@@ -122,6 +123,11 @@ void Running::Update(float elapsedTime)
 	// スコアを下げる
 	m_pPlayer->ScoreDown();
 
+	// 向いている方向に走る
+	m_pPlayer->SetVelocity(m_pPlayer->GetGravity() + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation()) *
+		Resources::GetInstance()->GetJson(L"Player.json")["PlayerSpeed"]
+	);
+
 	// プレイヤーの設定
 	m_pPlayer->SetPosition(m_pPlayer->GetPosition() + m_pPlayer->GetVelocity() * elapsedTime);
 	m_pPlayer->GetCollider().SetPosition(m_pPlayer->GetPosition());
@@ -218,44 +224,6 @@ void Running::Finalize()
 
 
 /// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void Running::EventHandle(Event e)
-{
-	switch (e)
-	{
-	// 立つ
-	case IState::Event::STAND:
-		// ステート変更
-		m_pPlayer->ChangeState(m_pPlayer->GetStanding());
-		break;
-
-	// 走る
-	case IState::Event::RUN:
-		// 向いている方向に走る
-		m_pPlayer->SetVelocity(m_pPlayer->GetGravity() + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation()) *
-			Resources::GetInstance()->GetJson(L"Player.json")["PlayerSpeed"]
-		);
-		break;
-
-	// 投げる
-	case IState::Event::THROW:
-		// ボールを投げる
-		ThrowBall();
-		break;
-
-	// 捕る
-	case IState::Event::CATCH:
-		// ステート変更
-		m_pPlayer->ChangeState(m_pPlayer->GetCatching());
-		break;
-	}
-}
-
-
-
-/// <summary>
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
@@ -278,33 +246,9 @@ void Running::AnimationUpdate(float elapsedTime)
 		m_animation->SetStartTime(0.0);
 	}
 
+	// 手のマトリックスの取得
 	m_rightHandMatrix = m_drawBones[15];
 	m_leftHandMatrix = m_drawBones[20];
-}
-
-
-
-/// <summary>
-/// ボールを投げる
-/// </summary>
-/// <param name="mouseTK">マウストラッカー</param>
-void Running::ThrowBall()
-{
-	// 左手に持っていたら投げる
-	if (m_pPlayer->GetCatchBall(Player::LEFT))
-	{
-		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
-		m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
-		m_pPlayer->ChangeState(m_pPlayer->GetThrowingL());
-		return;
-	}
-	// 右手に持っていたら投げる
-	if (m_pPlayer->GetCatchBall(Player::RIGHT))
-	{
-		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
-		m_pPlayer->SetBallPosition(ball, m_rightHandMatrix);
-		m_pPlayer->ChangeState(m_pPlayer->GetThrowingR());
-	}
 }
 
 
@@ -314,11 +258,7 @@ void Running::ThrowBall()
 /// </summary>
 void Running::CatchHandBall()
 {
-	// ボールマネージャーの取得
-	BallManager* ballManager = m_pPlayer->GetField()->GetBallManager();
-
-	// どのボールが当たったか調べる
-	for (int i = 0; i < ballManager->GetObjectCount(); i++)
+	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
 		// 両手に持っていたら終了
 		if (m_pPlayer->GetCatchBall(Player::RIGHT) && m_pPlayer->GetCatchBall(Player::LEFT))
@@ -326,7 +266,8 @@ void Running::CatchHandBall()
 			return;
 		}
 
-		Ball* ball = ballManager->GetBall(i);
+		// ボールの取得
+		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
 
 		// 止まっているボールに当たったら
 		if (IsHit(m_pPlayer->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())
@@ -337,12 +278,11 @@ void Running::CatchHandBall()
 			// 色を変更する
 			ball->SetBallColorNum(Ball::BallColor::PLAYER);
 
-			// 右手に持っていなかったら右手に持たせる
+			// 持っていない手にボールを持たせる
 			if (!m_pPlayer->GetCatchBall(Player::RIGHT))
 			{
 				m_pPlayer->SetCatchBall(Player::RIGHT, ball);
 			}
-			// それ以外なら左手に持たせる
 			else
 			{
 				m_pPlayer->SetCatchBall(Player::LEFT, ball);

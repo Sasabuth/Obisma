@@ -7,9 +7,9 @@
 #include "pch.h"
 #include "Dizzying.h"
 
-#include "Game/GameObjects/Player/Player.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/GameObjects/Player/Player.h"
 
 
 
@@ -64,7 +64,7 @@ void Dizzying::Initialize()
 	// アニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アニメーションの終了時間を設定する
-	m_animation->SetEndTime(1.2f);
+	m_animation->SetEndTime(ANIMATION_ENDTIME);
 
 	// 時間の初期化
 	m_time = 0.0f;
@@ -91,6 +91,7 @@ void Dizzying::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void Dizzying::Update(float elapsedTime)
 {
+	// ボールを手に持たせる
 	if (m_pPlayer->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
@@ -115,11 +116,21 @@ void Dizzying::Update(float elapsedTime)
 	}
 	else
 	{
-		m_animation->SetStartTime(0.19f);
+		m_animation->SetStartTime(ANIMATION_RESTARTTIME);
 	}
 
 	// 時間の更新
 	m_time += elapsedTime;
+
+	// 時間がくらくら時間を越していたらイベントの処理
+	if (m_time >= Resources::GetInstance()->GetJson(L"Player.json")["DizzyingEndTime"])
+	{
+		// 時間の設定
+		m_time = 0.0f;
+
+		// インターバルの設定
+		m_pPlayer->SetInvincibleTime(INTERVAL);
+	}
 
 	// アニメーションの更新
 	AnimationUpdate();
@@ -228,40 +239,6 @@ void Dizzying::Render()
 /// </summary>
 void Dizzying::Finalize()
 {
-}
-
-
-
-/// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void Dizzying::EventHandle(Event e)
-{
-	// 時間がくらくら時間を越していたらイベントの処理
-	if (m_time > DIZZY_TIME)
-	{
-		switch (e)
-		{	
-		// 立ち
-		case IState::Event::STAND:
-			// ステートの変更
-			m_pPlayer->ChangeState(m_pPlayer->GetStanding());
-			break;
-
-		// 走る
-		case IState::Event::RUN:
-			// ステートの変更
-			m_pPlayer->ChangeState(m_pPlayer->GetRunning());
-			break;
-		}
-
-		// 時間の設定
-		m_time = 0.0f;
-
-		// インターバルの設定
-		m_pPlayer->SetInvincibleTime(INTERVAL);
-	}
 }
 
 

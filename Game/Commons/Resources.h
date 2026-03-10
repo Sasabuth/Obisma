@@ -109,11 +109,12 @@ public:
 	void SetJson(const std::wstring& filename, nlohmann::json json);  // İ’è
 	nlohmann::json GetJson(const std::wstring& filename);             // æ“¾ 
 
-	// ‰¹—Ê‚Ìİ’è
-	void SetBGMVolume(float volume) { m_bgmVolume = volume; }
-	float GetBGMVolume() const { return m_bgmVolume; }
-	void SetSEVolume(float volume) { m_seVolume = volume; }
-	float GetSEVolume() const { return m_seVolume; }
+	// BGM‚Ì‰¹—Ê
+	void SetBGMVolume(float volume) { m_bgmVolume = volume; }  // İ’è
+	float GetBGMVolume() const { return m_bgmVolume; }		   // æ“¾
+	// SE‚Ì‰¹—Ê
+	void SetSEVolume(float volume) { m_seVolume = volume; }    // İ’è
+	float GetSEVolume() const { return m_seVolume; }		   // æ“¾
 
 	// ƒŠƒXƒi[‚Ìİ’è
 	void SetListener(const DirectX::SimpleMath::Vector3& pos, const DirectX::SimpleMath::Vector3& forward, const DirectX::SimpleMath::Vector3& up);

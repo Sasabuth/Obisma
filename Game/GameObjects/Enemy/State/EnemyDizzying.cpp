@@ -7,11 +7,11 @@
 #include "pch.h"
 #include "EnemyDizzying.h"
 
-#include "Game/GameObjects/Enemy/Enemy.h"
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Ball/Ball.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/GameObjects/Enemy/Enemy.h"
+#include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Ball/Ball.h"
 
 
 
@@ -58,6 +58,7 @@ EnemyDizzying::~EnemyDizzying()
 /// </summary>
 void EnemyDizzying::Initialize()
 {
+	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
 
 	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
@@ -93,6 +94,7 @@ void EnemyDizzying::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void EnemyDizzying::Update(float elapsedTime)
 {
+	// ボールを持っていたら手に持たせる
 	if (m_pEnemy->GetCatchBall(Enemy::RIGHT))
 	{
 		Ball* ball = m_pEnemy->GetCatchBall(Enemy::RIGHT);
@@ -120,12 +122,17 @@ void EnemyDizzying::Update(float elapsedTime)
 		m_animation->SetStartTime(0.19f);
 	}
 
+	// 時間の更新
 	m_time += elapsedTime;
+	// 一定時間たったらステートの変更
 	if (m_time > DIZZY_TIME)
 	{
+		// ターゲットの設定を外す
 		m_pEnemy->SetTarget(nullptr);
 		m_pEnemy->ChangeState(m_pEnemy->GetStanding());
+		// 無敵時間の設定
 		m_pEnemy->SetInvincibleTime(INTERVAL);
+		// 時間の設定
 		m_time = 0.0f;
 	}
 
@@ -235,18 +242,6 @@ void EnemyDizzying::Render()
 void EnemyDizzying::Finalize()
 {
 }
-
-
-
-/// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void EnemyDizzying::EventHandle(Event e)
-{
-	UNREFERENCED_PARAMETER(e);
-}
-
 
 
 /// <summary>

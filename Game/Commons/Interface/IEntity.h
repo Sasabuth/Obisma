@@ -8,15 +8,15 @@
 
 // ヘッダファイルの読み込み
 #include "SimpleMath.h"
+#include "Game/Commons/Interface/IObject.h"
 
 
 // クラスの定義
 class SphereCollider;
-class Field;
 
 
 // クラスの定義
-class IEntity
+class IEntity : public IObject
 {
 public:
 	// デストラクタ

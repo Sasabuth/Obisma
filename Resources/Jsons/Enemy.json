@@ -28,9 +28,10 @@
 
 	"BallSpeed": 3.0,
 
-	"AngleLow": 15,
+	"AngleLow": 35.0,
+	"ThrowAngleLow": 15,
 
-	"AngleHigh": 20,
+	"ThrowAngleHigh": 20,
 
 	"HandOffsetScale": 1.015
 }

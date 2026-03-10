@@ -7,11 +7,10 @@
 #include "pch.h"
 #include "EnemyThrowingL.h"
 
-#include "Game/GameObjects/Enemy/Enemy.h"
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Ball/Ball.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/GameObjects/Enemy/Enemy.h"
+#include "Game/GameObjects/Ball/Ball.h"
 
 
 
@@ -131,12 +130,12 @@ void EnemyThrowingL::Update(float elapsedTime)
 			q = DirectX::SimpleMath::Quaternion::Identity;
 		}
 
+		// 回転の設定
 		m_pEnemy->SetRotation(m_pEnemy->GetRotation() * q);
 
 		// 左手に持たせる
 		Ball* ball = m_pEnemy->GetCatchBall(Enemy::LEFT);
 		m_pEnemy->SetBallPosition(ball, m_leftHandMatrix);
-
 
 		// 時間になったら投げる
 		if (m_animation->GetAnimTime() > 0.58f)
@@ -152,16 +151,16 @@ void EnemyThrowingL::Update(float elapsedTime)
 			// 投げる角度の取得
 			DirectX::SimpleMath::Quaternion rotate;
 			// 角度に応じて投げる角度を調整
-			if (angleDeg < 35.0f)
+			if (angleDeg < Resources::GetInstance()->GetJson(L"Enemy.json")["AngleLow"])
 			{
 				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-					Resources::GetInstance()->GetJson(L"Enemy.json")["AngleLow"])
+					Resources::GetInstance()->GetJson(L"Enemy.json")["ThrowAngleLow"])
 				);
 			}
 			else
 			{
 				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-					Resources::GetInstance()->GetJson(L"Enemy.json")["AngleHigh"])
+					Resources::GetInstance()->GetJson(L"Enemy.json")["ThrowAngleHigh"])
 				);
 			}
 
@@ -292,17 +291,6 @@ void EnemyThrowingL::Render()
 /// </summary>
 void EnemyThrowingL::Finalize()
 {
-}
-
-
-
-/// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void EnemyThrowingL::EventHandle(Event e)
-{
-	UNREFERENCED_PARAMETER(e);
 }
 
 

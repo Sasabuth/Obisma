@@ -13,22 +13,21 @@
 
 
 // クラスの定義
-class Player;
-
-// クラスの定義
 class CameraUp : public IEntity
 {
 // 定数
 public:
-
+	// コライダーのサイズ
+	static constexpr float COLLIDER_SIZE = 0.5f;
+	// 距離
+	static constexpr float MAX_DISTANCE = 4.0f;
+	// 速度
+	static constexpr float SPEED = 3.0f;
 
 // 変数
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;
-
-	// プレイヤー
-	Player* m_pPlayer;
 
 	// 座標
 	DirectX::SimpleMath::Vector3 m_position;
@@ -57,7 +56,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	CameraUp(Player* pPlayer);
+	CameraUp();
 
 	// デストラクタ
 	~CameraUp() override;
@@ -76,6 +75,9 @@ public:
 
 	// 重なりの補填
 	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
+
+	// メッセージを取得する
+	void OnMessegeAccepted(Message::MessageID messageID) override;
 
 
 // 設定/取得

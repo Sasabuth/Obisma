@@ -7,10 +7,12 @@
 #include "pch.h"
 #include "CameraUp.h"
 
-#include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Field/Field.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Player/Player.h"
+
 
 
 
@@ -18,10 +20,11 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-CameraUp::CameraUp(Player* pPlayer)
+CameraUp::CameraUp()
 	: m_pUserResources(nullptr)
-	, m_pPlayer(pPlayer)
 {
+	// オブジェクト番号とオブジェクトを登録する
+	Messenger::GetInstance()->Register(Factory::CAMERAUP, this);
 }
 
 
@@ -44,9 +47,11 @@ void CameraUp::Initialize(DirectX::SimpleMath::Vector3 position)
 	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
+	// 座標の初期化
 	m_position = position;
 
-	m_collider.Initialize(context, m_position, 0.5f);
+	// コライダーの初期化
+	m_collider.Initialize(context, m_position, COLLIDER_SIZE);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -70,8 +75,23 @@ void CameraUp::Update(float elapsedTime)
 	// 座標の更新
 	m_velocity = m_gravity;
 
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+
 	// 重力の方向
-	DirectX::SimpleMath::Vector3 dir = m_position - m_pPlayer->GetPosition();
+	DirectX::SimpleMath::Vector3 dir = m_position - player->GetPosition();
+	// 距離が一定以上離れたら近づける
+	if (dir.Length() > MAX_DISTANCE)
+	{
+		m_velocity += DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_rotate) * SPEED;
+	}
+	// 近いなら離す
+	else
+	{
+		m_velocity += DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_rotate) * SPEED;
+	}
+
+	// 正規化
 	dir.Normalize();
 
 	// 方向ベクトルの反転
@@ -105,19 +125,8 @@ void CameraUp::Update(float elapsedTime)
 
 	m_rotate *= q;
 
-	DirectX::SimpleMath::Vector3 dis = m_position - m_pPlayer->GetPosition();
-
-	if (dis.Length() >= 4.0f)
-	{
-		m_velocity += DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_rotate) * 3;
-	}
-	else
-	{
-		m_velocity += DirectX::SimpleMath::Vector3::Transform(-DirectX::SimpleMath::Vector3::UnitX, m_rotate) * 3;
-	}
-
+	// 座標の更新
 	m_position += m_velocity * elapsedTime;
-
 	// コライダーの更新
 	m_collider.SetPosition(m_position);
 }
@@ -204,4 +213,15 @@ void CameraUp::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 
 	// 押し出しする
 	m_position += delta * pushLength;
+}
+
+
+
+/// <summary>
+/// メッセージの取得
+/// </summary>
+/// <param name="messageID">メッセージID</param>
+void CameraUp::OnMessegeAccepted(Message::MessageID messageID)
+{
+	UNREFERENCED_PARAMETER(messageID);
 }

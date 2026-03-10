@@ -23,9 +23,11 @@ class EnemyDizzying : public IState
 {
 // 定数
 private:
+	// コライダーサイズ
 	static constexpr float COLLIDER_SIZE = 0.25f;
-
+	// インターバル
 	static constexpr float INTERVAL = 3.0f;
+	// くらくらする時間
 	static constexpr float DIZZY_TIME = 3.0f;
 
 
@@ -85,9 +87,6 @@ public:
 
 	// 終了処理
 	void Finalize() override;
-
-	// 特定のイベントの処理
-	void EventHandle(Event e) override;
 
 
 // 内部処理

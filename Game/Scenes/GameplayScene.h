@@ -26,46 +26,54 @@ class GameplayScene : public Scene
 {
 // 定数
 private:
-	static constexpr float MAX_TIME = 100.0f;
-	static constexpr float FINISH_TIME = 0.0f;
-	static constexpr float FADE_TIME = 3.0f;
-	static constexpr float COUNTDOWN_TIME = 3.2f;
-	static constexpr int PLAYER_COUNT = 2;
-
+	// フレーム
 	static constexpr Sprite::Format FREAM =
 	{
 		DirectX::SimpleMath::Vector2(640.0f, 52.0f),   // 座標
 		DirectX::SimpleMath::Vector2(415.0f, 239.0f),  // サイズ
 		0.28f                                          // 拡大率
 	};
-
+	// タイマー
 	static constexpr Sprite::Format TIMER =
 	{
 		DirectX::SimpleMath::Vector2(571.0f, 25.0f),   // 座標
 		DirectX::SimpleMath::Vector2(34.5f, 50.0f),    // サイズ
 		1.0f                                           // 拡大率
 	};
-
+	// フィニッシュ
 	static constexpr Sprite::Format FINISH =
 	{
 		DirectX::SimpleMath::Vector2(640.0f, 360.0f),   // 座標
 		DirectX::SimpleMath::Vector2(712.0f, 231.0f),  // サイズ
 		0.8f                                           // 拡大率
 	};
-
+	// スタート
 	static constexpr Sprite::Format START =
 	{
 		DirectX::SimpleMath::Vector2(640.0f, 360.0f),   // 座標
 		DirectX::SimpleMath::Vector2(732.0f, 252.0f),  // サイズ
 		0.7f                                           // 拡大率
 	};
-
+	// カウントダウン
 	static constexpr Sprite::Format COUNTDOWN =
 	{
 		DirectX::SimpleMath::Vector2(300.0f, 250.0f),   // 座標
 		DirectX::SimpleMath::Vector2(214.0f, 230.0f),  // サイズ
 		1.0f                                           // 拡大率
 	};
+
+	// 時間
+	static constexpr float MAX_TIME = 100.0f;
+	// 終了時間
+	static constexpr float FINISH_TIME = 0.0f;
+	// フェード時間
+	static constexpr float FADE_TIME = 3.0f;
+	// カウントダウン時間
+	static constexpr float COUNTDOWN_TIME = 3.2f;
+	// スタート時間
+	static constexpr float START_TIMER = -1.0f;
+	// プレイヤーカウント
+	static constexpr int PLAYER_COUNT = 2;
 
 
 // 変数
@@ -149,16 +157,21 @@ public:
 	void OnDeviceLost() override;
 
 
-	// 設定/取得
+// 設定/取得
 public:
 
 
-	// 内部処理
+// 内部処理
 private:
+	// UIの更新
+	bool UpdateUI(Player* player, float elapsedTime);
+
 	// リスナーの設定
-	void SetListener();
+	void SetListener(Player* player);
 
 	// 入力ステートの設定
-	void SetPlayerInputState();
+	void SetPlayerInputState(Player* player);
+
+
 };
 

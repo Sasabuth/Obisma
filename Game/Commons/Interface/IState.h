@@ -8,18 +8,6 @@
 
 class IState
 {
-// 定数
-public:
-	// イベント
-	enum Event
-	{
-		STAND = 0,
-		RUN,
-		CATCH,
-		THROW
-	};
-
-
 // 関数
 public:
 	// デストラクタ
@@ -36,8 +24,5 @@ public:
 
 	// 終了処理
 	virtual void Finalize() = 0;
-
-	// 特定のイベントの処理
-	virtual void EventHandle(Event e) = 0;
 };
 

@@ -37,6 +37,7 @@ BallManager::~BallManager()
 /// </summary>
 void BallManager::Initialize(int ballCount)
 {
+	// ステージ番号の取得
 	int stageIndex = Resources::GetInstance()->GetJson(L"FieldSelect.json")["FieldIndex"];
 
 	for (int i = 0; i < ballCount; i++)
@@ -44,10 +45,16 @@ void BallManager::Initialize(int ballCount)
 		std::unique_ptr<Ball> ball = Factory::CreateBall(m_pField, DirectX::SimpleMath::Vector3(
 			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(stageIndex)][std::to_string(i)]["x"],
 			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(stageIndex)][std::to_string(i)]["y"],
-			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(stageIndex)][std::to_string(i)]["z"])
+			Resources::GetInstance()->GetJson(L"Ball.json")["Position"][std::to_string(stageIndex)][std::to_string(i)]["z"]),
+			Factory::BALL + i
 		);
 		Add(ball);
 	}
+
+	// Jsonに入力
+	nlohmann::json json = Resources::GetInstance()->GetJson(L"Ball.json");
+	json["BallCount"] = ballCount;
+	Resources::GetInstance()->SetJson(L"Ball.json", json);
 }
 
 

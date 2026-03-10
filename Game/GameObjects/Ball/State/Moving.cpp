@@ -164,14 +164,3 @@ void Moving::Render()
 void Moving::Finalize()
 {
 }
-
-
-
-/// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void Moving::EventHandle(Event e)
-{
-	UNREFERENCED_PARAMETER(e);
-}

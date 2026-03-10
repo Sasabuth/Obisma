@@ -7,21 +7,21 @@
 #include "pch.h"
 #include "Player.h"
 
-#include "Game/GameObjects/Field/Field.h"
-#include "Game/GameObjects/Ball/Ball.h"
-#include "Game/GameObjects/Camera/Camera.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Field/Field.h"
+#include "Game/GameObjects/Ball/Ball.h"
+#include "Game/GameObjects/Camera/Camera.h"
 
 
 
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Player::Player(Field* pField)
-	: m_pField(pField)
-	, m_pUserResources(nullptr)
+Player::Player()
+	: m_pUserResources(nullptr)
 	, m_currentState{}
 	, m_invincibleTime(0.0f)
 	, m_isLockOn(false)
@@ -38,6 +38,9 @@ Player::Player(Field* pField)
 			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 0.5));
 		}
 	);
+
+	// オブジェクト番号とオブジェクトを登録する
+	Messenger::GetInstance()->Register(Factory::PLAYER, this);
 }
 
 
@@ -116,7 +119,7 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	// 影の初期化
 	InitializeShadow(device, context);
-
+	 
 	// ロックオンテクスチャの初期化
 	m_lockOnTexture.SetTexture(nullptr);
 
@@ -140,7 +143,9 @@ void Player::Update(float elapsedTime)
 	{
 		m_particle[i]->Update(elapsedTime);
 	}
-	m_particle[STER]->CreateBillboard(m_position, m_pField->GetCamera()->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
+	// カメラの取得
+	Camera* camera = dynamic_cast<Camera*>(Messenger::GetInstance()->GetObject(Factory::CAMERA));
+	m_particle[STER]->CreateBillboard(m_position, camera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	// 無敵時間の減少
 	m_invincibleTime -= elapsedTime;
@@ -167,10 +172,12 @@ void Player::Render()
 		m_particle[i]->Render(context, *view, *proj);
 	}
 
+	// 空中の的の取得
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
 	// 空中の的にマウスが当たっていたらロックオンを描画
 	if (m_isLockOn)
 	{
-		DrawLockOn(m_pField->GetAirTarget()->GetPosition());
+		DrawLockOn(airTarget->GetPosition());
 	}
 
 	// デバック用
@@ -241,26 +248,52 @@ void Player::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 
 
 /// <summary>
-/// ステートの変更
+/// メッセージの取得
 /// </summary>
-/// <param name="newState">新しいステート</param>
-void Player::ChangeState(IState* newState)
+/// <param name="messageID">メッセージID</param>
+void Player::OnMessegeAccepted(Message::MessageID messageID)
 {
-	m_currentState = newState;
-	m_currentState->Initialize();
+	switch (messageID)
+	{
+	//「立つ」状態に遷移する
+	case Message::STANDING:
+	
+	    ChangeState(m_standing.get());
+		break;
+	//「走る」状態に遷移する
+	case Message::RUNNING:
+
+		ChangeState(m_running.get());
+		break;
+	//「投げる」状態に遷移する
+	case Message::THROWING:
+		ThrowBall();
+		break;
+	//「キャッチ」状態に遷移する
+	case Message::CATCHING:
+		ChangeState(m_catching.get());
+		break;
+
+	//「目が回る」状態に遷移する
+	case Message::DIZZYING:		
+		ChangeState(m_dizzying.get());
+		break;
+	}
 }
 
 
 
 /// <summary>
-/// イベントの受け取り
+/// ステートの変更
 /// </summary>
-/// <param name="events">イベント</param>
-void Player::OnEvents(const std::vector<IState::Event>& events)
+/// <param name="newState">新しいステート</param>
+void Player::ChangeState(IState* newState)
 {
-	for (auto& e : events)
+	// 変更したいステートが同じではなかったら変更する
+	if (m_currentState != newState)
 	{
-		m_currentState->EventHandle(e);
+		m_currentState = newState;
+		m_currentState->Initialize();
 	}
 }
 
@@ -362,23 +395,25 @@ void Player::RayHitObject()
 	DirectX::SimpleMath::Plane plane(normal, normal.Dot(m_position));
 
 	// 空中の的の取得
-	AirTarget* airTarget = m_pField->GetAirTarget();
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
+	// フィールドの取得
+	Field* field = dynamic_cast<Field*>(Messenger::GetInstance()->GetObject(Factory::FIELD));
 
 	// ワールド座標
-	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_pField->GetStageCollider().GetScale()) *
-		DirectX::SimpleMath::Matrix::CreateTranslation(m_pField->GetStageCollider().GetPosition());
+	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(field->GetFieldCollider().GetScale()) *
+		DirectX::SimpleMath::Matrix::CreateTranslation(field->GetFieldCollider().GetPosition());
 
 	// 空中の的と三角形に当たっていたら
 	if (CalcRaySphere(airTarget->GetPosition(), airTarget->GetCollider().GetRadius(), hitPos1) &&
 		CalcRayPlane(m_mouseRay, plane, &m_mouseRayHitPos))
 	{
 		// フィールドの三角形の数分回す
-		for (size_t i = 0; i + 2 < m_pField->GetStageCollider().GetIndicesCount(); i += 3)
+		for (size_t i = 0; i + 2 < field->GetFieldCollider().GetIndicesCount(); i += 3)
 		{
 			// 三角形の点のワールド座標を取得
-			DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i)).position, world);
-			DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i + 1)).position, world);
-			DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(m_pField->GetStageCollider().GetVertices(m_pField->GetStageCollider().GetIndices((int)i + 2)).position, world);
+			DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(field->GetFieldCollider().GetVertices(field->GetFieldCollider().GetIndices((int)i)).position, world);
+			DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(field->GetFieldCollider().GetVertices(field->GetFieldCollider().GetIndices((int)i + 1)).position, world);
+			DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(field->GetFieldCollider().GetVertices(field->GetFieldCollider().GetIndices((int)i + 2)).position, world);
 
 			// マウスレイと三角が当たっているかを調べる
 			DirectX::SimpleMath::Vector3 pos;
@@ -664,17 +699,22 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 /// </summary>
 void Player::ScoreDown()
 {
-	for (int i = 0; i < m_pField->GetBallManager()->GetObjectCount(); i++)
+	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
-		Ball* ball = m_pField->GetBallManager()->GetBall(i);
+		// ボールの取得
+		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
 
+		// ボールが動いているかつ自分のボールではなかったら
 		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::PLAYER)
 		{
+			// コライダーとボールが当たっているかつ無敵時間ではなかったら
 			if (IsHit(m_collider, ball->GetCollider()) && m_invincibleTime <= 0.0f)
 			{
-				ChangeState(m_dizzying.get());
+				// プレイヤーに対して「目が回る」状態に遷移する
+				Messenger::GetInstance()->NotifyForce(Factory::PLAYER, Message::DIZZYING, Resources::GetInstance()->GetJson(L"Player.json")["DizzyingEndTime"]);
+				// スコアを下げる
 				m_score->ScoreDown();
-
+				// 音を出す
 				m_se = Resources::GetInstance()->GetSESound(L"BallHit.wav", m_position, false);
 			}
 		}
@@ -689,11 +729,30 @@ void Player::ScoreDown()
 /// <returns>当たる距離か</returns>
 bool Player::IsInHitRange(float offset)
 {
+	// 空中の的の取得
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
 	// 距離の計算
-	DirectX::SimpleMath::Vector3 dir = m_position - m_pField->GetAirTarget()->GetPosition();
+	DirectX::SimpleMath::Vector3 dir = m_position - airTarget->GetPosition();
 
 	// 距離が当たる距離に入っているか
 	if (dir.Length() <= offset + (float)Resources::GetInstance()->GetJson(L"Player.json")["Offset"])
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
+
+/// <summary>
+/// 投げれるか
+/// </summary>
+/// <returns>投げれるか</returns>
+bool Player::IsThrow()
+{
+	// どっちかにボールがあったら投げる
+	if (GetCatchBall(Player::LEFT) || GetCatchBall(Player::RIGHT))
 	{
 		return true;
 	}
@@ -741,6 +800,26 @@ Ball* Player::GetCatchBall(int key) const
 	}
 
 	return nullptr;
+}
+
+
+
+/// <summary>
+/// ボールを投げる
+/// </summary>
+void Player::ThrowBall()
+{
+	// 左手に持っていたら投げる
+	if (GetCatchBall(Player::LEFT))
+	{
+		ChangeState(m_throwingL.get());
+		return;
+	}
+	// 右手に持っていたら投げる
+	if (GetCatchBall(Player::RIGHT))
+	{
+		ChangeState(m_throwingR.get());
+	}
 }
 
 

@@ -80,6 +80,7 @@ private:
 	// ƒvƒŒƒCl”
 	int m_playerCount;
 
+	// ˆø‚«•ª‚¯‚©
 	bool m_isDraw;
 
 	// ŸÒ
@@ -133,8 +134,9 @@ public:
 	void SetRank(int index,int charactorNum) { m_rank.resize(m_playerCount); m_rank[index] = charactorNum; }  // İ’è
 	int GetRank(int index) const { return m_rank[index]; }                                                    // æ“¾
 
-	void SetIsDraw(bool isDraw) { m_isDraw = isDraw; }
-	bool GetIsDraw() const { return m_isDraw; }
+	// ˆø‚«•ª‚¯
+	void SetIsDraw(bool isDraw) { m_isDraw = isDraw; }  // İ’è
+	bool GetIsDraw() const { return m_isDraw; }			// æ“¾
 
 };
 

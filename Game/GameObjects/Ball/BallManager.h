@@ -22,7 +22,11 @@ class Field;
 // クラスの定義
 class BallManager
 {
+// 定数
 public:
+	// ボールの数
+	static constexpr int BALLCOUNT = 4;
+	static constexpr int TUTORIAL_BALLCOUNT = 2;
 
 
 // 変数

@@ -197,7 +197,10 @@
     <ClInclude Include="Game\Commons\DebugFont.h" />
     <ClInclude Include="Game\Commons\Factory.h" />
     <ClInclude Include="Game\Commons\Interface\IEntity.h" />
+    <ClInclude Include="Game\Commons\Interface\IObject.h" />
     <ClInclude Include="Game\Commons\Interface\IState.h" />
+    <ClInclude Include="Game\Commons\Message.h" />
+    <ClInclude Include="Game\Commons\Messenger.h" />
     <ClInclude Include="Game\Commons\Resources.h" />
     <ClInclude Include="Game\Commons\SceneManager.h" />
     <ClInclude Include="Game\Commons\Sprite.h" />
@@ -254,6 +257,7 @@
     <ClCompile Include="Game\Commons\Collision.cpp" />
     <ClCompile Include="Game\Commons\DebugFont.cpp" />
     <ClCompile Include="Game\Commons\Factory.cpp" />
+    <ClCompile Include="Game\Commons\Messenger.cpp" />
     <ClCompile Include="Game\Commons\Resources.cpp" />
     <ClCompile Include="Game\Commons\SceneManager.cpp" />
     <ClCompile Include="Game\Commons\Sprite.cpp" />

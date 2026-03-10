@@ -10,6 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Camera/Camera.h"
 
@@ -18,9 +19,8 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Enemy::Enemy(Field* pField)
-	: m_pField(pField)
-	, m_pUserResources(nullptr)
+Enemy::Enemy()
+	: m_pUserResources(nullptr)
 	, m_currentState{}
 	, m_ballIndex(0)
 	, m_invincibleTime(0.0f)
@@ -37,6 +37,9 @@ Enemy::Enemy(Field* pField)
 			pBasicEffect->SetAmbientLightColor(DirectX::SimpleMath::Vector4(1, 1, 1, 0.5));
 		}
 	);
+
+	// オブジェクト番号とオブジェクトを登録する
+	Messenger::GetInstance()->Register(Factory::ENEMY, this);
 }
 
 
@@ -54,17 +57,22 @@ Enemy::~Enemy()
 /// </summary>
 void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 {
+	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
+
 	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
+	// 座標の初期化
 	m_position = position;
-
+	// ワールド座標の初期化
 	m_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 
+	// コライダーの初期化
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Enemy.json")["ColliderSize"]);
 	m_catchCollider.Initialize(context, m_position, (float)Resources::GetInstance()->GetJson(L"Enemy.json")["ColliderSize"] - 0.1f);
 
+	// ボール番号の初期化
 	m_ballIndex = 0;
 
 	// 「立つ」状態の生成
@@ -137,7 +145,9 @@ void Enemy::Update(float elapsedTime)
 	{
 		m_particle[i]->Update(elapsedTime);
 	}
-	m_particle[STER]->CreateBillboard(m_position, m_pField->GetCamera()->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
+	// カメラの取得
+	Camera* camera = dynamic_cast<Camera*>(Messenger::GetInstance()->GetObject(Factory::CAMERA));
+	m_particle[STER]->CreateBillboard(m_position, camera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	// 音の更新
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
@@ -181,6 +191,10 @@ void Enemy::Finalize()
 
 
 
+/// <summary>
+/// 重なりの補填
+/// </summary>
+/// <param name="iEntity">実体</param>
 void Enemy::CorrectOverlap(IEntity& iEntity)
 {
 	// 差分を求める
@@ -205,7 +219,7 @@ void Enemy::CorrectOverlap(IEntity& iEntity)
 /// <summary>
 /// 重なりの補填
 /// </summary>
-/// <param name="field">座標</param>
+/// <param name="pos">座標</param>
 void Enemy::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 {
 	// 衝突点とプレイヤーの差分
@@ -221,6 +235,17 @@ void Enemy::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 	// 押し出し方向
 	delta.Normalize();
 	m_position += delta * pushLength;
+}
+
+
+
+/// <summary>
+/// メッセージの取得
+/// </summary>
+/// <param name="messageID">メッセージID</param>
+void Enemy::OnMessegeAccepted(Message::MessageID messageID)
+{
+	UNREFERENCED_PARAMETER(messageID);
 }
 
 
@@ -400,17 +425,22 @@ void Enemy::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* stat
 /// </summary>
 void Enemy::ScoreDown()
 {
-	for (int i = 0; i < m_pField->GetBallManager()->GetObjectCount(); i++)
+	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
-		Ball* ball = m_pField->GetBallManager()->GetBall(i);
+		// ボールの取得
+		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
 
+		// ボールが動いているかつ自分のボールではなかったら
 		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::ENEMY)
 		{
+			// コライダーとボールが当たっているかつ無敵時間ではなかったら
 			if (IsHit(m_collider, ball->GetCollider()) && m_invincibleTime <= 0.0f)
 			{
+				// くらくら状態に変更する
 				ChangeState(m_dizzying.get());
+				// スコアを下げる
 				m_score->ScoreDown();
-
+				// 音を出す
 				m_se = Resources::GetInstance()->GetSESound(L"BallHit.wav", m_position, false);
 			}
 		}
@@ -449,8 +479,10 @@ void Enemy::SetCatchBall(int key, Ball* ball)
 /// <returns>ボールのポインタ</returns>
 Ball* Enemy::GetCatchBall(int key) const
 {
+	// ボールの取得
 	Ball* ball = m_isBall.at(key);
 
+	// ボールがあったらポインターを渡す
 	if (ball)
 	{
 		return ball;

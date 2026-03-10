@@ -7,11 +7,12 @@
 #include "pch.h"
 #include "PlayerCatching.h"
 
-#include "Game/GameObjects/Player/Player.h"
-#include "Game/GameObjects/Field/Field.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
-
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Player/Player.h"
+#include "Game/GameObjects/Ball/Ball.h"
 
 
 /// <summary>
@@ -68,7 +69,7 @@ void PlayerCatching::Initialize()
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
-	m_animation->SetEndTime(0.5f);
+	m_animation->SetEndTime(Resources::GetInstance()->GetJson(L"Player.json")["CatchingEndTime"]);
 
 	// ベーシックエフェクトの作成
 	m_basicEffect = std::make_unique<DirectX::BasicEffect>(device);
@@ -92,6 +93,7 @@ void PlayerCatching::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void PlayerCatching::Update(float elapsedTime)
 {
+	// ボールを手に持たせる
 	if (m_pPlayer->GetCatchBall(Player::RIGHT))
 	{
 		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
@@ -110,15 +112,15 @@ void PlayerCatching::Update(float elapsedTime)
 
 	m_collider.SetPosition(m_pPlayer->GetPosition() + catchPos);
 
-	// ボールマネージャーの取得
-	BallManager* ballManager = m_pPlayer->GetField()->GetBallManager();
-
-	// ボールをキャッチする
-	for (int i = 0; i < ballManager->GetObjectCount(); i++)
+	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
-		Ball* ball = ballManager->GetBall(i);
+		// ボールの取得
+		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+
+		// ボールが動いていたら
 		if (ball->GetCurrentState() == ball->GetMoving())
 		{
+			// コライダーとボールが当たったらキャッチする
 			if (IsHit(m_collider, ball->GetCollider()))
 			{
 				CatchHandBall(i);
@@ -238,34 +240,6 @@ void PlayerCatching::Finalize()
 
 
 /// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void PlayerCatching::EventHandle(Event e)
-{
-	// 現在のアニメーション時間が終了時間を越していたらイベントの処理
-	if (m_animation->GetAnimTime() > m_animation->GetEndTime())
-	{
-		switch (e)
-		{
-		// 立つ
-		case IState::Event::STAND:
-			// ステート変更
-			m_pPlayer->ChangeState(m_pPlayer->GetStanding());
-			break;
-
-		// 走る
-		case IState::Event::RUN:
-			// ステート変更
-			m_pPlayer->ChangeState(m_pPlayer->GetRunning());
-			break;
-		}
-	}
-}
-
-
-
-/// <summary>
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
@@ -290,8 +264,8 @@ void PlayerCatching::CatchHandBall(int index)
 	// SEを出す
 	m_se = Resources::GetInstance()->GetSESound(L"BallCatch.wav", m_pPlayer->GetPosition(), false);
 
-	// ボールのポインタを取得
-	Ball* ball = m_pPlayer->GetField()->GetBallManager()->GetBall(index);
+	// ボールの取得
+	Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + index));	
 
 	// エフェクトが入っていなかったら
 	if (!m_isEffect)

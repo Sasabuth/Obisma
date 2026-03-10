@@ -78,9 +78,6 @@ public:
 	// 終了処理
 	void Finalize() override;
 
-	// 特定のイベントの処理
-	void EventHandle(Event e) override;
-
 
 // 内部処理
 private:
@@ -91,6 +88,6 @@ private:
 	void CatchHandBall();
 
 	// 近い距離のボールを取得
-	Ball* GetNearBall(Ball* ball, int index);
+	Ball* GetNearBall(Ball* nearBall, Ball* ball, int index);
 };
 

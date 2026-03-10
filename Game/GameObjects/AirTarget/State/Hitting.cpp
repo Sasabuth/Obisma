@@ -8,11 +8,9 @@
 #include "pch.h"
 #include "Hitting.h"
 
-#include "Game/GameObjects/AirTarget/AirTarget.h"
-#include "Game/GameObjects/Field/Field.h"
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
-
+#include "Game/GameObjects/AirTarget/AirTarget.h"
 
 
 
@@ -102,13 +100,3 @@ void Hitting::Finalize()
 {
 }
 
-
-
-/// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void Hitting::EventHandle(Event e)
-{
-	UNREFERENCED_PARAMETER(e);
-}

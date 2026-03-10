@@ -147,14 +147,3 @@ void Catching::Render()
 void Catching::Finalize()
 {
 }
-
-
-
-/// <summary>
-/// 特定のイベントの処理
-/// </summary>
-/// <param name="e">イベント</param>
-void Catching::EventHandle(Event e)
-{
-	UNREFERENCED_PARAMETER(e);
-}

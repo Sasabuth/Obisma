@@ -24,7 +24,7 @@
 
 
 // クラスの定義
-class Field;
+class Ball;
 
 
 // クラスの定義
@@ -38,17 +38,13 @@ public:
 		RIGHT = 0,
 		LEFT,
 	};
-
+	// パーティクル
 	enum PARTICLE
 	{
 		CIRCLE = 0,
 		STER,
 		MAX_COUNT
 	};
-
-	// ベースの画面サイズ
-	static constexpr float BASE_WIDTH = 1280.0f;
-	static constexpr float BASE_HEIGHT = 720.0f;
 
 	// ロックオン
 	static constexpr Sprite::Format LOCKON =
@@ -58,14 +54,15 @@ public:
 		0.1f                                             // 拡大率
 	};
 
+	// ベースの画面サイズ
+	static constexpr float BASE_WIDTH = 1280.0f;
+	static constexpr float BASE_HEIGHT = 720.0f;
+
 
 // 変数
 private:
 	// ユーザーリソース
 	UserResources* m_pUserResources;  
-
-	// フィールド
-	Field* m_pField;  
 
 	// 現在のステート
 	IState* m_currentState;  
@@ -137,7 +134,7 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Player(Field* pField);
+	Player();
 
 	// デストラクタ
 	~Player() override;
@@ -158,10 +155,11 @@ public:
 	void CorrectOverlap(IEntity& iEntity);
 	void CorrectOverlap(DirectX::SimpleMath::Vector3& pos) override;
 
+	// メッセージを取得する
+	void OnMessegeAccepted(Message::MessageID messageID) override;
+
 	// ステートの変更
 	void ChangeState(IState* newState);
-
-	void OnEvents(const std::vector<IState::Event>& events);
 
 	DirectX::SimpleMath::Ray CreatePickingRay(
 		int mouseX, int mouseY,
@@ -200,6 +198,9 @@ public:
 
 	// 当たる距離か
 	bool IsInHitRange(float offset = 0.0f);
+
+	// 投げれるか
+	bool IsThrow();
 
 
 // 設定/取得
@@ -241,9 +242,6 @@ public:
 	// 当たった座標
 	DirectX::SimpleMath::Vector3& GetMouseRayHitPos() { return m_mouseRayHitPos; }
 
-	// フィールドの取得
-	Field* GetField() const { return m_pField; }
-
 	// ボール
 	void SetCatchBall(int key, Ball* ball);  // 設定
 	Ball* GetCatchBall(int key) const;       // 取得
@@ -276,6 +274,9 @@ public:
 	Dizzying* GetDizzying() const { return m_dizzying.get(); }
 
 private:
+	// ボールを投げる
+	void ThrowBall();
+
 	// レイと平面の交差
 	bool CalcRayPlane(
 		const DirectX::SimpleMath::Ray& ray,

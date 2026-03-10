@@ -7,6 +7,9 @@
 #include "Camera.h"
 
 #include "Game/Commons/UserResources.h"
+#include "Game/Commons/Factory.h"
+#include "Game/Commons/Messenger.h"
+#include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Field/Field.h"
 
 
@@ -23,10 +26,18 @@ Camera::Camera(int windowWidth, int windowHeight)
 
 	// マウスのフォイール値をリセット
 	DirectX::Mouse::Get().ResetScrollWheelValue();
+
+	// オブジェクト番号とオブジェクトを登録する
+	Messenger::GetInstance()->Register(Factory::CAMERA, this);
 }
 
 
 
+/// <summary>
+/// 更新処理
+/// </summary>
+/// <param name="pos">座標</param>
+/// <param name="eye">目</param>
 void Camera::Update(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector3 eye)
 {
 	// 世界Y軸
@@ -48,10 +59,13 @@ void Camera::Update(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vecto
 /// <param name="upPos">上向きベクトル</param>
 void Camera::Update(Field* pField, DirectX::SimpleMath::Vector3 upPos)
 {
-	// プレイヤー位置
-	DirectX::SimpleMath::Vector3 playerPos = pField->GetPlayer()->GetPosition();
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
 
-	DirectX::SimpleMath::Vector3 eye = pField->GetPlayer()->GetPosition() * 3;
+	// プレイヤー位置
+	DirectX::SimpleMath::Vector3 playerPos = player->GetPosition();
+
+	DirectX::SimpleMath::Vector3 eye = player->GetPosition() * 3;
 
 	// 世界Y軸
 	m_up = upPos + pField->GetPosition();
@@ -60,7 +74,7 @@ void Camera::Update(Field* pField, DirectX::SimpleMath::Vector3 upPos)
 	m_target = playerPos;
 
 	// ビュー行列更新
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, pField->GetPlayer()->GetPosition(), m_up);
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, player->GetPosition(), m_up);
 	UserResources::GetUserResource()->SetView(&m_view);
 }
 
@@ -178,4 +192,15 @@ void Camera::GetWindowSize(int & windowWidth, int & windowHeight)
 {
 	windowWidth = m_screenW;
 	windowHeight = m_screenH;
+}
+
+
+
+/// <summary>
+/// メッセージの取得
+/// </summary>
+/// <param name="messageID">メッセージID</param>
+void Camera::OnMessegeAccepted(Message::MessageID messageID)
+{
+	UNREFERENCED_PARAMETER(messageID);
 }

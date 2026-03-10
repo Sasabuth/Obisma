@@ -45,8 +45,8 @@ void ResultScene::Initialize()
 	auto * debugFont = m_pUserResources->GetDebugFont();
 	debugFont->Initialize();
 
-	// デバック用
-	GetSceneManager()->SetPlayerCount(2);
+	//// デバック用
+	//GetSceneManager()->SetPlayerCount(2);
 
 	// テクスチャの初期化
 	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
@@ -63,8 +63,10 @@ void ResultScene::Initialize()
 	m_backTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Back.png"));
 
 	// 座標の初期化
-	m_position = DirectX::SimpleMath::Vector2(0, 360);
-	m_position2 = DirectX::SimpleMath::Vector2(1280, 360);
+	for (int i = 0; i < MAX_COUNT; i++)
+	{
+		m_position[i] = POSITIONS[i];
+	}
 
 	// 速度の初期化
 	m_speed = 0.0f;
@@ -85,11 +87,10 @@ void ResultScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void ResultScene::Update(float elapsedTime)
 {
-	UNREFERENCED_PARAMETER(elapsedTime);
-
-	// キーボードの取得
+	// マウストラッカーの取得
 	auto mouseTK = m_pUserResources->GetMouseStateTracker();
 
+	// 引き分けだったら引き分け用のテクスチャを入れる
 	if (GetSceneManager()->GetIsDraw())
 	{
 		std::wstring filename = L"Draw.png";
@@ -116,21 +117,18 @@ void ResultScene::Update(float elapsedTime)
 	}
 
 	// 座標の更新
-	m_position.x -= 100.0f * elapsedTime;
-	m_position2.x -= 100.0f * elapsedTime;
+	for (int i = 0; i < MAX_COUNT; i++)
+	{
+		m_position[i].x -= SPEED * elapsedTime;
 
-	// 座標の上限
-	if (m_position.x < -1280)
-	{
-		m_position.x = 1280;
-	}
-	if (m_position2.x < -1280)
-	{
-		m_position2.x = 1280;
+		if (m_position[i].x < -MAX_POSITION)
+		{
+			m_position[i].x = MAX_POSITION;
+		}
 	}
 
 	// 速度の更新
-	m_speed += 6.0f * elapsedTime;
+	m_speed += UPSPEED * elapsedTime;
 
 	auto transitionMask = m_pUserResources->GetTransitionMask();
 	if (mouseTK->leftButton == mouseTK->PRESSED)
@@ -140,6 +138,9 @@ void ResultScene::Update(float elapsedTime)
 		{
 			transitionMask->Close();
 		}
+
+		// SEの設定
+		m_se = Resources::GetInstance()->GetSESound(L"ButtonClick.wav", Resources::GetInstance()->GetListener().Position, false);
 	}
 
 	// タイトルシーンに変更
@@ -160,8 +161,10 @@ void ResultScene::Update(float elapsedTime)
 void ResultScene::Render()
 {
 	// テクスチャの描画
-	m_spaceTexture.Draw(m_position, SPACE.size, SPACE.scale, DirectX::Colors::DarkGray);
-	m_spaceTexture.Draw(m_position2, SPACE.size, SPACE.scale, DirectX::Colors::DarkGray);
+	for (int i = 0; i < MAX_COUNT; i++)
+	{
+		m_spaceTexture.Draw(m_position[i], SPACE.size, SPACE.scale, DirectX::Colors::DarkGray);
+	}
 
 	// 人数分回す
 	for (int i = 0; i < GetSceneManager()->GetPlayerCount(); i++)
