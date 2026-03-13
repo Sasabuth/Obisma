@@ -53,8 +53,6 @@ private:
 	// コライダー
 	SphereCollider m_collider;
 
-	int m_debugIndex;
-
 	// パーティクル
 	std::unique_ptr<Particle> m_particle;
 
@@ -158,11 +156,5 @@ public:
 public:
 	Floating* GetFloating() const { return m_floating.get(); }
 	Hitting* GetHitting() const { return m_hitting.get(); }
-
-
-// 内部処理
-private:
-	// レイと球体の交差
-	void CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, float radius, DirectX::SimpleMath::Vector3& hitPos);
 };
 

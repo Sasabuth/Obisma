@@ -1,5 +1,5 @@
 /// <summary>
-/// ThrowingLに関するヘッダファイル
+/// PlayerStandingに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
 
@@ -18,13 +18,8 @@ class Player;
 
 
 // クラスの定義
-class ThrowingL : public IState
+class PlayerStanding : public IState
 {
-// 定数
-private:
-	// アニメーション時間
-	static constexpr float ANIM_TIME = 0.58f;
-
 // 変数
 private:
 	// ユーザーリソース
@@ -34,41 +29,36 @@ private:
 	Player* m_pPlayer;
 
 	// モデル
-	DirectX::Model* m_model; 
+	DirectX::Model* m_model;
 
 	// アニメーションボーン配列
-	DirectX::ModelBone::TransformArray m_drawBones;  
+	DirectX::ModelBone::TransformArray m_drawBones;
+
 	// アニメーション
-	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  
+	std::unique_ptr<DX::AnimationSDKMESH> m_animation;
 
-	// 左手のマトリックス
-	DirectX::SimpleMath::Matrix m_leftHandMatrix; 
 	// 右手のマトリックス
-	DirectX::SimpleMath::Matrix m_rightHandMatrix; 
-
-	// 時間
-	float m_time;  
-
-	// 投げたか
-	bool m_isThowing;  
+	DirectX::SimpleMath::Matrix m_rightHandMatrix;
+	// 左手のマトリックス
+	DirectX::SimpleMath::Matrix m_leftHandMatrix;
 
 	// ベーシックエフェクト
-	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;
 
 	// プリミティブバッチ
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;
 
 	// 入力レイアウトへのポインタ
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout; 
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 
 
 // 関数
 public:
 	// コンストラクタ
-	ThrowingL(Player* pPlayer);
+	PlayerStanding(Player* pPlayer);
 
 	// デストラクタ
-	~ThrowingL() override;
+	~PlayerStanding() override;
 
 	// 初期化
 	void Initialize() override;
@@ -86,6 +76,9 @@ public:
 // 内部処理
 private:
 	// アニメーションの更新
-	void AnimationUpdate();
+	void AnimationUpdate(float elapsedTime);
+
+	// ボールを持つ
+	void CatchHandBall();
 };
 

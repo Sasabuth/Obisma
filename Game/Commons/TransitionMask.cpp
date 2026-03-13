@@ -1,10 +1,9 @@
-//--------------------------------------------------------------------------------------
-// File: TransitionMask.cpp
-//
-// 画面切り替え用のマスク表示クラス
-//
-// Date: 2023.9.10
-//--------------------------------------------------------------------------------------
+/// <summary>
+/// TransitionMaskに関するソースファイル
+/// </summary>
+/// <author>仲森智史</author>
+
+
 #include "pch.h"
 #include "TransitionMask.h"
 #include "Game/Commons/BinaryFile.h"

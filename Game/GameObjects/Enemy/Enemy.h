@@ -148,15 +148,6 @@ public:
 	// ステートの変更
 	void ChangeState(IState* newState);
 
-	// レイと球体の交差
-	bool CalcRaySphere(
-		DirectX::SimpleMath::Vector3 rayPos,
-		DirectX::SimpleMath::Vector3 rayDir,
-		DirectX::SimpleMath::Vector3 spherePos,
-		float radius,
-		DirectX::SimpleMath::Vector3& hitPos
-	);
-
 	// ボールの座標の設定
 	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 

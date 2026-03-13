@@ -12,12 +12,12 @@
 #include "Game/Commons/Collision.h"
 #include "Game/Commons/UserResources.h"
 #include "Game/Commons/Sprite.h"
-#include "Game/GameObjects/Player/State/Standing.h"
-#include "Game/GameObjects/Player/State/Running.h"
-#include "Game/GameObjects/Player/State/ThrowingR.h"
-#include "Game/GameObjects/Player/State/ThrowingL.h"
+#include "Game/GameObjects/Player/State/PlayerStanding.h"
+#include "Game/GameObjects/Player/State/PlayerRunning.h"
+#include "Game/GameObjects/Player/State/PlayerThrowingR.h"
+#include "Game/GameObjects/Player/State/PlayerThrowingL.h"
 #include "Game/GameObjects/Player/State/PlayerCatching.h"
-#include "Game/GameObjects/Player/State/Dizzying.h"
+#include "Game/GameObjects/Player/State/PlayerDizzying.h"
 #include "Game/GameObjects/Score/Score.h"
 #include "Game/GameObjects/Particle/Particle.h"
 #include <map>
@@ -68,12 +68,12 @@ private:
 	IState* m_currentState;  
 
 	// ステート
-	std::unique_ptr<Standing> m_standing;        //「立つ」
-	std::unique_ptr<Running> m_running;          //「走る」
-	std::unique_ptr<ThrowingR> m_throwingR;      //「右で投げる」
-	std::unique_ptr<ThrowingL> m_throwingL;      //「左で投げる」
+	std::unique_ptr<PlayerStanding> m_standing;        //「立つ」
+	std::unique_ptr<PlayerRunning> m_running;          //「走る」
+	std::unique_ptr<PlayerThrowingR> m_throwingR;      //「右で投げる」
+	std::unique_ptr<PlayerThrowingL> m_throwingL;      //「左で投げる」
 	std::unique_ptr<PlayerCatching> m_catching;  //「キャッチ」
-	std::unique_ptr<Dizzying> m_dizzying;        //「くらくら」
+	std::unique_ptr<PlayerDizzying> m_dizzying;        //「くらくら」
 
 	// 座標
 	DirectX::SimpleMath::Vector3 m_position; 
@@ -161,6 +161,7 @@ public:
 	// ステートの変更
 	void ChangeState(IState* newState);
 
+	// レイの作成
 	DirectX::SimpleMath::Ray CreatePickingRay(
 		int mouseX, int mouseY,
 		int screenWidth, int screenHeight,
@@ -266,12 +267,12 @@ public:
 
 // ステートの取得
 public:
-	Standing* GetStanding() const { return m_standing.get(); }
-	Running* GetRunning() const { return m_running.get(); }
-	ThrowingR* GetThrowingR() const { return m_throwingR.get(); }
-	ThrowingL* GetThrowingL() const { return m_throwingL.get(); }
+	PlayerStanding* GetStanding() const { return m_standing.get(); }
+	PlayerRunning* GetRunning() const { return m_running.get(); }
+	PlayerThrowingR* GetThrowingR() const { return m_throwingR.get(); }
+	PlayerThrowingL* GetThrowingL() const { return m_throwingL.get(); }
 	PlayerCatching* GetCatching() const { return m_catching.get(); }
-	Dizzying* GetDizzying() const { return m_dizzying.get(); }
+	PlayerDizzying* GetDizzying() const { return m_dizzying.get(); }
 
 private:
 	// ボールを投げる

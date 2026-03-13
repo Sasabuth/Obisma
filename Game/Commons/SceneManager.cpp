@@ -1,3 +1,9 @@
+/// <summary>
+/// SceneManagerに関するソースファイル
+/// </summary>
+/// <author>仲森智史</author>
+
+
 #include "pch.h"
 #include "Game/Commons/SceneManager.h"
 

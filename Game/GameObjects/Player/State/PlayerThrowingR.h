@@ -1,5 +1,5 @@
 /// <summary>
-/// ThrowingRに関するヘッダファイル
+/// PlayerThrowingRに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
 
@@ -19,7 +19,7 @@ class Player;
 
 
 // クラスの定義
-class ThrowingR : public IState
+class PlayerThrowingR : public IState
 {
 // 定数
 private:
@@ -63,10 +63,10 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	ThrowingR(Player* pPlayer);
+	PlayerThrowingR(Player* pPlayer);
 
 	// デストラクタ
-	~ThrowingR() override;
+	~PlayerThrowingR() override;
 
 	// 初期化
 	void Initialize() override;

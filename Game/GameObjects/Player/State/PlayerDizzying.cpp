@@ -1,11 +1,11 @@
 ﻿/// <summary>
-/// Dizzyingに関するソースファイル
+/// PlayerDizzyingに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "Dizzying.h"
+#include "PlayerDizzying.h"
 
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
@@ -16,7 +16,7 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Dizzying::Dizzying(Player* pPlayer)
+PlayerDizzying::PlayerDizzying(Player* pPlayer)
 	: m_pPlayer(pPlayer)
 	, m_pUserResources(nullptr)
 	, m_model{}
@@ -45,7 +45,7 @@ Dizzying::Dizzying(Player* pPlayer)
 /// <summary>
 /// デストラクタ
 /// </summary>
-Dizzying::~Dizzying()
+PlayerDizzying::~PlayerDizzying()
 {
 }
 
@@ -54,7 +54,7 @@ Dizzying::~Dizzying()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void Dizzying::Initialize()
+void PlayerDizzying::Initialize()
 {
 	m_pUserResources = UserResources::GetUserResource();
 
@@ -89,7 +89,7 @@ void Dizzying::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void Dizzying::Update(float elapsedTime)
+void PlayerDizzying::Update(float elapsedTime)
 {
 	// ボールを手に持たせる
 	if (m_pPlayer->GetCatchBall(Player::RIGHT))
@@ -123,7 +123,7 @@ void Dizzying::Update(float elapsedTime)
 	m_time += elapsedTime;
 
 	// 時間がくらくら時間を越していたらイベントの処理
-	if (m_time >= Resources::GetInstance()->GetJson(L"Player.json")["DizzyingEndTime"])
+	if (m_time >= Resources::GetInstance()->GetJson(L"Player.json")["PlayerDizzyingEndTime"])
 	{
 		// 時間の設定
 		m_time = 0.0f;
@@ -143,7 +143,7 @@ void Dizzying::Update(float elapsedTime)
 		// 指定数パーティクルを生成
 		for (int i = 0; i < Resources::GetInstance()->GetJson(L"Player.json")["EffectData"][std::to_string(Player::STER)]["count"]; i++)
 		{
-			m_pPlayer->GetParticle(Player::STER)->SetEffectPosition(context, Resources::GetInstance()->GetJson(L"Player.json")["EffectData"][std::to_string(Player::STER)]["life"], m_pPlayer->GetPosition(), DirectX::SimpleMath::Vector3::Zero,DirectX::Colors::White);
+			m_pPlayer->GetParticle(Player::STER)->SetEffectPosition(context, Resources::GetInstance()->GetJson(L"Player.json")["EffectData"][std::to_string(Player::STER)]["life"], m_pPlayer->GetPosition(), DirectX::SimpleMath::Vector3::Zero, DirectX::Colors::White);
 		}
 
 		// エフェクトを出した
@@ -157,7 +157,7 @@ void Dizzying::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void Dizzying::Render()
+void PlayerDizzying::Render()
 {
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_pUserResources->GetCommonStates();
@@ -226,7 +226,7 @@ void Dizzying::Render()
 
 	/*auto* debugFont = m_userResources->GetDebugFont();*/
 
-	/*debugFont->Render(L"Dizzying");
+	/*debugFont->Render(L"PlayerDizzying");
 	debugFont->Render(L"CatchPos", DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_player->GetRotation()));
 
 	m_collider.Draw(states, *view, *proj);*/
@@ -237,7 +237,7 @@ void Dizzying::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void Dizzying::Finalize()
+void PlayerDizzying::Finalize()
 {
 }
 
@@ -247,7 +247,7 @@ void Dizzying::Finalize()
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void Dizzying::AnimationUpdate()
+void PlayerDizzying::AnimationUpdate()
 {
 	// ボーン数を取得する
 	size_t nbones = m_model->bones.size();

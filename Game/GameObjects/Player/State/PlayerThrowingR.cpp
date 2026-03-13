@@ -1,11 +1,11 @@
 ﻿/// <summary>
-/// ThrowingLに関するソースファイル
+/// PlayerThrowingRに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "ThrowingL.h"
+#include "PlayerThrowingR.h"
 
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
@@ -20,7 +20,7 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-ThrowingL::ThrowingL(Player* pPlayer)
+PlayerThrowingR::PlayerThrowingR(Player* pPlayer)
 	: m_pPlayer(pPlayer)
 	, m_pUserResources(nullptr)
 	, m_model{}
@@ -30,34 +30,10 @@ ThrowingL::ThrowingL(Player* pPlayer)
 	// モデルの作成
 	m_model = pPlayer->GetModel();
 
-}
-
-
-
-/// <summary>
-/// デストラクタ
-/// </summary>
-ThrowingL::~ThrowingL()
-{
-}
-
-
-
-/// <summary>
-/// 初期化処理
-/// </summary>
-void ThrowingL::Initialize()
-{
-	m_pUserResources = UserResources::GetUserResource();
-
-	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
-	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
-
-
 	// AnimationSDKMESH クラスのインスタンスを生成する
 	m_animation = std::make_unique<DX::AnimationSDKMESH>();
 	// サッカープレイヤー アイドリングアニメーションをロードする
-	m_animation->Load(L"resources\\Animations\\Player_ThrowL.sdkmesh_anim");
+	m_animation->Load(L"resources\\Animations\\Player_ThrowR.sdkmesh_anim");
 	// アニメーションとモデルをバインドする
 	m_animation->Bind(*m_model);
 	// ボーン用のトランスフォーム配列を生成する
@@ -66,6 +42,28 @@ void ThrowingL::Initialize()
 
 	// アニメーションの初期化
 	AnimationUpdate();
+}
+
+
+
+/// <summary>
+/// デストラクタ
+/// </summary>
+PlayerThrowingR::~PlayerThrowingR()
+{
+}
+
+
+
+/// <summary>
+/// 初期化処理
+/// </summary>
+void PlayerThrowingR::Initialize()
+{
+	m_pUserResources = UserResources::GetUserResource();
+
+	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
+	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
@@ -82,7 +80,10 @@ void ThrowingL::Initialize()
 	// 入力レイアウトの作成
 	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
 
+	// 時間の初期化
 	m_time = 0.0f;
+
+	// 投げていない
 	m_isThowing = false;
 }
 
@@ -92,7 +93,7 @@ void ThrowingL::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void ThrowingL::Update(float elapsedTime)
+void PlayerThrowingR::Update(float elapsedTime)
 {
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
@@ -142,9 +143,8 @@ void ThrowingL::Update(float elapsedTime)
 		}
 
 		// 右手に持たせる
-		Ball* ball = m_pPlayer->GetCatchBall(Player::LEFT);
-		m_pPlayer->SetBallPosition(ball, m_leftHandMatrix);
-
+		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
+		m_pPlayer->SetBallPosition(ball, m_rightHandMatrix);
 
 		// 時間になったら投げる
 		if (m_animation->GetAnimTime() > ANIM_TIME)
@@ -200,8 +200,8 @@ void ThrowingL::Update(float elapsedTime)
 			// ボールの速度の設定
 			ball->SetVelocity(DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pPlayer->GetRotation() * rotate) * speed);
 
-			// 左手から投げたことにする
-			m_pPlayer->SetCatchBall(Player::LEFT, nullptr);
+			// 右手から投げたことにする
+			m_pPlayer->SetCatchBall(Player::RIGHT, nullptr);
 			m_isThowing = true;
 		}
 	}
@@ -217,10 +217,6 @@ void ThrowingL::Update(float elapsedTime)
 	// アニメーションを更新し終了したらステート変更
 	if (m_animation->GetAnimTime() < m_animation->GetEndTime())
 	{
-		// 左手に持たせる
-		Ball* ball = m_pPlayer->GetCatchBall(Player::RIGHT);
-		if (ball) m_pPlayer->SetBallPosition(ball, m_rightHandMatrix);
-
 		// アニメーションを更新する
 		m_animation->Update(elapsedTime);
 	}
@@ -235,7 +231,7 @@ void ThrowingL::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void ThrowingL::Render()
+void PlayerThrowingR::Render()
 {
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_pUserResources->GetCommonStates();
@@ -274,41 +270,36 @@ void ThrowingL::Render()
 	// 影の描画
 	m_pPlayer->DrawShadow(context, states, Resources::GetInstance()->GetJson(L"Player.json")["ShadowSize"]);
 
-	// 軸の描画
-	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
+	//// 軸の描画
+	//context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
 
-	// 深度の設定
-	context->OMSetDepthStencilState(states->DepthDefault(), 0);
+	//// 深度の設定
+	//context->OMSetDepthStencilState(states->DepthDefault(), 0);
 
-	// カリングの設定
-	context->RSSetState(states->CullNone());
+	//// カリングの設定
+	//context->RSSetState(states->CullNone());
 
-	// 
-	m_basicEffect->SetView(*view);
-	m_basicEffect->SetProjection(*proj);
-	m_basicEffect->Apply(context);
+	//// 
+	//m_basicEffect->SetView(*view);
+	//m_basicEffect->SetProjection(*proj);
+	//m_basicEffect->Apply(context);
 
-	// インプットレイアウトの設定
-	context->IASetInputLayout(m_inputLayout.Get());
+	//// インプットレイアウトの設定
+	//context->IASetInputLayout(m_inputLayout.Get());
 
-	DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pPlayer->GetRotation());
+	//DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f), m_pPlayer->GetRotation());
+	//DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pPlayer->GetRotation());
+	//DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_pPlayer->GetRotation());
 
-	DirectX::SimpleMath::Vector3 dir = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitZ, m_pPlayer->GetRotation());
-	DirectX::SimpleMath::Quaternion rot = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(15));
-	DirectX::SimpleMath::Vector3 horizontal = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f), m_pPlayer->GetRotation() * rot);
-
-	DirectX::SimpleMath::Vector3 vertical = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f), m_pPlayer->GetRotation());
-
-	/*m_primitiveBatch->Begin();
-	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), forward, false, DirectX::Colors::Yellow);
-	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), horizontal, false, DirectX::Colors::Red);
-	DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), vertical, false, DirectX::Colors::Green);
-	m_primitiveBatch->End();*/
+	//m_primitiveBatch->Begin();
+	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), forward, false, DirectX::Colors::Yellow);
+	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), horizontal, false, DirectX::Colors::Red);
+	//DX::DrawRay(m_primitiveBatch.get(), m_pPlayer->GetPosition(), vertical, false, DirectX::Colors::Green);
+	//m_primitiveBatch->End();
 
 	// デバックフォントの描画
-	// auto* debugFont = m_pUserResources->GetDebugFont();
-
-	/*debugFont->Render(L"ThrowingL");*/
+	//auto* debugFont = m_pUserResources->GetDebugFont();
+	//debugFont->Render(L"angleD", std::any(angleD));
 }
 
 
@@ -316,7 +307,7 @@ void ThrowingL::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void ThrowingL::Finalize()
+void PlayerThrowingR::Finalize()
 {
 }
 
@@ -326,13 +317,12 @@ void ThrowingL::Finalize()
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void ThrowingL::AnimationUpdate()
+void PlayerThrowingR::AnimationUpdate()
 {
 	// ボーン数を取得する
 	size_t nbones = m_model->bones.size();
 	// アニメションにモデルを適用する
 	m_animation->Apply(*m_model, nbones, m_drawBones.get());
 	// ボーンマトリクスを設定する
-	m_leftHandMatrix = m_drawBones[20];
 	m_rightHandMatrix = m_drawBones[15];
 }

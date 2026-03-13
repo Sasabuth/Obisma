@@ -128,6 +128,7 @@ public:
 	// ‰e‚Ì•`‰æ
 	void DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* states, float radius = 1.0f);
 
+	// ‰¹‚ğ–Â‚ç‚³‚È‚¢
 	void NoSound() { m_isSound = false; }
 
 
@@ -182,13 +183,5 @@ public:
 	Stopping* GetStopping() const { return m_stopping.get(); }
 	Moving* GetMoving() const { return m_moving.get(); }
 	Catching* GetCatching() const { return m_catching.get(); }
-
-
-// “à•”ˆ—
-private:
-	// ƒŒƒC‚Æ‹…‘Ì‚ÌŒğ·
-	void CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, 
-		float radius, DirectX::SimpleMath::Vector3& hitPos
-	);
 };
 

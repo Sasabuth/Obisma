@@ -1,3 +1,9 @@
+/// <summary>
+/// Messageに関するヘッダファイル
+/// </summary>
+/// <author>仲森智史</author>
+
+
 #pragma once
 #ifndef MESSAGE_DEFINED
 #define MESSAGE_DEFINED

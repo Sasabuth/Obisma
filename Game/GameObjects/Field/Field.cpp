@@ -583,7 +583,7 @@ void Field::IsHitEntityToField(IEntity* pIEntity)
 		// ŽOŠpŒ`‚Ì’†S‚©‚ç‰“‚©‚Á‚½‚ç“–‚½‚Á‚Ä‚È‚¢‚±‚Æ‚É‚·‚é
 		DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
 		float length = (ray.position - center).Length();
-		if (length > 5.0f)
+		if (length > LENGTH)
 		{
 			continue;
 		}

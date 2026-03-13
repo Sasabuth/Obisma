@@ -113,9 +113,6 @@
     <ClInclude Include="Game\Scenes\GameplayScene.h">
       <Filter>Game\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="Game\GameObjects\Player\State\Standing.h">
-      <Filter>Game\GameObjects\Player\State</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Commons\Interface\IState.h">
       <Filter>Game\Commons\Interface</Filter>
     </ClInclude>
@@ -124,9 +121,6 @@
     </ClInclude>
     <ClInclude Include="Game\Commons\Factory.h">
       <Filter>Game\Commons</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\GameObjects\Player\State\Running.h">
-      <Filter>Game\GameObjects\Player\State</Filter>
     </ClInclude>
     <ClInclude Include="Game\Commons\Resources.h">
       <Filter>Game\Commons</Filter>
@@ -161,9 +155,6 @@
     <ClInclude Include="Game\GameObjects\Ball\BallManager.h">
       <Filter>Game\GameObjects\Ball</Filter>
     </ClInclude>
-    <ClInclude Include="Game\GameObjects\Player\State\ThrowingL.h">
-      <Filter>Game\GameObjects\Player\State</Filter>
-    </ClInclude>
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyThrowingR.h">
       <Filter>Game\GameObjects\Enemy\State</Filter>
     </ClInclude>
@@ -185,9 +176,6 @@
     <ClInclude Include="Game\GameObjects\Score\ScoreManager.h">
       <Filter>Game\GameObjects\Score</Filter>
     </ClInclude>
-    <ClInclude Include="Game\GameObjects\Player\State\Dizzying.h">
-      <Filter>Game\GameObjects\Player\State</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Scenes\ResultScene.h">
       <Filter>Game\Scenes</Filter>
     </ClInclude>
@@ -199,9 +187,6 @@
     </ClInclude>
     <ClInclude Include="Game\GameObjects\Enemy\State\EnemyCatching.h">
       <Filter>Game\GameObjects\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\GameObjects\Player\State\ThrowingR.h">
-      <Filter>Game\GameObjects\Player\State</Filter>
     </ClInclude>
     <ClInclude Include="Game\GameObjects\Button\Button.h">
       <Filter>Game\GameObjects\Button</Filter>
@@ -263,6 +248,21 @@
     <ClInclude Include="Game\Commons\Interface\IObject.h">
       <Filter>Game\Commons\Interface</Filter>
     </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\PlayerDizzying.h">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\PlayerRunning.h">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\PlayerStanding.h">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\PlayerThrowingL.h">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameObjects\Player\State\PlayerThrowingR.h">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -297,14 +297,8 @@
     <ClCompile Include="Game\Scenes\GameplayScene.cpp">
       <Filter>Game\Scenes</Filter>
     </ClCompile>
-    <ClCompile Include="Game\GameObjects\Player\State\Standing.cpp">
-      <Filter>Game\GameObjects\Player\State</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Commons\Factory.cpp">
       <Filter>Game\Commons</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\GameObjects\Player\State\Running.cpp">
-      <Filter>Game\GameObjects\Player\State</Filter>
     </ClCompile>
     <ClCompile Include="Game\Commons\Resources.cpp">
       <Filter>Game\Commons</Filter>
@@ -336,12 +330,6 @@
     <ClCompile Include="Game\GameObjects\Ball\BallManager.cpp">
       <Filter>Game\GameObjects\Ball</Filter>
     </ClCompile>
-    <ClCompile Include="Game\GameObjects\Player\State\ThrowingL.cpp">
-      <Filter>Game\GameObjects\Player\State</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\GameObjects\Player\State\ThrowingR.cpp">
-      <Filter>Game\GameObjects\Player\State</Filter>
-    </ClCompile>
     <ClCompile Include="Game\GameObjects\Enemy\State\EnemyThrowingR.cpp">
       <Filter>Game\GameObjects\Enemy\State</Filter>
     </ClCompile>
@@ -362,9 +350,6 @@
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Score\ScoreManager.cpp">
       <Filter>Game\GameObjects\Score</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\GameObjects\Player\State\Dizzying.cpp">
-      <Filter>Game\GameObjects\Player\State</Filter>
     </ClCompile>
     <ClCompile Include="Game\Scenes\ResultScene.cpp">
       <Filter>Game\Scenes</Filter>
@@ -428,6 +413,21 @@
     </ClCompile>
     <ClCompile Include="Game\Commons\Messenger.cpp">
       <Filter>Game\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\PlayerDizzying.cpp">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\PlayerRunning.cpp">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\PlayerStanding.cpp">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\PlayerThrowingL.cpp">
+      <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameObjects\Player\State\PlayerThrowingR.cpp">
+      <Filter>Game\GameObjects\Player\State</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

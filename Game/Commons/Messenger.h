@@ -1,3 +1,8 @@
+/// <summary>
+/// Messengerに関するヘッダファイル
+/// </summary>
+/// <author>仲森智史</author>
+
 #pragma once
 #ifndef MESSENGER_DEFINED
 #define MESSENGER_DEFINED

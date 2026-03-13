@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// DebugFontに関するヘッダファイル
+/// DebugFontに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 

@@ -263,52 +263,6 @@ void Enemy::ChangeState(IState* newState)
 
 
 /// <summary>
-/// レイと球体の交差
-/// </summary>
-/// <param name="rayPos">レイの座標</param>
-/// <param name="rayDir">レイのベクトル</param>
-/// <param name="spherePos">球の座標</param>
-/// <param name="radius">半径</param>
-/// <param name="hitPos">当たった座標</param>
-/// <returns>[true] 当たった　[false] 当たってない</returns>
-bool Enemy::CalcRaySphere(DirectX::SimpleMath::Vector3 rayPos, DirectX::SimpleMath::Vector3 rayDir, DirectX::SimpleMath::Vector3 spherePos, float radius, DirectX::SimpleMath::Vector3& hitPos)
-{
-	spherePos.x = spherePos.x - rayPos.x;
-	spherePos.y = spherePos.y - rayPos.y;
-	spherePos.z = spherePos.z - rayPos.z;
-
-	float A = rayDir.x * rayDir.x + rayDir.y * rayDir.y + rayDir.z * rayDir.z;
-	float B = rayDir.x * spherePos.x + rayDir.y * spherePos.y + rayDir.z * spherePos.z;
-	float C = spherePos.x * spherePos.x + spherePos.y * spherePos.y + spherePos.z * spherePos.z - radius * radius;
-
-	// レイが存在するか
-	if (A == 0.0f)
-		return false;
-
-	// 衝突しているか
-	float s = B * B - A * C;
-	if (s < 0.0f)
-		return false;
-
-	s = sqrtf(s);
-	float a1 = (B - s) / A;
-	float a2 = (B + s) / A;
-
-	// マイナス方向に当たっていないか
-	if (a1 < 0.0f || a2 < 0.0f)
-		return false;
-
-	// 当たった座標を入れる
-	hitPos.x = rayPos.x + a1 * rayDir.x;
-	hitPos.y = rayPos.y + a1 * rayDir.y;
-	hitPos.z = rayPos.z + a1 * rayDir.z;
-
-	return true;
-}
-
-
-
-/// <summary>
 /// ボール座標の設定
 /// </summary>
 /// <param name="ball">ボールのポインタ</param>

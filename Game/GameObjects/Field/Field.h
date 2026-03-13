@@ -32,6 +32,8 @@ private:
 	static constexpr float MODEL_SCALE = 3.0f;
 	// スカイドームスケール
 	static constexpr float SKYDOME_SCALE = 800.0f;
+	// 長さ
+	static constexpr float LENGTH = 5.0f;
 
 
 // 変数

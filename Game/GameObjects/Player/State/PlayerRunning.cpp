@@ -1,11 +1,11 @@
 ﻿/// <summary>
-/// Runningに関するソースファイル
+/// PlayerRunningに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 
 // ヘッダファイルの読み込み
 #include "pch.h"
-#include "Running.h"
+#include "PlayerRunning.h"
 
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
@@ -19,7 +19,7 @@
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Running::Running(Player* pPlayer)
+PlayerRunning::PlayerRunning(Player* pPlayer)
 	: m_pPlayer(pPlayer)
 	, m_pUserResources(nullptr)
 	, m_model{}
@@ -47,7 +47,7 @@ Running::Running(Player* pPlayer)
 /// <summary>
 /// デストラクタ
 /// </summary>
-Running::~Running()
+PlayerRunning::~PlayerRunning()
 {
 }
 
@@ -55,7 +55,7 @@ Running::~Running()
 /// <summary>
 /// 初期化処理
 /// </summary>
-void Running::Initialize()
+void PlayerRunning::Initialize()
 {
 	m_pUserResources = UserResources::GetUserResource();
 
@@ -87,7 +87,7 @@ void Running::Initialize()
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param> 
-void Running::Update(float elapsedTime)
+void PlayerRunning::Update(float elapsedTime)
 {
 	auto mouse = DirectX::Mouse::Get().GetState();
 
@@ -138,7 +138,7 @@ void Running::Update(float elapsedTime)
 /// <summary>
 /// 描画処理
 /// </summary>
-void Running::Render()
+void PlayerRunning::Render()
 {
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_pUserResources->GetCommonStates();
@@ -209,7 +209,7 @@ void Running::Render()
 	/*m_pPlayer->GetCollider().Draw(states, *view, *proj);*/
 
 	//auto* debugFont = m_pUserResources->GetDebugFont();
-	/*debugFont->Render(L"Running");*/
+	/*debugFont->Render(L"PlayerRunning");*/
 }
 
 
@@ -217,7 +217,7 @@ void Running::Render()
 /// <summary>
 /// 終了処理
 /// </summary>
-void Running::Finalize()
+void PlayerRunning::Finalize()
 {
 }
 
@@ -227,7 +227,7 @@ void Running::Finalize()
 /// アニメーションの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void Running::AnimationUpdate(float elapsedTime)
+void PlayerRunning::AnimationUpdate(float elapsedTime)
 {
 	// ボーン数を取得する
 	size_t nbones = m_model->bones.size();
@@ -256,7 +256,7 @@ void Running::AnimationUpdate(float elapsedTime)
 /// <summary>
 /// ボールを持つ
 /// </summary>
-void Running::CatchHandBall()
+void PlayerRunning::CatchHandBall()
 {
 	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{

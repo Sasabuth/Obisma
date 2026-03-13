@@ -70,19 +70,19 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Player.json")["ColliderSize"]);
 
 	// 「立つ」状態の生成
-	m_standing = std::make_unique<Standing>(this);
+	m_standing = std::make_unique<PlayerStanding>(this);
 	// 「立つ」状態の初期化
 	m_standing->Initialize();
 	// 「走る」状態の生成
-	m_running = std::make_unique<Running>(this);
+	m_running = std::make_unique<PlayerRunning>(this);
 	// 「走る」状態の初期化
 	m_running->Initialize();
 	// 「右で投げる」状態の生成
-	m_throwingR = std::make_unique<ThrowingR>(this);
+	m_throwingR = std::make_unique<PlayerThrowingR>(this);
 	// 「右で投げる」状態の初期化
 	m_throwingR->Initialize();
 	// 「左で投げる」状態の生成
-	m_throwingL = std::make_unique<ThrowingL>(this);
+	m_throwingL = std::make_unique<PlayerThrowingL>(this);
 	// 「左で投げる」状態の初期化
 	m_throwingL->Initialize();
 	// 「キャッチ」状態の生成
@@ -90,7 +90,7 @@ void Player::Initialize(DirectX::SimpleMath::Vector3 position)
 	// 「キャッチ」状態の初期化
 	m_catching->Initialize();
 	// 「くらくら」状態の生成
-	m_dizzying = std::make_unique<Dizzying>(this);
+	m_dizzying = std::make_unique<PlayerDizzying>(this);
 	// 「くらくら」状態の初期化
 	m_dizzying->Initialize();
 

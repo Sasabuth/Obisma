@@ -1,5 +1,5 @@
 /// <summary>
-/// Spriteに関するヘッダファイル
+/// Spriteに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 

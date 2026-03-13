@@ -1,5 +1,5 @@
 /// <summary>
-/// Dizzyingに関するヘッダファイル
+/// PlayerThrowingLに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
 
@@ -18,16 +18,12 @@ class Player;
 
 
 // クラスの定義
-class Dizzying : public IState
+class PlayerThrowingL : public IState
 {
 // 定数
 private:
-	// インターバル
-	static constexpr float INTERVAL = 3.0f;
-	// アニメーションの終了時間
-	static constexpr float ANIMATION_ENDTIME = 1.2f;
-	// アニメーションの再開時間
-	static constexpr float ANIMATION_RESTARTTIME = 0.19f;
+	// アニメーション時間
+	static constexpr float ANIM_TIME = 0.58f;
 
 
 // 変数
@@ -39,29 +35,29 @@ private:
 	Player* m_pPlayer;
 
 	// モデル
-	DirectX::Model* m_model; 
+	DirectX::Model* m_model;
 
 	// アニメーションボーン配列
 	DirectX::ModelBone::TransformArray m_drawBones;
 	// アニメーション
-	std::unique_ptr<DX::AnimationSDKMESH> m_animation; 
+	std::unique_ptr<DX::AnimationSDKMESH> m_animation;
+
+	// 左手のマトリックス
+	DirectX::SimpleMath::Matrix m_leftHandMatrix;
+	// 右手のマトリックス
+	DirectX::SimpleMath::Matrix m_rightHandMatrix;
 
 	// 時間
-	float m_time; 
+	float m_time;
 
-	// エフェクト入れたか
-	bool m_isEffect;
-
-	// 右手のマトリックス
-	DirectX::SimpleMath::Matrix m_rightHandMatrix; 
-	// 左手のマトリックス
-	DirectX::SimpleMath::Matrix m_leftHandMatrix; 
+	// 投げたか
+	bool m_isThowing;
 
 	// ベーシックエフェクト
-	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;
 
 	// プリミティブバッチ
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch; 
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;
 
 	// 入力レイアウトへのポインタ
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
@@ -70,10 +66,10 @@ private:
 // 関数
 public:
 	// コンストラクタ
-	Dizzying(Player* pPlayer);
+	PlayerThrowingL(Player* pPlayer);
 
 	// デストラクタ
-	~Dizzying() override;
+	~PlayerThrowingL() override;
 
 	// 初期化
 	void Initialize() override;

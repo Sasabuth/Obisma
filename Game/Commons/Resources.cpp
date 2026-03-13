@@ -1,5 +1,5 @@
 /// <summary>
-/// Resourcesに関するヘッダファイル
+/// Resourcesに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 

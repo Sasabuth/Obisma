@@ -1,5 +1,5 @@
 /// <summary>
-/// Standingに関するヘッダファイル
+/// PlayerRunningに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
 
@@ -18,12 +18,8 @@ class Player;
 
 
 // クラスの定義
-class Standing : public IState
+class PlayerRunning : public IState
 {
-// 定数
-private:
-
-
 // 変数
 private:
 	// ユーザーリソース
@@ -33,36 +29,35 @@ private:
 	Player* m_pPlayer;
 
 	// モデル
-	DirectX::Model* m_model;  
+	DirectX::Model* m_model;
 
 	// アニメーションボーン配列
-	DirectX::ModelBone::TransformArray m_drawBones; 
-
+	DirectX::ModelBone::TransformArray m_drawBones;
 	// アニメーション
-	std::unique_ptr<DX::AnimationSDKMESH> m_animation;  
+	std::unique_ptr<DX::AnimationSDKMESH> m_animation;
 
 	// 右手のマトリックス
-	DirectX::SimpleMath::Matrix m_rightHandMatrix; 
+	DirectX::SimpleMath::Matrix m_rightHandMatrix;
 	// 左手のマトリックス
-	DirectX::SimpleMath::Matrix m_leftHandMatrix;  
+	DirectX::SimpleMath::Matrix m_leftHandMatrix;
 
 	// ベーシックエフェクト
-	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;  
+	std::unique_ptr<DirectX::BasicEffect> m_basicEffect;
 
 	// プリミティブバッチ
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;  
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_primitiveBatch;
 
 	// 入力レイアウトへのポインタ
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout; 
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 
 
 // 関数
 public:
 	// コンストラクタ
-	Standing(Player* pPlayer);
+	PlayerRunning(Player* pPlayer);
 
 	// デストラクタ
-	~Standing() override;
+	~PlayerRunning() override;
 
 	// 初期化
 	void Initialize() override;
@@ -80,7 +75,7 @@ public:
 // 内部処理
 private:
 	// アニメーションの更新
-	void AnimationUpdate(float elapsedTime);
+	void AnimationUpdate(float elapsedTime); 
 
 	// ボールを持つ
 	void CatchHandBall();

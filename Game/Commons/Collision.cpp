@@ -720,11 +720,6 @@ bool IsHit(const SphereCollider& sphere, const DirectX::SimpleMath::Vector3& p0,
 	// 距離が長いとfalseにする
 	DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
 
-	if ((sphereCenter - center).Length() >= 5.0f)
-	{
-		return false;
-	}
-
 	// 法線
 	DirectX::SimpleMath::Vector3 N = (p1 - p0).Cross(p2 - p0);
 	N.Normalize();
@@ -735,24 +730,6 @@ bool IsHit(const SphereCollider& sphere, const DirectX::SimpleMath::Vector3& p0,
 	// 平面の範囲にあるか
 	if (fabs(dist) > sphereRadius)
 		return false;
-
-	//// 投影点
-	//auto proj = sphereCenter - N * dist;
-
-	//// 三角形内部判定
-	//auto edgeTest = [&](DirectX::SimpleMath::Vector3 a, DirectX::SimpleMath::Vector3 b)
-	//	{
-	//		auto edge = b - a;
-	//		auto vp = proj - a;
-	//		return edge.Cross(vp).Dot(N) >= 0;
-	//	};
-
-	//bool inside = edgeTest(p0, p1) && edgeTest(p1, p2) && edgeTest(p2, p0);
-
-	//if (inside)
-	//{
-	//	return true;
-	//}
 
 	// 辺との距離チェック
 	auto closestPointOnSegment = [&](auto a, auto b)
