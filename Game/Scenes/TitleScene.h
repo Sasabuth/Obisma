@@ -128,5 +128,19 @@ public:
 	// デバイスロストした時に呼び出される関数
 	void OnDeviceLost() override;
 
+
+// 内部変数
+private:
+	// ゲームの初期化
+	void InitializeGame();
+
+	// リソースの初期化
+	void InitializeResource();
+
+	// ボタンの初期化
+	void InitializeButton();
+
+	// UIの更新
+	void UpdateUI();
 };
 

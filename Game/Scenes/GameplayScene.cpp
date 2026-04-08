@@ -51,79 +51,11 @@ void GameplayScene::Initialize()
 	// リソースの取得
 	m_pResources = Resources::GetInstance();
 
-	// デバックフォントの初期化(シーンのみ)
-	auto* debugFont = m_pUserResources->GetDebugFont();
-	debugFont->Initialize();
+	// ゲームの初期化
+	InitializeGame();
 
-	// カメラの初期化
-	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
-
-	// フィールドの初期化
-	m_field = Factory::CreateField(Resources::GetInstance()->GetJson(L"FieldSelect.json")["FieldIndex"]);
-
-	// カメラの上向きベクトルの初期化
-	m_cameraUp = Factory::CreateCameraUp(m_field.get(), DirectX::SimpleMath::Vector3{ 
-		Resources::GetInstance()->GetJson(L"CameraUp.json")["Position"]["x"],
-		Resources::GetInstance()->GetJson(L"CameraUp.json")["Position"]["y"],
-		Resources::GetInstance()->GetJson(L"CameraUp.json")["Position"]["z"] 
-		}
-	);
-
-	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
-	// 敵の取得
-	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
-
-	// スコアマネージャーの初期化
-	m_scoreManager = Factory::CreateScoreManager();
-	// スコアマネージャーに追加
-	m_scoreManager->Add(player->GetScore());
-	m_scoreManager->Add(enemy->GetScore());
-
-	// ゲーム時間の初期化
-	m_gameTimer = MAX_TIME;
-
-	// フェード時間の初期化
-	m_fadeTimer = 0.0f;
-
-	// カウントダウン時間の初期化
-	m_countDownTimer = COUNTDOWN_TIME;
-
-	// コライダーの設定
-	m_collider.SetSize(DirectX::SimpleMath::Vector2(Resources::GetInstance()->GetJson(L"Mouse.json")["Collider"]));
-
-	// テクスチャの初期化
-	m_frameTexture.SetTexture(m_pResources->GetTexture(L"ScoreFrame2.png"));
-	m_timerTexture.SetTexture(m_pResources->GetTexture(L"ScoreFont2.png"));
-	m_finishTexture.SetTexture(m_pResources->GetTexture(L"Finish.png"));
-	m_countDownTexture.SetTexture(m_pResources->GetTexture(L"CountDown.png"));
-	m_startTexture.SetTexture(m_pResources->GetTexture(L"GameStart.png"));
-
-	// リスナーの設定
-	m_pResources->SetListener(player->GetPosition(),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, player->GetRotation()),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, player->GetRotation())
-	);
-
-	// BGMの初期化
-	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", player->GetPosition(), true);
-
-	// SEの初期化
-	m_startSE = nullptr;
-	m_finishSE = nullptr;
-
-	// オーディオUIの初期化
-	m_audioUI.Initialize();
-
-	// ゲームメニューUIの初期化
-	m_gameMenuUI.Initialize(&m_audioUI);
-
-	// プレイ人数を初期化
-	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
-
-	// フェードをオープンする
-	auto transitionMask = m_pUserResources->GetTransitionMask();
-	transitionMask->Open();
+	// リソースの初期化
+	InitializeResource();
 }
 
 
@@ -134,9 +66,6 @@ void GameplayScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void GameplayScene::Update(float elapsedTime)
 {
-	// BGMの音量の設定
-	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
-
 	// プレイヤーの取得
 	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
 
@@ -282,6 +211,99 @@ void GameplayScene::OnDeviceLost()
 
 
 /// <summary>
+/// ゲームの初期化
+/// </summary>
+void GameplayScene::InitializeGame()
+{
+	// カメラの初期化
+	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
+
+	// フィールドの初期化
+	m_field = Factory::CreateField(Resources::GetInstance()->GetJson(L"FieldSelect.json")["FieldIndex"]);
+
+	// カメラの上向きベクトルの初期化
+	m_cameraUp = Factory::CreateCameraUp(m_field.get(), DirectX::SimpleMath::Vector3{
+		Resources::GetInstance()->GetJson(L"CameraUp.json")["Position"]["x"],
+		Resources::GetInstance()->GetJson(L"CameraUp.json")["Position"]["y"],
+		Resources::GetInstance()->GetJson(L"CameraUp.json")["Position"]["z"]
+		}
+	);
+
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	// 敵の取得
+	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
+
+	// スコアマネージャーの初期化
+	m_scoreManager = Factory::CreateScoreManager();
+	// スコアマネージャーに追加
+	m_scoreManager->Add(player->GetScore());
+	m_scoreManager->Add(enemy->GetScore());
+
+	// ゲーム時間の初期化
+	m_gameTimer = MAX_TIME;
+
+	// フェード時間の初期化
+	m_fadeTimer = 0.0f;
+
+	// カウントダウン時間の初期化
+	m_countDownTimer = COUNTDOWN_TIME;
+
+	// コライダーの設定
+	m_collider.SetSize(DirectX::SimpleMath::Vector2(Resources::GetInstance()->GetJson(L"Mouse.json")["Collider"]));
+}
+
+
+
+/// <summary>
+/// リソースの初期化
+/// </summary>
+void GameplayScene::InitializeResource()
+{
+	// デバックフォントの初期化(シーンのみ)
+	auto* debugFont = m_pUserResources->GetDebugFont();
+	debugFont->Initialize();
+
+	// テクスチャの初期化
+	m_frameTexture.SetTexture(m_pResources->GetTexture(L"ScoreFrame2.png"));
+	m_timerTexture.SetTexture(m_pResources->GetTexture(L"ScoreFont2.png"));
+	m_finishTexture.SetTexture(m_pResources->GetTexture(L"Finish.png"));
+	m_countDownTexture.SetTexture(m_pResources->GetTexture(L"CountDown.png"));
+	m_startTexture.SetTexture(m_pResources->GetTexture(L"GameStart.png"));
+
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+
+	// リスナーの設定
+	m_pResources->SetListener(player->GetPosition(),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, player->GetRotation()),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, player->GetRotation())
+	);
+
+	// BGMの初期化
+	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", player->GetPosition(), true);
+
+	// SEの初期化
+	m_startSE = nullptr;
+	m_finishSE = nullptr;
+
+	// オーディオUIの初期化
+	m_audioUI.Initialize();
+
+	// ゲームメニューUIの初期化
+	m_gameMenuUI.Initialize(&m_audioUI);
+
+	// フェードをオープンする
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	transitionMask->Open();
+
+	// プレイ人数を初期化
+	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
+}
+
+
+
+/// <summary>
 /// UIの更新
 /// </summary>
 /// <param name="player">プレイヤー</param>
@@ -289,6 +311,9 @@ void GameplayScene::OnDeviceLost()
 /// <returns>止めたいか</returns>
 bool GameplayScene::UpdateUI(Player* player, float elapsedTime)
 {
+	// BGMの音量の設定
+	m_bgm->SetVolume(Resources::GetInstance()->GetBGMVolume());
+
 	// マウスの座標に合わせる
 	auto mouse = DirectX::Mouse::Get().GetState();
 	// 現在のウィンドウサイズを取得

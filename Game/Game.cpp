@@ -128,8 +128,8 @@ void Game::Render()
     m_mouseCursor->Draw(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * Sprite::BASE_WIDTH, (mouse.y / windowHeight) * Sprite::BASE_HEIGHT), MOUSECURSOR.size, MOUSECURSOR.scale);
 
     // fps‚Ì•`‰æ
-    /*float fream = (float)m_timer.GetFramesPerSecond();
-    m_debugFont->Render(L"fps", std::any(fream));*/
+    float fream = (float)m_timer.GetFramesPerSecond();
+    m_debugFont->Render(L"fps", std::any(fream));
 
     m_deviceResources->PIXEndEvent();
 

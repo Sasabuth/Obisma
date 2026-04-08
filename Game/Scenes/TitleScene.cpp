@@ -41,84 +41,14 @@ void TitleScene::Initialize()
 	// ユーザーリソースの取得
 	m_pUserResources = UserResources::GetUserResource();
 
-	// デバックフォントの初期化(シーンのみ)
-	auto * debugFont = m_pUserResources->GetDebugFont();
-	debugFont->Initialize();
+	// ゲームの初期化
+	InitializeGame();
 
-	// テクスチャの初期化
-	m_titleTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Title.png"));
+	// リソースの初期化
+	InitializeResource();
 
-	// カメラの初期化
-	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
-
-	// フィールドの初期化
-	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
-	{
-		// 最初はスカイドームつける
-		if (i == 0)
-		{
-			m_field[i] = Factory::CreateField(i);
-		}
-		else
-		{
-			m_field[i] = Factory::CreateField(i, false);
-		}
-
-		// 惑星の座標を設定
-		m_field[i]->SetPosition(DirectX::SimpleMath::Vector3(i * FIELD_POSITION, 0, 0));
-	}
-	
-	// カメラ座標の初期化
-	m_cameraPosition = CAMERA_POSITION;
-	// 目の座標の初期化
-	m_eyePosition = EYE_POSITION;
-
-	// オーディオUIの初期化
-	m_audioUI.Initialize();
-
-	// フィールドUIの初期化
-	m_fieldSelectUI.Initialize(this);
-
-	// メニューUIの初期化
-	m_menuUI.Initialize(&m_fieldSelectUI);
-
-	// BGMの初期化
-	m_bgm = Resources::GetInstance()->GetBGMSound(L"TitleBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
-
-	// コライダーの設定
-	m_collider.SetSize(DirectX::SimpleMath::Vector2(Resources::GetInstance()->GetJson(L"Mouse.json")["Collider"]));
-
-	// ボタンの設定(シーン変更)
-	m_button[0].SetTexture(Resources::GetInstance()->GetTexture(L"Start.png"));
-	m_button[0].SetFunc([this]() { m_menuUI.Click(); });
-
-	// ボタンの設定(UIを開く)
-	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Audio.png"));
-	m_button[1].SetFunc([this]() { m_audioUI.Click(); });
-
-	auto transitionMask = m_pUserResources->GetTransitionMask();
-	// ボタンの設定(終了)
-	m_button[2].SetTexture(Resources::GetInstance()->GetTexture(L"End.png"));
-	m_button[2].SetFunc([=]()
-		{
-			// フェードアウトする
-			if (transitionMask->IsOpen())
-			{
-				transitionMask->Close();
-			}
-		}
-	);
-
-	// ボタンの設定
-	for (int i = 0; i < MENU_COUNT; i++)
-	{
-		m_button[i].SetPosition(MENU[i].pos);
-		m_button[i].SetSize(MENU[i].size);
-		m_button[i].SetScale(MENU[i].scale);
-	}
-
-	// フェードをオープンする
-	if (!transitionMask->IsOpen()) transitionMask->Open();
+	// ボタンの初期化
+	InitializeButton();
 }
 
 
@@ -129,17 +59,8 @@ void TitleScene::Initialize()
 /// <param name="elapsedTime"></param> 経過時間
 void TitleScene::Update(float elapsedTime)
 {
-	// マウスの座標に合わせる
-	auto mouse = DirectX::Mouse::Get().GetState();
-	// 現在のウィンドウサイズを取得
-	auto const outputSize = m_pUserResources->GetDeviceResources()->GetOutputSize();
-	float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
-	float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
-
-	// トランジションマスクの取得
-	auto transitionMask = m_pUserResources->GetTransitionMask();
-	// フェードアウト中じゃなかったら更新
-	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * Sprite::BASE_WIDTH, (mouse.y / windowHeight) * Sprite::BASE_HEIGHT));
+	// UIの更新
+	UpdateUI();
 
 	// カメラの更新
 	m_camera->Update(m_cameraPosition, m_eyePosition);
@@ -151,69 +72,6 @@ void TitleScene::Update(float elapsedTime)
 		static float rotate = 0.0f;
 		rotate += 30.0f * elapsedTime;
 		m_field[i]->SetRotate(rotate);
-	}
-
-	// キーボードの取得
-	auto mouseTk = m_pUserResources->GetMouseStateTracker();
-
-	// オーディオUIの更新
-	if (m_audioUI.IsOpen())
-	{
-		m_audioUI.Update(m_collider);
-	}
-	// フィールド選択UIの更新
-	else if (m_fieldSelectUI.IsOpen())
-	{
-		// フェードアウト中じゃなかったら更新
-		if (!transitionMask->IsClose()) m_fieldSelectUI.Update(m_collider);
-
-		m_cameraPosition = m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition();
-		m_eyePosition = DirectX::SimpleMath::Vector3(m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition().x, m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition().y, -10);
-
-		// ゲームプレイシーンに変更
-		if (transitionMask->IsClose() && transitionMask->IsEnd())
-		{
-			ChangeScene<GameplayScene>();
-		}
-	}
-	// メニューUIの更新
-	else if (m_menuUI.IsOpen())
-	{
-		// フェードアウト中じゃなかったら更新
-		if (!transitionMask->IsClose()) m_menuUI.Update(m_collider);
-
-		m_cameraPosition = DirectX::SimpleMath::Vector3(5, 2, 0);
-		m_eyePosition = DirectX::SimpleMath::Vector3(5, 2, -10);
-
-		// チュートリアルシーンに変更
-		if (transitionMask->IsClose() && transitionMask->IsEnd())
-		{
-			ChangeScene<TutorialScene>();
-		}
-	}
-	// タイトルの更新
-	else
-	{
-		// ボタンの上で左クリックをするとクリック処理をする
-		if (!transitionMask->IsClose())
-		{
-			for (int i = 0; i < MENU_COUNT; i++)
-			{
-				if (IsHit(m_collider, m_button[i].GetCollider()))
-				{
-					if (mouseTk->leftButton == mouseTk->PRESSED)
-					{
-						m_button[i].Click();
-					}
-				}
-			}
-		}
-
-		// チュートリアルシーンに変更
-		if (transitionMask->IsClose() && transitionMask->IsEnd())
-		{
-			PostQuitMessage(0);
-		}
 	}
 
 	// BGMの音量の設定
@@ -320,4 +178,190 @@ void TitleScene::CreateWindowSizeDependentResources()
 /// </summary>
 void TitleScene::OnDeviceLost()
 {
+}
+
+
+
+/// <summary>
+/// ゲームの初期化
+/// </summary>
+void TitleScene::InitializeGame()
+{
+	// カメラの初期化
+	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
+
+	// フィールドの初期化
+	for (int i = 0; i < FieldSelectUI::MAXSTAGE_COUNT; i++)
+	{
+		// 最初はスカイドームつける
+		if (i == 0)
+		{
+			m_field[i] = Factory::CreateField(i);
+		}
+		else
+		{
+			m_field[i] = Factory::CreateField(i, false);
+		}
+
+		// 惑星の座標を設定
+		m_field[i]->SetPosition(DirectX::SimpleMath::Vector3(i * FIELD_POSITION, 0, 0));
+	}
+
+	// カメラ座標の初期化
+	m_cameraPosition = CAMERA_POSITION;
+	// 目の座標の初期化
+	m_eyePosition = EYE_POSITION;
+
+	// コライダーの設定
+	m_collider.SetSize(DirectX::SimpleMath::Vector2(Resources::GetInstance()->GetJson(L"Mouse.json")["Collider"]));
+}
+
+
+
+/// <summary>
+/// リソースの初期化
+/// </summary>
+void TitleScene::InitializeResource()
+{
+	// デバックフォントの初期化(シーンのみ)
+	auto* debugFont = m_pUserResources->GetDebugFont();
+	debugFont->Initialize();
+
+	// テクスチャの初期化
+	m_titleTexture.SetTexture(Resources::GetInstance()->GetTexture(L"Title.png"));
+
+	// オーディオUIの初期化
+	m_audioUI.Initialize();
+
+	// フィールドUIの初期化
+	m_fieldSelectUI.Initialize(this);
+
+	// メニューUIの初期化
+	m_menuUI.Initialize(&m_fieldSelectUI);
+
+	// BGMの初期化
+	m_bgm = Resources::GetInstance()->GetBGMSound(L"TitleBgm.wav", DirectX::SimpleMath::Vector3::Zero, true);
+}
+
+
+
+/// <summary>
+/// ボタンの初期化
+/// </summary>
+void TitleScene::InitializeButton()
+{
+	// ボタンの設定(シーン変更)
+	m_button[0].SetTexture(Resources::GetInstance()->GetTexture(L"Start.png"));
+	m_button[0].SetFunc([this]() { m_menuUI.Click(); });
+
+	// ボタンの設定(UIを開く)
+	m_button[1].SetTexture(Resources::GetInstance()->GetTexture(L"Audio.png"));
+	m_button[1].SetFunc([this]() { m_audioUI.Click(); });
+
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	// ボタンの設定(終了)
+	m_button[2].SetTexture(Resources::GetInstance()->GetTexture(L"End.png"));
+	m_button[2].SetFunc([=]()
+		{
+			// フェードアウトする
+			if (transitionMask->IsOpen())
+			{
+				transitionMask->Close();
+			}
+		}
+	);
+
+	// ボタンの設定
+	for (int i = 0; i < MENU_COUNT; i++)
+	{
+		m_button[i].SetPosition(MENU[i].pos);
+		m_button[i].SetSize(MENU[i].size);
+		m_button[i].SetScale(MENU[i].scale);
+	}
+
+	// フェードをオープンする
+	if (!transitionMask->IsOpen()) transitionMask->Open();
+}
+
+
+
+/// <summary>
+/// UIの更新
+/// </summary>
+void TitleScene::UpdateUI()
+{
+	// マウスの座標に合わせる
+	auto mouse = DirectX::Mouse::Get().GetState();
+	// 現在のウィンドウサイズを取得
+	auto const outputSize = m_pUserResources->GetDeviceResources()->GetOutputSize();
+	float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
+	float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
+
+	// トランジションマスクの取得
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	// フェードアウト中じゃなかったら更新
+	if (!transitionMask->IsClose()) m_collider.SetPosition(DirectX::SimpleMath::Vector2((mouse.x / windowWidth) * Sprite::BASE_WIDTH, (mouse.y / windowHeight) * Sprite::BASE_HEIGHT));
+
+	// キーボードの取得
+	auto mouseTk = m_pUserResources->GetMouseStateTracker();
+
+	// オーディオUIの更新
+	if (m_audioUI.IsOpen())
+	{
+		m_audioUI.Update(m_collider);
+	}
+	// フィールド選択UIの更新
+	else if (m_fieldSelectUI.IsOpen())
+	{
+		// フェードアウト中じゃなかったら更新
+		if (!transitionMask->IsClose()) m_fieldSelectUI.Update(m_collider);
+
+		m_cameraPosition = m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition();
+		m_eyePosition = DirectX::SimpleMath::Vector3(m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition().x, m_field[m_fieldSelectUI.GetFieldIndex()]->GetPosition().y, -10);
+
+		// ゲームプレイシーンに変更
+		if (transitionMask->IsClose() && transitionMask->IsEnd())
+		{
+			ChangeScene<GameplayScene>();
+		}
+	}
+	// メニューUIの更新
+	else if (m_menuUI.IsOpen())
+	{
+		// フェードアウト中じゃなかったら更新
+		if (!transitionMask->IsClose()) m_menuUI.Update(m_collider);
+
+		m_cameraPosition = DirectX::SimpleMath::Vector3(5, 2, 0);
+		m_eyePosition = DirectX::SimpleMath::Vector3(5, 2, -10);
+
+		// チュートリアルシーンに変更
+		if (transitionMask->IsClose() && transitionMask->IsEnd())
+		{
+			ChangeScene<TutorialScene>();
+		}
+	}
+	// タイトルの更新
+	else
+	{
+		// ボタンの上で左クリックをするとクリック処理をする
+		if (!transitionMask->IsClose())
+		{
+			for (int i = 0; i < MENU_COUNT; i++)
+			{
+				if (IsHit(m_collider, m_button[i].GetCollider()))
+				{
+					if (mouseTk->leftButton == mouseTk->PRESSED)
+					{
+						m_button[i].Click();
+					}
+				}
+			}
+		}
+
+		// チュートリアルシーンに変更
+		if (transitionMask->IsClose() && transitionMask->IsEnd())
+		{
+			PostQuitMessage(0);
+		}
+	}
 }

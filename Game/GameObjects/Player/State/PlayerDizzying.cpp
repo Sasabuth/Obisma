@@ -123,7 +123,7 @@ void PlayerDizzying::Update(float elapsedTime)
 	m_time += elapsedTime;
 
 	// 時間がくらくら時間を越していたらイベントの処理
-	if (m_time >= Resources::GetInstance()->GetJson(L"Player.json")["PlayerDizzyingEndTime"])
+	if (m_time >= Resources::GetInstance()->GetJson(L"Player.json")["DizzyingEndTime"])
 	{
 		// 時間の設定
 		m_time = 0.0f;

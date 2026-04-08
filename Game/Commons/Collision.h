@@ -305,9 +305,6 @@ bool IsHit(const BoxCollider2D& boxA, const BoxCollider2D& boxB);          // ‹é
 bool IsHit(const SphereCollider& sphereA, const SphereCollider& sphereB);  // ‹…‚Æ‹…
 bool IsHit(const CubeCollider& cubeA, const CubeCollider& cubeB);          // —§•û‘Ì‚Æ—§•û‘Ì
 
-// ‹…‚Æƒ‚ƒfƒ‹
-bool IsHit(const SphereCollider& sphere, const DirectX::SimpleMath::Vector3& p0, const DirectX::SimpleMath::Vector3& p1, const DirectX::SimpleMath::Vector3& p2);
-
 // ƒŒƒC‚Æƒ‚ƒfƒ‹
 bool IsHit(
 	const DirectX::SimpleMath::Vector3& rayOrigin,

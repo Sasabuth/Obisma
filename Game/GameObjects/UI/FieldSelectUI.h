@@ -23,7 +23,7 @@ class FieldSelectUI
 {
 // ’è”
 public:
-	static constexpr int MAXSTAGE_COUNT = 2;
+	static constexpr int MAXSTAGE_COUNT = 3;
 
 
 // ’è”

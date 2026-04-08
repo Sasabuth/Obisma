@@ -25,6 +25,8 @@ public:
 	static constexpr float OFFSET = 1.9f;
 	// 影のオフセット
 	static constexpr float SHADOW_OFFSET = 0.045f;
+	// チュートリアル用の描画
+	static constexpr float TUTORIAL_DRAWPOS = 20.0f;
 
 
 // 変数

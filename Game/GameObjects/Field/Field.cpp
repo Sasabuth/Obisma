@@ -366,7 +366,7 @@ void Field::TutorialUpdate(TutorialScene* scene, ScoreManager* pScoreManager, fl
 void Field::Render()
 {
 	// デバックフォントの描画
-	/*auto* debugFont = m_pUserResource->GetDebugFont();*/
+	/*auto debugFont = m_pUserResources->GetDebugFont();*/
 
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 	auto states = m_pUserResources->GetCommonStates();
@@ -380,7 +380,7 @@ void Field::Render()
 	m_model->Draw(context, *states, world, *view, *proj);
 
 
-	//// デバック
+	// デバック
 	/*m_fieldCollider.Draw(context, *view, *proj);*/
 
 	// スカイドームの描画
@@ -565,8 +565,6 @@ void Field::IsHitEntityToField(IEntity* pIEntity)
 	DirectX::SimpleMath::Vector3 pos;
 	// 方向ベクトル
 	DirectX::SimpleMath::Vector3 vector;
-	// 当たったか
-	bool isHit = false;
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_fieldCollider.GetScale()) *
@@ -611,18 +609,12 @@ void Field::IsHitEntityToField(IEntity* pIEntity)
 				);
 			}
 		}
-
-		// 球体コライダーと三角形が当たっているか
-		if (IsHit(pIEntity->GetCollider(), p0, p1, p2) && !isHit)
-		{
-			// 当たっている
-			isHit = true;
-		}
 	}
 
 
-	// コライダーが当たっていたらかフィールド貫通しているとき
-	if (isHit)
+	// 座標とレイの衝突点の距離がコライダーの半径より小さかったら当たっている
+	DirectX::SimpleMath::Vector3 dir = pIEntity->GetPosition() - pos;
+	if (dir.Length() < pIEntity->GetCollider().GetRadius())
 	{
 		// 押し出しをする
 		pIEntity->CorrectOverlap(pos);

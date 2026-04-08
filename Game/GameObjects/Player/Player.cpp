@@ -159,7 +159,7 @@ void Player::Update(float elapsedTime)
 void Player::Render()
 {
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
-	/*auto states = m_pUserResources->GetCommonStates();*/
+	auto states = m_pUserResources->GetCommonStates();
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
 
@@ -181,11 +181,10 @@ void Player::Render()
 	}
 
 	// デバック用
-	/*auto* debugFont = m_pUserResources->GetDebugFont();*/
-	/*debugFont->Render(L"PlayerPos", std::any(m_position));*/
+	//auto* debugFont = m_pUserResources->GetDebugFont();
 	/*debugFont->Render(L"RayHitPos", std::any(m_mouseRayHitPos));*/
 
-	//m_collider.Draw(states, *view, *proj);
+	/*m_collider.Draw(states, *view, *proj);*/
 }
 
 
@@ -240,7 +239,7 @@ void Player::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 	float pushLength = r - distance;
 
 	// 押し出し方向
-	delta.Normalize();             
+	delta.Normalize();
 	m_position += delta * pushLength;
 	
 }
@@ -257,18 +256,19 @@ void Player::OnMessegeAccepted(Message::MessageID messageID)
 	{
 	//「立つ」状態に遷移する
 	case Message::STANDING:
-	
 	    ChangeState(m_standing.get());
 		break;
+
 	//「走る」状態に遷移する
 	case Message::RUNNING:
-
 		ChangeState(m_running.get());
 		break;
+
 	//「投げる」状態に遷移する
 	case Message::THROWING:
 		ThrowBall();
 		break;
+
 	//「キャッチ」状態に遷移する
 	case Message::CATCHING:
 		ChangeState(m_catching.get());

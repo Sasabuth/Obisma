@@ -53,92 +53,11 @@ void TutorialScene::Initialize()
 	// リソースの取得
 	m_pResources = Resources::GetInstance();
 
-	// デバックフォントの初期化(シーンのみ)
-	auto* debugFont = m_pUserResources->GetDebugFont();
-	debugFont->Initialize();
+	// ゲームの初期化
+	InitializeGame();
 
-	// カメラの初期化
-	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
-
-	// フィールドの初期化
-	m_field = Factory::CreateTutorialField(0);
-
-	// カメラの上向きベクトルの初期化
-	m_cameraUp = Factory::CreateCameraUp(m_field.get(), DirectX::SimpleMath::Vector3{
-		Resources::GetInstance()->GetJson(L"CameraUp.json")["TutorialPos"]["x"],
-		Resources::GetInstance()->GetJson(L"CameraUp.json")["TutorialPos"]["y"],
-		Resources::GetInstance()->GetJson(L"CameraUp.json")["TutorialPos"]["z"]
-		}
-	);
-
-	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
-	// 敵の取得
-	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
-
-	// 矢印の生成
-	m_arrow = Factory::CreateArrow(DirectX::SimpleMath::Vector3{
-		Resources::GetInstance()->GetJson(L"Arrow.json")["Position"]["x"],
-		Resources::GetInstance()->GetJson(L"Arrow.json")["Position"]["y"],
-		Resources::GetInstance()->GetJson(L"Arrow.json")["Position"]["z"]
-		}
-	);
-
-	// スコアマネージャーの初期化
-	m_scoreManager = Factory::CreateScoreManager();
-	// スコアマネージャーに追加
-	m_scoreManager->Add(player->GetScore());
-	m_scoreManager->Add(enemy->GetScore());
-
-	// ゲーム時間の初期化
-	m_interval = 0.0f;
-
-	// テクスチャの初期化
-	m_frameTexture.SetTexture(m_pResources->GetTexture(L"ScoreFrame2.png"));
-	m_timerTexture.SetTexture(m_pResources->GetTexture(L"ScoreFont2.png"));
-	m_checkMarkTexture.SetTexture(m_pResources->GetTexture(L"CheckMark.png"));
-
-	// リスナーの設定
-	m_pResources->SetListener(player->GetPosition(),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, player->GetRotation()),
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, player->GetRotation())
-	);
-
-	// カウントの初期化
-	m_count = -1;
-
-	// チュートリアル番号の初期化
-	m_tutorialIndex = ORDER::MOUSE_MOVE;
-	m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
-
-	// 説明番号の初期化
-	m_explainIndex = EXPLAINORDER::SCORE_UP;
-	m_explainTexture.SetTexture(nullptr);
-
-	// チェックできない
-	m_isCheck = false;
-
-	// 右のボールを取っているか
-	m_isRightBall = false;
-
-	// BGM
-	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", player->GetPosition(), true);
-
-	// オーディオUIの初期化
-	m_audioUI.Initialize();
-
-	// ゲームメニューUIの初期化
-	m_gameMenuUI.Initialize(&m_audioUI);
-
-	// コライダーの設定
-	m_collider.SetSize(DirectX::SimpleMath::Vector2(Resources::GetInstance()->GetJson(L"Mouse.json")["Collider"]));
-
-	// プレイ人数を初期化
-	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
-
-	// フェードをオープンする
-	auto transitionMask = m_pUserResources->GetTransitionMask();
-	transitionMask->Open();
+	// リソースの初期化
+	InitializeResource();
 }
 
 
@@ -183,9 +102,6 @@ void TutorialScene::Update(float elapsedTime)
 	// フィールドとの当たり判定
 	m_field->IsHitEntityToField(m_cameraUp.get());
 	m_field->IsHitEntityToField(m_arrow.get());
-
-	// BGMの音量の設定
-	m_bgm->SetVolume(m_pResources->GetBGMVolume());
 }
 
 
@@ -592,12 +508,121 @@ void TutorialScene::Tutorial(Player* player, float elapsedTime)
 
 
 /// <summary>
+/// ゲームの初期化
+/// </summary>
+void TutorialScene::InitializeGame()
+{
+	// カメラの初期化
+	m_camera = std::make_unique<Camera>(m_pUserResources->GetDeviceResources()->GetOutputSize().bottom, m_pUserResources->GetDeviceResources()->GetOutputSize().right);
+
+	// フィールドの初期化
+	m_field = Factory::CreateTutorialField(0);
+
+	// カメラの上向きベクトルの初期化
+	m_cameraUp = Factory::CreateCameraUp(m_field.get(), DirectX::SimpleMath::Vector3{
+		Resources::GetInstance()->GetJson(L"CameraUp.json")["TutorialPos"]["x"],
+		Resources::GetInstance()->GetJson(L"CameraUp.json")["TutorialPos"]["y"],
+		Resources::GetInstance()->GetJson(L"CameraUp.json")["TutorialPos"]["z"]
+		}
+	);
+
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	// 敵の取得
+	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
+
+	// 矢印の生成
+	m_arrow = Factory::CreateArrow(DirectX::SimpleMath::Vector3{
+		Resources::GetInstance()->GetJson(L"Arrow.json")["Position"]["x"],
+		Resources::GetInstance()->GetJson(L"Arrow.json")["Position"]["y"],
+		Resources::GetInstance()->GetJson(L"Arrow.json")["Position"]["z"]
+		}
+	);
+
+	// スコアマネージャーの初期化
+	m_scoreManager = Factory::CreateScoreManager();
+	// スコアマネージャーに追加
+	m_scoreManager->Add(player->GetScore());
+	m_scoreManager->Add(enemy->GetScore());
+
+	// ゲーム時間の初期化
+	m_interval = 0.0f;
+
+	// カウントの初期化
+	m_count = -1;
+
+	// コライダーの設定
+	m_collider.SetSize(DirectX::SimpleMath::Vector2(Resources::GetInstance()->GetJson(L"Mouse.json")["Collider"]));
+
+	// プレイ人数を初期化
+	GetSceneManager()->SetPlayerCount(PLAYER_COUNT);
+}
+
+
+
+/// <summary>
+/// リソースの初期化
+/// </summary>
+void TutorialScene::InitializeResource()
+{
+	// デバックフォントの初期化(シーンのみ)
+	auto* debugFont = m_pUserResources->GetDebugFont();
+	debugFont->Initialize();
+
+	// テクスチャの初期化
+	m_frameTexture.SetTexture(m_pResources->GetTexture(L"ScoreFrame2.png"));
+	m_timerTexture.SetTexture(m_pResources->GetTexture(L"ScoreFont2.png"));
+	m_checkMarkTexture.SetTexture(m_pResources->GetTexture(L"CheckMark.png"));
+
+	// プレイヤーの取得
+	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+
+	// リスナーの設定
+	m_pResources->SetListener(player->GetPosition(),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, player->GetRotation()),
+		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, player->GetRotation())
+	);
+
+	// チュートリアル番号の初期化
+	m_tutorialIndex = ORDER::MOUSE_MOVE;
+	m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
+
+	// 説明番号の初期化
+	m_explainIndex = EXPLAINORDER::SCORE_UP;
+	m_explainTexture.SetTexture(nullptr);
+
+	// チェックできない
+	m_isCheck = false;
+
+	// 右のボールを取っているか
+	m_isRightBall = false;
+
+	// BGM
+	m_bgm = m_pResources->GetBGMSound(L"GameBgm.wav", player->GetPosition(), true);
+
+	// オーディオUIの初期化
+	m_audioUI.Initialize();
+
+	// ゲームメニューUIの初期化
+	m_gameMenuUI.Initialize(&m_audioUI);
+
+	// フェードをオープンする
+	auto transitionMask = m_pUserResources->GetTransitionMask();
+	transitionMask->Open();
+}
+
+
+
+/// <summary>
 /// UIの更新
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
 /// <returns>止めたいか</returns>
 bool TutorialScene::UpdateUI()
 {
+	// BGMの音量の設定
+	m_bgm->SetVolume(m_pResources->GetBGMVolume());
+
 	// マウスの座標に合わせる
 	auto mouse = DirectX::Mouse::Get().GetState();
 	// 現在のウィンドウサイズを取得

@@ -163,6 +163,12 @@ public:
 
 // 内部処理
 private:
+	// ゲームの初期化
+	void InitializeGame();
+
+	// リソースの初期化
+	void InitializeResource();
+
 	// UIの更新
 	bool UpdateUI(Player* player, float elapsedTime);
 

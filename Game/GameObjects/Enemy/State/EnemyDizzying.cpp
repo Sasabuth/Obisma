@@ -125,7 +125,7 @@ void EnemyDizzying::Update(float elapsedTime)
 	// 時間の更新
 	m_time += elapsedTime;
 	// 一定時間たったらステートの変更
-	if (m_time > DIZZY_TIME)
+	if (m_time > Resources::GetInstance()->GetJson(L"Enemy.json")["DizzyingEndTime"])
 	{
 		// ターゲットの設定を外す
 		m_pEnemy->SetTarget(nullptr);

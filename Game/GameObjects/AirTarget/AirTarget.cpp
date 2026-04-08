@@ -124,7 +124,7 @@ void AirTarget::Render()
 	auto proj = m_pUserResources->GetProject();
 
 	// 座標の上限で描画する
-	if (m_position.y <= 20.0f)
+	if (m_position.y <= TUTORIAL_DRAWPOS)
 	{
 		m_currentState->Render();
 	}

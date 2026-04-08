@@ -703,59 +703,6 @@ bool IsHit(const CubeCollider& cubeA, const CubeCollider& cubeB)
 
 
 
-/// <summary>
-/// 球体とモデルの当たり判定
-/// </summary>
-/// <param name="sphereA">球</param>
-/// <param name="modelB">モデル</param>
-/// <param name="index">インデックス</param>
-/// <returns>当たっているか</returns>
-bool IsHit(const SphereCollider& sphere, const DirectX::SimpleMath::Vector3& p0, const DirectX::SimpleMath::Vector3& p1, const DirectX::SimpleMath::Vector3& p2)
-{
-	// 球体の座標
-	DirectX::SimpleMath::Vector3 sphereCenter = sphere.GetPosition();
-	// 球体の半径
-	float sphereRadius = sphere.GetRadius();
-
-	// 距離が長いとfalseにする
-	DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
-
-	// 法線
-	DirectX::SimpleMath::Vector3 N = (p1 - p0).Cross(p2 - p0);
-	N.Normalize();
-
-	// 平面距離
-	float dist = (sphereCenter - p0).Dot(N);
-
-	// 平面の範囲にあるか
-	if (fabs(dist) > sphereRadius)
-		return false;
-
-	// 辺との距離チェック
-	auto closestPointOnSegment = [&](auto a, auto b)
-		{
-			auto ab = b - a;
-			float t = (sphereCenter - a).Dot(ab) / ab.LengthSquared();
-			t = std::clamp(t, 0.0f, 1.0f);
-			return a + ab * t;
-		};
-
-	auto cp0 = closestPointOnSegment(p0, p1);
-	auto cp1 = closestPointOnSegment(p1, p2);
-	auto cp2 = closestPointOnSegment(p2, p0);
-
-	// 三角形の中に球体が当たっているか
-	if ((sphereCenter - cp0).Length() <= sphereRadius ||
-		(sphereCenter - cp1).Length() <= sphereRadius ||
-		(sphereCenter - cp2).Length() <= sphereRadius)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-
 
 /// <summary>
 /// レイとモデルの当たり判定

@@ -33,5 +33,7 @@
 
 	"ThrowAngleHigh": 20,
 
-	"HandOffsetScale": 1.015
+	"HandOffsetScale": 1.015,
+
+	"DizzyingEndTime": 3.0
 }
