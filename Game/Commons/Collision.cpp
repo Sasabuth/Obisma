@@ -413,7 +413,7 @@ void ModelCollider::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pCont
 	// バッチの作成
 	m_batch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(pContext);
 
-	// CPU にコピー
+	// CPUにコピー
 	for (auto& mesh : pModel->meshes)
 	{
 		for (auto& part : mesh->meshParts)

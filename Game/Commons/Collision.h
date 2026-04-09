@@ -238,7 +238,7 @@ private:
 
 // 変数
 private:
-	// 頂点の配列
+	// 頂点情報の配列
 	std::vector<DirectX::VertexPosition> m_vertices;
 
 	// 三角形を作るための番号の配列

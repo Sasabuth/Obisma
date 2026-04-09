@@ -22,8 +22,6 @@ class EnemyCatching : public IState
 {
 // 定数
 private:
-	// コライダーのサイズ
-	static constexpr float COLLIDER_SIZE = 0.25f;
 
 
 // 変数
@@ -36,9 +34,6 @@ private:
 
 	// モデル
 	DirectX::Model* m_model;
-
-	// コライダー
-	SphereCollider m_collider;
 
 	// アニメーションボーン配列
 	DirectX::ModelBone::TransformArray m_drawBones;  

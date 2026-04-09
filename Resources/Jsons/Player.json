@@ -38,6 +38,8 @@
 
 	"ThrowAngleHigh": 10,
 
+	"ThrowAngleDefault": 8,
+
 	"Decay": 0.75,
 
 	"Offset": 2.4,

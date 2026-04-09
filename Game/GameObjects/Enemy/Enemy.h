@@ -151,6 +151,9 @@ public:
 	// ボールの座標の設定
 	void SetBallPosition(Ball* ball, DirectX::SimpleMath::Matrix handMatrix);
 
+	// 近い距離のボールを探す
+	Ball* FindNearBall(Ball* nearBall, Ball* ball, int index);
+
 	// 影の初期化
 	void InitializeShadow(ID3D11Device* device, ID3D11DeviceContext* context);
 

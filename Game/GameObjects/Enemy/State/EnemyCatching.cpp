@@ -24,7 +24,6 @@ EnemyCatching::EnemyCatching(Enemy* pEnemy)
 	: m_pEnemy(pEnemy)
 	, m_pUserResources(nullptr)
 	, m_model{}
-	, m_collider{}
 	, m_isEffect(false)
 {
 	// モデルの作成
@@ -65,9 +64,6 @@ void EnemyCatching::Initialize()
 	auto device = m_pUserResources->GetDeviceResources()->GetD3DDevice();
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
 
-	// コライダーの初期化
-	m_collider.Initialize(context, m_pEnemy->GetPosition(), COLLIDER_SIZE);
-
 	// アイドリングアニメーションの開始時間を設定する
 	m_animation->SetStartTime(0.0f);
 	// アイドリングアニメーションの終了時間を設定する
@@ -107,13 +103,6 @@ void EnemyCatching::Update(float elapsedTime)
 		m_pEnemy->SetBallPosition(ball, m_leftHandMatrix);
 	}
 
-	// キャッチ用コライダーの設定
-	DirectX::SimpleMath::Vector3 catchPos =
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation()) / 2.5 -
-		DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_pEnemy->GetRotation()) / 3;
-	m_collider.SetPosition(m_pEnemy->GetPosition() + catchPos);
-
-
 	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
 		// ボールの取得
@@ -123,7 +112,7 @@ void EnemyCatching::Update(float elapsedTime)
 		if (ball->GetCurrentState() == ball->GetMoving())
 		{
 			// ボールをキャッチする
-			if (IsHit(m_collider, ball->GetCollider()))
+			if (IsHit(m_pEnemy->GetCatchCollider(), ball->GetCollider()))
 			{
 				CatchHandBall(i);
 			}

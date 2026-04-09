@@ -107,7 +107,7 @@ void EnemyStanding::Update(float elapsedTime)
 			// ボールが止まっているたら近いボールを取得する
 			if (ball->GetCurrentState() == ball->GetStopping())
 			{
-				nearBall = GetNearBall(nearBall, ball, i);
+				nearBall = m_pEnemy->FindNearBall(nearBall, ball, i);
 			}
 		}
 
@@ -133,7 +133,7 @@ void EnemyStanding::Update(float elapsedTime)
 			// ボールが止まっているたら近いボールを取得する
 			if (ball->GetCurrentState() == ball->GetStopping())
 			{
-				nearBall = GetNearBall(nearBall, ball, i);
+				nearBall = m_pEnemy->FindNearBall(nearBall, ball, i);
 			}
 		}
 
@@ -297,42 +297,6 @@ void EnemyStanding::AnimationUpdate(float elapsedTime)
 
 	m_rightHandMatrix = m_drawBones[15];
 	m_leftHandMatrix = m_drawBones[20];
-}
-
-
-
-/// <summary>
-/// 近い距離のボールを取得
-/// </summary>
-/// <param name="ball">ボールのポインタ</param>
-/// <param name="index">インデックス</param>
-/// <returns>近いボール</returns>
-Ball* EnemyStanding::GetNearBall(Ball* nearBall, Ball* ball, int index)
-{
-	// 今のボール番号のボールが止まっていなかったら
-	if (nearBall->GetCurrentState() != nearBall->GetStopping())
-	{
-		// 新しいボール番号を設定する
-		m_pEnemy->SetBallIndex(index);
-		// 新しいボールを返す
-		return ball;
-	}
-
-	// どちらのほうが近いか距離を調べる
-	DirectX::SimpleMath::Vector3 dir1 = m_pEnemy->GetPosition() - nearBall->GetPosition();
-	DirectX::SimpleMath::Vector3 dir2 = m_pEnemy->GetPosition() - ball->GetPosition();
-
-	// 新しいほうが近かったら
-	if (dir1.Length() > dir2.Length())
-	{
-		// 新しいボール番号を設定する
-		m_pEnemy->SetBallIndex(index);
-		// 新しいボールを返す
-		return ball;
-	}
-
-	// 遠かったら現在のボールを返す
-	return nearBall;
 }
 
 

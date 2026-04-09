@@ -128,7 +128,7 @@ void GameplayScene::Render()
 	m_field->Render();
 
 	// スコアマネージャーの描画
-	m_scoreManager->Render();
+	/*m_scoreManager->Render();*/
 
 	// タイマーの描画
 	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
@@ -351,8 +351,8 @@ bool GameplayScene::UpdateUI(Player* player, float elapsedTime)
 	// カウントダウンの更新
 	m_countDownTimer -= elapsedTime;
 
-	// カウントダウンが0～3秒以内なら更新させない
-	if (m_countDownTimer > 0.0f && m_countDownTimer < 3.0f)
+	// カウントダウンをしているなら更新させない(少し更新しないと配置できないため0.2f減らす)
+	if (m_countDownTimer > 0.0f && m_countDownTimer < COUNTDOWN_TIME - 0.2f)
 	{
 		// SEをつける
 		if (!m_startSE)	m_startSE = m_pResources->GetSESound(L"CountDown.wav", player->GetPosition(), false);

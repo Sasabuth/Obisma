@@ -166,7 +166,7 @@ void PlayerThrowingR::Update(float elapsedTime)
 				if (angleDeg < Resources::GetInstance()->GetJson(L"Player.json")["AngleLow"])
 				{
 					rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
-						Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleLow"])
+						(float)Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleLow"])
 					);
 				}
 				else if (angleDeg < Resources::GetInstance()->GetJson(L"Player.json")["AngleMiddle"])
@@ -181,6 +181,13 @@ void PlayerThrowingR::Update(float elapsedTime)
 						Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleHigh"])
 					);
 				}
+			}
+			// ロックオン以外で投げるとき
+			else
+			{
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+					(float)Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleDefault"])
+				);
 			}
 
 			// ボールの速度の取得
@@ -298,8 +305,8 @@ void PlayerThrowingR::Render()
 	//m_primitiveBatch->End();
 
 	// デバックフォントの描画
-	//auto* debugFont = m_pUserResources->GetDebugFont();
-	//debugFont->Render(L"angleD", std::any(angleD));
+	/*auto* debugFont = m_pUserResources->GetDebugFont();
+	debugFont->Render(L"angleD", std::any(a));*/
 }
 
 

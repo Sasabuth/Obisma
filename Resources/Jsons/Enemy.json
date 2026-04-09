@@ -18,9 +18,11 @@
 		}
 	},
 
-	"EnemySpeed": 2.2,
+	"EnemySpeed": 2.1,
 
 	"EnemySize": 0.003,
+
+	"ThrowLength": 2.0,
 
 	"ShadowSize": 0.4,
 
@@ -35,5 +37,7 @@
 
 	"HandOffsetScale": 1.015,
 
-	"DizzyingEndTime": 3.0
+	"DizzyingEndTime": 3.0,
+
+	"MaxAngleDiff": 0.2
 }

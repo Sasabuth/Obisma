@@ -86,8 +86,5 @@ private:
 
 	// ボールを持つ
 	void CatchHandBall();
-
-	// 近い距離のボールを取得
-	Ball* GetNearBall(Ball* nearBall, Ball* ball, int index);
 };
 

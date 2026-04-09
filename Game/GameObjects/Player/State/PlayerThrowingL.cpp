@@ -182,6 +182,13 @@ void PlayerThrowingL::Update(float elapsedTime)
 					);
 				}
 			}
+			// ロックオン以外で投げるとき
+			else
+			{
+				rotate = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, DirectX::XMConvertToRadians(
+					(float)Resources::GetInstance()->GetJson(L"Player.json")["ThrowAngleDefault"])
+				);
+			}
 
 			// ボールの速度の取得
 			float speed = Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"];
