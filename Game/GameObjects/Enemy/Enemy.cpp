@@ -177,7 +177,7 @@ void Enemy::Render()
 	}
 
 	//m_collider.Draw(states, *view, *proj);
-	m_catchCollider.Draw(states, *view, *proj);
+	/*m_catchCollider.Draw(states, *view, *proj);*/
 }
 
 

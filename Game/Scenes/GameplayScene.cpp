@@ -128,7 +128,7 @@ void GameplayScene::Render()
 	m_field->Render();
 
 	// スコアマネージャーの描画
-	/*m_scoreManager->Render();*/
+	m_scoreManager->Render();
 
 	// タイマーの描画
 	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
