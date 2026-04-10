@@ -164,7 +164,7 @@ void Enemy::Update(float elapsedTime)
 void Enemy::Render()
 {
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
-	auto states = m_pUserResources->GetCommonStates();
+	//auto states = m_pUserResources->GetCommonStates();
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
 
