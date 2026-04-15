@@ -187,7 +187,7 @@ private:
 // 変数
 private:
 	DirectX::SimpleMath::Vector3 m_position;  // 座標
-	DirectX::SimpleMath::Vector3 m_extent;    // 半径
+	DirectX::SimpleMath::Vector3 m_extent;    // 直径
 
 	std::unique_ptr<DirectX::GeometricPrimitive> m_cube;  // 立方体
 
@@ -197,6 +197,12 @@ public:
 	// コンストラクタ
 	CubeCollider();
 
+	CubeCollider(const CubeCollider&) = delete;            // コピー禁止
+	CubeCollider& operator=(const CubeCollider&) = delete;
+
+	CubeCollider(CubeCollider&&) = default;                // ムーブOK
+	CubeCollider& operator=(CubeCollider&&) = default;
+
 	// デストラクタ
 	~CubeCollider();
 
@@ -204,7 +210,7 @@ public:
 	void Initialize(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Vector3 position, DirectX::SimpleMath::Vector3 size);
 
 	// 描画処理
-	void Draw(DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, DirectX::FXMVECTOR color = DirectX::Colors::White);
+	void Draw(DirectX::CommonStates* states, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj);
 
 	
 // 取得/設定
@@ -219,7 +225,7 @@ public:
 	// サイズの設定
 	void SetExtent(DirectX::SimpleMath::Vector3 extent) { m_extent = extent; }
 
-	// 半径の取得
+	// 直径の取得
 	DirectX::SimpleMath::Vector3 GetExtent() const { return m_extent; }
 
 
@@ -234,6 +240,13 @@ class ModelCollider
 {
 // 定数
 private:
+	// グループ
+	struct Group
+	{
+		DirectX::SimpleMath::Vector3 position;  // 座標
+		DirectX::SimpleMath::Vector3 extent;    // 直径
+		std::vector<int> index;                 // 三角形の番号
+	};
 
 
 // 変数
@@ -244,8 +257,15 @@ private:
 	// 三角形を作るための番号の配列
 	std::vector<uint32_t> m_indices;
 
-	DirectX::SimpleMath::Vector3 m_position;  // 座標
-	float m_scale;  // 半径
+	// 座標
+	DirectX::SimpleMath::Vector3 m_position; 
+	// 拡大率
+	float m_scale;  
+
+	// グループ
+	std::vector<Group> m_groups;
+	// デバック用コライダー
+	std::vector<CubeCollider> m_debugColliders;
 
 	// エフェクト
 	std::unique_ptr<DirectX::BasicEffect> m_effect;
@@ -263,11 +283,12 @@ public:
 	~ModelCollider();
 
 	// 初期化処理
-	void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, DirectX::Model* pModel);
+	void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, DirectX::Model* pModel, DirectX::SimpleMath::Vector3 position, float scale);
 
 	// 描画処理
-	void Draw(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, DirectX::FXMVECTOR color = DirectX::Colors::White);
+	void Draw(DirectX::CommonStates* states, ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj);
 	void DebugDraw(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, int index, DirectX::FXMVECTOR color = DirectX::Colors::White);
+
 
 
 // 取得/設定
@@ -283,20 +304,30 @@ public:
 	// 拡大率の取得
 	float GetScale() const { return m_scale; }
 
+	// 番号の数の取得
 	size_t GetIndicesCount() const { return m_indices.size(); }
+	// 番号の取得
 	uint32_t GetIndices(int index) const { return m_indices[index]; }
 
+	// グループの数の取得
+	size_t GetGroupCount() const { return m_groups.size(); }
+	// グループの取得
+	const Group& GetGroup(int index) { return m_groups[index]; }
+
+	// 中心の座標の取得
 	DirectX::SimpleMath::Vector3 GetCenterPosition(int index) const;
 
+	// 頂点の取得
 	const DirectX::VertexPosition& GetVertices(int index)  const { return m_vertices[index]; }
-	
+
+	// 法線ベクトルの取得
 	DirectX::SimpleMath::Vector3 GetNormalVector(int index) const;
 
 
 // 内部実装
 private:
-
-
+	// グループの設定
+	void SetGroup(ID3D11DeviceContext* pContext);
 };
 
 
@@ -304,6 +335,8 @@ private:
 bool IsHit(const BoxCollider2D& boxA, const BoxCollider2D& boxB);          // 矩形コライダーと矩形コライダーの当たり判定
 bool IsHit(const SphereCollider& sphereA, const SphereCollider& sphereB);  // 球と球
 bool IsHit(const CubeCollider& cubeA, const CubeCollider& cubeB);          // 立方体と立方体
+bool IsHit(const SphereCollider& sphere, const DirectX::SimpleMath::Vector3& boxCenter,  // 球と立方体
+	const DirectX::SimpleMath::Vector3& boxHalfSize);
 
 // レイとモデル
 bool IsHit(
@@ -314,3 +347,13 @@ bool IsHit(
 	const DirectX::SimpleMath::Vector3& p2,
 	DirectX::SimpleMath::Vector3& outHitPoint
 );
+
+// レイと立方体
+bool IsHit(
+	const DirectX::SimpleMath::Vector3& rayOrigin,
+	const DirectX::SimpleMath::Vector3& rayDir,
+	const DirectX::SimpleMath::Vector3& center,
+	const DirectX::SimpleMath::Vector3& extent
+);
+
+

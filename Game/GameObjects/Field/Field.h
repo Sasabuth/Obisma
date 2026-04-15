@@ -127,5 +127,8 @@ public:
 private:
 	// 敵を更新させるか
 	bool IsEnemyUpdate(TutorialScene* scene);
+
+	// レイと三角形の当たり判定
+	bool RaycastTriangles(int groupIndex, DirectX::SimpleMath::Ray ray, IEntity* pIEntity, DirectX::SimpleMath::Vector3& pos, DirectX::SimpleMath::Vector3& vector);
 };
 

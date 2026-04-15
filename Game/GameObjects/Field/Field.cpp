@@ -94,10 +94,7 @@ void Field::Initialize(int stageIndex, bool isSkyDome)
 
 	// コライダーの初期化
 	m_collider.Initialize(context, m_position, MODEL_SCALE);
-
-	m_fieldCollider.Initialize(device, context, m_model);
-	m_fieldCollider.SetPosition(m_position);
-	m_fieldCollider.SetScale(MODEL_SCALE);
+	m_fieldCollider.Initialize(device, context, m_model, m_position, MODEL_SCALE);
 
 	// ボールマネージャーの初期化
 	m_ballManager = Factory::CreateBallManager(this, BallManager::BALLCOUNT);
@@ -183,10 +180,7 @@ void Field::TutorialInitialize(int stageIndex, bool isSkyDome)
 
 	// コライダーの初期化
 	m_collider.Initialize(context, m_position, MODEL_SCALE);
-
-	m_fieldCollider.Initialize(device, context, m_model);
-	m_fieldCollider.SetPosition(m_position);
-	m_fieldCollider.SetScale(MODEL_SCALE);
+	m_fieldCollider.Initialize(device, context, m_model, m_position, MODEL_SCALE);
 
 	// ボールマネージャーの初期化
 	m_ballManager = Factory::CreateBallManager(this, BallManager::TUTORIAL_BALLCOUNT);
@@ -566,51 +560,19 @@ void Field::IsHitEntityToField(IEntity* pIEntity)
 	// 方向ベクトル
 	DirectX::SimpleMath::Vector3 vector;
 
-	// ワールド座標
-	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_fieldCollider.GetScale()) *
-		DirectX::SimpleMath::Matrix::CreateTranslation(m_fieldCollider.GetPosition());
-
-	// 三角形の数分for文で回す
-	for (size_t i = 0; i + 2 < m_fieldCollider.GetIndicesCount(); i += 3)
+	// グループ分回す
+	for (int i = 0; i < m_fieldCollider.GetGroupCount(); i++)
 	{
-		// 三角形の点のワールド座標を取得
-		DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(m_fieldCollider.GetVertices(m_fieldCollider.GetIndices((int)i)).position, world);
-		DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(m_fieldCollider.GetVertices(m_fieldCollider.GetIndices((int)i + 1)).position, world);
-		DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(m_fieldCollider.GetVertices(m_fieldCollider.GetIndices((int)i + 2)).position, world);
-
-		// 三角形の中心から遠かったら当たってないことにする
-		DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
-		float length = (ray.position - center).Length();
-		if (length > LENGTH)
+		// 球と立方体の当たり判定を調べる
+		if (IsHit(ray.position, ray.direction, m_fieldCollider.GetGroup(i).position, m_fieldCollider.GetGroup(i).extent / 2))
 		{
-			continue;
-		}
-
-		// 当たった座標
-		DirectX::SimpleMath::Vector3 pos1;
-		// レイと三角形が当たっているか
-		if (IsHit(ray.position, ray.direction, p0, p1, p2, pos1))
-		{
-			// 前と後に当たった座標の距離を求める
-			DirectX::SimpleMath::Vector3 d0 = pIEntity->GetPosition() - pos;
-			DirectX::SimpleMath::Vector3 d1 = pIEntity->GetPosition() - pos1;
-
-			// 後に当たったほうが近かったら
-			if (d0.Length() > d1.Length())
+			// レイと三角形の当たり判定
+			if (RaycastTriangles(i, ray, pIEntity, pos, vector))
 			{
-				// 後の座標を入れる
-				pos = pos1;
-
-				// 三角形の法線ベクトルを入れる
-				vector = DirectX::SimpleMath::Vector3::Lerp(
-					-pIEntity->GetGravity(),
-					m_fieldCollider.GetNormalVector((int)i),
-					0.3f
-				);
+				i = (int)m_fieldCollider.GetGroupCount();
 			}
 		}
 	}
-
 
 	// 座標とレイの衝突点の距離がコライダーの半径より小さかったら当たっている
 	DirectX::SimpleMath::Vector3 dir = pIEntity->GetPosition() - pos;
@@ -686,4 +648,60 @@ bool Field::IsEnemyUpdate(TutorialScene* scene)
 	}
 
 	return false;
+}
+
+
+
+/// <summary>
+/// レイと三角形の当たり判定
+/// </summary>
+/// <param name="groupIndex">グループ番号</param>
+/// <param name="ray">レイ</param>
+/// <param name="pIEntity">実体</param>
+/// <param name="pos">座標</param>
+/// <param name="vector">ベクトル</param>
+bool Field::RaycastTriangles(int groupIndex, DirectX::SimpleMath::Ray ray, IEntity* pIEntity, DirectX::SimpleMath::Vector3& pos, DirectX::SimpleMath::Vector3& vector)
+{
+	bool isHit = false;
+
+	// ワールド座標
+	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_fieldCollider.GetScale()) *
+		DirectX::SimpleMath::Matrix::CreateTranslation(m_fieldCollider.GetPosition());
+
+	// 当たっているグループが持っている三角形を調べる
+	for (size_t i = 0; i < m_fieldCollider.GetGroup(groupIndex).index.size(); i++)
+	{
+		// 三角形の番号
+		int index = (int)m_fieldCollider.GetGroup(groupIndex).index[i];
+
+		// 三角形の点のワールド座標を取得
+		DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(m_fieldCollider.GetVertices(m_fieldCollider.GetIndices(index)).position, world);
+		DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(m_fieldCollider.GetVertices(m_fieldCollider.GetIndices(index + 1)).position, world);
+		DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(m_fieldCollider.GetVertices(m_fieldCollider.GetIndices(index + 2)).position, world);
+
+		// 三角形の中心から遠かったら当たってないことにする
+		DirectX::SimpleMath::Vector3 center = (p0 + p1 + p2) / 3.0f;
+		float length = (ray.position - center).Length();
+		if (length > LENGTH)
+		{
+			continue;
+		}
+
+		// 当たった座標
+		DirectX::SimpleMath::Vector3 pos1;
+		// レイと三角形が当たっているか
+		if (IsHit(ray.position, ray.direction, p0, p1, p2, pos))
+		{
+			// 三角形の法線ベクトルを入れる
+			vector = DirectX::SimpleMath::Vector3::Lerp(
+				-pIEntity->GetGravity(),
+				m_fieldCollider.GetNormalVector((int)index),
+				0.3f
+			);
+
+			isHit = true;
+		}
+	}
+
+	return isHit;
 }

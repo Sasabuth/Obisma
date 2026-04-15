@@ -367,12 +367,18 @@ void CubeCollider::Initialize(ID3D11DeviceContext* pContext, DirectX::SimpleMath
 /// </summary>
 /// <param name="view">ビュー行列</param>
 /// <param name="proj">プロジェクション行列</param>
-void CubeCollider::Draw(DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, DirectX::FXMVECTOR color)
+void CubeCollider::Draw(DirectX::CommonStates* states, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj)
 {
 	DirectX::SimpleMath::Matrix world;
 
 	world = DirectX::SimpleMath::Matrix::CreateTranslation(m_position);
-	m_cube->Draw(world, view, proj, color);
+	m_cube->Draw(world,
+		view,
+		proj,
+		DirectX::Colors::White,   // ここに半透明色
+		nullptr,
+		states->DepthRead()
+	);
 }
 
 
@@ -405,13 +411,19 @@ ModelCollider::~ModelCollider()
 /// <param name="pDevice">デバイス</param>
 /// <param name="pContext">コンテキスト</param>
 /// <param name="model">モデル</param>
-void ModelCollider::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, DirectX::Model* pModel)
+void ModelCollider::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, DirectX::Model* pModel, DirectX::SimpleMath::Vector3 position, float scale)
 {
 	// エフェクトの作成
 	m_effect = std::make_unique<DirectX::BasicEffect>(pDevice);
 
 	// バッチの作成
 	m_batch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(pContext);
+
+	// 座標の設定
+	m_position = position;
+
+	// 拡大率の設定
+	m_scale = scale;
 
 	// CPUにコピー
 	for (auto& mesh : pModel->meshes)
@@ -484,13 +496,16 @@ void ModelCollider::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pCont
 				// 32ビットのデータの取得
 				const uint32_t* idx = reinterpret_cast<const uint32_t*>(mapped.pData);
 				// パーツのインデックス分入れる
-				for (size_t i = 0; i < part->indexCount; ++i) m_indices.push_back(idx[i]);
+				for (size_t i = 0; i < part->indexCount; i++) m_indices.push_back(idx[i]);
 			}
 
 			// 読み取り終了
 			pContext->Unmap(stagingIB.Get(), 0);
 		}
 	}
+
+	// グループの設定
+	SetGroup(pContext);
 }
 
 
@@ -502,7 +517,7 @@ void ModelCollider::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pCont
 /// <param name="view">ビュー行列</param>
 /// <param name="proj">プロジェクション行列</param>
 /// <param name="color">色</param>
-void ModelCollider::Draw(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, DirectX::FXMVECTOR color)
+void ModelCollider::Draw(DirectX::CommonStates* states, ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj)
 {
 	// ワールド行列
 	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_scale) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position);
@@ -514,38 +529,44 @@ void ModelCollider::Draw(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Mat
 	m_effect->Apply(pContext);
 
 	// PrimitiveBatch を使って描画
-	m_batch->Begin();
+	//m_batch->Begin();
 
-	// 3点をとり三角形を描画(使った頂点を使わないように3個進める)
-	for (size_t i = 0; i + 2 < m_indices.size(); i += 3)
+	//// 3点をとり三角形を描画(使った頂点を使わないように3個進める)
+	//for (size_t i = 0; i + 2 < m_indices.size(); i += 3)
+	//{
+	//	DirectX::VertexPositionColor p0{ m_vertices[m_indices[i    ]].position, (DirectX::SimpleMath::Vector4)color };
+	//	DirectX::VertexPositionColor p1{ m_vertices[m_indices[i + 1]].position, (DirectX::SimpleMath::Vector4)color };
+	//	DirectX::VertexPositionColor p2{ m_vertices[m_indices[i + 2]].position, (DirectX::SimpleMath::Vector4)color };
+
+	//	DirectX::SimpleMath::Vector3 edge1 = DirectX::SimpleMath::Vector3(p1.position) - p0.position;
+	//	DirectX::SimpleMath::Vector3 edge2 = DirectX::SimpleMath::Vector3(p2.position) - p0.position;
+
+	//	// 外積で法線を求める
+	//	DirectX::SimpleMath::Vector3 normal = edge1.Cross(edge2);
+
+	//	// 正規化（必須）
+	//	normal.Normalize();
+
+	//	DirectX::SimpleMath::Vector3 center = DirectX::SimpleMath::Vector3(
+	//		(p0.position.x + p1.position.x + p2.position.x) / 3,
+	//		(p0.position.y + p1.position.y + p2.position.y) / 3,
+	//		(p0.position.z + p1.position.z + p2.position.z) / 3
+	//	);
+
+	//	DX::DrawRay(m_batch.get(), center, normal / 5, false, DirectX::Colors::Red);
+
+	//	m_batch->DrawLine(p0, p1);
+	//	m_batch->DrawLine(p1, p2);
+	//	m_batch->DrawLine(p2, p0);
+	//}
+
+	//m_batch->End();
+
+	// デバック用コライダーの描画
+	for (auto& collider : m_debugColliders)
 	{
-		DirectX::VertexPositionColor p0{ m_vertices[m_indices[i    ]].position, (DirectX::SimpleMath::Vector4)color };
-		DirectX::VertexPositionColor p1{ m_vertices[m_indices[i + 1]].position, (DirectX::SimpleMath::Vector4)color };
-		DirectX::VertexPositionColor p2{ m_vertices[m_indices[i + 2]].position, (DirectX::SimpleMath::Vector4)color };
-
-		DirectX::SimpleMath::Vector3 edge1 = DirectX::SimpleMath::Vector3(p1.position) - p0.position;
-		DirectX::SimpleMath::Vector3 edge2 = DirectX::SimpleMath::Vector3(p2.position) - p0.position;
-
-		// 外積で法線を求める
-		DirectX::SimpleMath::Vector3 normal = edge1.Cross(edge2);
-
-		// 正規化（必須）
-		normal.Normalize();
-
-		DirectX::SimpleMath::Vector3 center = DirectX::SimpleMath::Vector3(
-			(p0.position.x + p1.position.x + p2.position.x) / 3,
-			(p0.position.y + p1.position.y + p2.position.y) / 3,
-			(p0.position.z + p1.position.z + p2.position.z) / 3
-		);
-
-		DX::DrawRay(m_batch.get(), center, normal / 5, false, DirectX::Colors::Red);
-
-		m_batch->DrawLine(p0, p1);
-		m_batch->DrawLine(p1, p2);
-		m_batch->DrawLine(p2, p0);
+		collider.Draw(states,view, proj);
 	}
-
-	m_batch->End();
 }
 
 
@@ -581,6 +602,90 @@ void ModelCollider::DebugDraw(ID3D11DeviceContext* pContext, DirectX::SimpleMath
 	m_batch->DrawLine(p2, p0);
 
 	m_batch->End();
+}
+
+
+
+/// <summary>
+/// グループの設定
+/// </summary>
+/// <param name="pContext">コンテキスト</param>
+void ModelCollider::SetGroup(ID3D11DeviceContext* pContext)
+{
+	// 三角形の数
+	int triangleCount = (int)m_indices.size() / 3;
+	// グループ数
+	int maxGroup = Resources::GetInstance()->GetJson(L"FieldSelect.json")["MaxGroup"];
+
+	// 一つのグループの三角形の数
+	int quotient = triangleCount / maxGroup;
+	// 割り切れないときの三角形の数
+	int remainder = triangleCount % maxGroup;
+
+	// 三角形の番号
+	int triangleIndex = 0;
+
+	// ワールド座標
+	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_scale) *
+		DirectX::SimpleMath::Matrix::CreateTranslation(m_position);
+
+	// グループ分回す
+	for (int box = 0; box < maxGroup; box++)
+	{
+		// 最後になったら余りを入れておく
+		if (box == maxGroup - 1)
+		{
+			quotient += remainder;
+		}
+
+		// グループ
+		Group group;
+
+		// 最小と最大の座標の宣言
+		DirectX::SimpleMath::Vector3 min(FLT_MAX, FLT_MAX, FLT_MAX);
+		DirectX::SimpleMath::Vector3 max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+		// 3点をとり三角形を描画(使った頂点を使わないように3個進める)
+		for (size_t i = triangleIndex; i < triangleIndex + quotient; i ++)
+		{
+			// グループに三角形の番号を入れる
+			group.index.push_back((int)i * 3);
+
+			// 三角形の点のワールド座標を取得
+			DirectX::SimpleMath::Vector3 p0 = DirectX::SimpleMath::Vector3::Transform(m_vertices[m_indices[i * 3    ]].position, world);
+			DirectX::SimpleMath::Vector3 p1 = DirectX::SimpleMath::Vector3::Transform(m_vertices[m_indices[i * 3 + 1]].position, world);
+			DirectX::SimpleMath::Vector3 p2 = DirectX::SimpleMath::Vector3::Transform(m_vertices[m_indices[i * 3 + 2]].position, world);
+
+			// どの点が一番近いか調べる
+			min = DirectX::SimpleMath::Vector3::Min(min, p0);
+			min = DirectX::SimpleMath::Vector3::Min(min, p1);
+			min = DirectX::SimpleMath::Vector3::Min(min, p2);
+
+			// どの点が一番遠いか調べる
+			max = DirectX::SimpleMath::Vector3::Max(max, p0);
+			max = DirectX::SimpleMath::Vector3::Max(max, p1);
+			max = DirectX::SimpleMath::Vector3::Max(max, p2);
+		}
+
+		// 中心
+		DirectX::SimpleMath::Vector3 center = (max + min) * 0.5f;
+
+		// 直径サイズ
+		DirectX::SimpleMath::Vector3 size = (max - min);
+
+		// グループに入れる
+		group.position = center;
+		group.extent = size;
+		m_groups.push_back(std::move(group));
+
+		// デバック用コライダーの生成
+		CubeCollider cube;
+		cube.Initialize(pContext, center, size);
+		m_debugColliders.push_back(std::move(cube));
+
+		// 次の三角形の番号にする
+		triangleIndex += quotient;
+	}
 }
 
 
@@ -703,6 +808,37 @@ bool IsHit(const CubeCollider& cubeA, const CubeCollider& cubeB)
 
 
 
+/// <summary>
+/// 球と立方体の当たり判定
+/// </summary>
+/// <param name="sphere">球</param>
+/// <param name="boxCenter">立方体の座標</param>
+/// <param name="boxHalfSize">立方体の半径</param>
+/// <returns>当たっているか</returns>
+bool IsHit(const SphereCollider& sphere, const DirectX::SimpleMath::Vector3& boxCenter, const DirectX::SimpleMath::Vector3& boxHalfSize)
+{
+	// 最小と最大の座標
+	DirectX::SimpleMath::Vector3 min = boxCenter - boxHalfSize;
+	DirectX::SimpleMath::Vector3 max = boxCenter + boxHalfSize;
+
+	// 接点を求める
+	float closestX = std::max(min.x, std::min(sphere.GetPosition().x, max.x));
+	float closestY = std::max(min.y, std::min(sphere.GetPosition().y, max.y));
+	float closestZ = std::max(min.z, std::min(sphere.GetPosition().z, max.z));
+
+	// 接点と球の中心の計算
+	float dx = closestX - sphere.GetPosition().x;
+	float dy = closestY - sphere.GetPosition().y;
+	float dz = closestZ - sphere.GetPosition().z;
+
+	// 距離を求める
+	float distanceSq = dx * dx + dy * dy + dz * dz;
+
+	// 半径の合計が大きかったら当たっている
+	return distanceSq <= (sphere.GetRadius() * sphere.GetRadius()) ? true : false;
+}
+
+
 
 /// <summary>
 /// レイとモデルの当たり判定
@@ -725,8 +861,8 @@ bool IsHit(const DirectX::SimpleMath::Vector3& rayOrigin, const DirectX::SimpleM
 	DirectX::SimpleMath::Vector3 pvec = rayDir.Cross(edge2);
 	float det = edge1.Dot(pvec);
 
-	// 裏面の当たり判定はしない
-	if (fabs(det) < 0.000001f)
+	// 裏面の判定をしない
+	if (det < 0.0001f)
 		return false;
 
 	float invDet = 1.0f / det;
@@ -754,3 +890,62 @@ bool IsHit(const DirectX::SimpleMath::Vector3& rayOrigin, const DirectX::SimpleM
 	outHitPoint = rayOrigin + rayDir * outT;
 	return true;
 }
+
+
+
+/// <summary>
+/// レイと立方体の当たり判定
+/// </summary>
+/// <param name="rayOrigin">レイの座標</param>
+/// <param name="rayDir">レイの方向</param>
+/// <param name="boxCenter">立方体の座標</param>
+/// <param name="boxHalfSize">立方体の半径</param>
+/// <returns>当たっているか</returns>
+bool IsHit(const DirectX::SimpleMath::Vector3& rayOrigin, const DirectX::SimpleMath::Vector3& rayDir, const DirectX::SimpleMath::Vector3& boxCenter, const DirectX::SimpleMath::Vector3& boxHalfSize)
+{
+	// 最小と最大の座標
+	DirectX::SimpleMath::Vector3 minBox = boxCenter - boxHalfSize;
+	DirectX::SimpleMath::Vector3 maxBox = boxCenter + boxHalfSize;
+
+	float tmin = 0.0f;
+	float tmax = FLT_MAX;
+
+	// 成分を分解
+	float origin[3] = { rayOrigin.x,rayOrigin.y,rayOrigin.z };
+	float dir[3]    = { rayDir.x,rayDir.y,rayDir.z };
+	float minB[3]   = { minBox.x,minBox.y,minBox.z };
+	float maxB[3]   = { maxBox.x,maxBox.y,maxBox.z };
+
+	for (int i = 0; i < 3; i++)
+	{
+		// ベクトルがほぼない
+		if (fabs(dir[i]) < 0.0001f)
+		{
+			// レイの座標が範囲外なら交差していない
+			if (origin[i] < minB[i] || origin[i] > maxB[i])
+				return false;
+		}
+		else
+		{
+			// スラブとの距離を算出
+			// t1が近スラブ、t2が遠スラブとの距離
+			float ood = 1.0f / dir[i];
+			float t1 = (minB[i] - origin[i]) * ood;
+			float t2 = (maxB[i] - origin[i]) * ood;
+
+			// 小さい順に並べる
+			if (t1 > t2) std::swap(t1, t2);
+
+			// 当たり始めと終わりの点を調べる
+			tmin = std::max(tmin, t1);
+			tmax = std::min(tmax, t2);
+
+			// スラブ交差チェック
+			if (tmin > tmax)
+				return false;
+		}
+	}
+
+	return true;
+}
+
