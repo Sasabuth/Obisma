@@ -517,7 +517,7 @@ void ModelCollider::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pCont
 /// <param name="view">ビュー行列</param>
 /// <param name="proj">プロジェクション行列</param>
 /// <param name="color">色</param>
-void ModelCollider::Draw(DirectX::CommonStates* states, ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj)
+void ModelCollider::Draw(ID3D11DeviceContext* pContext, DirectX::CommonStates* states, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, DirectX::FXMVECTOR color)
 {
 	// ワールド行列
 	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(m_scale) * DirectX::SimpleMath::Matrix::CreateTranslation(m_position);
@@ -529,38 +529,38 @@ void ModelCollider::Draw(DirectX::CommonStates* states, ID3D11DeviceContext* pCo
 	m_effect->Apply(pContext);
 
 	// PrimitiveBatch を使って描画
-	//m_batch->Begin();
+	m_batch->Begin();
 
-	//// 3点をとり三角形を描画(使った頂点を使わないように3個進める)
-	//for (size_t i = 0; i + 2 < m_indices.size(); i += 3)
-	//{
-	//	DirectX::VertexPositionColor p0{ m_vertices[m_indices[i    ]].position, (DirectX::SimpleMath::Vector4)color };
-	//	DirectX::VertexPositionColor p1{ m_vertices[m_indices[i + 1]].position, (DirectX::SimpleMath::Vector4)color };
-	//	DirectX::VertexPositionColor p2{ m_vertices[m_indices[i + 2]].position, (DirectX::SimpleMath::Vector4)color };
+	// 3点をとり三角形を描画(使った頂点を使わないように3個進める)
+	for (size_t i = 0; i + 2 < m_indices.size(); i += 3)
+	{
+		DirectX::VertexPositionColor p0{ m_vertices[m_indices[i    ]].position, (DirectX::SimpleMath::Vector4)color };
+		DirectX::VertexPositionColor p1{ m_vertices[m_indices[i + 1]].position, (DirectX::SimpleMath::Vector4)color };
+		DirectX::VertexPositionColor p2{ m_vertices[m_indices[i + 2]].position, (DirectX::SimpleMath::Vector4)color };
 
-	//	DirectX::SimpleMath::Vector3 edge1 = DirectX::SimpleMath::Vector3(p1.position) - p0.position;
-	//	DirectX::SimpleMath::Vector3 edge2 = DirectX::SimpleMath::Vector3(p2.position) - p0.position;
+		DirectX::SimpleMath::Vector3 edge1 = DirectX::SimpleMath::Vector3(p1.position) - p0.position;
+		DirectX::SimpleMath::Vector3 edge2 = DirectX::SimpleMath::Vector3(p2.position) - p0.position;
 
-	//	// 外積で法線を求める
-	//	DirectX::SimpleMath::Vector3 normal = edge1.Cross(edge2);
+		// 外積で法線を求める
+		DirectX::SimpleMath::Vector3 normal = edge1.Cross(edge2);
 
-	//	// 正規化（必須）
-	//	normal.Normalize();
+		// 正規化（必須）
+		normal.Normalize();
 
-	//	DirectX::SimpleMath::Vector3 center = DirectX::SimpleMath::Vector3(
-	//		(p0.position.x + p1.position.x + p2.position.x) / 3,
-	//		(p0.position.y + p1.position.y + p2.position.y) / 3,
-	//		(p0.position.z + p1.position.z + p2.position.z) / 3
-	//	);
+		DirectX::SimpleMath::Vector3 center = DirectX::SimpleMath::Vector3(
+			(p0.position.x + p1.position.x + p2.position.x) / 3,
+			(p0.position.y + p1.position.y + p2.position.y) / 3,
+			(p0.position.z + p1.position.z + p2.position.z) / 3
+		);
 
-	//	DX::DrawRay(m_batch.get(), center, normal / 5, false, DirectX::Colors::Red);
+		DX::DrawRay(m_batch.get(), center, normal / 5, false, DirectX::Colors::Red);
 
-	//	m_batch->DrawLine(p0, p1);
-	//	m_batch->DrawLine(p1, p2);
-	//	m_batch->DrawLine(p2, p0);
-	//}
+		m_batch->DrawLine(p0, p1);
+		m_batch->DrawLine(p1, p2);
+		m_batch->DrawLine(p2, p0);
+	}
 
-	//m_batch->End();
+	m_batch->End();
 
 	// デバック用コライダーの描画
 	for (auto& collider : m_debugColliders)

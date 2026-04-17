@@ -248,11 +248,11 @@ void Field::Update(ScoreManager* pScoreManager, float elapsedTime)
 	m_airTarget->Update(elapsedTime);
 
 	// ポリゴンの当たり判定
-	IsHitEntityToField(m_player.get());
-	IsHitEntityToField(m_enemy.get());
+	ResolveEntityFieldCollision(m_player.get());
+	ResolveEntityFieldCollision(m_enemy.get());
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
 	{
-		IsHitEntityToField(m_ballManager->GetBall(i));
+		ResolveEntityFieldCollision(m_ballManager->GetBall(i));
 
 		// ボールと空中の的が当たったら
 		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
@@ -327,11 +327,11 @@ void Field::TutorialUpdate(TutorialScene* scene, ScoreManager* pScoreManager, fl
 	m_airTarget->Update(elapsedTime);
 
 	// ポリゴンの当たり判定
-	IsHitEntityToField(m_player.get());
-	IsHitEntityToField(m_enemy.get());
+	ResolveEntityFieldCollision(m_player.get());
+	ResolveEntityFieldCollision(m_enemy.get());
 	for (int i = 0; i < m_ballManager->GetObjectCount(); i++)
 	{
-		IsHitEntityToField(m_ballManager->GetBall(i));
+		ResolveEntityFieldCollision(m_ballManager->GetBall(i));
 
 		// ボールと空中の的が当たったら
 		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
@@ -375,7 +375,7 @@ void Field::Render()
 
 
 	// デバック
-	/*m_fieldCollider.Draw(context, *view, *proj);*/
+	/*m_fieldCollider.Draw(context, states, *view, *proj);*/
 
 	// スカイドームの描画
 	if (m_skydomeModel)
@@ -546,12 +546,12 @@ DirectX::SimpleMath::Vector3 Field::CorrectUp(IEntity* iEntity, DirectX::SimpleM
 
 
 /// <summary>
-/// 実体とフィールドが当たっていたら
+/// 実体とフィールドの衝突解決
 /// </summary>
 /// <param name="ray">レイ</param>
 /// <param name="pIEntity">実体</param>
 /// <param name="pField">フィールド</param>
-void Field::IsHitEntityToField(IEntity* pIEntity)
+void Field::ResolveEntityFieldCollision(IEntity* pIEntity)
 {
 	// レイ
 	DirectX::SimpleMath::Ray ray{ pIEntity->GetPosition(), pIEntity->GetGravity() };
@@ -574,41 +574,11 @@ void Field::IsHitEntityToField(IEntity* pIEntity)
 		}
 	}
 
-	// 座標とレイの衝突点の距離がコライダーの半径より小さかったら当たっている
-	DirectX::SimpleMath::Vector3 dir = pIEntity->GetPosition() - pos;
-	if (dir.Length() < pIEntity->GetCollider().GetRadius())
-	{
-		// 押し出しをする
-		pIEntity->CorrectOverlap(pos);
-	}
-	else
-	{
-		// 万が一ステージに埋まったら
-		if ((pIEntity->GetPosition() - m_position).Length() < (pIEntity->GetShadowHitPos() - m_position).Length())
-		{
-			// Y軸ベクトル
-			DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, pIEntity->GetRotation());
-			// 当たった座標
-			DirectX::SimpleMath::Vector3 hitPos = pIEntity->GetShadowHitPos();
+	// 実体の押し出し
+	EntityCorrectOverlap(pIEntity, pos);
 
-			// ベクトル方向にコライダーの半径分押し出す
-			pIEntity->SetPosition(hitPos + currentUp * pIEntity->GetCollider().GetRadius());
-		}
-	}
-
-	// 法線ベクトルがあったら
-	if (vector.Length() >= 0.00001f)
-	{
-		// 重力の設定
-		pIEntity->SetGravity(CorrectUp(pIEntity, vector));
-		// 影の座標を当たった座標にする
-		pIEntity->SetShadowHitPos(pos);
-	}
-	else
-	{
-		// 重力の設定
-		pIEntity->SetGravity(CorrectUp(pIEntity));
-	}
+	// 上方向の軸の更新
+	UpdateCorrectUp(pIEntity, pos, vector);
 }
 
 
@@ -704,4 +674,61 @@ bool Field::RaycastTriangles(int groupIndex, DirectX::SimpleMath::Ray ray, IEnti
 	}
 
 	return isHit;
+}
+
+
+
+/// <summary>
+/// 実体との押し出し
+/// </summary>
+/// <param name="pIEntity">実体</param>
+/// <param name="pos">座標</param>
+void Field::EntityCorrectOverlap(IEntity* pIEntity, DirectX::SimpleMath::Vector3& pos)
+{
+	// 座標とレイの衝突点の距離がコライダーの半径より小さかったら当たっている
+	DirectX::SimpleMath::Vector3 dir = pIEntity->GetPosition() - pos;
+	if (dir.Length() < pIEntity->GetCollider().GetRadius())
+	{
+		// 押し出しをする
+		pIEntity->CorrectOverlap(pos);
+	}
+	else
+	{
+		// 万が一ステージに埋まったら
+		if ((pIEntity->GetPosition() - m_position).Length() < (pIEntity->GetShadowHitPos() - m_position).Length())
+		{
+			// Y軸ベクトル
+			DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, pIEntity->GetRotation());
+			// 当たった座標
+			DirectX::SimpleMath::Vector3 hitPos = pIEntity->GetShadowHitPos();
+
+			// ベクトル方向にコライダーの半径分押し出す
+			pIEntity->SetPosition(hitPos + currentUp * pIEntity->GetCollider().GetRadius());
+		}
+	}
+}
+
+
+
+/// <summary>
+/// 上方向の軸の更新
+/// </summary>
+/// <param name="pIEntity">実体</param>
+/// <param name="pos">座標</param>
+/// <param name="vector">ベクトル</param>
+void Field::UpdateCorrectUp(IEntity* pIEntity, DirectX::SimpleMath::Vector3& pos, DirectX::SimpleMath::Vector3& vector)
+{
+	// 法線ベクトルがあったら
+	if (vector.Length() >= 0.00001f)
+	{
+		// 重力の設定
+		pIEntity->SetGravity(CorrectUp(pIEntity, vector));
+		// 影の座標を当たった座標にする
+		pIEntity->SetShadowHitPos(pos);
+	}
+	else
+	{
+		// 重力の設定
+		pIEntity->SetGravity(CorrectUp(pIEntity));
+	}
 }

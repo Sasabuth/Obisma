@@ -172,6 +172,9 @@ private:
 	// UIの更新
 	bool UpdateUI(Player* player, float elapsedTime);
 
+	// UIの描画
+	void RenderUI();
+
 	// リスナーの設定
 	void SetListener(Player* player);
 

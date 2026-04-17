@@ -286,7 +286,7 @@ public:
 	void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, DirectX::Model* pModel, DirectX::SimpleMath::Vector3 position, float scale);
 
 	// ï`âÊèàóù
-	void Draw(DirectX::CommonStates* states, ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj);
+	void Draw(ID3D11DeviceContext* pContext, DirectX::CommonStates* states, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, DirectX::FXMVECTOR color = DirectX::Colors::White);
 	void DebugDraw(ID3D11DeviceContext* pContext, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, int index, DirectX::FXMVECTOR color = DirectX::Colors::White);
 
 

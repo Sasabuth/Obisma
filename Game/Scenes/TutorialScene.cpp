@@ -99,9 +99,9 @@ void TutorialScene::Update(float elapsedTime)
 	// 矢印の更新
 	m_arrow->Update(elapsedTime);
 
-	// フィールドとの当たり判定
-	m_field->IsHitEntityToField(m_cameraUp.get());
-	m_field->IsHitEntityToField(m_arrow.get());
+	// フィールドとの衝突解決
+	m_field->ResolveEntityFieldCollision(m_cameraUp.get());
+	m_field->ResolveEntityFieldCollision(m_arrow.get());
 }
 
 
@@ -347,7 +347,7 @@ void TutorialScene::Tutorial(Player* player, float elapsedTime)
 				}
 			);
 			airTarget->SetGravity(m_field->CorrectUp(airTarget));
-			m_field->IsHitEntityToField(airTarget);
+			m_field->ResolveEntityFieldCollision(airTarget);
 		}
 	}
 	break;

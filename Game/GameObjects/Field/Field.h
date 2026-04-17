@@ -102,8 +102,8 @@ public:
 	DirectX::SimpleMath::Vector3 CorrectUp(IEntity* iEntity);
 	DirectX::SimpleMath::Vector3 CorrectUp(IEntity* iEntity, DirectX::SimpleMath::Vector3 vector);
 
-	// 実体とフィールドの衝突判定
-	void IsHitEntityToField(IEntity* pIEntity);
+	// 実体とフィールドの衝突解決
+	void ResolveEntityFieldCollision(IEntity* pIEntity);
 
 	// メッセージを取得する
 	void OnMessegeAccepted(Message::MessageID messageID) override;
@@ -130,5 +130,11 @@ private:
 
 	// レイと三角形の当たり判定
 	bool RaycastTriangles(int groupIndex, DirectX::SimpleMath::Ray ray, IEntity* pIEntity, DirectX::SimpleMath::Vector3& pos, DirectX::SimpleMath::Vector3& vector);
+
+	// 実体との押し出し
+	void EntityCorrectOverlap(IEntity* pIEntity, DirectX::SimpleMath::Vector3& pos);
+
+	// 上方向の軸の更新
+	void UpdateCorrectUp(IEntity* pIEntity, DirectX::SimpleMath::Vector3& pos, DirectX::SimpleMath::Vector3& vector);
 };
 

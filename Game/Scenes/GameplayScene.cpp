@@ -80,7 +80,7 @@ void GameplayScene::Update(float elapsedTime)
 
 	// カメラの更新
 	m_camera->Update(m_field.get(), m_cameraUp->GetPosition());
-	/*m_camera->DebugMode();*/
+	m_camera->DebugMode();
 
 	// フィールドの更新
 	m_field->Update(m_scoreManager.get(), elapsedTime);
@@ -91,8 +91,8 @@ void GameplayScene::Update(float elapsedTime)
 	// カメラの上向きベクトルの更新
 	m_cameraUp->Update(elapsedTime);
 
-	// カメラ用の上向きベクトルの当たり判定
-	m_field->IsHitEntityToField(m_cameraUp.get());
+	// カメラ用の上向きベクトルの衝突解決
+	m_field->ResolveEntityFieldCollision(m_cameraUp.get());
 
 	// ゲーム時間の更新
 	m_gameTimer -= elapsedTime;
@@ -127,44 +127,12 @@ void GameplayScene::Render()
 	// フィールドの描画
 	m_field->Render();
 
-	// スコアマネージャーの描画
-	m_scoreManager->Render();
-
-	// タイマーの描画
-	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
-	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, (int)m_gameTimer, TIMER.scale, 2);
-
-	// カウントダウンが0じゃなかったらカウントを描画
-	if (m_countDownTimer > 0.0f)
-	{
-		m_countDownTexture.DigitsDraw(COUNTDOWN.pos.x, COUNTDOWN.pos.y, COUNTDOWN.size.x, COUNTDOWN.size.y, (int)m_countDownTimer, COUNTDOWN.scale);
-	}
-	// 0だったらスタートを描画
-	else if (m_countDownTimer >= START_TIMER)
-	{
-		m_startTexture.Draw(START.pos, START.size, START.scale);
-	}
-
-	// オーディオUIの描画
-	if (m_audioUI.IsOpen())
-	{
-		m_audioUI.Draw(m_collider);
-	}
-	// ゲームメニューUIの描画
-	else if (m_gameMenuUI.IsOpen())
-	{
-		m_gameMenuUI.Draw(m_collider);
-	}
-
-	// フェード時間が増えていたら
-	if (m_fadeTimer >= 0.1f)
-	{
-		m_finishTexture.Draw(FINISH.pos, FINISH.size, FINISH.scale);
-	}
-
 	// デバック用
 	// カメラの上向きベクトルの描画
 	/*m_cameraUp->Render();*/
+
+	// UIの描画
+	RenderUI();
 }
 
 
@@ -383,6 +351,49 @@ bool GameplayScene::UpdateUI(Player* player, float elapsedTime)
 	}
 
 	return false;
+}
+
+
+
+/// <summary>
+/// UIの描画
+/// </summary>
+void GameplayScene::RenderUI()
+{
+	// スコアマネージャーの描画
+	m_scoreManager->Render();
+
+	// タイマーの描画
+	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
+	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, (int)m_gameTimer, TIMER.scale, 2);
+
+	// カウントダウンが0じゃなかったらカウントを描画
+	if (m_countDownTimer > 0.0f)
+	{
+		m_countDownTexture.DigitsDraw(COUNTDOWN.pos.x, COUNTDOWN.pos.y, COUNTDOWN.size.x, COUNTDOWN.size.y, (int)m_countDownTimer, COUNTDOWN.scale);
+	}
+	// 0だったらスタートを描画
+	else if (m_countDownTimer >= START_TIMER)
+	{
+		m_startTexture.Draw(START.pos, START.size, START.scale);
+	}
+
+	// オーディオUIの描画
+	if (m_audioUI.IsOpen())
+	{
+		m_audioUI.Draw(m_collider);
+	}
+	// ゲームメニューUIの描画
+	else if (m_gameMenuUI.IsOpen())
+	{
+		m_gameMenuUI.Draw(m_collider);
+	}
+
+	// フェード時間が増えていたら
+	if (m_fadeTimer >= 0.1f)
+	{
+		m_finishTexture.Draw(FINISH.pos, FINISH.size, FINISH.scale);
+	}
 }
 
 
