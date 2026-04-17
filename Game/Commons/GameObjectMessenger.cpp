@@ -14,9 +14,8 @@ std::unique_ptr<GameObjectMessenger> GameObjectMessenger::s_messenger = nullptr;
 /// コンストラクタ
 /// </summary>
 GameObjectMessenger::GameObjectMessenger()
-	:
-	m_elapsedTime{},
-	m_objects{}
+	: m_elapsedTime{}
+	, m_objects{}
 {
 }
 
