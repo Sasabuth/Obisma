@@ -11,7 +11,7 @@
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/Scenes/TutorialScene.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/Commons/Resources.h"
 
 

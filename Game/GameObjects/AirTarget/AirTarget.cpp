@@ -10,7 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Camera/Camera.h"
 #include "Game/GameObjects/Field/Field.h"
 
@@ -27,7 +27,7 @@ AirTarget::AirTarget()
 	, m_shadowHitPos{}
 {
 	// オブジェクト番号とオブジェクトを登録する
-	Messenger::GetInstance()->Register(Factory::AIRTARGET, this);
+	GameObjectMessenger::GetInstance()->Register(Factory::AIRTARGET, this);
 }
 
 
@@ -102,11 +102,11 @@ void AirTarget::Update(float elapsedTime)
 	// パーティクルの更新
 	m_particle->Update(elapsedTime);
 	// カメラの取得
-	Camera* camera = dynamic_cast<Camera*>(Messenger::GetInstance()->GetObject(Factory::CAMERA));
+	Camera* camera = dynamic_cast<Camera*>(GameObjectMessenger::GetInstance()->GetObject(Factory::CAMERA));
 	m_particle->CreateBillboard(m_position, camera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	//m_particle->HandleFieldCollision(*m_pField);
-	
+
 	// 音の設定
 	Resources::GetInstance()->Set3DSound(m_se.get(), m_position);
 }
@@ -305,7 +305,7 @@ void AirTarget::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* 
 void AirTarget::RandomPosition()
 {
 	// フィールドの取得
-	Field* field = dynamic_cast<Field*>(Messenger::GetInstance()->GetObject(Factory::FIELD));
+	Field* field = dynamic_cast<Field*>(GameObjectMessenger::GetInstance()->GetObject(Factory::FIELD));
 
 	// 番号の宣言
 	int index = -1;

@@ -10,7 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Enemy/Enemy.h"
 #include "Game/GameObjects/Ball/Ball.h"
 
@@ -106,7 +106,7 @@ void EnemyCatching::Update(float elapsedTime)
 	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
 		// ボールの取得
-		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+		Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 
 		// ボールが動いている状態なら
 		if (ball->GetCurrentState() == ball->GetMoving())
@@ -265,7 +265,7 @@ void EnemyCatching::CatchHandBall(int index)
 	//// ボールのポインタを取得
 	//Ball* ball = m_pEnemy->GetField()->GetBallManager()->GetBall(index);
 	// ボールの取得
-	Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + index));
+	Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + index));
 		
 
 	// エフェクトが入っていなかったら

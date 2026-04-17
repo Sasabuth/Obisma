@@ -10,7 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Enemy/Enemy.h"
 #include "Game/GameObjects/Ball/Ball.h"
 
@@ -95,7 +95,7 @@ void EnemyStanding::Update(float elapsedTime)
 	if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) && !m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
 		// 一番最初のボールを取得
-		Ball* nearBall = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL));
+		Ball* nearBall = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL));
 		// 敵のボール番号を0にする
 		m_pEnemy->SetBallIndex(0);
 
@@ -103,7 +103,7 @@ void EnemyStanding::Update(float elapsedTime)
 		for (int i = 1; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 		{
 			// ボールの取得
-			Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+			Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 			// ボールが止まっているたら近いボールを取得する
 			if (ball->GetCurrentState() == ball->GetStopping())
 			{
@@ -121,7 +121,7 @@ void EnemyStanding::Update(float elapsedTime)
 	else if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) || !m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
 		// 一番最初のボールを取得
-		Ball* nearBall = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL));
+		Ball* nearBall = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL));
 		// 敵のボール番号を0にする
 		m_pEnemy->SetBallIndex(0);
 
@@ -129,7 +129,7 @@ void EnemyStanding::Update(float elapsedTime)
 		for (int i = 1; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 		{
 			// ボールの取得
-			Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+			Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 			// ボールが止まっているたら近いボールを取得する
 			if (ball->GetCurrentState() == ball->GetStopping())
 			{
@@ -168,7 +168,7 @@ void EnemyStanding::Update(float elapsedTime)
 	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
 		// ボールの取得
-		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+		Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 
 		// ボールとキャッチ用コライダーが当たっていたら
 		if (IsHit(m_pEnemy->GetCatchCollider(), ball->GetCollider()))
@@ -330,7 +330,7 @@ void EnemyStanding::CatchHandBall()
 		}
 
 		// ボールの取得
-		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+		Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 
 		// 止まっているボールに当たったらボールを拾う
 		if (IsHit(m_pEnemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())

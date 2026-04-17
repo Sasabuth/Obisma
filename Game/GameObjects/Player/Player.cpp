@@ -10,7 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Ball/Ball.h"
 #include "Game/GameObjects/Camera/Camera.h"
@@ -40,7 +40,7 @@ Player::Player()
 	);
 
 	// オブジェクト番号とオブジェクトを登録する
-	Messenger::GetInstance()->Register(Factory::PLAYER, this);
+	GameObjectMessenger::GetInstance()->Register(Factory::PLAYER, this);
 }
 
 
@@ -144,7 +144,7 @@ void Player::Update(float elapsedTime)
 		m_particle[i]->Update(elapsedTime);
 	}
 	// カメラの取得
-	Camera* camera = dynamic_cast<Camera*>(Messenger::GetInstance()->GetObject(Factory::CAMERA));
+	Camera* camera = dynamic_cast<Camera*>(GameObjectMessenger::GetInstance()->GetObject(Factory::CAMERA));
 	m_particle[STER]->CreateBillboard(m_position, camera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	// 無敵時間の減少
@@ -173,7 +173,7 @@ void Player::Render()
 	}
 
 	// 空中の的の取得
-	AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(GameObjectMessenger::GetInstance()->GetObject(Factory::AIRTARGET));
 	// 空中の的にマウスが当たっていたらロックオンを描画
 	if (m_isLockOn)
 	{
@@ -397,9 +397,9 @@ void Player::RayHitObject()
 	DirectX::SimpleMath::Plane plane(normal, normal.Dot(m_position));
 
 	// 空中の的の取得
-	AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(GameObjectMessenger::GetInstance()->GetObject(Factory::AIRTARGET));
 	// フィールドの取得
-	Field* field = dynamic_cast<Field*>(Messenger::GetInstance()->GetObject(Factory::FIELD));
+	Field* field = dynamic_cast<Field*>(GameObjectMessenger::GetInstance()->GetObject(Factory::FIELD));
 
 	// ワールド座標
 	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::CreateScale(field->GetFieldCollider().GetScale()) *
@@ -469,7 +469,7 @@ void Player::RayHitObject()
 		else if (CalcRayPlane(m_mouseRay, plane, &m_mouseRayHitPos))
 		{
 			m_isLockOn = false;
-			
+
 		}
 	}
 
@@ -640,7 +640,7 @@ void Player::DrawShadow(ID3D11DeviceContext* context, DirectX::CommonStates* sta
 /// </summary>
 /// <param name="pos">座標</param>
 void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
-{	
+{
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
 
@@ -681,7 +681,7 @@ void Player::DrawLockOn(const DirectX::SimpleMath::Vector3& pos)
 		m_lockOnTexture.SetTexture(Resources::GetInstance()->GetTexture(L"LockOnG.png"));
 		m_lockOnTexture.Draw(screenPos, LOCKON.size, LOCKON.scale);
 	}
-	
+
 }
 
 
@@ -694,7 +694,7 @@ void Player::ScoreDown()
 	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
 		// ボールの取得
-		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+		Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 
 		// ボールが動いているかつ自分のボールではなかったら
 		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::PLAYER)
@@ -703,7 +703,7 @@ void Player::ScoreDown()
 			if (IsHit(m_collider, ball->GetCollider()) && m_invincibleTime <= 0.0f)
 			{
 				// プレイヤーに対して「目が回る」状態に遷移する
-				Messenger::GetInstance()->NotifyForce(Factory::PLAYER, Message::DIZZYING, Resources::GetInstance()->GetJson(L"Player.json")["DizzyingEndTime"]);
+				GameObjectMessenger::GetInstance()->NotifyForce(Factory::PLAYER, Message::DIZZYING, Resources::GetInstance()->GetJson(L"Player.json")["DizzyingEndTime"]);
 				// スコアを下げる
 				m_score->ScoreDown();
 				// 音を出す
@@ -722,7 +722,7 @@ void Player::ScoreDown()
 bool Player::IsInHitRange(float offset)
 {
 	// 空中の的の取得
-	AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(GameObjectMessenger::GetInstance()->GetObject(Factory::AIRTARGET));
 	// 距離の計算
 	DirectX::SimpleMath::Vector3 dir = m_position - airTarget->GetPosition();
 

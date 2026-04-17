@@ -10,7 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Player/Player.h"
 
 
@@ -74,7 +74,7 @@ void Arrow::Update(float elapsedTime)
 	m_velocity = m_gravity;
 
 	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
 
 	// 重力の方向
 	DirectX::SimpleMath::Vector3 dir = m_position - player->GetPosition();

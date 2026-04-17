@@ -10,7 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Camera/Camera.h"
 
 
@@ -29,7 +29,7 @@ Ball::Ball(int objectID)
 	, m_invincibleTime(0.0f)
 {
 	// オブジェクト番号とオブジェクトを登録する
-	Messenger::GetInstance()->Register(objectID, this);
+	GameObjectMessenger::GetInstance()->Register(objectID, this);
 }
 
 
@@ -123,7 +123,7 @@ void Ball::Update(float elapsedTime)
 	// パーティクルの更新
 	m_particle->Update(elapsedTime);
 	// カメラの取得
-	Camera* camera = dynamic_cast<Camera*>(Messenger::GetInstance()->GetObject(Factory::CAMERA));
+	Camera* camera = dynamic_cast<Camera*>(GameObjectMessenger::GetInstance()->GetObject(Factory::CAMERA));
 	m_particle->CreateBillboard(m_position, camera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	// 3Dサウンドの設定

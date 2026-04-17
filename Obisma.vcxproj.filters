@@ -242,9 +242,6 @@
     <ClInclude Include="Game\Commons\Message.h">
       <Filter>Game\Commons</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Commons\Messenger.h">
-      <Filter>Game\Commons</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Commons\Interface\IObject.h">
       <Filter>Game\Commons\Interface</Filter>
     </ClInclude>
@@ -262,6 +259,9 @@
     </ClInclude>
     <ClInclude Include="Game\GameObjects\Player\State\PlayerThrowingR.h">
       <Filter>Game\GameObjects\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Commons\GameObjectMessenger.h">
+      <Filter>Game\Commons</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -411,9 +411,6 @@
     <ClCompile Include="Game\GameObjects\Ball\Ball.cpp">
       <Filter>Game\GameObjects\Ball</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Commons\Messenger.cpp">
-      <Filter>Game\Commons</Filter>
-    </ClCompile>
     <ClCompile Include="Game\GameObjects\Player\State\PlayerDizzying.cpp">
       <Filter>Game\GameObjects\Player\State</Filter>
     </ClCompile>
@@ -428,6 +425,9 @@
     </ClCompile>
     <ClCompile Include="Game\GameObjects\Player\State\PlayerThrowingR.cpp">
       <Filter>Game\GameObjects\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Commons\GameObjectMessenger.cpp">
+      <Filter>Game\Commons</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

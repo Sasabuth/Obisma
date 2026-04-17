@@ -10,7 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Ball/Ball.h"
 
@@ -264,7 +264,7 @@ void PlayerStanding::CatchHandBall()
 		}
 
 		// ボールの取得
-		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+		Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 
 		// コライダーとボールが当たっているかつボールが止まっていたら
 		if (IsHit(m_pPlayer->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())

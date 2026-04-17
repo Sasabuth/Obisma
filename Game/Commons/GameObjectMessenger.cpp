@@ -1,19 +1,19 @@
 /// <summary>
-/// Messengerに関するソースファイル
+/// GameObjectMessengerに関するソースファイル
 /// </summary>
 /// <author>仲森智史</author>
 
 #include "pch.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 
 // s_messengerを初期化する
-std::unique_ptr<Messenger> Messenger::s_messenger = nullptr;
+std::unique_ptr<GameObjectMessenger> GameObjectMessenger::s_messenger = nullptr;
 
 
 /// <summary>
 /// コンストラクタ
 /// </summary>
-Messenger::Messenger()
+GameObjectMessenger::GameObjectMessenger()
 	:
 	m_elapsedTime{},
 	m_objects{}
@@ -26,15 +26,15 @@ Messenger::Messenger()
 /// インスタンスの取得
 /// </summary>
 /// <returns>メッセンジャー</returns>
-Messenger* Messenger::GetInstance()
+GameObjectMessenger* GameObjectMessenger::GetInstance()
 {
-	// Messengerクラスのインスタンス生成されていない場合
+	// GameObjectMessengerクラスのインスタンス生成されていない場合
 	if (s_messenger == nullptr)
 	{
-		// Messengerクラスのインスタンスを生成する
-		s_messenger = std::unique_ptr<Messenger>(new Messenger());
+		// GameObjectMessengerクラスのインスタンスを生成する
+		s_messenger = std::unique_ptr<GameObjectMessenger>(new GameObjectMessenger());
 	}
-	// Messengerクラスのインスタンスを返す
+	// GameObjectMessengerクラスのインスタンスを返す
 	return s_messenger.get();
 }
 
@@ -43,9 +43,9 @@ Messenger* Messenger::GetInstance()
 /// <summary>
 /// インスタンスの破棄
 /// </summary>
-void Messenger::DestroyInstance()
-{ 
-	// Messengerクラスのインスタンスをリセットする
+void GameObjectMessenger::DestroyInstance()
+{
+	// GameObjectMessengerクラスのインスタンスをリセットする
 	s_messenger.reset();
 }
 
@@ -56,7 +56,7 @@ void Messenger::DestroyInstance()
 /// </summary>
 /// <param name="objectID">オブジェクトID</param>
 /// <param name="object">オブジェクト</param>
-void Messenger::Register(int objectID, IObject* object)
+void GameObjectMessenger::Register(int objectID, IObject* object)
 {
 	// オブジェクトIDとオブジェクトを登録する
 	m_objects.emplace(objectID, object);
@@ -68,7 +68,7 @@ void Messenger::Register(int objectID, IObject* object)
 /// オブジェクトの登録を解除
 /// </summary>
 /// <param name="objectID">オブジェクトID</param>
-void Messenger::UnRegister(int objectID)
+void GameObjectMessenger::UnRegister(int objectID)
 {
 	// オブジェクトIDを指定してオブジェクトの登録を解除する
 	m_objects.erase(objectID);
@@ -81,7 +81,7 @@ void Messenger::UnRegister(int objectID)
 /// </summary>
 /// <param name="objectID">オブジェクトID</param>
 /// <param name="messageID">メッセージID</param>
-void Messenger::Notify(int objectID, Message::MessageID messageID)
+void GameObjectMessenger::Notify(int objectID, Message::MessageID messageID)
 {
 	// メッセージを送信するオブジェクトを検索する
 	auto it = m_objects.find(objectID);
@@ -102,7 +102,7 @@ void Messenger::Notify(int objectID, Message::MessageID messageID)
 /// <param name="objectID">オブジェクトID</param>
 /// <param name="messageID">メッセージID</param>
 /// <param name="delaySeconds">拒否する時間</param>
-void Messenger::NotifyAfterDelay(int objectID, Message::MessageID messageID, float delaySeconds)
+void GameObjectMessenger::NotifyAfterDelay(int objectID, Message::MessageID messageID, float delaySeconds)
 {
 	// オブジェクトにメッセージを送信する
 	Notify(objectID, messageID);
@@ -126,7 +126,7 @@ void Messenger::NotifyAfterDelay(int objectID, Message::MessageID messageID, flo
 /// <param name="objectID">オブジェクトID</param>
 /// <param name="messageID">メッセージID</param>
 /// <param name="delaySeconds">拒否する時間</param>
-void Messenger::NotifyForce(int objectID, Message::MessageID messageID, float delaySeconds)
+void GameObjectMessenger::NotifyForce(int objectID, Message::MessageID messageID, float delaySeconds)
 {
 	// 遅延メッセージを調べる
 	auto delayIt = m_objectsAfterDelay.find(objectID);
@@ -151,7 +151,7 @@ void Messenger::NotifyForce(int objectID, Message::MessageID messageID, float de
 /// 更新処理
 /// </summary>
 /// <param name="elapsedTime">経過時間</param>
-void Messenger::Update(float elapsedTime)
+void GameObjectMessenger::Update(float elapsedTime)
 {
 	// 登録された遅延メッセージの時間を更新する
 	for (auto it = m_objectsAfterDelay.begin(); it != m_objectsAfterDelay.end(); )
@@ -178,7 +178,7 @@ void Messenger::Update(float elapsedTime)
 /// </summary>
 /// <param name="objectID">オブジェクトID</param>
 /// <returns>オブジェクト</returns>
-IObject* Messenger::GetObject(int objectID)
+IObject* GameObjectMessenger::GetObject(int objectID)
 {
 	// メッセージを送信するオブジェクトを検索する
 	auto it = m_objects.find(objectID);

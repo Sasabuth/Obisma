@@ -11,7 +11,7 @@
 #include "Game/Scenes/ResultScene.h"
 #include "Game/Scenes/TitleScene.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/Commons/Resources.h"
 #include "Common/DebugDraw.h"
 
@@ -67,7 +67,7 @@ void GameplayScene::Initialize()
 void GameplayScene::Update(float elapsedTime)
 {
 	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
 
 	// UIの更新で止めたいときがあったら更新しない
 	if (UpdateUI(player, elapsedTime))
@@ -80,7 +80,7 @@ void GameplayScene::Update(float elapsedTime)
 
 	// カメラの更新
 	m_camera->Update(m_field.get(), m_cameraUp->GetPosition());
-	m_camera->DebugMode();
+	/*m_camera->DebugMode();*/
 
 	// フィールドの更新
 	m_field->Update(m_scoreManager.get(), elapsedTime);
@@ -198,9 +198,9 @@ void GameplayScene::InitializeGame()
 	);
 
 	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
 	// 敵の取得
-	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
+	Enemy* enemy = dynamic_cast<Enemy*>(GameObjectMessenger::GetInstance()->GetObject(Factory::ENEMY));
 
 	// スコアマネージャーの初期化
 	m_scoreManager = Factory::CreateScoreManager();
@@ -240,7 +240,7 @@ void GameplayScene::InitializeResource()
 	m_startTexture.SetTexture(m_pResources->GetTexture(L"GameStart.png"));
 
 	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
 
 	// リスナーの設定
 	m_pResources->SetListener(player->GetPosition(),
@@ -459,25 +459,25 @@ void GameplayScene::SetPlayerInputState(Player* player)
 	if (kb.W)
 	{
 		// プレイヤーに対して「走る」状態に遷移する
-		Messenger::GetInstance()->Notify(Factory::PLAYER, Message::RUNNING);
+		GameObjectMessenger::GetInstance()->Notify(Factory::PLAYER, Message::RUNNING);
 	}
 	// 何もしなかったら
 	else
 	{
 		// プレイヤーに対して「立つ」状態に遷移する
-		Messenger::GetInstance()->Notify(Factory::PLAYER, Message::STANDING);
+		GameObjectMessenger::GetInstance()->Notify(Factory::PLAYER, Message::STANDING);
 	}
 
 	// 左クリックを押したら
 	if (mouseTK->leftButton == mouseTK->PRESSED && player->IsThrow())
 	{
 		// プレイヤーに対して「投げる」状態に遷移する
-		Messenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::THROWING, m_pResources->GetJson(L"Player.json")["ThrowingEndTime"]);
+		GameObjectMessenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::THROWING, m_pResources->GetJson(L"Player.json")["ThrowingEndTime"]);
 	}
 	// 右クリックを押したら
 	if (mouseTK->rightButton == mouseTK->PRESSED)
 	{
 		// プレイヤーに対して「キャッチ」状態に遷移する
-		Messenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::CATCHING, m_pResources->GetJson(L"Player.json")["CatchingEndTime"]);
+		GameObjectMessenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::CATCHING, m_pResources->GetJson(L"Player.json")["CatchingEndTime"]);
 	}
 }

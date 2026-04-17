@@ -11,7 +11,7 @@
 #include "Game/Scenes/ResultScene.h"
 #include "Game/Scenes/TitleScene.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/Commons/Resources.h"
 
 
@@ -75,7 +75,7 @@ void TutorialScene::Update(float elapsedTime)
 	}
 
 	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
 
 	// リスナーの設定
 	SetListener(player);
@@ -144,7 +144,7 @@ void TutorialScene::Render()
 	{
 		m_explainTexture.Draw(EXPLAIN[m_explainIndex].pos, EXPLAIN[m_explainIndex].size, EXPLAIN[m_explainIndex].scale);
 	}
-	
+
 	// チェックが付いたら描画
 	if (m_isCheck)
 	{
@@ -161,7 +161,7 @@ void TutorialScene::Render()
 	{
 		m_gameMenuUI.Draw(m_collider);
 	}
-	
+
 
 	// デバック用
 	// カメラの上向きベクトルの描画
@@ -220,10 +220,10 @@ void TutorialScene::OnDeviceLost()
 void TutorialScene::Tutorial(Player* player, float elapsedTime)
 {
 	// 敵の取得
-	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
+	Enemy* enemy = dynamic_cast<Enemy*>(GameObjectMessenger::GetInstance()->GetObject(Factory::ENEMY));
 
 	// 空中の的の取得
-	AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(GameObjectMessenger::GetInstance()->GetObject(Factory::AIRTARGET));
 
 	// チュートリアル番号で分ける
 	switch (m_tutorialIndex)
@@ -290,7 +290,7 @@ void TutorialScene::Tutorial(Player* player, float elapsedTime)
 			m_tutorialTexture.SetTexture(m_pResources->GetTexture(L"Tutorial" + std::to_wstring(m_tutorialIndex) + L".png"));
 			m_interval = 0.0f;
 
-			dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->SetPosition(DirectX::SimpleMath::Vector3{
+			dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL))->SetPosition(DirectX::SimpleMath::Vector3{
 				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["0"]["x"],
 				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["0"]["y"],
 				m_pResources->GetJson(L"Ball.json")["Position"]["0"]["0"]["z"]
@@ -306,7 +306,7 @@ void TutorialScene::Tutorial(Player* player, float elapsedTime)
 		// 左手にボールを持ったらチェックマークをつける
 		if (player->GetCatchBall(Player::HAND::RIGHT) && !player->GetCatchBall(Player::HAND::LEFT) && !m_isRightBall)
 		{
-			dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + 1))->SetPosition(DirectX::SimpleMath::Vector3{
+			dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + 1))->SetPosition(DirectX::SimpleMath::Vector3{
 					m_pResources->GetJson(L"Ball.json")["Position"]["0"]["1"]["x"],
 					m_pResources->GetJson(L"Ball.json")["Position"]["0"]["1"]["y"],
 					m_pResources->GetJson(L"Ball.json")["Position"]["0"]["1"]["z"]
@@ -394,7 +394,7 @@ void TutorialScene::Tutorial(Player* player, float elapsedTime)
 		for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 		{
 			// ボールの取得
-			Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+			Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 			if (IsHit(ball->GetCollider(), airTarget->GetCollider()))
 			{
 				m_isCheck = true;
@@ -426,7 +426,7 @@ void TutorialScene::Tutorial(Player* player, float elapsedTime)
 			for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 			{
 				// ボールの取得
-				Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+				Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 				ball->SetPosition(DirectX::SimpleMath::Vector3{
 						m_pResources->GetJson(L"Ball.json")["TutorialPos"]["x"],
 						m_pResources->GetJson(L"Ball.json")["TutorialPos"]["y"],
@@ -438,8 +438,8 @@ void TutorialScene::Tutorial(Player* player, float elapsedTime)
 			}
 
 			// ボールを止める状態にして敵に持たせる
-			dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->ChangeState(dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->GetStopping());
-			dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->SetPosition(enemy->GetPosition());
+			dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL))->ChangeState(dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL))->GetStopping());
+			dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL))->SetPosition(enemy->GetPosition());
 
 			// 描画されないように空中の的を高い所に置く
 			airTarget->SetPosition(DirectX::SimpleMath::Vector3{
@@ -466,7 +466,7 @@ void TutorialScene::Tutorial(Player* player, float elapsedTime)
 		else
 		{
 			// 敵のボールに当たったら当たった判定をつける
-			if (IsHit(dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->GetCollider(), player->GetCollider()) && dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->GetCurrentState() == dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL))->GetMoving())
+			if (IsHit(dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL))->GetCollider(), player->GetCollider()) && dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL))->GetCurrentState() == dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL))->GetMoving())
 			{
 				isHit = true;
 			}
@@ -527,9 +527,9 @@ void TutorialScene::InitializeGame()
 	);
 
 	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
 	// 敵の取得
-	Enemy* enemy = dynamic_cast<Enemy*>(Messenger::GetInstance()->GetObject(Factory::ENEMY));
+	Enemy* enemy = dynamic_cast<Enemy*>(GameObjectMessenger::GetInstance()->GetObject(Factory::ENEMY));
 
 	// 矢印の生成
 	m_arrow = Factory::CreateArrow(DirectX::SimpleMath::Vector3{
@@ -575,7 +575,7 @@ void TutorialScene::InitializeResource()
 	m_checkMarkTexture.SetTexture(m_pResources->GetTexture(L"CheckMark.png"));
 
 	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
 
 	// リスナーの設定
 	m_pResources->SetListener(player->GetPosition(),
@@ -730,25 +730,25 @@ void TutorialScene::SetPlayerInputState(Player* player)
 	if (kb.W && m_tutorialIndex != ORDER::MOUSE_MOVE && m_tutorialIndex != ORDER::MOUSE_TO_STER)
 	{
 		// プレイヤーに対して「走る」状態に遷移する
-		Messenger::GetInstance()->Notify(Factory::PLAYER, Message::RUNNING);
+		GameObjectMessenger::GetInstance()->Notify(Factory::PLAYER, Message::RUNNING);
 	}
 	// 何もなかったら
 	else
 	{
 		// プレイヤーに対して「立つ」状態に遷移する
-		Messenger::GetInstance()->Notify(Factory::PLAYER, Message::STANDING);
+		GameObjectMessenger::GetInstance()->Notify(Factory::PLAYER, Message::STANDING);
 	}
 
 	// 左クリックを押したら
 	if (mouseTK->leftButton == mouseTK->PRESSED && player->IsThrow() && m_tutorialIndex == TutorialScene::BALL_THROW)
 	{
 		// プレイヤーに対して「投げる」状態に遷移する
-		Messenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::THROWING, m_pResources->GetJson(L"Player.json")["ThrowingEndTime"]);
+		GameObjectMessenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::THROWING, m_pResources->GetJson(L"Player.json")["ThrowingEndTime"]);
 	}
 	// 右クリックを押したら
 	if (mouseTK->rightButton == mouseTK->PRESSED && m_tutorialIndex == ORDER::BALL_CATCH)
 	{
 		// プレイヤーに対して「キャッチ」状態に遷移する
-		Messenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::CATCHING, m_pResources->GetJson(L"Player.json")["CatchingEndTime"]);
+		GameObjectMessenger::GetInstance()->NotifyAfterDelay(Factory::PLAYER, Message::CATCHING, m_pResources->GetJson(L"Player.json")["CatchingEndTime"]);
 	}
 }

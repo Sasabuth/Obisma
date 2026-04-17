@@ -10,7 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Ball/Ball.h"
 #include "Game/GameObjects/AirTarget/AirTarget.h"
@@ -194,7 +194,7 @@ void PlayerThrowingL::Update(float elapsedTime)
 			float speed = Resources::GetInstance()->GetJson(L"Player.json")["BallSpeed"];
 
 			// 空中の的の取得
-			AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
+			AirTarget* airTarget = dynamic_cast<AirTarget*>(GameObjectMessenger::GetInstance()->GetObject(Factory::AIRTARGET));
 
 			// ロックオンしているかつ当たる範囲外またはマウスレイの長さが0だったらならボールの速度を遅くする
 			if (!m_pPlayer->IsInHitRange() &&

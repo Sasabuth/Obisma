@@ -10,7 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Field/Field.h"
 #include "Game/GameObjects/Camera/Camera.h"
 
@@ -39,7 +39,7 @@ Enemy::Enemy()
 	);
 
 	// オブジェクト番号とオブジェクトを登録する
-	Messenger::GetInstance()->Register(Factory::ENEMY, this);
+	GameObjectMessenger::GetInstance()->Register(Factory::ENEMY, this);
 }
 
 
@@ -146,7 +146,7 @@ void Enemy::Update(float elapsedTime)
 		m_particle[i]->Update(elapsedTime);
 	}
 	// カメラの取得
-	Camera* camera = dynamic_cast<Camera*>(Messenger::GetInstance()->GetObject(Factory::CAMERA));
+	Camera* camera = dynamic_cast<Camera*>(GameObjectMessenger::GetInstance()->GetObject(Factory::CAMERA));
 	m_particle[STER]->CreateBillboard(m_position, camera->GetEyePosition(), DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_rotate));
 
 	// 音の更新
@@ -419,7 +419,7 @@ void Enemy::ScoreDown()
 	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
 		// ボールの取得
-		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+		Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 
 		// ボールが動いているかつ自分のボールではなかったら
 		if (ball->GetCurrentState() == ball->GetMoving() && ball->GetBallColorNum() != Ball::BallColor::ENEMY)

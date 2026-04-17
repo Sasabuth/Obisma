@@ -9,7 +9,7 @@
 #include "Game/Scenes/GameplayScene.h"
 #include "Game/Scenes/ResultScene.h"
 #include "Game/Commons/Resources.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 
 
 extern void ExitGame() noexcept;
@@ -86,7 +86,7 @@ void Game::Update(DX::StepTimer const& timer)
     m_mouseTracker.Update(mouse);
 
     // メッセンジャーを更新する
-    Messenger::GetInstance()->Update(elapsedTime);
+    GameObjectMessenger::GetInstance()->Update(elapsedTime);
 
     // シーンマネージャーの更新
     m_sceneManager->Update(elapsedTime);

@@ -1,5 +1,5 @@
 /// <summary>
-/// Messengerに関するヘッダファイル
+/// GameObjectMessengerに関するヘッダファイル
 /// </summary>
 /// <author>仲森智史</author>
 
@@ -10,8 +10,8 @@
 #include "Game/Commons/Interface/IObject.h"
 #include <unordered_map>
 
-// Messengerクラス
-class Messenger
+// GameObjectMessengerクラス
+class GameObjectMessenger
 {
 public:
 	// オブジェクトを取得する
@@ -22,9 +22,9 @@ public:
 	void SetElapsedTime(const float& elapsedTime) { m_elapsedTime = elapsedTime; }
 
 public:
-	// Messengerクラスのインスタンスを取得する
-	static Messenger* GetInstance();
-	// Messengerクラスのインスタンスを破棄する
+	// GameObjectMessengerクラスのインスタンスを取得する
+	static GameObjectMessenger* GetInstance();
+	// GameObjectMessengerクラスのインスタンスを破棄する
 	static void DestroyInstance();
 	// オブジェクトを登録する
 	void Register(int objectID, IObject* object);
@@ -41,16 +41,16 @@ public:
 
 private:
 	// コピー・ムーブ禁止
-	Messenger(const Messenger&) = delete;
-	Messenger& operator=(const Messenger&) = delete;
-	Messenger(Messenger&&) = delete;
-	Messenger& operator=(Messenger&&) = delete;
+	GameObjectMessenger(const GameObjectMessenger&) = delete;
+	GameObjectMessenger& operator=(const GameObjectMessenger&) = delete;
+	GameObjectMessenger(GameObjectMessenger&&) = delete;
+	GameObjectMessenger& operator=(GameObjectMessenger&&) = delete;
 	// コンストラクタ
-	Messenger();
+	GameObjectMessenger();
 
 private:
 	// メッセンジャーインスタンス
-	static std::unique_ptr<Messenger> s_messenger;
+	static std::unique_ptr<GameObjectMessenger> s_messenger;
 	// オブジェクトIDとオブジェクトマッピング
 	std::unordered_map<int, IObject*> m_objects;
 	// オブジェクトIDと時間マッピング

@@ -10,7 +10,7 @@
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Enemy/Enemy.h"
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Ball/Ball.h"
@@ -127,7 +127,7 @@ void EnemyRunning::Update(float elapsedTime)
 	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 	{
 		// ボールの取得
-		Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+		Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 
 		// キャッチ用のコライダーとボールが当たっていたら
 		if (IsHit(m_pEnemy->GetCatchCollider(), ball->GetCollider()))
@@ -267,7 +267,7 @@ void EnemyRunning::AnimationUpdate(float elapsedTime)
 void EnemyRunning::RunToBall()
 {
 	// ボールの取得
-	Ball* nearBall = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + m_pEnemy->GetBallIndex()));
+	Ball* nearBall = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + m_pEnemy->GetBallIndex()));
 
 	// 手に持っていなかったら一番近いボールを探す
 	if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) || !m_pEnemy->GetCatchBall(Enemy::LEFT))
@@ -276,7 +276,7 @@ void EnemyRunning::RunToBall()
 		for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 		{
 			// ボールの取得
-			Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+			Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 			// ボールが止まっているたら近いボールを取得する
 			if (ball->GetCurrentState() == ball->GetStopping() && i != m_pEnemy->GetBallIndex())
 			{
@@ -450,7 +450,7 @@ void EnemyRunning::ThrowBall()
 IEntity* EnemyRunning::NearEntity()
 {
 	// ボールの取得
-	Ball* nearBall = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + m_pEnemy->GetBallIndex()));
+	Ball* nearBall = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + m_pEnemy->GetBallIndex()));
 
 	// 手に持っていなかったら一番近いボールを探す
 	if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) || !m_pEnemy->GetCatchBall(Enemy::LEFT))
@@ -459,7 +459,7 @@ IEntity* EnemyRunning::NearEntity()
 		for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
 		{
 			// ボールの取得
-			Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + i));
+			Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
 			// ボールが止まっているたら近いボールを取得する
 			if (ball->GetCurrentState() == ball->GetStopping() && i != m_pEnemy->GetBallIndex())
 			{
@@ -469,7 +469,7 @@ IEntity* EnemyRunning::NearEntity()
 	}
 
 	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
 
 	// どちらが近いか距離で調べる
 	DirectX::SimpleMath::Vector3 dir1 = m_pEnemy->GetPosition() - nearBall->GetPosition();
@@ -514,12 +514,12 @@ IEntity* EnemyRunning::NearEntity()
 				// ボールに設定
 				entity = nearBall;
 			}
-			
+
 		}
 	}
 
 	// 空中の的の取得
-	AirTarget* airTarget = dynamic_cast<AirTarget*>(Messenger::GetInstance()->GetObject(Factory::AIRTARGET));
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(GameObjectMessenger::GetInstance()->GetObject(Factory::AIRTARGET));
 	// 距離を調べる
 	dir2 = m_pEnemy->GetPosition() - airTarget->GetPosition();
 
@@ -549,7 +549,7 @@ IEntity* EnemyRunning::NearEntity()
 void EnemyRunning::CatchHandBall()
 {
 	// ボールの取得
-	Ball* ball = dynamic_cast<Ball*>(Messenger::GetInstance()->GetObject(Factory::BALL + m_pEnemy->GetBallIndex()));
+	Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + m_pEnemy->GetBallIndex()));
 
 	// ボールが止まっているときにボールに当たったら
 	if (IsHit(m_pEnemy->GetCollider(), ball->GetCollider()) && ball->GetCurrentState() == ball->GetStopping())

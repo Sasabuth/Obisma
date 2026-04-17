@@ -8,7 +8,7 @@
 
 #include "Game/Commons/UserResources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Player/Player.h"
 #include "Game/GameObjects/Field/Field.h"
 
@@ -28,7 +28,7 @@ Camera::Camera(int windowWidth, int windowHeight)
 	DirectX::Mouse::Get().ResetScrollWheelValue();
 
 	// オブジェクト番号とオブジェクトを登録する
-	Messenger::GetInstance()->Register(Factory::CAMERA, this);
+	GameObjectMessenger::GetInstance()->Register(Factory::CAMERA, this);
 }
 
 
@@ -60,7 +60,7 @@ void Camera::Update(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vecto
 void Camera::Update(Field* pField, DirectX::SimpleMath::Vector3 upPos)
 {
 	// プレイヤーの取得
-	Player* player = dynamic_cast<Player*>(Messenger::GetInstance()->GetObject(Factory::PLAYER));
+	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
 
 	// プレイヤー位置
 	DirectX::SimpleMath::Vector3 playerPos = player->GetPosition();

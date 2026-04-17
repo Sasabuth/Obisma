@@ -11,7 +11,7 @@
 #include "Game/Commons/Interface/IEntity.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 #include "Game/GameObjects/Score/ScoreManager.h"
 
 
@@ -28,7 +28,7 @@ Field::Field()
 	, m_rotate(0)
 {
 	// オブジェクト番号とオブジェクトを登録する
-	Messenger::GetInstance()->Register(Factory::FIELD, this);
+	GameObjectMessenger::GetInstance()->Register(Factory::FIELD, this);
 }
 
 

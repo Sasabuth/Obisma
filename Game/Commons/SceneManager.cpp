@@ -7,7 +7,7 @@
 #include "pch.h"
 #include "Game/Commons/SceneManager.h"
 
-#include "Game/Commons/Messenger.h"
+#include "Game/Commons/GameObjectMessenger.h"
 
 
 
@@ -81,7 +81,7 @@ void SceneManager::DeleteScene()
 		m_scene->Finalize();
 
 		// メッセンジャーを破棄する
-		Messenger::DestroyInstance();
+		GameObjectMessenger::DestroyInstance();
 
 		delete m_scene;
 
