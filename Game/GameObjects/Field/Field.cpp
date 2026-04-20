@@ -657,8 +657,6 @@ bool Field::RaycastTriangles(int groupIndex, DirectX::SimpleMath::Ray ray, IEnti
 			continue;
 		}
 
-		// 当たった座標
-		DirectX::SimpleMath::Vector3 pos1;
 		// レイと三角形が当たっているか
 		if (IsHit(ray.position, ray.direction, p0, p1, p2, pos))
 		{
