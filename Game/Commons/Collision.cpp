@@ -562,11 +562,11 @@ void ModelCollider::Draw(ID3D11DeviceContext* pContext, DirectX::CommonStates* s
 
 	m_batch->End();
 
-	// デバック用コライダーの描画
-	for (auto& collider : m_debugColliders)
-	{
-		collider.Draw(states,view, proj);
-	}
+	//// デバック用コライダーの描画
+	//for (auto& collider : m_debugColliders)
+	//{
+	//	collider.Draw(states,view, proj);
+	//}
 }
 
 

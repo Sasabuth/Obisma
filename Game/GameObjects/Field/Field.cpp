@@ -334,7 +334,7 @@ void Field::TutorialUpdate(TutorialScene* scene, ScoreManager* pScoreManager, fl
 		ResolveEntityFieldCollision(m_ballManager->GetBall(i));
 
 		// ボールと空中の的が当たったら
-		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()))
+		if (IsHit(m_ballManager->GetBall(i)->GetCollider(), m_airTarget->GetCollider()) && m_ballManager->GetBall(i)->GetCurrentState() != m_ballManager->GetBall(i)->GetStopping())
 		{
 			// ロックオンを外す
 			m_player->SetIsLockOn(false);
@@ -664,7 +664,7 @@ bool Field::RaycastTriangles(int groupIndex, DirectX::SimpleMath::Ray ray, IEnti
 			vector = DirectX::SimpleMath::Vector3::Lerp(
 				-pIEntity->GetGravity(),
 				m_fieldCollider.GetNormalVector((int)index),
-				0.3f
+				NORMALBLENDRATE
 			);
 
 			isHit = true;
