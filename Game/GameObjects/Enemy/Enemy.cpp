@@ -70,10 +70,13 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 
 	// コライダーの初期化
 	m_collider.Initialize(context, m_position, Resources::GetInstance()->GetJson(L"Enemy.json")["ColliderSize"]);
-	m_catchCollider.Initialize(context, m_position, (float)Resources::GetInstance()->GetJson(L"Enemy.json")["ColliderSize"] - 0.1f);
+	m_catchCollider.Initialize(context, m_position, (float)Resources::GetInstance()->GetJson(L"Enemy.json")["ColliderSize"] - 0.05f);
 
 	// ボール番号の初期化
 	m_ballIndex = 0;
+
+	// ターゲットの初期化
+	m_target = this;
 
 	// 「立つ」状態の生成
 	m_standing = std::make_unique<EnemyStanding>(this);
@@ -120,9 +123,6 @@ void Enemy::Initialize(DirectX::SimpleMath::Vector3 position)
 	m_particle[CIRCLE]->Create(device, context, L"Circle.png");
 	m_particle[STER]->Create(device, context, L"Ster.png");
 
-	// ターゲットの初期化
-	m_target = nullptr;
-
 	// スコアの初期化
 	m_score = Factory::CreateScore(Ball::ENEMY);
 
@@ -164,7 +164,7 @@ void Enemy::Update(float elapsedTime)
 void Enemy::Render()
 {
 	auto context = m_pUserResources->GetDeviceResources()->GetD3DDeviceContext();
-	//auto states = m_pUserResources->GetCommonStates();
+	/*auto states = m_pUserResources->GetCommonStates();*/
 	auto view = m_pUserResources->GetView();
 	auto proj = m_pUserResources->GetProject();
 
@@ -436,6 +436,23 @@ void Enemy::ScoreDown()
 			}
 		}
 	}
+}
+
+
+
+/// <summary>
+/// ターゲットがプレイヤーか調べる
+/// </summary>
+/// <returns></returns>
+bool Enemy::IsTargetPlayer() const
+{
+	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
+	if (m_target == player)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 

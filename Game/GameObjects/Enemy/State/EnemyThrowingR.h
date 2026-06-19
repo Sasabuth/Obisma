@@ -32,6 +32,9 @@ private:
 	// “G
 	Enemy* m_pEnemy;
 
+	// “Š‚°‚é•ûŒü
+	DirectX::SimpleMath::Vector3 m_throwingDir;
+
 	// ƒ‚ƒfƒ‹
 	DirectX::Model* m_model; 
 

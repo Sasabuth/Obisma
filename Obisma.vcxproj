@@ -328,6 +328,7 @@
     <None Include="Resources\Jsons\Ball.json" />
     <None Include="Resources\Jsons\CameraUp.json" />
     <None Include="Resources\Jsons\Enemy.json" />
+    <None Include="Resources\Jsons\EnemyAI.json" />
     <None Include="Resources\Jsons\FieldSelect.json" />
     <None Include="Resources\Jsons\Mouse.json" />
     <None Include="Resources\Jsons\Player.json" />

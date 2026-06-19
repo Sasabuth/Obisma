@@ -133,6 +133,11 @@ void DebugFont::Render(const wchar_t* string, std::any value, DirectX::FXMVECTOR
 		int num = std::any_cast<int>(value);
 		str.string = std::wstring(string) + L"=" + std::to_wstring(num);
 	}
+	else if (value.type() == typeid(bool))
+	{
+		bool num = std::any_cast<bool>(value);
+		str.string = std::wstring(string) + L"=" + std::to_wstring(num);
+	}
 	else if (value.type() == typeid(float)) 
 	{
 		float num = std::any_cast<float>(value);

@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "EnemyRunning.h"
 
+#include <random>
 #include "Common/DebugDraw.h"
 #include "Game/Commons/Resources.h"
 #include "Game/Commons/Factory.h"
@@ -19,6 +20,7 @@
 
 
 
+
 /// <summary>
 /// コンストラクタ
 /// </summary>
@@ -26,6 +28,8 @@ EnemyRunning::EnemyRunning(Enemy* pEnemy)
 	: m_pEnemy(pEnemy)
 	, m_pUserResources(nullptr)
 	, m_model{}
+	, m_targetTime(0.0f)
+	, m_throwDistance(0.0f)
 {
 	// モデルの作成
 	m_model = pEnemy->GetModel();
@@ -79,6 +83,12 @@ void EnemyRunning::Initialize()
 
 	// 入力レイアウトの作成
 	DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device, m_basicEffect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+
+	// ターゲット時間の初期化
+	m_targetTime = 0.0f;
+
+	// 投げる距離の初期化
+	m_throwDistance = 0.0f;
 }
 
 
@@ -89,6 +99,12 @@ void EnemyRunning::Initialize()
 /// <param name="elapsedTime">経過時間</param> 
 void EnemyRunning::Update(float elapsedTime)
 {
+	// ボールがキャッチできるなら終了
+	if (IsBallCatch())
+	{
+		return;
+	}
+
 	// 両方にボールを持っていなかったらボールの方向に走る
 	if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) && !m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
@@ -97,8 +113,8 @@ void EnemyRunning::Update(float elapsedTime)
 	// どちらかに持っていたら
 	else
 	{
-		// ターゲットが存在しなかったら設定する
-		if (!m_pEnemy->GetTarget())  m_pEnemy->SetTarget(NearEntity());
+		// ターゲットが設定されていなかったら設定
+		if(!m_pEnemy->GetTarget()) m_pEnemy->SetTarget(NearEntity());
 
 		// 実体のほうに走る
 		RunToEntity();
@@ -119,27 +135,6 @@ void EnemyRunning::Update(float elapsedTime)
 	// 敵の設定
 	m_pEnemy->SetPosition(m_pEnemy->GetPosition() + m_pEnemy->GetVelocity() * elapsedTime);
 	m_pEnemy->GetCollider().SetPosition(m_pEnemy->GetPosition());
-
-	// キャッチ用コライダーの初期化
-	DirectX::SimpleMath::Vector3 catchPos = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation()) / 2.5;
-	m_pEnemy->GetCatchCollider().SetPosition(m_pEnemy->GetPosition() + catchPos);
-
-	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
-	{
-		// ボールの取得
-		Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
-
-		// キャッチ用のコライダーとボールが当たっていたら
-		if (IsHit(m_pEnemy->GetCatchCollider(), ball->GetCollider()))
-		{
-			// 敵のボールではないかつボールが動いているなら
-			if (ball->GetBallColorNum() != Ball::ENEMY && ball->GetCurrentState() == ball->GetMoving())
-			{
-				// ステート変更
-				m_pEnemy->ChangeState(m_pEnemy->GetCatching());
-			}
-		}
-	}
 }
 
 
@@ -218,6 +213,7 @@ void EnemyRunning::Render()
 	// デバック
 	/*m_pEnemy->GetCollider().Draw(states, *view, *proj);*/
 	/*debugFont->Render(L"EnemyRunning");*/
+	/*debugFont->Render(L"ThrowDistance", m_throwDistance);*/
 	/*m_pEnemy->GetCatchCollider().Draw(states, *view, *proj);*/
 }
 
@@ -344,9 +340,15 @@ void EnemyRunning::RunToBall()
 /// </summary>
 void EnemyRunning::RunToEntity()
 {
-	// つねに近い方向に行く
-	m_pEnemy->SetTarget(NearEntity());
+	m_targetTime += (float)UserResources::GetUserResource()->GetStepTimer()->GetElapsedSeconds();
 
+	if (m_targetTime > Resources::GetInstance()->GetJson(L"EnemyAI.json")["MaxTargetTime"])
+	{
+		// つねに近い方向に行く
+		m_pEnemy->SetTarget(NearEntity());
+		m_targetTime = 0.0f;
+	}
+	
 	// 方向
 	DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
 	dir.Normalize();
@@ -413,7 +415,7 @@ void EnemyRunning::ThrowBall()
 		{
 			// 距離が一定以内になったら投げる
 			DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
-			if (dir.Length() <= Resources::GetInstance()->GetJson(L"Enemy.json")["ThrowLength"])
+			if (dir.Length() <= m_throwDistance)
 			{
 				m_pEnemy->ChangeState(m_pEnemy->GetThrowingL());
 				return;
@@ -432,7 +434,7 @@ void EnemyRunning::ThrowBall()
 		{
 			// 距離が一定以内になったら投げる
 			DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
-			if (dir.Length() <= Resources::GetInstance()->GetJson(L"Enemy.json")["ThrowLength"])
+			if (dir.Length() <= m_throwDistance)
 			{
 				m_pEnemy->ChangeState(m_pEnemy->GetThrowingR());
 			}
@@ -449,6 +451,11 @@ void EnemyRunning::ThrowBall()
 /// <returns>実体</returns>
 IEntity* EnemyRunning::NearEntity()
 {
+	// スコア郡の初期化
+	float playerScore    = 0.0f;
+	float ballScore      = 0.0f;
+	float airTargetScore = 0.0f;
+
 	// ボールの取得
 	Ball* nearBall = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + m_pEnemy->GetBallIndex()));
 
@@ -467,78 +474,186 @@ IEntity* EnemyRunning::NearEntity()
 			}
 		}
 	}
+	// 手に持っているならスコア減少
+	else
+	{
+		ballScore -= FLT_MAX;
+	}
 
 	// プレイヤーの取得
 	Player* player = dynamic_cast<Player*>(GameObjectMessenger::GetInstance()->GetObject(Factory::PLAYER));
+	// 空中の的の取得
+	AirTarget* airTarget = dynamic_cast<AirTarget*>(GameObjectMessenger::GetInstance()->GetObject(Factory::AIRTARGET));
 
 	// どちらが近いか距離で調べる
-	DirectX::SimpleMath::Vector3 dir1 = m_pEnemy->GetPosition() - nearBall->GetPosition();
-	DirectX::SimpleMath::Vector3 dir2 = m_pEnemy->GetPosition() - player->GetPosition();
+	DirectX::SimpleMath::Vector3 ballDir      = m_pEnemy->GetPosition() - nearBall->GetPosition();
+	DirectX::SimpleMath::Vector3 playerDir    = m_pEnemy->GetPosition() - player->GetPosition();
+	DirectX::SimpleMath::Vector3 airTargetDir = m_pEnemy->GetPosition() - airTarget->GetPosition();
+
+	// 距離でスコア計算
+	ballScore      += Resources::GetInstance()->GetJson(L"EnemyAI.json")["DistanceScore"] / ballDir.Length();
+	playerScore    += Resources::GetInstance()->GetJson(L"EnemyAI.json")["DistanceScore"] / playerDir.Length();
+	airTargetScore += Resources::GetInstance()->GetJson(L"EnemyAI.json")["DistanceScore"] / airTargetDir.Length();
+
+	// スコア差を調べる
+	float scoreDifference = player->GetScore()->GetScore() - m_pEnemy->GetScore()->GetScore();
+	// 点差が開いているならスコア加算
+	if (scoreDifference >= Resources::GetInstance()->GetJson(L"EnemyAI.json")["TrailScoreDifference"])
+	{
+		airTargetScore += Resources::GetInstance()->GetJson(L"EnemyAI.json")["AdvantageScore"];
+	}
+
+	// 一番近いボールが持っているならスコア減少
+	if (nearBall->GetCurrentState() == nearBall->GetCatching())
+	{
+		ballScore -= FLT_MAX;
+	}
+
+	// プレイヤーがボールを投げているならスコア加算
+	if (player->GetCurrentState() == player->GetThrowingR() || player->GetCurrentState() == player->GetThrowingL())
+	{
+		playerScore += Resources::GetInstance()->GetJson(L"EnemyAI.json")["AdvantageScore"];
+	}
+
+	// 無敵時間じゃなかったらスコア加算
+	if (player->GetCurrentState() == player->GetDizzying() || player->GetInvincibleTime() > 0.1f)
+	{
+		playerScore -= FLT_MAX;
+		airTargetScore += Resources::GetInstance()->GetJson(L"EnemyAI.json")["AirTargetBonusScore"];
+	}
 
 	// 実体の宣言
 	IEntity* entity = nullptr;
 
-	// ボールが止まっていなかったら
-	if (nearBall->GetCurrentState() != nearBall->GetStopping())
+	// 乱数のシード
+	std::random_device rd;
+	std::mt19937 engine(rd());
+
+	// 一番高いスコアをターゲットにする
+	if (ballScore > playerScore &&
+		ballScore > airTargetScore)
 	{
-		// 無敵時間じゃなかったら
-		if (player->GetCurrentState() != player->GetDizzying() && player->GetInvincibleTime() <= 0.1f)
-		{
-			// プレイヤーに設定
-			entity = player;
-			// プレイヤーの方向を取得
-			dir1 = dir2;
-		}
+		// ターゲットをボールにする
+		entity = nearBall;
+	}
+	else if (playerScore > airTargetScore)
+	{
+		// ターゲットをプレイヤーにする
+		entity = player;
+
+		// 範囲内をランダムに変更
+		std::uniform_real_distribution<float> dist(
+			Resources::GetInstance()->GetJson(L"EnemyAI.json")["PlayerThrowMinLength"], 
+			Resources::GetInstance()->GetJson(L"EnemyAI.json")["PlayerThrowMaxLength"]
+		);
+		m_throwDistance = dist(engine);
 	}
 	else
 	{
-		// ボールのほうが近かったら
-		if (dir1.Length() < dir2.Length())
-		{
-			// ボールに設定
-			entity = nearBall;
-		}
-		// プレイヤーのほうが近かったら
-		else
-		{
-			// 無敵時間じゃなかったら
-			if (player->GetCurrentState() != player->GetDizzying() && player->GetInvincibleTime() <= 0.1f)
-			{
-				// プレイヤーに設定
-				entity = player;
-				// プレイヤーの方向を取得
-				dir1 = dir2;
-			}
-			else
-			{
-				// ボールに設定
-				entity = nearBall;
-			}
-
-		}
-	}
-
-	// 空中の的の取得
-	AirTarget* airTarget = dynamic_cast<AirTarget*>(GameObjectMessenger::GetInstance()->GetObject(Factory::AIRTARGET));
-	// 距離を調べる
-	dir2 = m_pEnemy->GetPosition() - airTarget->GetPosition();
-
-	// 空中の的のほうが近かったら
-	if (dir1.Length() > dir2.Length())
-	{
-		// 空中の的に設定
+		// ターゲットを空中の的にする
 		entity = airTarget;
-	}
 
-	// もし実体に何も入っていなかったら
-	if (!entity)
-	{
-		// 空中の的に設定
-		entity = airTarget;
+		// 範囲内をランダムに変更
+		std::uniform_real_distribution<float> dist(
+			Resources::GetInstance()->GetJson(L"EnemyAI.json")["AirTargetThrowMinLength"],
+			Resources::GetInstance()->GetJson(L"EnemyAI.json")["AirTargetThrowMaxLength"]
+		);
+		m_throwDistance = dist(engine);
 	}
 
 	// ターゲットを返す
 	return entity;
+}
+
+
+
+/// <summary>
+/// ボールがキャッチできるか
+/// </summary>
+/// <returns>できる</returns>
+bool EnemyRunning::IsBallCatch() const
+{
+	for (int i = 0; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
+	{
+		// ボールの取得
+		Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
+
+		// キャッチ用コライダーの設定
+		DirectX::SimpleMath::Vector3 catchPos =
+			DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation()) / 2.5;
+
+		m_pEnemy->GetCatchCollider().SetPosition(m_pEnemy->GetPosition() + catchPos);
+
+		// 敵のボールではないかつボールが動いているなら
+		if (ball->GetBallColorNum() != Ball::ENEMY && ball->GetCurrentState() == ball->GetMoving())
+		{
+			DirectX::SimpleMath::Vector3 ballDir = ball->GetPosition() - m_pEnemy->GetPosition();
+
+			// 現在の姿勢制御
+			DirectX::SimpleMath::Vector3 forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation());
+			forward.Normalize();
+
+			// 回転角(X軸)の計算
+			float dot = forward.Dot(ballDir);
+
+			// 距離の取得
+			float length = ballDir.Length();
+
+			// 一定距離内かつ視界の範囲内だったら
+			if (length <= (float)Resources::GetInstance()->GetJson(L"EnemyAI.json")["ViewDistance"] && dot > (float)Resources::GetInstance()->GetJson(L"EnemyAI.json")["ViewAngle"])
+			{
+				// 方向
+				DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - ball->GetPosition();
+				dir.Normalize();
+
+				// 方向ベクトルの反転
+				DirectX::SimpleMath::Vector3 targetUp;
+				targetUp = -dir;
+
+				// 現在の姿勢制御
+				DirectX::SimpleMath::Vector3 currentForward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation());
+				DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_pEnemy->GetRotation());
+
+				// 回転軸の計算
+				DirectX::SimpleMath::Vector3 axis = currentForward.Cross(targetUp);
+				axis.Normalize();
+
+				// 回転角(X軸)の計算
+				float dotX = currentForward.Dot(targetUp);
+				float angleX = acosf(dotX);
+
+				// 回転角(Y軸)の計算
+				float dotY = currentUp.Dot(-targetUp);
+				float angleY = acosf(dotY);
+
+				// クォータニオンの作成
+				DirectX::SimpleMath::Quaternion q;
+
+				// 角度が少しでもあるかつY軸が同じ角度でなければ軸を作る
+				if (angleX > 0.01f && angleY > (float)Resources::GetInstance()->GetJson(L"Enemy.json")["MaxAngleDiff"])
+				{
+					q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angleX);
+				}
+				// なければ何もしない
+				else
+				{
+					q = DirectX::SimpleMath::Quaternion::Identity;
+				}
+
+				m_pEnemy->SetRotation(m_pEnemy->GetRotation() * q);
+
+				// キャッチ用のコライダーとボールが当たっていたら
+				if (IsHit(m_pEnemy->GetCatchCollider(), ball->GetCollider()))
+				{
+					// ステート変更
+					m_pEnemy->ChangeState(m_pEnemy->GetCatching());
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 
@@ -581,5 +696,8 @@ void EnemyRunning::CatchHandBall()
 			m_pEnemy->SetTarget(nullptr);
 			m_pEnemy->ChangeState(m_pEnemy->GetStanding());
 		}
+
+		// ターゲット時間を最大にする
+		m_targetTime = Resources::GetInstance()->GetJson(L"EnemyAI.json")["MaxTargetTime"];
 	}
 }

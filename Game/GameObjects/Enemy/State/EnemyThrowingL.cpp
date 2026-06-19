@@ -80,6 +80,10 @@ void EnemyThrowingL::Initialize()
 	// 時間の初期化
 	m_time = 0.0f;
 
+	// 方向の初期化
+	m_throwingDir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
+	m_throwingDir.Normalize();
+
 	// 投げたかの初期化
 	m_isThowing = false;
 }
@@ -95,15 +99,16 @@ void EnemyThrowingL::Update(float elapsedTime)
 	// 投げていなかったら手に持たせる
 	if (!m_isThowing)
 	{
-		auto* entity = m_pEnemy->GetTarget();
-
-		// 方向
-		DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - entity->GetPosition();
-		dir.Normalize();
+		if (m_pEnemy->IsTargetPlayer())
+		{
+			// 方向の初期化
+			m_throwingDir = m_pEnemy->GetPosition() - m_pEnemy->GetTarget()->GetPosition();
+			m_throwingDir.Normalize();
+		}
 
 		// 方向ベクトルの反転
 		DirectX::SimpleMath::Vector3 targetUp;
-		targetUp = -dir;
+		targetUp = -m_throwingDir;
 
 		// 現在の姿勢制御
 		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation());

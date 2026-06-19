@@ -57,6 +57,12 @@ private:
 	// 入力レイアウトへのポインタ
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout; 
 
+	// ターゲット時間
+	float m_targetTime;
+
+	// 投げる距離
+	float m_throwDistance;
+
 
 // 関数
 public:
@@ -97,5 +103,9 @@ private:
 
 	// 一番近い実体を探す
 	IEntity* NearEntity();
+
+	// ボールがキャッチできるか
+	bool IsBallCatch() const;
+
 };
 

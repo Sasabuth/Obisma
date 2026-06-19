@@ -475,6 +475,9 @@
     <None Include="Resources\Jsons\Mouse.json">
       <Filter>Resources\Jsons</Filter>
     </None>
+    <None Include="Resources\Jsons\EnemyAI.json">
+      <Filter>Resources\Jsons</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\ParticleGS.hlsl">

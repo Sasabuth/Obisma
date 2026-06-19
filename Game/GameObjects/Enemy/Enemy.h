@@ -163,6 +163,11 @@ public:
 	// スコアを下げる
 	void ScoreDown();
 
+	// ターゲットがプレイヤーか調べる
+	bool IsTargetPlayer() const;
+
+
+
 
 // 設定/取得
 public:

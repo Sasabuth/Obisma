@@ -1,0 +1,25 @@
+{
+	"ViewAngle": 0.5,
+
+	"ViewDistance": 0.8,
+
+	"DistanceScore": 100.0,
+
+	"AdvantageScore": 30.0,
+
+	"AirTargetBonusScore": 100.0,
+
+	"MaxTargetTime": 1.0,
+
+	"LeadScoreDifference": 4,
+
+	"TrailScoreDifference": 2,
+
+	"AirTargetThrowMinLength": 2.0,
+
+	"AirTargetThrowMaxLength": 3.0,
+
+	"PlayerThrowMinLength": 2.0,
+
+	"PlayerThrowMaxLength": 3.0
+}

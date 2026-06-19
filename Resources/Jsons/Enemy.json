@@ -22,8 +22,6 @@
 
 	"EnemySize": 0.003,
 
-	"ThrowLength": 2.0,
-
 	"ShadowSize": 0.4,
 
 	"ColliderSize": 0.5,
