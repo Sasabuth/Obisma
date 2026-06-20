@@ -9,11 +9,9 @@
 
 	"AirTargetBonusScore": 100.0,
 
-	"MaxTargetTime": 1.0,
+	"MaxTargetTime": 1.1,
 
 	"LeadScoreDifference": 4,
-
-	"TrailScoreDifference": 2,
 
 	"AirTargetThrowMinLength": 2.0,
 

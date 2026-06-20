@@ -59,9 +59,10 @@ private:
 
 	// ターゲット時間
 	float m_targetTime;
-
 	// 投げる距離
 	float m_throwDistance;
+	// プレイヤーをロックオンしたか
+	bool m_isLockOnPlayer;
 
 
 // 関数

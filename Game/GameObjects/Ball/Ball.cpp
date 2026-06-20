@@ -202,7 +202,7 @@ void Ball::CorrectOverlap(DirectX::SimpleMath::Vector3& pos)
 	reflVec *= (float)Resources::GetInstance()->GetJson(L"Ball.json")["DecelerationRate"];
 
 	// 音をつけていないかつ音の間隔が一定時間たったら音を入れる
-	if (!m_isSound && m_soundSpan >= 0.1f)
+	if (!m_isSound && m_soundSpan >= (float)Resources::GetInstance()->GetJson(L"Ball.json")["SoundSpan"])
 	{
 		m_se = Resources::GetInstance()->GetSESound(L"BallBound.wav", m_position, false);
 		m_isSound = true;

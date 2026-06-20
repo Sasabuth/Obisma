@@ -97,6 +97,7 @@
         }
     },
     "ShadowSize": 0.2,
+    "SoundSpan": 0.1,
     "TutorialCount": 2,
     "TutorialPos": {
         "x": 200.0,

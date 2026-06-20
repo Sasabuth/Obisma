@@ -490,7 +490,7 @@ DirectX::SimpleMath::Vector3 Field::CorrectUp(IEntity* iEntity)
 	iEntity->SetRotation(iEntity->GetRotation() * q);
 
 	// d—Í‚ğ•Ô‚·
-	return gravityDir * 3;
+	return gravityDir * GRAVITY;
 }
 
 
@@ -540,7 +540,7 @@ DirectX::SimpleMath::Vector3 Field::CorrectUp(IEntity* iEntity, DirectX::SimpleM
 	iEntity->SetRotation(iEntity->GetRotation() * q);
 
 	// d—Í‚ğ•Ô‚·
-	return gravityDir * 3;
+	return gravityDir * GRAVITY;
 }
 
 

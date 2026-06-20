@@ -365,7 +365,7 @@ void GameplayScene::RenderUI()
 
 	// タイマーの描画
 	m_frameTexture.Draw(FREAM.pos, FREAM.size, FREAM.scale);
-	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, (int)m_gameTimer, TIMER.scale, 2);
+	m_timerTexture.DigitsDraw(TIMER.pos.x, TIMER.pos.y, TIMER.size.x, TIMER.size.y, (int)m_gameTimer, TIMER.scale, DIGITS);
 
 	// カウントダウンが0じゃなかったらカウントを描画
 	if (m_countDownTimer > 0.0f)
@@ -390,7 +390,7 @@ void GameplayScene::RenderUI()
 	}
 
 	// フェード時間が増えていたら
-	if (m_fadeTimer >= 0.1f)
+	if (m_fadeTimer > 0.0f)
 	{
 		m_finishTexture.Draw(FINISH.pos, FINISH.size, FINISH.scale);
 	}

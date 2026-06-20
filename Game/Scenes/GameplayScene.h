@@ -70,6 +70,8 @@ private:
 	static constexpr float FADE_TIME = 3.0f;
 	// カウントダウン時間
 	static constexpr float COUNTDOWN_TIME = 3.2f;
+	// 桁数
+	static constexpr int DIGITS = 2;
 	// スタート時間
 	static constexpr float START_TIMER = -1.0f;
 	// プレイヤーカウント

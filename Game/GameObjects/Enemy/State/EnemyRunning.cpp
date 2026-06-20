@@ -30,6 +30,7 @@ EnemyRunning::EnemyRunning(Enemy* pEnemy)
 	, m_model{}
 	, m_targetTime(0.0f)
 	, m_throwDistance(0.0f)
+	, m_isLockOnPlayer(false)
 {
 	// モデルの作成
 	m_model = pEnemy->GetModel();
@@ -89,6 +90,9 @@ void EnemyRunning::Initialize()
 
 	// 投げる距離の初期化
 	m_throwDistance = 0.0f;
+
+	// ターゲットがプレイヤーではない
+	m_isLockOnPlayer = false;
 }
 
 
@@ -281,51 +285,56 @@ void EnemyRunning::RunToBall()
 		}
 	}
 
-	// ボールが止まっていなかったらステート変更
+	// ボールが止まっていなかったらなし
 	if (nearBall->GetCurrentState() != nearBall->GetStopping())
 	{
-		m_pEnemy->ChangeState(m_pEnemy->GetStanding());
+		nearBall = nullptr;
 	}
 
-	// 方向
-	DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - nearBall->GetPosition();
-	dir.Normalize();
-
-	// 方向ベクトルの反転
-	DirectX::SimpleMath::Vector3 targetUp;
-	targetUp = -dir;
-
-	// 現在の姿勢制御
-	DirectX::SimpleMath::Vector3 currentForward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation());
-	DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_pEnemy->GetRotation());
-
-	// 回転軸の計算
-	DirectX::SimpleMath::Vector3 axis = currentForward.Cross(targetUp);
-	axis.Normalize();
-
-	// 回転角(X軸)の計算
-	float dotX = currentForward.Dot(targetUp);
-	float angleX = acosf(dotX);
-
-	// 回転角(Y軸)の計算
-	float dotY = currentUp.Dot(-targetUp);
-	float angleY = acosf(dotY);
-
-	// クォータニオンの作成
-	DirectX::SimpleMath::Quaternion q;
-
-	// 角度が少しでもあるかつY軸が同じ角度でなければ軸を作る
-	if (angleX > 0.01f && angleY > Resources::GetInstance()->GetJson(L"Enemy.json")["MaxAngleDiff"])
+	// 近いボールがあるなら
+	if (nearBall)
 	{
-		q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angleX);
-	}
-	// なければ何もしない
-	else
-	{
-		q = DirectX::SimpleMath::Quaternion::Identity;
-	}
+		// 方向
+		DirectX::SimpleMath::Vector3 dir = m_pEnemy->GetPosition() - nearBall->GetPosition();
+		dir.Normalize();
 
-	m_pEnemy->SetRotation(m_pEnemy->GetRotation() * q);
+		// 方向ベクトルの反転
+		DirectX::SimpleMath::Vector3 targetUp;
+		targetUp = -dir;
+
+		// 現在の姿勢制御
+		DirectX::SimpleMath::Vector3 currentForward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation());
+		DirectX::SimpleMath::Vector3 currentUp = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitY, m_pEnemy->GetRotation());
+
+		// 回転軸の計算
+		DirectX::SimpleMath::Vector3 axis = currentForward.Cross(targetUp);
+		axis.Normalize();
+
+		// 回転角(X軸)の計算
+		float dotX = currentForward.Dot(targetUp);
+		float angleX = acosf(dotX);
+
+		// 回転角(Y軸)の計算
+		float dotY = currentUp.Dot(-targetUp);
+		float angleY = acosf(dotY);
+
+		// クォータニオンの作成
+		DirectX::SimpleMath::Quaternion q;
+
+		// 角度が少しでもあるかつY軸が同じ角度でなければ軸を作る
+		if (angleX > 0.01f && angleY > Resources::GetInstance()->GetJson(L"Enemy.json")["MaxAngleDiff"])
+		{
+			q = DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(axis, angleX);
+		}
+		// なければ何もしない
+		else
+		{
+			q = DirectX::SimpleMath::Quaternion::Identity;
+		}
+
+		m_pEnemy->SetRotation(m_pEnemy->GetRotation() * q);
+	}
+	
 
 	// 速度の設定
 	m_pEnemy->SetVelocity(m_pEnemy->GetGravity() + DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::UnitX, m_pEnemy->GetRotation())
@@ -340,11 +349,12 @@ void EnemyRunning::RunToBall()
 /// </summary>
 void EnemyRunning::RunToEntity()
 {
+	// ターゲット時間をカウント
 	m_targetTime += (float)UserResources::GetUserResource()->GetStepTimer()->GetElapsedSeconds();
 
+	// ターゲット時間を超えたら近いターゲットを調べる
 	if (m_targetTime > Resources::GetInstance()->GetJson(L"EnemyAI.json")["MaxTargetTime"])
 	{
-		// つねに近い方向に行く
 		m_pEnemy->SetTarget(NearEntity());
 		m_targetTime = 0.0f;
 	}
@@ -497,14 +507,14 @@ IEntity* EnemyRunning::NearEntity()
 
 	// スコア差を調べる
 	float scoreDifference = player->GetScore()->GetScore() - m_pEnemy->GetScore()->GetScore();
-	// 点差が開いているならスコア加算
-	if (scoreDifference >= Resources::GetInstance()->GetJson(L"EnemyAI.json")["TrailScoreDifference"])
+	// 点差が開いているまたはプレイヤーをロックオンしているならスコア加算
+	if (scoreDifference > 0 || m_isLockOnPlayer)
 	{
 		airTargetScore += Resources::GetInstance()->GetJson(L"EnemyAI.json")["AdvantageScore"];
 	}
 
 	// 一番近いボールが持っているならスコア減少
-	if (nearBall->GetCurrentState() == nearBall->GetCatching())
+	if (nearBall->GetCurrentState() != nearBall->GetStopping())
 	{
 		ballScore -= FLT_MAX;
 	}
@@ -513,10 +523,11 @@ IEntity* EnemyRunning::NearEntity()
 	if (player->GetCurrentState() == player->GetThrowingR() || player->GetCurrentState() == player->GetThrowingL())
 	{
 		playerScore += Resources::GetInstance()->GetJson(L"EnemyAI.json")["AdvantageScore"];
+		m_isLockOnPlayer = false;
 	}
 
 	// 無敵時間じゃなかったらスコア加算
-	if (player->GetCurrentState() == player->GetDizzying() || player->GetInvincibleTime() > 0.1f)
+	if (player->GetCurrentState() == player->GetDizzying() || player->GetInvincibleTime() > 0.0f)
 	{
 		playerScore -= FLT_MAX;
 		airTargetScore += Resources::GetInstance()->GetJson(L"EnemyAI.json")["AirTargetBonusScore"];
@@ -540,6 +551,7 @@ IEntity* EnemyRunning::NearEntity()
 	{
 		// ターゲットをプレイヤーにする
 		entity = player;
+		m_isLockOnPlayer = true;
 
 		// 範囲内をランダムに変更
 		std::uniform_real_distribution<float> dist(

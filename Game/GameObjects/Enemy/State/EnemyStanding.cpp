@@ -91,34 +91,8 @@ void EnemyStanding::Update(float elapsedTime)
 	// アニメーションの更新
 	AnimationUpdate(elapsedTime);
 
-	// 手に持っていなかったら一番近いボールを探す
-	if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) && !m_pEnemy->GetCatchBall(Enemy::LEFT))
-	{
-		// 一番最初のボールを取得
-		Ball* nearBall = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL));
-		// 敵のボール番号を0にする
-		m_pEnemy->SetBallIndex(0);
-
-		// どのボールが一番近いかを調べる
-		for (int i = 1; i < Resources::GetInstance()->GetJson(L"Ball.json")["BallCount"]; i++)
-		{
-			// ボールの取得
-			Ball* ball = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL + i));
-			// ボールが止まっているたら近いボールを取得する
-			if (ball->GetCurrentState() == ball->GetStopping())
-			{
-				nearBall = m_pEnemy->FindNearBall(nearBall, ball, i);
-			}
-		}
-
-		// ボールが止まっていたらステート変更
-		if (nearBall->GetCurrentState() == nearBall->GetStopping())
-		{
-			m_pEnemy->ChangeState(m_pEnemy->GetRunning());
-		}
-	}
-	// どちらかにボールを持っていたら持っていたら
-	else if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) || !m_pEnemy->GetCatchBall(Enemy::LEFT))
+	// どちらかにボールを持っていたら
+	if (!m_pEnemy->GetCatchBall(Enemy::RIGHT) || !m_pEnemy->GetCatchBall(Enemy::LEFT))
 	{
 		// 一番最初のボールを取得
 		Ball* nearBall = dynamic_cast<Ball*>(GameObjectMessenger::GetInstance()->GetObject(Factory::BALL));

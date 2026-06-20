@@ -36,6 +36,8 @@ private:
 	static constexpr float LENGTH = 5.0f;
 	// ï‚ä‘ó¶
 	static constexpr float NORMALBLENDRATE = 0.3f;
+	// èdóÕ
+	static constexpr float GRAVITY = 3.0f;
 
 
 // ïœêî
